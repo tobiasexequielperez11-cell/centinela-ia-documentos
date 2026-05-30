@@ -122,12 +122,13 @@ export default async function ConfiguracionPage() {
      adminOnly: true,
     },
     {
-      title: 'Variables y entorno',
-      description:
-        'Recordatorio de variables usadas en Vercel y criterios para no exponer claves privadas en GitHub.',
-      status: 'Seguro',
-      badge: 'Entorno',
-      adminOnly: true,
+     title: 'Variables y entorno',
+     description:
+       'Recordatorio de variables usadas en Vercel y criterios para no exponer claves privadas en GitHub.',
+     status: 'Seguro',
+     badge: 'Entorno',
+     href: '/configuracion/entorno',
+     adminOnly: true,
     },
     {
       title: 'Documentación interna',
