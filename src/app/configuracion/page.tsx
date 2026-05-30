@@ -149,12 +149,13 @@ export default async function ConfiguracionPage() {
      adminOnly: true,
     },
     {
-      title: 'Próximos módulos',
-      description:
-        'Base para futuras pantallas de recuperación de contraseña, aceptación real de invitaciones y mejoras de onboarding.',
-      status: 'Pendiente',
-      badge: 'Roadmap',
-      adminOnly: false,
+     title: 'Próximos módulos',
+     description:
+       'Base para futuras pantallas de recuperación de contraseña, aceptación real de invitaciones y mejoras de onboarding.',
+     status: 'Pendiente',
+     badge: 'Roadmap',
+     href: '/configuracion/roadmap',
+     adminOnly: true,
     },
   ];
 
