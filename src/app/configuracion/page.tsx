@@ -113,12 +113,13 @@ export default async function ConfiguracionPage() {
       adminOnly: true,
     },
     {
-      title: 'Seguridad y permisos',
-      description:
-        'Resumen operativo de roles, rutas sensibles, protección de usuario admin y restricciones aplicadas a perfiles employee.',
-      status: 'Controlado',
-      badge: 'Accesos',
-      adminOnly: true,
+     title: 'Seguridad y permisos',
+     description:
+       'Resumen operativo de roles, rutas sensibles, protección de usuario admin y restricciones aplicadas a perfiles employee.',
+     status: 'Controlado',
+     badge: 'Accesos',
+     href: '/configuracion/seguridad',
+     adminOnly: true,
     },
     {
       title: 'Variables y entorno',
