@@ -140,12 +140,13 @@ export default async function ConfiguracionPage() {
      adminOnly: true,
     },
     {
-      title: 'Modo IA',
-      description:
-        'La beta continúa funcionando con IA simulada/local. No se utiliza OpenAI API paga ni claves reales de IA.',
-      status: 'Simulado',
-      badge: 'IA',
-      adminOnly: false,
+     title: 'Modo IA',
+     description:
+       'La beta continúa funcionando con IA simulada/local. No se utiliza OpenAI API paga ni claves reales de IA.',
+     status: 'Simulado',
+     badge: 'IA',
+     href: '/configuracion/ia',
+     adminOnly: true,
     },
     {
       title: 'Próximos módulos',
