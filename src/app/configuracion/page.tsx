@@ -26,11 +26,10 @@ function ConfigCard({
 
   const content = (
     <div
-      className={`h-full rounded-3xl border p-6 shadow-sm transition ${
-        isLocked
-          ? 'border-slate-200 bg-slate-50 opacity-75'
-          : 'border-slate-200 bg-white hover:-translate-y-0.5 hover:shadow-md'
-      }`}
+      className={`h-full rounded-3xl border p-6 shadow-sm transition ${isLocked
+        ? 'border-slate-200 bg-slate-50 opacity-75'
+        : 'border-slate-200 bg-white hover:-translate-y-0.5 hover:shadow-md'
+        }`}
     >
       <div className="flex items-start justify-between gap-4">
         <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-black uppercase tracking-[0.18em] text-sky-700">
@@ -38,11 +37,10 @@ function ConfigCard({
         </span>
 
         <span
-          className={`rounded-full px-3 py-1 text-xs font-black ${
-            isLocked
-              ? 'bg-slate-200 text-slate-600'
-              : 'bg-emerald-50 text-emerald-700'
-          }`}
+          className={`rounded-full px-3 py-1 text-xs font-black ${isLocked
+            ? 'bg-slate-200 text-slate-600'
+            : 'bg-emerald-50 text-emerald-700'
+            }`}
         >
           {isLocked ? 'Solo admin' : status}
         </span>
@@ -113,49 +111,58 @@ export default async function ConfiguracionPage() {
       adminOnly: true,
     },
     {
-     title: 'Seguridad y permisos',
-     description:
-       'Resumen operativo de roles, rutas sensibles, protección de usuario admin y restricciones aplicadas a perfiles employee.',
-     status: 'Controlado',
-     badge: 'Accesos',
-     href: '/configuracion/seguridad',
-     adminOnly: true,
+      title: 'Resumen general',
+      description:
+        'Vista ejecutiva del estado actual del MVP, módulos activos, módulos protegidos, beta cerrada, IA, seguridad, deploy y próximos pasos.',
+      status: 'Activo',
+      badge: 'Sistema',
+      href: '/configuracion/resumen',
+      adminOnly: true,
     },
     {
-     title: 'Variables y entorno',
-     description:
-       'Recordatorio de variables usadas en Vercel y criterios para no exponer claves privadas en GitHub.',
-     status: 'Seguro',
-     badge: 'Entorno',
-     href: '/configuracion/entorno',
-     adminOnly: true,
+      title: 'Seguridad y permisos',
+      description:
+        'Resumen operativo de roles, rutas sensibles, protección de usuario admin y restricciones aplicadas a perfiles employee.',
+      status: 'Controlado',
+      badge: 'Accesos',
+      href: '/configuracion/seguridad',
+      adminOnly: true,
     },
     {
-     title: 'Documentación interna',
-     description:
-       'Espacio recomendado para vincular documentos de cierre, registro de incidencias, checklist de tester y decisiones de sprint.',
-     status: 'Manual',
-     badge: 'Docs',
-     href: '/configuracion/documentacion',
-     adminOnly: true,
+      title: 'Variables y entorno',
+      description:
+        'Recordatorio de variables usadas en Vercel y criterios para no exponer claves privadas en GitHub.',
+      status: 'Seguro',
+      badge: 'Entorno',
+      href: '/configuracion/entorno',
+      adminOnly: true,
     },
     {
-     title: 'Modo IA',
-     description:
-       'La beta continúa funcionando con IA simulada/local. No se utiliza OpenAI API paga ni claves reales de IA.',
-     status: 'Simulado',
-     badge: 'IA',
-     href: '/configuracion/ia',
-     adminOnly: true,
+      title: 'Documentación interna',
+      description:
+        'Espacio recomendado para vincular documentos de cierre, registro de incidencias, checklist de tester y decisiones de sprint.',
+      status: 'Manual',
+      badge: 'Docs',
+      href: '/configuracion/documentacion',
+      adminOnly: true,
     },
     {
-     title: 'Próximos módulos',
-     description:
-       'Base para futuras pantallas de recuperación de contraseña, aceptación real de invitaciones y mejoras de onboarding.',
-     status: 'Pendiente',
-     badge: 'Roadmap',
-     href: '/configuracion/roadmap',
-     adminOnly: true,
+      title: 'Modo IA',
+      description:
+        'La beta continúa funcionando con IA simulada/local. No se utiliza OpenAI API paga ni claves reales de IA.',
+      status: 'Simulado',
+      badge: 'IA',
+      href: '/configuracion/ia',
+      adminOnly: true,
+    },
+    {
+      title: 'Próximos módulos',
+      description:
+        'Base para futuras pantallas de recuperación de contraseña, aceptación real de invitaciones y mejoras de onboarding.',
+      status: 'Pendiente',
+      badge: 'Roadmap',
+      href: '/configuracion/roadmap',
+      adminOnly: true,
     },
   ];
 
