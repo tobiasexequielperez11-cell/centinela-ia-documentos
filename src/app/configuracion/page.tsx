@@ -131,12 +131,13 @@ export default async function ConfiguracionPage() {
      adminOnly: true,
     },
     {
-      title: 'Documentación interna',
-      description:
-        'Espacio recomendado para vincular documentos de cierre, registro de incidencias, checklist de tester y decisiones de sprint.',
-      status: 'Manual',
-      badge: 'Docs',
-      adminOnly: false,
+     title: 'Documentación interna',
+     description:
+       'Espacio recomendado para vincular documentos de cierre, registro de incidencias, checklist de tester y decisiones de sprint.',
+     status: 'Manual',
+     badge: 'Docs',
+     href: '/configuracion/documentacion',
+     adminOnly: true,
     },
     {
       title: 'Modo IA',
