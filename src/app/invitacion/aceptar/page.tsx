@@ -1,5 +1,10 @@
 import Link from 'next/link';
-import { createAdminClient } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
+import {
+  getSafeValue,
+  validateInvitation,
+  type ValidationTone,
+} from '@/lib/invitations/validateInvitation';
 
 interface AcceptInvitationPageProps {
   searchParams: Promise<{
@@ -7,83 +12,6 @@ interface AcceptInvitationPageProps {
     token?: string;
     estado?: string;
   }>;
-}
-
-type ValidationTone = 'success' | 'warning' | 'danger' | 'default';
-
-interface ValidationResult {
-  title: string;
-  message: string;
-  tone: ValidationTone;
-  emailLabel: string;
-  tokenLabel: string;
-  statusLabel: string;
-  roleLabel: string;
-  expiresLabel: string;
-  organizationLabel: string;
-}
-
-type InvitationRecord = Record<string, unknown>;
-
-function getSafeValue(value?: string) {
-  if (!value) {
-    return null;
-  }
-
-  const trimmedValue = value.trim();
-
-  if (!trimmedValue) {
-    return null;
-  }
-
-  return trimmedValue;
-}
-
-function getStringValue(record: InvitationRecord, key: string) {
-  const value = record[key];
-
-  if (typeof value !== 'string') {
-    return null;
-  }
-
-  const trimmedValue = value.trim();
-
-  if (!trimmedValue) {
-    return null;
-  }
-
-  return trimmedValue;
-}
-
-function getDateLabel(value: string | null) {
-  if (!value) {
-    return 'Sin vencimiento informado';
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return 'Fecha inválida';
-  }
-
-  return date.toLocaleString('es-AR', {
-    dateStyle: 'short',
-    timeStyle: 'short',
-  });
-}
-
-function isExpired(value: string | null) {
-  if (!value) {
-    return false;
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return true;
-  }
-
-  return date.getTime() < Date.now();
 }
 
 function getToneClasses(tone: ValidationTone) {
@@ -118,182 +46,33 @@ function getStatusPillClasses(tone: ValidationTone) {
   return 'bg-slate-100 text-slate-700';
 }
 
-function maskOrganizationId(value: string | null) {
-  if (!value) {
-    return 'No informado';
+function getActionMessage(estado: string | null) {
+  if (!estado) {
+    return null;
   }
 
-  if (value.length <= 8) {
-    return value;
-  }
-
-  return `${value.slice(0, 8)}...`;
-}
-
-async function validateInvitation(
-  email: string | null,
-  token: string | null
-): Promise<ValidationResult> {
-  if (!email || !token) {
-    return {
-      title: 'Datos incompletos',
-      message:
-        'La URL debe incluir email y token para poder validar una invitación real.',
-      tone: 'warning',
-      emailLabel: email ?? 'No informado en la URL',
-      tokenLabel: token ? 'Token recibido por URL' : 'No informado en la URL',
-      statusLabel: 'Pendiente de validación',
-      roleLabel: 'No informado',
-      expiresLabel: 'No informado',
-      organizationLabel: 'No informado',
-    };
-  }
-
-  const supabase = createAdminClient();
-
-  if (!supabase) {
-    return {
-      title: 'Configuración pendiente',
-      message:
-        'No se encontró SUPABASE_SERVICE_ROLE_KEY en el entorno del servidor. La página está creada, pero todavía no puede consultar invitaciones reales.',
-      tone: 'warning',
-      emailLabel: email,
-      tokenLabel: 'Token recibido por URL',
-      statusLabel: 'No consultado',
-      roleLabel: 'No consultado',
-      expiresLabel: 'No consultado',
-      organizationLabel: 'No consultado',
-    };
-  }
-
-  const { data, error } = await supabase
-    .from('user_invitations')
-    .select('*')
-    .ilike('email', email)
-    .order('created_at', { ascending: false })
-    .limit(10);
-
-  if (error) {
-    return {
-      title: 'No se pudo consultar la invitación',
-      message:
-        'Supabase respondió con error al intentar validar la invitación. Revisar variables de entorno, RLS o estructura de user_invitations.',
-      tone: 'danger',
-      emailLabel: email,
-      tokenLabel: 'Token recibido por URL',
-      statusLabel: 'Error de consulta',
-      roleLabel: 'No disponible',
-      expiresLabel: 'No disponible',
-      organizationLabel: 'No disponible',
-    };
-  }
-
-  const invitations = (data ?? []) as InvitationRecord[];
-
-  if (invitations.length === 0) {
-    return {
-      title: 'Invitación no encontrada',
-      message:
-        'No existe una invitación registrada para este email. Verificá que el enlace sea correcto o que la invitación haya sido generada.',
-      tone: 'danger',
-      emailLabel: email,
-      tokenLabel: 'Token recibido por URL',
-      statusLabel: 'No encontrada',
-      roleLabel: 'No disponible',
-      expiresLabel: 'No disponible',
-      organizationLabel: 'No disponible',
-    };
-  }
-
-  const tableHasToken = invitations.some((invitation) => 'token' in invitation);
-
-  if (!tableHasToken) {
-    const latestInvitation = invitations[0];
-
-    return {
-      title: 'Invitación encontrada, pero falta token en tabla',
-      message:
-        'Se encontró una invitación para el email, pero la tabla user_invitations no expone una columna token. La validación real de token queda pendiente para el siguiente ajuste de base de datos.',
-      tone: 'warning',
-      emailLabel: getStringValue(latestInvitation, 'email') ?? email,
-      tokenLabel: 'Token recibido por URL, pero no existe columna token',
-      statusLabel: getStringValue(latestInvitation, 'status') ?? 'No informado',
-      roleLabel: getStringValue(latestInvitation, 'role') ?? 'No informado',
-      expiresLabel: getDateLabel(getStringValue(latestInvitation, 'expires_at')),
-      organizationLabel: maskOrganizationId(
-        getStringValue(latestInvitation, 'organization_id')
-      ),
-    };
-  }
-
-  const matchingInvitation = invitations.find((invitation) => {
-    const invitationToken = getStringValue(invitation, 'token');
-
-    return invitationToken === token;
-  });
-
-  if (!matchingInvitation) {
-    return {
-      title: 'Token inválido',
-      message:
-        'Existe una invitación para este email, pero el token de la URL no coincide con la invitación registrada.',
-      tone: 'danger',
-      emailLabel: email,
-      tokenLabel: 'Token recibido, pero no coincide',
-      statusLabel: 'Token inválido',
-      roleLabel: 'No disponible',
-      expiresLabel: 'No disponible',
-      organizationLabel: 'No disponible',
-    };
-  }
-
-  const status = getStringValue(matchingInvitation, 'status');
-  const role = getStringValue(matchingInvitation, 'role');
-  const expiresAt = getStringValue(matchingInvitation, 'expires_at');
-  const organizationId = getStringValue(matchingInvitation, 'organization_id');
-
-  if (status !== 'pending') {
-    return {
-      title: 'Invitación no disponible',
-      message:
-        'La invitación existe, pero ya no está en estado pending. Puede haber sido aceptada, cancelada o vencida.',
-      tone: 'warning',
-      emailLabel: getStringValue(matchingInvitation, 'email') ?? email,
-      tokenLabel: 'Token válido',
-      statusLabel: status ?? 'No informado',
-      roleLabel: role ?? 'No informado',
-      expiresLabel: getDateLabel(expiresAt),
-      organizationLabel: maskOrganizationId(organizationId),
-    };
-  }
-
-  if (isExpired(expiresAt)) {
-    return {
-      title: 'Invitación vencida',
-      message:
-        'La invitación existe y el token coincide, pero la fecha de vencimiento ya expiró.',
-      tone: 'danger',
-      emailLabel: getStringValue(matchingInvitation, 'email') ?? email,
-      tokenLabel: 'Token válido',
-      statusLabel: status,
-      roleLabel: role ?? 'No informado',
-      expiresLabel: getDateLabel(expiresAt),
-      organizationLabel: maskOrganizationId(organizationId),
-    };
-  }
-
-  return {
-    title: 'Invitación válida',
-    message:
-      'La invitación existe, el token coincide, el estado es pending y no está vencida. En el próximo bloque podremos preparar el alta real de usuario.',
-    tone: 'success',
-    emailLabel: getStringValue(matchingInvitation, 'email') ?? email,
-    tokenLabel: 'Token válido',
-    statusLabel: status,
-    roleLabel: role ?? 'No informado',
-    expiresLabel: getDateLabel(expiresAt),
-    organizationLabel: maskOrganizationId(organizationId),
+  const messages: Record<string, string> = {
+    login_requerido:
+      'Para aceptar la invitación, primero tenés que iniciar sesión con el mismo email invitado y luego volver a abrir este enlace.',
+    email_no_coincide:
+      'El email de la sesión actual no coincide con el email invitado. Cerrá sesión e ingresá con el correo correcto.',
+    invitacion_invalida:
+      'La invitación no se puede aceptar porque no pasó la validación.',
+    configuracion_pendiente:
+      'Falta configuración server-side para completar la aceptación.',
+    error_perfil:
+      'No se pudo revisar el perfil actual del usuario.',
+    error_creando_perfil:
+      'La invitación era válida, pero no se pudo crear el perfil.',
+    error_actualizando_perfil:
+      'La invitación era válida, pero no se pudo actualizar el perfil.',
+    perfil_otra_organizacion:
+      'El usuario ya tiene un perfil asociado a otra organización.',
+    perfil_creado_invitacion_no_actualizada:
+      'El perfil fue creado, pero no se pudo marcar la invitación como aceptada. Revisar manualmente.',
   };
+
+  return messages[estado] ?? 'No se pudo completar la acción solicitada.';
 }
 
 export default async function AcceptInvitationPage({
@@ -303,8 +82,27 @@ export default async function AcceptInvitationPage({
 
   const email = getSafeValue(params.email);
   const token = getSafeValue(params.token);
+  const estado = getSafeValue(params.estado);
 
   const validation = await validateInvitation(email, token);
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const actionMessage = getActionMessage(estado);
+  const userEmail = user?.email ?? null;
+  const normalizedUserEmail = userEmail?.trim().toLowerCase() ?? null;
+  const normalizedInvitationEmail =
+    validation.invitation?.email.trim().toLowerCase() ?? null;
+
+  const isLoggedWithMatchingEmail =
+    Boolean(normalizedUserEmail) &&
+    Boolean(normalizedInvitationEmail) &&
+    normalizedUserEmail === normalizedInvitationEmail;
+
+  const canShowAcceptButton = validation.canAccept && isLoggedWithMatchingEmail;
 
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10 text-white">
@@ -320,9 +118,9 @@ export default async function AcceptInvitationPage({
             </h1>
 
             <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-300">
-              Esta pantalla consulta una invitación registrada en Supabase y
-              valida si el enlace recibido contiene datos suficientes para
-              continuar. Todavía no crea usuarios ni modifica estados.
+              Esta pantalla valida una invitación registrada en Supabase y, si
+              corresponde, permite crear el perfil del usuario invitado de forma
+              controlada. Todavía no crea cuentas Auth automáticamente.
             </p>
 
             <div className="mt-8 grid gap-4 md:grid-cols-3">
@@ -331,7 +129,7 @@ export default async function AcceptInvitationPage({
                   Paso 1
                 </p>
                 <p className="mt-3 text-sm font-bold leading-6">
-                  Recibir email y token desde la URL.
+                  Validar email y token desde la URL.
                 </p>
               </div>
 
@@ -340,7 +138,7 @@ export default async function AcceptInvitationPage({
                   Paso 2
                 </p>
                 <p className="mt-3 text-sm font-bold leading-6">
-                  Consultar user_invitations en Supabase.
+                  Confirmar sesión del usuario invitado.
                 </p>
               </div>
 
@@ -349,7 +147,7 @@ export default async function AcceptInvitationPage({
                   Paso 3
                 </p>
                 <p className="mt-3 text-sm font-bold leading-6">
-                  Validar estado, rol, token y vencimiento.
+                  Crear profile y marcar invitación accepted.
                 </p>
               </div>
             </div>
@@ -357,8 +155,9 @@ export default async function AcceptInvitationPage({
             <div className="mt-8 rounded-3xl border border-amber-400/20 bg-amber-400/10 p-5 text-sm leading-7 text-amber-100">
               <p className="font-black">Estado del bloque actual</p>
               <p className="mt-2">
-                Esta página valida una invitación, pero todavía no crea usuarios,
-                no cambia estados y no modifica datos de Supabase.
+                Esta página puede crear o vincular un perfil solamente cuando la
+                invitación sea válida, el usuario esté logueado y el email de la
+                sesión coincida con el email invitado.
               </p>
             </div>
           </div>
@@ -393,13 +192,28 @@ export default async function AcceptInvitationPage({
                 {validation.message}
               </p>
 
+              {actionMessage ? (
+                <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold leading-6 text-amber-900">
+                  {actionMessage}
+                </div>
+              ) : null}
+
               <div className="mt-6 space-y-3">
                 <div className="rounded-2xl border border-slate-200 bg-white p-4">
                   <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">
-                    Email
+                    Email invitado
                   </p>
                   <p className="mt-2 break-all text-sm font-bold text-slate-900">
                     {validation.emailLabel}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">
+                    Sesión actual
+                  </p>
+                  <p className="mt-2 break-all text-sm font-bold text-slate-900">
+                    {userEmail ?? 'Sin sesión iniciada'}
                   </p>
                 </div>
 
@@ -458,10 +272,42 @@ export default async function AcceptInvitationPage({
                   validation.tone
                 )}`}
               >
-                {validation.tone === 'success'
-                  ? 'La invitación está lista para el próximo paso del flujo.'
+                {validation.canAccept
+                  ? 'La invitación es válida. Para crear el perfil, la sesión actual debe coincidir con el email invitado.'
                   : 'La invitación todavía no puede continuar al alta de usuario.'}
               </div>
+
+              {validation.canAccept && !user ? (
+                <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold leading-6 text-amber-900">
+                  Para aceptar esta invitación, primero iniciá sesión con el
+                  mismo correo invitado y después volvé a abrir este enlace.
+                </div>
+              ) : null}
+
+              {validation.canAccept && user && !isLoggedWithMatchingEmail ? (
+                <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold leading-6 text-rose-900">
+                  La sesión actual no coincide con el email invitado. Cerrá
+                  sesión e ingresá con el correo correcto.
+                </div>
+              ) : null}
+
+              {canShowAcceptButton ? (
+                <form
+                  action="/invitacion/aceptar/confirmar"
+                  method="post"
+                  className="mt-6"
+                >
+                  <input type="hidden" name="email" value={email ?? ''} />
+                  <input type="hidden" name="token" value={token ?? ''} />
+
+                  <button
+                    type="submit"
+                    className="w-full rounded-2xl bg-emerald-600 px-5 py-3 text-center text-sm font-black text-white hover:bg-emerald-700"
+                  >
+                    Aceptar invitación y crear perfil
+                  </button>
+                </form>
+              ) : null}
 
               <div className="mt-6 flex flex-col gap-3">
                 <Link
