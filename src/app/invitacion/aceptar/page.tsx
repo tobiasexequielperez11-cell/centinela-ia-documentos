@@ -71,7 +71,11 @@ function getActionMessage(estado: string | null) {
     perfil_creado_invitacion_no_actualizada:
       'El perfil fue creado, pero no se pudo marcar la invitación como aceptada. Revisar manualmente.',
     organizacion_no_encontrada:
-  'La invitación tiene organización asignada, pero esa organización no existe o no está disponible.',
+      'La invitación tiene organización asignada, pero esa organización no existe o no está disponible.',
+    error_validando_duplicados:
+      'No se pudo validar si ya existe otro perfil con este email.',
+    perfil_email_existente:
+      'Ya existe otro perfil registrado con este email. No se puede crear un usuario duplicado.',
   };
 
   return messages[estado] ?? 'No se pudo completar la acción solicitada.';

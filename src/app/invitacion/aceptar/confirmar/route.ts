@@ -96,11 +96,33 @@ export async function POST(request: Request) {
       buildRedirectUrl(request, email, token, 'organizacion_no_encontrada')
     );
   }
+     const invitation = validation.invitation;
+     const currentUserId = user?.id ?? null;
+
+  if (!invitation || !currentUserId) {
+    return NextResponse.redirect(
+      buildRedirectUrl(request, email, token, 'invitacion_invalida')
+    ); 
+  }
+
+  const { data: duplicatedProfiles, error: duplicatedProfilesError } =
+    await supabaseAdmin
+      .from('profiles')
+      .select('id, email, organization_id, role, status')
+      .eq('email', invitation.email)
+      .neq('id', currentUserId)
+      .limit(1);
+
+  if (duplicatedProfilesError) {
+    return NextResponse.redirect(
+      buildRedirectUrl(request, email, token, 'error_validando_duplicados')
+    );
+  }
   const { data: existingProfile, error: existingProfileError } =
     await supabaseAdmin
       .from('profiles')
       .select('id, organization_id, email, role, status')
-      .eq('id', user.id)
+      .eq('id', currentUserId)
       .maybeSingle();
 
   if (existingProfileError) {
