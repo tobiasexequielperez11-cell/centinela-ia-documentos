@@ -85,7 +85,17 @@ export async function POST(request: Request) {
       buildRedirectUrl(request, email, token, 'configuracion_pendiente')
     );
   }
+  const { data: organization, error: organizationError } = await supabaseAdmin
+    .from('organizations')
+    .select('id')
+    .eq('id', validation.invitation.organization_id)
+    .maybeSingle();
 
+  if (organizationError || !organization) {
+    return NextResponse.redirect(
+      buildRedirectUrl(request, email, token, 'organizacion_no_encontrada')
+    );
+  }
   const { data: existingProfile, error: existingProfileError } =
     await supabaseAdmin
       .from('profiles')

@@ -70,6 +70,8 @@ function getActionMessage(estado: string | null) {
       'El usuario ya tiene un perfil asociado a otra organización.',
     perfil_creado_invitacion_no_actualizada:
       'El perfil fue creado, pero no se pudo marcar la invitación como aceptada. Revisar manualmente.',
+    organizacion_no_encontrada:
+  'La invitación tiene organización asignada, pero esa organización no existe o no está disponible.',
   };
 
   return messages[estado] ?? 'No se pudo completar la acción solicitada.';

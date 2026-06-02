@@ -296,6 +296,29 @@ export async function validateInvitation(
     };
   }
 
+  const { data: organization, error: organizationError } = await supabase
+    .from('organizations')
+    .select('id')
+    .eq('id', organizationId)
+    .maybeSingle();
+
+  if (organizationError || !organization) {
+    return {
+      title: 'Organización no encontrada',
+      message:
+        'La invitación tiene organization_id, pero no se encontró una organización válida asociada. No se puede aceptar la invitación.',
+      tone: 'danger',
+      emailLabel: getStringValue(matchingInvitation, 'email') ?? email,
+      tokenLabel: 'Token válido',
+      statusLabel: status ?? 'No informado',
+      roleLabel: role,
+      expiresLabel: getDateLabel(expiresAt),
+      organizationLabel: maskOrganizationId(organizationId),
+      canAccept: false,
+      invitation: null,
+    };
+  }
+
   if (status !== 'pending') {
     return {
       title: 'Invitación no disponible',
