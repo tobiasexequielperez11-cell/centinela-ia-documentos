@@ -423,7 +423,7 @@ export default async function UserInvitationsPage({
                       </td>
 
                       <td className="px-4 py-4">
-                        {canManage && invitation.status === 'pending' ? (
+                        {canManage && invitation.status === 'pending' && !expired ? (
                           <form action={cancelUserInvitation}>
                             <input
                               type="hidden"
