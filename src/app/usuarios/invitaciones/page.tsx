@@ -126,6 +126,7 @@ function getMessage(params: { success?: string; error?: string }) {
     admin_required: 'Solo un administrador puede gestionar invitaciones.',
     user_already_exists: 'Ya existe un usuario con ese email en la organización.',
     invitation_already_pending: 'Ya existe una invitación pendiente para ese email.',
+    invitation_already_accepted: 'Ya existe una invitación aceptada para ese email.',
     invitation_create_failed: 'No se pudo crear la invitación. Revisá RLS o estructura de tabla.',
     missing_invitation: 'No se recibió la invitación a cancelar.',
     invitation_not_found: 'No se encontró la invitación.',

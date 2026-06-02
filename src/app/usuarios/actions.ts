@@ -153,7 +153,17 @@ export async function createUserInvitation(formData: FormData) {
   if (existingInvitation) {
     redirect('/usuarios/invitaciones?error=invitation_already_pending');
   }
+  const { data: acceptedInvitation } = await supabase
+    .from('user_invitations')
+    .select('id, email, status')
+    .eq('organization_id', profile.organization_id)
+    .eq('email', email)
+    .eq('status', 'accepted')
+    .maybeSingle();
 
+  if (acceptedInvitation) {
+    redirect('/usuarios/invitaciones?error=invitation_already_accepted');
+  }
   const token = randomUUID();
 
   const { data: invitation, error: insertError } = await supabase
