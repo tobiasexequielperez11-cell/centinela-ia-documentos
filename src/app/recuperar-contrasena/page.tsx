@@ -1,6 +1,35 @@
 import Link from 'next/link';
+import { sendPasswordRecoveryLink } from './actions';
+interface RecuperarContrasenaPageProps {
+  searchParams: Promise<{
+    estado?: string;
+  }>;
+}
 
-export default function RecuperarContrasenaPage() {
+function getStatusMessage(estado: string | null) {
+  if (!estado) {
+    return null;
+  }
+
+  const messages: Record<string, string> = {
+    missing_email: 'Ingresá un email para solicitar la recuperación.',
+    invalid_email: 'El email ingresado no tiene un formato válido.',
+    send_failed:
+      'No se pudo enviar el enlace de recuperación. Revisá el email o intentá nuevamente.',
+    sent:
+      'Si el email corresponde a una cuenta registrada, recibirás un enlace de recuperación.',
+  };
+
+  return messages[estado] ?? null;
+}
+
+export default async function RecuperarContrasenaPage({
+  searchParams,
+}: RecuperarContrasenaPageProps) {
+  const params = await searchParams;
+  const estado = params.estado?.trim() ?? null;
+  const statusMessage = getStatusMessage(estado);
+
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10 text-white">
       <section className="mx-auto grid min-h-[calc(100vh-5rem)] w-full max-w-6xl items-center gap-8 lg:grid-cols-[1.1fr_0.9fr]">
@@ -14,10 +43,9 @@ export default function RecuperarContrasenaPage() {
           </h1>
 
           <p className="mt-6 max-w-2xl text-sm leading-7 text-slate-300">
-            Esta pantalla permitirá solicitar un enlace seguro para restablecer
-            el acceso al panel. En este bloque solo dejamos preparada la
-            experiencia visual; el envío real del email se conectará en el
-            próximo paso.
+             Esta pantalla permite solicitar un enlace seguro para restablecer
+             el acceso al panel. Si el email corresponde a una cuenta registrada,
+             el sistema enviará un enlace de recuperación mediante Supabase Auth.
           </p>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-3">
@@ -54,8 +82,8 @@ export default function RecuperarContrasenaPage() {
               Estado del bloque actual
             </p>
             <p className="mt-3 text-sm leading-7 text-amber-50">
-              La pantalla está preparada visualmente. Todavía no envía correos
-              reales ni modifica usuarios de Supabase Auth.
+               La pantalla ya puede solicitar el envío del enlace de recuperación.
+               La contraseña todavía no se modifica desde esta pantalla.
             </p>
           </div>
         </div>
@@ -70,11 +98,16 @@ export default function RecuperarContrasenaPage() {
           </h2>
 
           <p className="mt-4 text-sm leading-7 text-slate-600">
-            Ingresá el email asociado a tu usuario. En el próximo bloque este
-            formulario enviará el enlace real de recuperación.
+             Ingresá el email asociado a tu usuario. Si la cuenta existe, recibirás
+             un enlace seguro para continuar el restablecimiento.
           </p>
+          {statusMessage ? (
+          <div className="mt-5 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm font-bold leading-6 text-sky-900">
+            {statusMessage}
+          </div>
+        ) : null}
 
-          <div className="mt-8 space-y-5">
+          <form action={sendPasswordRecoveryLink} className="mt-8 space-y-5">
             <label className="block">
               <span className="text-sm font-bold text-slate-700">Email</span>
               <input
@@ -86,12 +119,11 @@ export default function RecuperarContrasenaPage() {
             </label>
 
             <button
-              type="button"
-              disabled
-              className="w-full cursor-not-allowed rounded-2xl bg-slate-900 px-5 py-4 text-sm font-black text-white opacity-70"
+               type="submit"
+               className="w-full rounded-2xl bg-slate-900 px-5 py-4 text-sm font-black text-white transition hover:bg-slate-800"
             >
-              Enviar enlace en el próximo bloque
-            </button>
+               Enviar enlace de recuperación
+              </button>
 
             <Link
               href="/login"
@@ -99,7 +131,7 @@ export default function RecuperarContrasenaPage() {
             >
               Volver al login
             </Link>
-          </div>
+          </form>
         </div>
       </section>
     </main>
