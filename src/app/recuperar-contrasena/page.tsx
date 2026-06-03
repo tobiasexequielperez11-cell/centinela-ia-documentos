@@ -23,12 +23,33 @@ function getStatusMessage(estado: string | null) {
   return messages[estado] ?? null;
 }
 
+function getStatusType(estado: string | null) {
+  if (!estado) {
+    return 'neutral';
+  }
+
+  if (estado === 'sent') {
+    return 'success';
+  }
+
+  if (
+    estado === 'missing_email' ||
+    estado === 'invalid_email' ||
+    estado === 'send_failed'
+  ) {
+    return 'error';
+  }
+
+  return 'neutral';
+}
+
 export default async function RecuperarContrasenaPage({
   searchParams,
 }: RecuperarContrasenaPageProps) {
   const params = await searchParams;
   const estado = params.estado?.trim() ?? null;
   const statusMessage = getStatusMessage(estado);
+  const statusType = getStatusType(estado);
 
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10 text-white">
@@ -101,11 +122,19 @@ export default async function RecuperarContrasenaPage({
              Ingresá el email asociado a tu usuario. Si la cuenta existe, recibirás
              un enlace seguro para continuar el restablecimiento.
           </p>
-          {statusMessage ? (
-          <div className="mt-5 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm font-bold leading-6 text-sky-900">
-            {statusMessage}
-          </div>
-        ) : null}
+{statusMessage ? (
+  <div
+    className={`mt-5 rounded-2xl border p-4 text-sm font-bold leading-6 ${
+      statusType === 'success'
+        ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
+        : statusType === 'error'
+          ? 'border-rose-200 bg-rose-50 text-rose-900'
+          : 'border-sky-200 bg-sky-50 text-sky-900'
+    }`}
+  >
+    {statusMessage}
+  </div>
+) : null}
 
           <form action={sendPasswordRecoveryLink} className="mt-8 space-y-5">
             <label className="block">

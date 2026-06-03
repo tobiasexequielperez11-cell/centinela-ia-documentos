@@ -27,13 +27,36 @@ function getStatusMessage(estado: string | null) {
   return messages[estado] ?? null;
 }
 
+function getStatusType(estado: string | null) {
+  if (!estado) {
+    return 'neutral';
+  }
+
+  if (estado === 'updated') {
+    return 'success';
+  }
+
+  if (
+    estado === 'missing_fields' ||
+    estado === 'password_too_short' ||
+    estado === 'passwords_do_not_match' ||
+    estado === 'session_required' ||
+    estado === 'update_failed'
+  ) {
+    return 'error';
+  }
+
+  return 'neutral';
+}
+
 export default async function NuevaContrasenaPage({
   searchParams,
 }: NuevaContrasenaPageProps) {
   const params = await searchParams;
   const estado = params.estado?.trim() ?? null;
-  const statusMessage = getStatusMessage(estado);
-  const isUpdated = estado === 'updated';
+const statusMessage = getStatusMessage(estado);
+const statusType = getStatusType(estado);
+const isUpdated = estado === 'updated';
 
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10 text-white">
@@ -108,17 +131,19 @@ export default async function NuevaContrasenaPage({
             caracteres.
           </p>
 
-          {statusMessage ? (
-          <div
-            className={`mt-5 rounded-2xl border p-4 text-sm font-bold leading-6 ${
-              isUpdated
-                ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
-                : 'border-sky-200 bg-sky-50 text-sky-900'
-            }`}
-          >
-            {statusMessage}
-          </div>
-        ) : null}
+{statusMessage ? (
+  <div
+    className={`mt-5 rounded-2xl border p-4 text-sm font-bold leading-6 ${
+      statusType === 'success'
+        ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
+        : statusType === 'error'
+          ? 'border-rose-200 bg-rose-50 text-rose-900'
+          : 'border-sky-200 bg-sky-50 text-sky-900'
+    }`}
+  >
+    {statusMessage}
+  </div>
+) : null}
 {isUpdated ? (
   <div className="mt-8 space-y-5">
     <Link
