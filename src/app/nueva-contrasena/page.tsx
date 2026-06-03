@@ -33,6 +33,7 @@ export default async function NuevaContrasenaPage({
   const params = await searchParams;
   const estado = params.estado?.trim() ?? null;
   const statusMessage = getStatusMessage(estado);
+  const isUpdated = estado === 'updated';
 
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10 text-white">
@@ -108,11 +109,33 @@ export default async function NuevaContrasenaPage({
           </p>
 
           {statusMessage ? (
-            <div className="mt-5 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm font-bold leading-6 text-sky-900">
-              {statusMessage}
-            </div>
-          ) : null}
+          <div
+            className={`mt-5 rounded-2xl border p-4 text-sm font-bold leading-6 ${
+              isUpdated
+                ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
+                : 'border-sky-200 bg-sky-50 text-sky-900'
+            }`}
+          >
+            {statusMessage}
+          </div>
+        ) : null}
+{isUpdated ? (
+  <div className="mt-8 space-y-5">
+    <Link
+      href="/login"
+      className="block w-full rounded-2xl bg-slate-900 px-5 py-4 text-center text-sm font-black text-white transition hover:bg-slate-800"
+    >
+      Ir al login
+    </Link>
 
+    <Link
+      href="/recuperar-contrasena"
+      className="block w-full rounded-2xl border border-slate-200 px-5 py-4 text-center text-sm font-black text-slate-800 transition hover:bg-slate-50"
+    >
+      Solicitar otro enlace
+    </Link>
+  </div>
+) : (
           <form action={updateRecoveredPassword} className="mt-8 space-y-5">
             <label className="block">
               <span className="text-sm font-bold text-slate-700">
@@ -159,6 +182,7 @@ export default async function NuevaContrasenaPage({
               Volver al login
             </Link>
           </form>
+          )}
         </div>
       </section>
     </main>

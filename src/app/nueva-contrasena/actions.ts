@@ -52,5 +52,7 @@ export async function updateRecoveredPassword(formData: FormData) {
     redirect('/nueva-contrasena?estado=update_failed');
   }
 
+  await supabase.auth.signOut();
+
   redirect('/nueva-contrasena?estado=updated');
-}
+  }
