@@ -15,7 +15,7 @@ export function Sidebar() {
     <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-slate-200 bg-white px-5 py-6 lg:block">
       <Link href="/" className="mb-8 block">
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-sky-600">Centinela IA</p>
-        <h1 className="mt-2 text-xl font-bold text-slate-950">Documentos</h1>
+        <h1 className="mt-2 text-xl font-bold text-slate-950">Panel operativo</h1>
       </Link>
 
       <nav className="space-y-1">
@@ -30,10 +30,15 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="absolute bottom-6 left-5 right-5 rounded-3xl bg-slate-950 p-5 text-white">
-        <p className="text-sm font-bold">MVP V1</p>
-        <p className="mt-2 text-xs leading-5 text-slate-300">Base visual lista para conectar autenticación, expedientes y documentos.</p>
-      </div>
+<div className="absolute bottom-6 left-5 right-5 rounded-3xl bg-slate-950 p-5 text-white">
+  <p className="text-sm font-bold">MVP V1</p>
+  <p className="mt-2 text-xs font-semibold text-slate-100">
+    Entorno beta operativo
+  </p>
+  <p className="mt-2 text-xs leading-5 text-slate-300">
+    Sistema activo y protegido por roles.
+  </p>
+</div>
     </aside>
   );
 }
