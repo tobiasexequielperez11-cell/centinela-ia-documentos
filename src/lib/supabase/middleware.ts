@@ -6,15 +6,30 @@ interface AccessProfile {
   status?: string | null;
 }
 
-function redirectTo(request: NextRequest, pathname: string, motivo?: string) {
+function redirectTo(
+  request: NextRequest,
+  pathname: string,
+  motivo?: string,
+  sourceResponse?: NextResponse
+) {
   const url = request.nextUrl.clone();
+
   url.pathname = pathname;
+  url.search = '';
 
   if (motivo) {
     url.searchParams.set('motivo', motivo);
   }
 
-  return NextResponse.redirect(url);
+  const redirectResponse = NextResponse.redirect(url);
+
+  if (sourceResponse) {
+    sourceResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie);
+    });
+  }
+
+  return redirectResponse;
 }
 
 function isPrivatePath(pathname: string) {
@@ -85,7 +100,7 @@ export async function updateSession(request: NextRequest) {
   const isPrivateRoute = isPrivatePath(pathname);
 
   if (isPrivateRoute && !user) {
-    return redirectTo(request, '/login');
+    return redirectTo(request, '/login', undefined, supabaseResponse);
   }
 
   if (!user) {
@@ -100,33 +115,33 @@ export async function updateSession(request: NextRequest) {
 
   if (pathname === '/login') {
     if (profile?.status === 'active') {
-      return redirectTo(request, '/dashboard');
+      return redirectTo(request, '/dashboard', undefined, supabaseResponse);
     }
 
     if (profile && profile.status !== 'active') {
-      return redirectTo(request, '/acceso-denegado', 'estado');
+      return redirectTo(request, '/acceso-denegado', 'estado', supabaseResponse);
     }
 
     return supabaseResponse;
   }
 
   if (isPrivateRoute && !profile && !pathname.startsWith('/onboarding')) {
-    return redirectTo(request, '/onboarding');
+    return redirectTo(request, '/onboarding', undefined, supabaseResponse);
   }
 
   if (isPrivateRoute && profile && profile.status !== 'active') {
-    return redirectTo(request, '/acceso-denegado', 'estado');
+    return redirectTo(request, '/acceso-denegado', 'estado', supabaseResponse);
   }
 
   if (isPrivateRoute && profile && isAdminOnlyPath(pathname)) {
     if (profile.role !== 'admin') {
-      return redirectTo(request, '/acceso-denegado', 'rol');
+      return redirectTo(request, '/acceso-denegado', 'rol', supabaseResponse);
     }
   }
 
   if (isPrivateRoute && profile && isSensitiveReportPath(request)) {
     if (!canAccessSensitiveReport(profile, request)) {
-      return redirectTo(request, '/acceso-denegado', 'rol');
+      return redirectTo(request, '/acceso-denegado', 'rol', supabaseResponse);
     }
   }
 
