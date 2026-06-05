@@ -6,31 +6,11 @@ interface AccessProfile {
   status?: string | null;
 }
 
-function redirectTo(
-  request: NextRequest,
-  pathname: string,
-  motivo?: string,
-  sourceResponse?: NextResponse
-) {
-  const url = request.nextUrl.clone();
-
-  url.pathname = pathname;
-  url.search = '';
-
-  if (motivo) {
-    url.searchParams.set('motivo', motivo);
-  }
-
-  const redirectResponse = NextResponse.redirect(url);
-
-  if (sourceResponse) {
-    sourceResponse.cookies.getAll().forEach((cookie) => {
-      redirectResponse.cookies.set(cookie);
-    });
-  }
-
-  return redirectResponse;
-}
+type CookieToSet = {
+  name: string;
+  value: string;
+  options: Parameters<NextResponse['cookies']['set']>[2];
+};
 
 function isPrivatePath(pathname: string) {
   return (
@@ -71,8 +51,35 @@ function canAccessSensitiveReport(profile: AccessProfile, request: NextRequest) 
   return true;
 }
 
+function applySupabaseCookies(response: NextResponse, cookiesToSet: CookieToSet[]) {
+  cookiesToSet.forEach(({ name, value, options }) => {
+    response.cookies.set(name, value, options);
+  });
+
+  return response;
+}
+
+function redirectTo(
+  request: NextRequest,
+  pathname: string,
+  cookiesToSet: CookieToSet[],
+  motivo?: string
+) {
+  const url = request.nextUrl.clone();
+
+  url.pathname = pathname;
+  url.search = '';
+
+  if (motivo) {
+    url.searchParams.set('motivo', motivo);
+  }
+
+  const response = NextResponse.redirect(url);
+  return applySupabaseCookies(response, cookiesToSet);
+}
+
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request });
+  const cookiesToSet: CookieToSet[] = [];
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -82,10 +89,10 @@ export async function updateSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
+        setAll(nextCookiesToSet) {
+          nextCookiesToSet.forEach(({ name, value, options }) => {
             request.cookies.set(name, value);
-            supabaseResponse.cookies.set(name, value, options);
+            cookiesToSet.push({ name, value, options });
           });
         },
       },
@@ -100,11 +107,12 @@ export async function updateSession(request: NextRequest) {
   const isPrivateRoute = isPrivatePath(pathname);
 
   if (isPrivateRoute && !user) {
-    return redirectTo(request, '/login', undefined, supabaseResponse);
+    return redirectTo(request, '/login', cookiesToSet);
   }
 
   if (!user) {
-    return supabaseResponse;
+    const response = NextResponse.next({ request });
+    return applySupabaseCookies(response, cookiesToSet);
   }
 
   const { data: profile } = await supabase
@@ -115,35 +123,37 @@ export async function updateSession(request: NextRequest) {
 
   if (pathname === '/login') {
     if (profile?.status === 'active') {
-      return redirectTo(request, '/dashboard', undefined, supabaseResponse);
+      return redirectTo(request, '/dashboard', cookiesToSet);
     }
 
     if (profile && profile.status !== 'active') {
-      return redirectTo(request, '/acceso-denegado', 'estado', supabaseResponse);
+      return redirectTo(request, '/acceso-denegado', cookiesToSet, 'estado');
     }
 
-    return supabaseResponse;
+    const response = NextResponse.next({ request });
+    return applySupabaseCookies(response, cookiesToSet);
   }
 
   if (isPrivateRoute && !profile && !pathname.startsWith('/onboarding')) {
-    return redirectTo(request, '/onboarding', undefined, supabaseResponse);
+    return redirectTo(request, '/onboarding', cookiesToSet);
   }
 
   if (isPrivateRoute && profile && profile.status !== 'active') {
-    return redirectTo(request, '/acceso-denegado', 'estado', supabaseResponse);
+    return redirectTo(request, '/acceso-denegado', cookiesToSet, 'estado');
   }
 
   if (isPrivateRoute && profile && isAdminOnlyPath(pathname)) {
     if (profile.role !== 'admin') {
-      return redirectTo(request, '/acceso-denegado', 'rol', supabaseResponse);
+      return redirectTo(request, '/acceso-denegado', cookiesToSet, 'rol');
     }
   }
 
   if (isPrivateRoute && profile && isSensitiveReportPath(request)) {
     if (!canAccessSensitiveReport(profile, request)) {
-      return redirectTo(request, '/acceso-denegado', 'rol', supabaseResponse);
+      return redirectTo(request, '/acceso-denegado', cookiesToSet, 'rol');
     }
   }
 
-  return supabaseResponse;
+  const response = NextResponse.next({ request });
+  return applySupabaseCookies(response, cookiesToSet);
 }
