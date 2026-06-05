@@ -158,22 +158,22 @@ export default async function DashboardPage() {
     {
       label: 'Análisis IA',
       value: String(aiRunsCount.count ?? 0),
-      helper: 'Ejecuciones simuladas',
+      helper: 'Procesamientos registrados',
     },
     {
       label: 'Cobertura IA',
       value: `${coverage}%`,
-      helper: 'Documentos ya analizados',
+   helper: 'Documentos procesados',
     },
     {
       label: 'Pendientes IA',
       value: String(pendingDocuments.length),
-      helper: 'Requieren análisis',
+helper: 'Pendientes de revisión IA',
     },
     {
       label: 'Actividad registrada',
       value: String(activityCount.count ?? 0),
-      helper: 'Eventos auditados',
+  helper: 'Eventos registrados',
     },
   ];
 
@@ -237,11 +237,11 @@ export default async function DashboardPage() {
             </p>
 
             <h3 className="mt-2 text-2xl font-bold text-slate-950">
-              Estado rápido de altas controladas
+    Estado operativo de invitaciones
             </h3>
 
             <p className="mt-2 text-sm text-slate-600">
-              Resumen de invitaciones creadas en modo operativo. Todavía no activa altas automáticas con Supabase Auth.
+              Seguimiento de invitaciones gestionadas durante la beta operativa.
             </p>
           </div>
 
