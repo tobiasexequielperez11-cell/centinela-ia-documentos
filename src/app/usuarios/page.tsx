@@ -215,6 +215,10 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
   if (!user) redirect('/login');
   if (!profile) redirect('/onboarding');
 
+  if (profile.role !== "admin") {
+  redirect("/acceso-denegado");
+}
+
   const supabase = await createClient();
 
   const [profilesResult, auditLogsResult, invitationMetricsResult] = await Promise.all([
@@ -253,7 +257,7 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
     return String(a.full_name ?? a.email ?? '').localeCompare(
       String(b.full_name ?? b.email ?? '')
     );
-  });
+  }); 
 
   const activeUsers = users.filter((item) => item.status === 'active').length;
   const invitedUsers = users.filter((item) => item.status === 'invited').length;

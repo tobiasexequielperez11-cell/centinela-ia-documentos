@@ -470,11 +470,22 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
     ? query.tipo
     : 'todos';
 
-  const { user, profile } = await getUserProfile();
+const { user, profile } = await getUserProfile();
 
-  if (!user) redirect('/login');
-  if (!profile) redirect('/onboarding');
+if (!user) redirect("/login");
+if (!profile) redirect("/onboarding");
 
+if (activeView === "invitaciones" && profile.role !== "admin") {
+  redirect("/acceso-denegado");
+}
+
+if (
+  activeView === "auditoria" &&
+  profile.role !== "admin" &&
+  profile.role !== "auditor"
+) {
+  redirect("/acceso-denegado");
+}
   const supabase = await createClient();
 
   const [
