@@ -23,7 +23,7 @@ export default async function AccessDeniedPage({
   const description = isInactiveStatus
     ? 'Tu usuario existe, pero no se encuentra activo para operar dentro del sistema. Contactá a un administrador para revisar el estado de acceso.'
     : isRoleDenied
-      ? 'Tu rol actual no tiene permisos para ingresar a este módulo. Podés volver al panel principal o cerrar sesión.'
+      ? 'Tu rol actual no tiene permisos para ingresar a este módulo. Podés volver al panel principal o cerrar sesión manualmente.'
       : 'No tenés permisos suficientes para acceder a esta sección del sistema.';
 
   return (
@@ -60,12 +60,12 @@ export default async function AccessDeniedPage({
             Volver al panel
           </Link>
 
-          <Link
+          <a
             href="/logout"
             className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50"
           >
             Cerrar sesión
-          </Link>
+          </a>
         </div>
       </section>
     </main>
