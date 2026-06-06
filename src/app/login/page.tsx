@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { signIn } from './actions';
 
 interface LoginPageProps {
@@ -46,7 +47,19 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </div>
 
           <div>
-            <label className="text-sm font-semibold text-slate-200">Contraseña</label>
+            <div className="flex items-center justify-between gap-4">
+              <label className="text-sm font-semibold text-slate-200">
+                Contraseña
+              </label>
+
+              <Link
+                href="/recuperar-contrasena"
+                className="text-xs font-semibold text-sky-300 hover:text-sky-200"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
+
             <input
               name="password"
               type="password"
@@ -60,6 +73,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             Ingresar
           </button>
         </form>
+
+        <p className="mt-6 text-center text-xs leading-5 text-slate-400">
+          El acceso está limitado a usuarios autorizados por la organización.
+        </p>
       </div>
     </main>
   );
