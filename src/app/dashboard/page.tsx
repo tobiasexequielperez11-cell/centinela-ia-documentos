@@ -41,6 +41,29 @@ function getMetricValue(value?: number | null) {
   return value ?? 0;
 }
 
+function formatDocumentType(value?: string | null) {
+  if (!value) return 'Sin clasificar';
+
+  const labels: Record<string, string> = {
+    general: 'General',
+    rental: 'Contrato de alquiler',
+    real_estate_purchase: 'Compraventa inmobiliaria',
+  };
+
+  return labels[value] ?? value;
+}
+
+function formatSensitivity(value: string) {
+  const labels: Record<string, string> = {
+    low: 'Baja',
+    medium: 'Media',
+    high: 'Alta',
+    critical: 'Crítica',
+  };
+
+  return labels[value] ?? value;
+}
+
 export default async function DashboardPage() {
   const { user, profile } = await getUserProfile();
 
@@ -153,45 +176,45 @@ export default async function DashboardPage() {
     {
       label: 'Documentos cargados',
       value: String(documentsCount.count ?? 0),
-      helper: 'Archivos en bóveda privada',
+      helper: 'Bóveda privada',
     },
     {
-      label: 'Análisis IA',
+      label: 'Procesamientos IA',
       value: String(aiRunsCount.count ?? 0),
-      helper: 'Procesamientos registrados',
+      helper: 'Análisis registrados',
     },
     {
       label: 'Cobertura IA',
       value: `${coverage}%`,
-   helper: 'Documentos procesados',
+      helper: 'Documentos procesados',
     },
     {
-      label: 'Pendientes IA',
+      label: 'Pendientes de revisión',
       value: String(pendingDocuments.length),
-helper: 'Pendientes de revisión IA',
+      helper: 'Requieren análisis IA',
     },
     {
-      label: 'Actividad registrada',
+      label: 'Actividad auditada',
       value: String(activityCount.count ?? 0),
-  helper: 'Eventos registrados',
+      helper: 'Eventos registrados',
     },
   ];
 
   const invitationCards = [
     {
-      label: 'Invitaciones pendientes',
+      label: 'Pendientes',
       value: pendingInvitations,
       helper: 'Esperando gestión',
     },
     {
-      label: 'Invitaciones vencidas',
+      label: 'Vencidas',
       value: expiredInvitations,
       helper: 'Requieren revisión',
     },
     {
       label: 'Aceptadas',
       value: acceptedInvitations,
-      helper: 'Completadas o validadas',
+      helper: 'Accesos validados',
     },
     {
       label: 'Canceladas',
@@ -212,7 +235,7 @@ helper: 'Pendientes de revisión IA',
         </h2>
 
         <p className="mt-2 text-sm text-slate-600">
-          Estado general de expedientes, documentos, análisis IA, invitaciones y actividad de la organización.
+          Resumen operativo de expedientes, documentos, análisis IA, invitaciones y actividad auditada.
         </p>
       </div>
 
@@ -237,11 +260,11 @@ helper: 'Pendientes de revisión IA',
             </p>
 
             <h3 className="mt-2 text-2xl font-bold text-slate-950">
-    Estado operativo de invitaciones
+              Estado de invitaciones
             </h3>
 
             <p className="mt-2 text-sm text-slate-600">
-              Seguimiento de invitaciones gestionadas durante la beta operativa.
+              Seguimiento de altas, invitaciones pendientes y accesos gestionados durante la beta.
             </p>
           </div>
 
@@ -294,7 +317,7 @@ helper: 'Pendientes de revisión IA',
             </p>
 
             <p className="mt-3 text-xs leading-5 text-slate-500">
-              Este dato ayuda a detectar actividad reciente de altas preparadas para usuarios internos o testers externos.
+              Este dato permite revisar actividad reciente de altas e invitaciones dentro de la organización.
             </p>
           </div>
 
@@ -319,8 +342,8 @@ helper: 'Pendientes de revisión IA',
               }`}
             >
               {hasExpiredInvitations
-                ? 'Hay invitaciones vencidas. Conviene revisarlas antes de avanzar con usuarios tester externos.'
-                : 'No se detectan invitaciones vencidas. El control operativo de accesos está estable.'}
+                ? 'Hay invitaciones vencidas. Conviene revisarlas antes de avanzar con nuevos usuarios o testers externos.'
+                : 'No se detectan invitaciones vencidas. El control operativo de accesos se mantiene estable.'}
             </p>
 
             <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
@@ -341,15 +364,15 @@ helper: 'Pendientes de revisión IA',
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
-                Control IA documental
+                IA documental
               </p>
 
               <h3 className="mt-2 text-2xl font-bold text-slate-950">
-                Cobertura operativa de análisis
+                Cobertura de análisis
               </h3>
 
               <p className="mt-2 text-sm text-slate-600">
-                Seguimiento de documentos pendientes, analizados y reanalizados.
+                Seguimiento de documentos procesados, pendientes y reanalizados.
               </p>
             </div>
 
@@ -380,7 +403,7 @@ helper: 'Pendientes de revisión IA',
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
             <div className="rounded-2xl bg-slate-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Analizados
+                Procesados
               </p>
               <p className="mt-2 text-2xl font-bold text-slate-950">
                 {analyzedDocuments.length}
@@ -411,11 +434,11 @@ helper: 'Pendientes de revisión IA',
           <div className="flex items-start justify-between gap-4">
             <div>
               <h3 className="text-xl font-bold text-slate-950">
-                Documentos que requieren IA
+                Documentos pendientes de análisis
               </h3>
 
               <p className="mt-2 text-sm text-slate-500">
-                Primeros documentos pendientes de análisis simulado.
+                Primeros documentos que todavía requieren procesamiento IA.
               </p>
             </div>
 
@@ -441,8 +464,8 @@ helper: 'Pendientes de revisión IA',
                     </Link>
 
                     <p className="mt-1 text-xs text-slate-500">
-                      Tipo: {document.document_type ?? 'No definido'} · Sensibilidad:{' '}
-                      {document.sensitivity_level}
+                      Tipo: {formatDocumentType(document.document_type)} · Sensibilidad:{' '}
+                      {formatSensitivity(document.sensitivity_level)}
                     </p>
 
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -462,7 +485,7 @@ helper: 'Pendientes de revisión IA',
                           />
 
                           <button className="rounded-xl bg-slate-950 px-3 py-2 text-xs font-bold text-white hover:bg-slate-800">
-                            Analizar ahora
+                            Analizar IA
                           </button>
                         </form>
                       ) : (
