@@ -139,7 +139,7 @@ function actionLabel(value: string) {
     case_status_updated: 'Estado de expediente actualizado',
     document_uploaded: 'Documento cargado',
     document_viewed: 'Documento visualizado',
-    document_analyzed_simulated: 'Documento analizado con IA simulada',
+    document_analyzed_simulated: 'Documento analizado con IA documental',
     user_access_updated: 'Acceso de usuario actualizado',
     user_invitation_created: 'Invitación de usuario creada',
   };
