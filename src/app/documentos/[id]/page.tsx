@@ -32,12 +32,35 @@ interface AiOutputRecord {
   created_at?: string | null;
 }
 
-function sensitivityLabel(value: string) {
+function sensitivityLabel(value?: string | null) {
+  const normalizedValue = String(value ?? '').toLowerCase();
+
   const labels: Record<string, string> = {
     low: 'Bajo',
     medium: 'Medio',
     high: 'Alto',
     critical: 'Crítico',
+    bajo: 'Bajo',
+    medio: 'Medio',
+    alto: 'Alto',
+    critico: 'Crítico',
+    crítico: 'Crítico',
+  };
+
+  return labels[normalizedValue] ?? value ?? 'Sin clasificar';
+}
+
+function documentTypeLabel(value?: string | null) {
+  if (!value) return 'Sin clasificar';
+
+  const labels: Record<string, string> = {
+    general: 'General',
+    rental: 'Contrato de alquiler',
+    real_estate_purchase: 'Compraventa inmobiliaria',
+    labor: 'Laboral',
+    administrative: 'Administrativo',
+    judicial: 'Judicial',
+    corporate: 'Societario',
   };
 
   return labels[value] ?? value;
@@ -72,7 +95,7 @@ function canPreview(mimeType?: string | null) {
 function getErrorMessage(error?: string) {
   const messages: Record<string, string> = {
     only_pdf_supported:
-      'Por ahora el análisis simulado solo está disponible para PDF.',
+      'Por ahora el análisis IA solo está disponible para documentos PDF.',
     download_failed: 'No se pudo descargar el archivo desde Storage.',
     empty_pdf_text:
       'No se pudo extraer texto del PDF. Puede ser un PDF escaneado.',
@@ -280,24 +303,24 @@ function buildOperationalOpinion(
   aiResult?: AiAnalysisResult | null
 ) {
   if (!aiResult) {
-    return 'El documento todavía no cuenta con análisis IA simulado. Se recomienda ejecutar el análisis para generar una lectura operativa inicial.';
+    return 'El documento todavía no cuenta con análisis IA. Se recomienda ejecutar el análisis para generar una lectura operativa inicial.';
   }
 
   const risk = getRiskAssessment(document, aiResult);
 
   if (risk.score >= 80) {
-    return 'Dictamen simulado: documento crítico. Requiere revisión prioritaria, control de acceso estricto y validación manual antes de compartir o cerrar el expediente.';
+    return 'Dictamen IA: documento crítico. Requiere revisión prioritaria, control de acceso estricto y validación manual antes de compartir o cerrar el expediente.';
   }
 
   if (risk.score >= 60) {
-    return 'Dictamen simulado: documento sensible. Conviene revisar contenido, faltantes y permisos antes de considerarlo completo dentro del expediente.';
+    return 'Dictamen IA: documento sensible. Conviene revisar contenido, faltantes y permisos antes de considerarlo completo dentro del expediente.';
   }
 
   if (risk.score >= 35) {
-    return 'Dictamen simulado: documento de riesgo medio. Puede continuar en circuito normal, pero se recomienda validar clasificación y documentación asociada.';
+    return 'Dictamen IA: documento de riesgo medio. Puede continuar en circuito normal, pero se recomienda validar clasificación y documentación asociada.';
   }
 
-  return 'Dictamen simulado: documento de riesgo bajo. No se detectan señales críticas, aunque se recomienda mantener trazabilidad y clasificación correcta.';
+  return 'Dictamen IA: documento de riesgo bajo. No se detectan señales críticas, aunque se recomienda mantener trazabilidad y clasificación correcta.';
 }
 
 export default async function DocumentDetailPage({
@@ -364,8 +387,8 @@ export default async function DocumentDetailPage({
 
   const errorMessage = getErrorMessage(query.error);
   const analyzeButtonLabel = aiResult
-    ? 'Reanalizar con IA simulada'
-    : 'Analizar con IA simulada';
+    ? 'Reanalizar IA'
+    : 'Analizar IA';
 
   const aiStatus = getDocumentAiStatus(aiHistory.length);
 
@@ -430,7 +453,7 @@ export default async function DocumentDetailPage({
 
       {query.analysis === 'simulated' ? (
         <div className="mb-6 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-800">
-          Análisis simulado generado y guardado correctamente.
+          Análisis IA generado y guardado correctamente.
         </div>
       ) : null}
 
@@ -458,7 +481,7 @@ export default async function DocumentDetailPage({
                   Tipo documental
                 </p>
                 <p className="mt-2 font-bold text-slate-950">
-                  {document.document_type ?? 'No definido'}
+{documentTypeLabel(document.document_type)}
                 </p>
               </div>
 
@@ -516,7 +539,7 @@ export default async function DocumentDetailPage({
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.2em]">
-                  Dictamen IA simulado
+Dictamen IA documental
                 </p>
 
                 <h3 className="mt-2 text-2xl font-bold">
@@ -617,7 +640,7 @@ export default async function DocumentDetailPage({
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-sky-700">
-                    Último análisis IA simulado
+                    Último análisis IA
                   </p>
 
                   <p className="mt-2 text-xs font-semibold text-slate-500">
@@ -637,7 +660,7 @@ export default async function DocumentDetailPage({
 
               <div className="mt-5 space-y-4 text-sm text-slate-700">
                 <p>
-                  <strong>Modo:</strong> {aiResult.modo ?? 'simulación'}
+                  <strong>Modo:</strong> {aiResult.modo ?? 'análisis documental'}
                 </p>
 
                 <p>
@@ -706,7 +729,7 @@ export default async function DocumentDetailPage({
                 Este documento todavía no tiene análisis IA.
               </p>
               <p className="mt-2 text-sm text-slate-500">
-                Ejecutá el análisis simulado para generar una primera lectura documental.
+                Ejecutá el análisis IA para generar una primera lectura documental.
               </p>
             </div>
           )}

@@ -16,10 +16,33 @@ function statusLabel(status: string) {
     incomplete: 'Incompleto',
     waiting_client: 'Esperando cliente',
     complete: 'Completo',
+    completed: 'Completo',
     archived: 'Archivado',
   };
 
   return labels[status] ?? status;
+}
+
+function caseTypeLabel(type?: string | null) {
+  const labels: Record<string, string> = {
+    general: 'General',
+    rental: 'Contrato de alquiler',
+    real_estate_purchase: 'Compraventa inmobiliaria',
+    labor: 'Laboral',
+    administrative: 'Administrativo',
+    judicial: 'Judicial',
+    corporate: 'Societario',
+  };
+
+  return labels[type ?? ''] ?? type ?? 'General';
+}
+
+function displayText(value?: string | null, fallback = 'Sin definir') {
+  const cleanValue = value?.trim();
+
+  if (!cleanValue) return fallback;
+
+  return cleanValue;
 }
 
 export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
@@ -49,11 +72,13 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
             Detalle de expediente
           </p>
+
           <h2 className="mt-2 text-3xl font-bold text-slate-950">
-            {caseRecord.title}
+            {displayText(caseRecord.title, 'Expediente sin título')}
           </h2>
+
           <p className="mt-2 text-sm text-slate-600">
-            Cliente: {caseRecord.client_name ?? 'Sin cliente asignado'} · Estado actual:{' '}
+            Cliente: {displayText(caseRecord.client_name, 'Sin cliente asignado')} · Estado actual:{' '}
             {statusLabel(caseRecord.status)}
           </p>
         </div>
@@ -70,8 +95,9 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Tipo
               </p>
+
               <p className="mt-2 font-bold text-slate-950">
-                {caseRecord.case_type ?? 'general'}
+                {caseTypeLabel(caseRecord.case_type)}
               </p>
             </div>
 
@@ -79,6 +105,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Estado
               </p>
+
               <p className="mt-2 font-bold text-slate-950">
                 {statusLabel(caseRecord.status)}
               </p>
@@ -109,13 +136,14 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
 
         <aside className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <h3 className="text-lg font-bold text-slate-950">
-            Próximos módulos
+            Estado del expediente
           </h3>
+
           <div className="mt-5 space-y-3 text-sm text-slate-600">
-            <p>• Documentos asociados.</p>
-            <p>• Checklist automático.</p>
-            <p>• Resumen IA del expediente.</p>
-            <p>• Reporte PDF.</p>
+            <p>• Documentación asociada desde la bóveda documental.</p>
+            <p>• Seguimiento operativo del estado del caso.</p>
+            <p>• Control de revisión documental e IA.</p>
+            <p>• Preparado para reportes y trazabilidad.</p>
           </div>
         </aside>
       </div>

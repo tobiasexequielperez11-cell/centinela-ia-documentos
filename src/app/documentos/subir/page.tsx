@@ -96,7 +96,7 @@ export default async function UploadDocumentPage({
                 name="document_type"
                 className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-sky-400"
               >
-                <option value="">No definido</option>
+                <option value="">Sin Clasificar</option>
                 <option value="dni">DNI</option>
                 <option value="contrato">Contrato</option>
                 <option value="factura">Factura</option>
