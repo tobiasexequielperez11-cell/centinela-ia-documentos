@@ -135,14 +135,14 @@ export default async function EntornoPage() {
       status: 'Restringida',
       tone: 'warning',
     },
-    {
-      name: 'CLAVE_API_OPENAI',
-      description:
-        'Clave para IA real. En esta beta no está activa porque el sistema mantiene análisis IA simulado/local.',
-      environment: 'No activa en esta etapa. No cargar si no se decide usar API paga.',
-      status: 'No activa',
-      tone: 'warning',
-    },
+{
+name: 'CLAVE_PROVEEDOR_IA',
+  description:
+    'Clave reservada para una futura integración IA externa. En esta beta no está activa porque el sistema mantiene análisis IA en modo controlado.',
+  environment: 'No activa en esta etapa. No cargar si no se decide integrar un proveedor externo.',
+  status: 'No activa',
+  tone: 'warning',
+},
     {
       name: 'APP_URL',
       description:
@@ -151,14 +151,14 @@ export default async function EntornoPage() {
       status: 'Pendiente',
       tone: 'default',
     },
-    {
-      name: 'NOMBRE_MODELO_AI',
-      description:
-        'Nombre de modelo IA preparado para una futura integración. La beta actual no depende de este valor.',
-      environment: 'Archivo de ejemplo o entorno privado si se activa IA real en el futuro.',
-      status: 'Simulado',
-      tone: 'success',
-    },
+{
+  name: 'NOMBRE_MODELO_AI',
+  description:
+    'Nombre de modelo IA preparado para una futura integración externa. La beta actual no depende de este valor.',
+  environment: 'Archivo de ejemplo o entorno privado si se activa una integración IA externa en el futuro.',
+  status: 'Controlado',
+  tone: 'success',
+},
   ];
 
   const protectedFiles = [
@@ -201,7 +201,7 @@ export default async function EntornoPage() {
       tone: 'success',
     },
     {
-      label: 'OpenAI API paga',
+      label: 'proveedores IA externos',
       status: 'No activa',
       tone: 'warning',
     },
@@ -365,10 +365,7 @@ export default async function EntornoPage() {
           </h2>
 
           <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-300">
-            La beta mantiene un entorno seguro mientras las claves reales sigan
-            fuera del repositorio, las variables se administren desde Vercel, el
-            archivo .env.local permanezca ignorado y no se active IA real sin una
-            decisión técnica y económica previa.
+La beta mantiene un entorno seguro mientras las claves privadas sigan fuera del repositorio, las variables se administren desde Vercel, el archivo .env.local permanezca ignorado y no se active una integración IA externa sin una decisión técnica y económica previa.
           </p>
         </section>
       </div>

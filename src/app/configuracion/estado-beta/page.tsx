@@ -165,7 +165,7 @@ export default async function EstadoBetaPage() {
       status: 'Validado',
     },
     {
-      label: 'IA simulada sin OpenAI API paga',
+      label: 'IA documental en entorno beta',
       status: 'Activo',
     },
   ];
@@ -175,7 +175,7 @@ export default async function EstadoBetaPage() {
     'Automatizar aceptación real de invitaciones.',
     'Crear recuperación de contraseña controlada.',
     'Mejorar documentación interna del sistema.',
-    'Evaluar IA real solo si se decide activar API paga.',
+    'Evaluar integración IA externa solo si se decide avanzar con proveedor externo.',
   ];
 
   return (
@@ -192,7 +192,7 @@ export default async function EstadoBetaPage() {
               </h1>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
                 Panel interno para revisar el estado operativo de la beta online,
-                usuarios activos, documentos, análisis IA simulados, invitaciones
+                usuarios activos, documentos, análisis IA documentales, invitaciones
                 y actividad reciente del sistema.
               </p>
             </div>
@@ -233,7 +233,7 @@ export default async function EstadoBetaPage() {
           <CountCard
             title="Análisis IA"
             value={totalAiOutputs}
-            description="Salidas generadas por IA simulada/local."
+            description="Salidas generadas por análisis IA documental"
           />
 
           <CountCard
@@ -249,12 +249,12 @@ export default async function EstadoBetaPage() {
             description="Eventos registrados en audit_logs."
           />
 
-          <CountCard
-            title="API OpenAI"
-            value="No activa"
-            description="La beta continúa usando IA simulada/local."
-            tone="success"
-          />
+<CountCard
+  title="Integración IA externa"
+  value="No activa"
+  description="La beta mantiene análisis IA en modo controlado."
+  tone="success"
+/>
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[1fr_0.8fr]">
@@ -372,10 +372,7 @@ export default async function EstadoBetaPage() {
             Criterio actual de beta cerrada
           </h2>
           <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-300">
-            La beta se considera funcional mientras no existan bugs críticos o
-            altos abiertos, el login online funcione, el tester externo pueda
-            navegar los módulos permitidos, las rutas sensibles sigan bloqueadas
-            y no se utilicen documentos reales sensibles ni API paga de OpenAI.
+La beta se considera funcional mientras no existan bugs críticos o altos abiertos, el login online funcione, el tester externo pueda navegar los módulos permitidos, las rutas sensibles sigan bloqueadas y no se envíen documentos sensibles a proveedores externos de IA.
           </p>
         </section>
       </div>

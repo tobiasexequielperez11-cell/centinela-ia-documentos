@@ -203,7 +203,7 @@ export default async function DocumentacionPage() {
       items: [
         'Variables reales administradas desde Vercel.',
         'GitHub privado sin .env.local, node_modules, .next ni .vercel.',
-        'OpenAI API real no activa durante esta etapa.',
+        'Integración IA externa no activa durante esta etapa.',
       ],
       href: '/configuracion/entorno',
     },
@@ -216,8 +216,8 @@ export default async function DocumentacionPage() {
       tone: 'success',
       items: [
         'Muestra usuarios, testers activos, documentos y expedientes.',
-        'Muestra análisis IA simulados e invitaciones pendientes.',
-        'Confirma que API OpenAI no está activa.',
+'Muestra análisis IA, invitaciones pendientes y actividad operativa.',
+'Confirma que la integración IA externa no está activa.',
       ],
       href: '/configuracion/estado-beta',
     },
@@ -256,7 +256,7 @@ export default async function DocumentacionPage() {
 
   const internalRules = [
     'Toda mejora importante debe pasar por backup, build local, prueba local, commit, push y deploy en Vercel.',
-    'No se debe activar OpenAI API real hasta definir propuesta comercial, control de costos y límites de uso.',
+'No se debe activar una integración IA externa hasta definir propuesta comercial, control de costos y límites de uso.',
     'Los testers externos no deben recibir acceso a Supabase, GitHub, Vercel ni credenciales internas.',
     'Los documentos usados para pruebas no deben contener información real sensible.',
     'Toda incidencia detectada debe registrarse en la planilla de beta cerrada.',

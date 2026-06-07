@@ -111,7 +111,7 @@ export default async function RoadmapPage() {
         'Seguridad y permisos.',
         'Variables y entorno.',
         'Documentación interna.',
-        'Modo IA simulada.',
+'Análisis IA en modo controlado.',
         'Roadmap interno.',
         'Resumen general del sistema.',
         'Cierre formal de configuración interna.',
@@ -235,13 +235,13 @@ export default async function RoadmapPage() {
       status: 'Ahora',
       tone: 'warning' as const,
     },
-    {
-      title: 'No activar IA paga todavía',
-      description:
-        'Mantener IA simulada hasta validar propuesta comercial, costos y límites por usuario.',
-      status: 'Correcto',
-      tone: 'success' as const,
-    },
+{
+  title: 'Mantener IA en modo controlado',
+  description:
+    'Mantener el análisis IA en modo controlado hasta validar propuesta comercial, costos y límites por usuario.',
+  status: 'Correcto',
+  tone: 'success' as const,
+},
     {
       title: 'Preparar seguridad fuerte',
       description:

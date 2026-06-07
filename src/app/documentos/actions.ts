@@ -259,7 +259,7 @@ function buildAlerts(text: string, sensitivity: string) {
   }
 
   if (alerts.length === 0) {
-    alerts.push('No se detectaron alertas críticas en el análisis simulado.');
+    alerts.push('No se detectaron alertas críticas en el análisis docuemtanl');
   }
 
   return alerts;
@@ -365,7 +365,7 @@ export async function analyzeDocument(formData: FormData) {
   const analysis = {
     modo: 'simulacion',
     resumen:
-      'Análisis simulado generado localmente. El sistema extrajo texto del PDF y aplicó reglas básicas para clasificarlo sin llamar a una API externa.',
+'Análisis documental generado en modo controlado. El sistema extrajo texto del PDF y aplicó reglas básicas para clasificarlo sin enviar información a proveedores externos.',
     tipo_documental_detectado: detectedType,
     sensibilidad_detectada: detectedSensitivity,
     datos_relevantes: buildRelevantData(extractedText),

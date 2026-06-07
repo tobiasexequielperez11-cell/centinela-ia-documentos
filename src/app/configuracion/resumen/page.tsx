@@ -193,7 +193,7 @@ export default async function ResumenSistemaPage() {
     {
       label: 'Documentos',
       status: 'Activo',
-      description: 'Bóveda documental, carga de archivos, visor PDF y análisis simulado.',
+description: 'Bóveda documental, carga de archivos, visor PDF y análisis IA en modo controlado.',
       tone: 'success',
       href: '/documentos',
     },
@@ -304,12 +304,12 @@ export default async function ResumenSistemaPage() {
       description: 'Auth, base de datos y storage se encuentran operativos para la beta.',
       tone: 'success',
     },
-    {
-      label: 'OpenAI API',
-      status: 'No activa',
-      description: 'La app mantiene análisis IA simulado/local sin costo de API paga.',
-      tone: 'warning',
-    },
+{
+  label: 'Integración IA externa',
+  status: 'No activa',
+  description: 'La app mantiene análisis IA en modo controlado sin costos externos.',
+  tone: 'warning',
+},
     {
       label: 'Tester externo',
       status: 'Activo',
@@ -327,7 +327,7 @@ export default async function ResumenSistemaPage() {
   const nextActions = [
     'Cerrar Sprint 10 con un resumen formal de configuración interna.',
     'Preparar Sprint 11 para invitaciones reales y alta automática de usuarios.',
-    'Mantener IA simulada hasta definir propuesta comercial y control de costos.',
+    'Mantener el análisis IA en modo controlado hasta definir propuesta comercial y control de costos.',
     'No ampliar a más testers sin revisar seguridad fuerte en Sprint 13.',
     'Conservar backups, commits y deploys por cada bloque aprobado.',
   ];
@@ -390,7 +390,7 @@ export default async function ResumenSistemaPage() {
           <SummaryCard
             title="Análisis IA"
             value={totalAiOutputs}
-            description="Resultados generados por IA simulada/local."
+            description="Resultados generados por análisis IA documental en entorno beta"
             tone="success"
           />
 
@@ -407,12 +407,12 @@ export default async function ResumenSistemaPage() {
             description="Eventos registrados para trazabilidad."
           />
 
-          <SummaryCard
-            title="OpenAI API"
-            value="No activa"
-            description="La beta no consume API paga."
-            tone="success"
-          />
+<SummaryCard
+  title="Integración IA externa"
+  value="No activa"
+  description="La beta no consume servicios externos de IA."
+  tone="success"
+/>
         </section>
 
         <section className="grid gap-6 xl:grid-cols-2">

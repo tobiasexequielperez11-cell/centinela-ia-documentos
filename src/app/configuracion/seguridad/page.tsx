@@ -199,8 +199,8 @@ export default async function SeguridadPage() {
     'La beta cerrada se prueba con usuarios controlados y perfiles definidos.',
     'Los testers externos deben usar rol employee y estado active.',
     'Los módulos administrativos quedan reservados para admin.',
-    'Las variables reales se administran en Vercel y no deben subirse a GitHub.',
-    'No se utiliza OpenAI API paga durante esta etapa.',
+    'Las variables privadas se administran en Vercel y no deben subirse a GitHub.',
+    'No se utiliza servicios externos de IA durante esta etapa.',
     'No se deben cargar documentos reales sensibles durante la prueba.',
   ];
 
@@ -241,7 +241,7 @@ export default async function SeguridadPage() {
       tone: 'success' as const,
     },
     {
-      label: 'OpenAI API real',
+      label: 'integración IA externa',
       status: 'No activa',
       tone: 'warning' as const,
     },

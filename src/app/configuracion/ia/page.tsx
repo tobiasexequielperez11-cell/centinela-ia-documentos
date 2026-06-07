@@ -128,35 +128,35 @@ export default async function IaConfigPage() {
     {
       title: 'Estado actual de IA',
       description:
-        'La beta cerrada utiliza un análisis simulado/local para validar el flujo documental sin generar costos externos.',
-      status: 'Simulada',
+        'La beta cerrada utiliza análisis IA en modo controlado para validar el flujo documental sin generar costos externos.',
+      status: 'Controlado',
       badge: 'Actual',
       tone: 'success',
       items: [
-        'No se envían documentos a OpenAI.',
+        'No se envían documentos a proveedores externos.',
         'No se consume crédito ni tokens de API.',
-        'El flujo permite probar interfaz, historial y reportes sin IA real.',
-        'Sirve para validar el producto antes de pagar servicios externos.',
+        'El flujo permite validar interfaz, historial, reportes y cobertura documental.',
+        'Sirve para validar el producto antes de integrar servicios externos.',
       ],
     },
+{
+  title: 'Integración IA externa',
+  description:
+    'La integración con un proveedor IA externo queda reservada para una etapa futura, cuando la propuesta comercial y técnica esté validada.',
+  status: 'No activa',
+  badge: 'Externo',
+  tone: 'warning',
+  items: [
+    'No cargar claves privadas en GitHub.',
+    'No activar servicios externos sin control de costos.',
+    'No enviar documentos sensibles a proveedores externos durante pruebas tempranas.',
+    'Definir límites por usuario y organización antes de activar la integración.',
+  ],
+},
     {
-      title: 'OpenAI API real',
+      title: 'Qué valida la IA documental',
       description:
-        'La integración real con OpenAI queda reservada para una etapa futura, cuando la propuesta comercial esté más clara.',
-      status: 'No activa',
-      badge: 'API',
-      tone: 'warning',
-      items: [
-        'No cargar claves reales en GitHub.',
-        'No activar API paga sin control de costos.',
-        'No usar documentos reales sensibles durante pruebas tempranas.',
-        'Definir límites por usuario y organización antes de activar.',
-      ],
-    },
-    {
-      title: 'Qué valida la IA simulada',
-      description:
-        'Aunque no usa IA real, el modo simulado permite validar partes importantes del producto.',
+        'El análisis IA en modo controlado permite validar partes importantes del producto antes de integrar un proveedor externo.',
       status: 'Útil',
       badge: 'Beta',
       tone: 'success',
@@ -207,15 +207,15 @@ export default async function IaConfigPage() {
       tone: 'warning',
     },
     {
-      label: 'Activar IA real en beta actual',
+label: 'Activar integración IA externa en beta actual',
       status: 'No recomendado',
       tone: 'danger',
     },
   ];
 
   const aiRisks = [
-    'Activar IA real antes de validar el mercado puede generar costos innecesarios.',
-    'Enviar documentos reales a una API externa requiere revisar privacidad, términos y seguridad.',
+    'Activar una integración IA externa antes de validar el mercado puede generar costos innecesarios.',
+    'Enviar documentos reales a un proveedor externo requiere revisar privacidad, términos y seguridad.',
     'Sin límites de uso, un usuario podría generar consumo excesivo.',
     'Sin auditoría de prompts y respuestas, sería difícil diagnosticar errores.',
     'Sin propuesta comercial clara, no se puede definir correctamente el costo por cliente.',
@@ -234,8 +234,8 @@ export default async function IaConfigPage() {
     },
     {
       step: '3',
-      title: 'IA real procesa',
-      detail: 'OpenAI u otro proveedor responde con resumen, clasificación o alertas.',
+title: 'Proveedor IA externo procesa',
+detail: 'Un proveedor IA externo procesa el documento y devuelve resumen, clasificación o alertas.',
     },
     {
       step: '4',
@@ -264,15 +264,13 @@ export default async function IaConfigPage() {
               </h1>
 
               <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
-                Panel interno para controlar el estado de IA simulada, documentar
-                qué hace actualmente el flujo de análisis y dejar preparado el
-                criterio técnico para una futura integración real.
+Panel interno para controlar el estado del análisis IA documental, documentar el flujo actual y dejar preparado el criterio técnico para una futura integración con proveedor externo.
               </p>
             </div>
 
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-950">
               <p className="font-black">Estado actual</p>
-              <p className="mt-1">IA simulada/local sin costo API</p>
+              <p className="mt-1">IA documental en entorno beta sin costo API</p>
             </div>
           </div>
         </section>
@@ -296,11 +294,11 @@ export default async function IaConfigPage() {
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <h2 className="text-xl font-black text-slate-950">
-                  Checklist futuro para IA real
+Checklist futuro para integración IA externa
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-600">
-                  Condiciones recomendadas antes de activar una API paga.
+Condiciones recomendadas antes de activar una integración IA externa.
                 </p>
               </div>
 
@@ -334,8 +332,7 @@ export default async function IaConfigPage() {
             </h2>
 
             <p className="mt-2 text-sm leading-6 opacity-80">
-              Motivos por los que conviene mantener IA simulada hasta tener más
-              clara la propuesta comercial.
+Motivos por los que conviene mantener el análisis IA en modo controlado hasta definir la propuesta comercial.
             </p>
 
             <div className="mt-5 space-y-3">
@@ -353,7 +350,7 @@ export default async function IaConfigPage() {
 
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="text-xl font-black text-slate-950">
-            Flujo futuro de IA real
+Flujo futuro de integración IA externa
           </h2>
 
           <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -392,19 +389,19 @@ export default async function IaConfigPage() {
 
             <div className="mt-5 space-y-3 text-sm leading-6 text-slate-700">
               <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                Mantener IA simulada/local durante la beta cerrada.
+Mantener el análisis IA en modo controlado durante la beta cerrada.
               </div>
 
               <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                No cargar claves OpenAI reales en el repositorio.
+No cargar claves privadas de proveedores externos en el repositorio.
               </div>
 
               <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                No activar consumo pago sin límites de uso.
+No activar servicios externos sin límites de uso.
               </div>
 
               <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                No analizar documentos reales sensibles en pruebas iniciales.
+No enviar documentos sensibles a proveedores externos durante pruebas iniciales.
               </div>
             </div>
           </div>
@@ -415,15 +412,11 @@ export default async function IaConfigPage() {
             </h2>
 
             <p className="mt-3 text-sm leading-6 text-slate-600">
-              La decisión técnica recomendada es mantener la IA en modo simulado
-              hasta completar configuración interna, invitaciones reales,
-              recuperación de contraseña, seguridad fuerte, mejoras de UX y
-              presentación comercial. Recién después conviene evaluar IA real
-              con control de costos y límites por usuario.
+La decisión técnica recomendada es mantener el análisis IA en modo controlado hasta completar la configuración interna, las invitaciones reales, la recuperación de contraseña, la seguridad fuerte, las mejoras de UX y la presentación comercial. Recién después conviene evaluar una integración externa con control de costos y límites por usuario.
             </p>
 
             <div className="mt-5 rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm font-bold leading-6 text-emerald-900">
-              Estado recomendado: mantener IA simulada durante la beta cerrada.
+Estado recomendado: mantener el análisis IA en modo controlado durante la beta cerrada.
             </div>
           </div>
         </section>
@@ -432,10 +425,7 @@ export default async function IaConfigPage() {
           <h2 className="text-xl font-black">Criterio operativo de IA</h2>
 
           <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-300">
-            El módulo de IA se considera correctamente controlado mientras el
-            sistema mantenga análisis simulado, no consuma API paga, no exponga
-            claves privadas y documente claramente qué condiciones deben cumplirse
-            antes de activar una integración real.
+El módulo de IA se considera correctamente controlado mientras el sistema mantenga análisis IA en modo controlado, no consuma servicios externos, no exponga claves privadas y documente claramente qué condiciones deben cumplirse antes de activar una integración IA externa.
           </p>
         </section>
       </div>

@@ -149,8 +149,8 @@ export default async function ConfiguracionPage() {
     {
       title: 'Modo IA',
       description:
-        'La beta continúa funcionando con IA simulada/local. No se utiliza OpenAI API paga ni claves reales de IA.',
-      status: 'Simulado',
+        'La beta continúa funcionando con análisis IA en modo controlado. No se utilizan proveedores externos ni claves privadas durante esta etapa.',
+      status: 'Controlado',
       badge: 'IA',
       href: '/configuracion/ia',
       adminOnly: true,
@@ -246,12 +246,12 @@ export default async function ConfiguracionPage() {
               </div>
 
               <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
-                <p className="text-sm font-black text-emerald-900">
-                  OPENAI API
-                </p>
-                <p className="mt-1 text-xs text-emerald-700">
-                  No activa. La beta sigue usando IA simulada/local.
-                </p>
+         <p className="text-sm font-black text-emerald-900">
+  Integración IA externa
+</p>
+<p className="mt-1 text-xs text-emerald-700">
+  No activa. La beta mantiene el análisis IA en modo controlado para validar el flujo documental.
+</p>
               </div>
             </div>
           </div>
