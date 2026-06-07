@@ -588,12 +588,26 @@ export default function HomePage() {
               WhatsApp: +54 379 4733321
             </a>
 
-            <Link href="/login" className="font-semibold text-slate-600 hover:text-slate-950">
+            <Link
+              href="/login"
+              className="font-semibold text-slate-600 hover:text-slate-950"
+            >
               Ingresar
             </Link>
           </div>
         </div>
       </footer>
+
+      <a
+        href={whatsappUrl}
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Solicitar demo por WhatsApp"
+        className="fixed bottom-5 right-5 z-50 flex items-center gap-3 rounded-full bg-emerald-500 px-5 py-4 text-sm font-black text-white shadow-2xl shadow-emerald-900/30 transition hover:bg-emerald-600"
+      >
+        <span className="flex h-3 w-3 rounded-full bg-white" />
+        Solicitar demo
+      </a>
     </main>
   );
 }
