@@ -18,6 +18,27 @@ function sensitivityLabel(value: string) {
     medium: 'Medio',
     high: 'Alto',
     critical: 'Crítico',
+    bajo: 'Bajo',
+    medio: 'Medio',
+    alto: 'Alto',
+    critico: 'Crítico',
+    crítico: 'Crítico',
+  };
+
+  return labels[String(value ?? '').toLowerCase()] ?? value;
+}
+
+function documentTypeLabel(value?: string | null) {
+  if (!value) return 'Sin clasificar';
+
+  const labels: Record<string, string> = {
+    general: 'General',
+    rental: 'Contrato de alquiler',
+    real_estate_purchase: 'Compraventa inmobiliaria',
+    labor: 'Laboral',
+    administrative: 'Administrativo',
+    judicial: 'Judicial',
+    corporate: 'Societario',
   };
 
   return labels[value] ?? value;
@@ -171,7 +192,7 @@ export default async function DocumentsPage({
           </h2>
 
           <p className="mt-2 text-sm text-slate-600">
-            Control operativo de documentos cargados y estado de análisis IA.
+            Control operativo de documentos cargados, clasificación y estado de análisis IA.
           </p>
         </div>
 
@@ -195,7 +216,7 @@ export default async function DocumentsPage({
 
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
           <p className="text-sm font-semibold text-slate-500">
-            Pendientes IA
+            Pendientes de revisión
           </p>
           <p className="mt-2 text-3xl font-bold text-slate-950">
             {pendingDocuments}
@@ -249,7 +270,7 @@ export default async function DocumentsPage({
                 Hay documentos pendientes de análisis IA.
               </p>
               <p className="mt-1 text-sm text-amber-800">
-                Revisá los pendientes y ejecutá el análisis simulado para completar la cobertura documental.
+                Revisá los pendientes y ejecutá el análisis IA para completar la cobertura documental.
               </p>
             </div>
 
@@ -267,7 +288,7 @@ export default async function DocumentsPage({
             Cobertura IA completa.
           </p>
           <p className="mt-1 text-sm text-emerald-800">
-            Todos los documentos cargados tienen al menos un análisis IA simulado.
+            Todos los documentos cargados tienen al menos un análisis IA registrado.
           </p>
         </div>
       )}
@@ -299,7 +320,7 @@ export default async function DocumentsPage({
                   </td>
 
                   <td className="px-5 py-4 text-slate-600">
-                    {item.document_type ?? 'No definido'}
+                    {documentTypeLabel(item.document_type)}
                   </td>
 
                   <td className="px-5 py-4 text-slate-600">
@@ -336,7 +357,7 @@ export default async function DocumentsPage({
                           />
 
                           <button className="rounded-xl bg-slate-950 px-3 py-2 text-xs font-bold text-white hover:bg-slate-800">
-                            Analizar pendiente
+                            Analizar IA
                           </button>
                         </form>
                       ) : null}

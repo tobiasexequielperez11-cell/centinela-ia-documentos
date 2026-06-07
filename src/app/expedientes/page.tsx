@@ -12,10 +12,33 @@ function statusLabel(status: string) {
     incomplete: 'Incompleto',
     waiting_client: 'Esperando cliente',
     complete: 'Completo',
+    completed: 'Completo',
     archived: 'Archivado',
   };
 
   return labels[status] ?? status;
+}
+
+function caseTypeLabel(type?: string | null) {
+  const labels: Record<string, string> = {
+    general: 'General',
+    rental: 'Contrato de alquiler',
+    real_estate_purchase: 'Compraventa inmobiliaria',
+    labor: 'Laboral',
+    administrative: 'Administrativo',
+    judicial: 'Judicial',
+    corporate: 'Societario',
+  };
+
+  return labels[type ?? ''] ?? type ?? 'General';
+}
+
+function displayText(value?: string | null, fallback = 'Sin definir') {
+  const cleanValue = value?.trim();
+
+  if (!cleanValue) return fallback;
+
+  return cleanValue;
 }
 
 export default async function CasesPage() {
@@ -41,11 +64,13 @@ export default async function CasesPage() {
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
             Expedientes
           </p>
+
           <h2 className="mt-2 text-3xl font-bold text-slate-950">
             Carpetas de trabajo
           </h2>
+
           <p className="mt-2 text-sm text-slate-600">
-            Gestioná expedientes, clientes, estados y documentación asociada.
+            Gestioná casos, clientes, estados y documentación asociada desde un único panel.
           </p>
         </div>
 
@@ -68,21 +93,26 @@ export default async function CasesPage() {
               <th className="px-5 py-4">Acción</th>
             </tr>
           </thead>
+
           <tbody className="divide-y divide-slate-200">
             {records.map((item) => (
               <tr key={item.id} className="hover:bg-slate-50">
                 <td className="px-5 py-4 font-bold text-slate-950">
-                  {item.title}
+                  {displayText(item.title, 'Expediente sin título')}
                 </td>
+
                 <td className="px-5 py-4 text-slate-600">
-                  {item.client_name ?? '-'}
+                  {displayText(item.client_name, 'Sin cliente asignado')}
                 </td>
+
                 <td className="px-5 py-4 text-slate-600">
-                  {item.case_type ?? 'general'}
+                  {caseTypeLabel(item.case_type)}
                 </td>
+
                 <td className="px-5 py-4 text-slate-600">
                   {statusLabel(item.status)}
                 </td>
+
                 <td className="px-5 py-4">
                   <Link
                     className="font-bold text-sky-600 hover:text-sky-700"
@@ -101,8 +131,9 @@ export default async function CasesPage() {
             <p className="font-bold text-slate-950">
               Todavía no hay expedientes.
             </p>
+
             <p className="mt-2 text-sm text-slate-500">
-              Creá el primero para comenzar la demo funcional.
+              Creá el primer expediente para comenzar la gestión documental.
             </p>
           </div>
         ) : null}
