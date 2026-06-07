@@ -603,20 +603,22 @@ export default function HomePage() {
   target="_blank"
   rel="noreferrer"
   aria-label="Solicitar demo por WhatsApp"
-  className="fixed bottom-5 right-5 z-50 flex items-center gap-3 rounded-full bg-emerald-500 px-5 py-4 text-sm font-black text-white shadow-2xl shadow-emerald-900/30 transition hover:bg-emerald-600"
+  className="group fixed bottom-4 right-4 z-50 inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-3 text-xs font-black text-white shadow-[0_12px_30px_rgba(16,185,129,0.35)] transition-all duration-300 hover:-translate-y-1 hover:bg-emerald-400 hover:shadow-[0_18px_40px_rgba(16,185,129,0.45)] active:translate-y-0 active:scale-95 sm:bottom-5 sm:right-5 sm:gap-3 sm:px-5 sm:py-3.5 sm:text-sm"
 >
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 32 32"
-    fill="currentColor"
-    className="h-5 w-5 shrink-0 text-white"
-    aria-hidden="true"
-  >
-    <path d="M19.11 17.36c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.28-.47-2.43-1.5-.9-.8-1.5-1.8-1.67-2.1-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.05 1.02-1.05 2.5 0 1.47 1.07 2.9 1.22 3.1.15.2 2.1 3.2 5.1 4.48.71.3 1.27.48 1.7.62.71.23 1.35.2 1.86.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35z" />
-    <path d="M16.03 3.2c-6.97 0-12.64 5.67-12.64 12.64 0 2.23.58 4.4 1.69 6.31L3.2 28.8l6.83-1.79a12.6 12.6 0 0 0 6 1.53h.01c6.97 0 12.64-5.67 12.64-12.64 0-3.37-1.31-6.54-3.69-8.93A12.54 12.54 0 0 0 16.03 3.2zm0 23.2h-.01a10.5 10.5 0 0 1-5.35-1.47l-.38-.22-4.05 1.06 1.08-3.95-.25-.4a10.45 10.45 0 0 1-1.6-5.57c0-5.78 4.7-10.48 10.48-10.48 2.8 0 5.43 1.09 7.41 3.07a10.4 10.4 0 0 1 3.07 7.41c0 5.78-4.7 10.48-10.4 10.48z" />
-  </svg>
+  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/20 transition-transform duration-300 group-hover:scale-110 sm:h-9 sm:w-9">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 32 32"
+      fill="currentColor"
+      className="h-4 w-4 text-white sm:h-5 sm:w-5"
+      aria-hidden="true"
+    >
+      <path d="M19.11 17.36c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.28-.47-2.43-1.5-.9-.8-1.5-1.8-1.67-2.1-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.05 1.02-1.05 2.5 0 1.47 1.07 2.9 1.22 3.1.15.2 2.1 3.2 5.1 4.48.71.3 1.27.48 1.7.62.71.23 1.35.2 1.86.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35z" />
+      <path d="M16.03 3.2c-6.97 0-12.64 5.67-12.64 12.64 0 2.23.58 4.4 1.69 6.31L3.2 28.8l6.83-1.79a12.6 12.6 0 0 0 6 1.53h.01c6.97 0 12.64-5.67 12.64-12.64 0-3.37-1.31-6.54-3.69-8.93A12.54 12.54 0 0 0 16.03 3.2zm0 23.2h-.01a10.5 10.5 0 0 1-5.35-1.47l-.38-.22-4.05 1.06 1.08-3.95-.25-.4a10.45 10.45 0 0 1-1.6-5.57c0-5.78 4.7-10.48 10.48-10.48 2.8 0 5.43 1.09 7.41 3.07a10.4 10.4 0 0 1 3.07 7.41c0 5.78-4.7 10.48-10.4 10.48z" />
+    </svg>
+  </span>
 
-  <span>Solicitar demo</span>
+  <span className="leading-none">Solicitar demo</span>
 </a>
     </main>
   );
