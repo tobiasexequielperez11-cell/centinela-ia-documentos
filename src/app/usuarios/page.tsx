@@ -415,8 +415,7 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
             </h3>
 
             <p className="mt-2 text-sm text-slate-600">
-              Seguimiento de invitaciones creadas en modo controlado. Todavía no se activa
-              el alta real automática con Supabase Auth.
+Seguimiento de invitaciones, altas pendientes y accesos gestionados durante la beta operativa.
             </p>
           </div>
 
@@ -455,7 +454,7 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
 
             <p className="mt-3 text-xs leading-5 text-slate-500">
               Esta fecha proviene de la vista operativa de invitaciones y sirve como
-              referencia rápida para controlar actividad reciente de altas simuladas.
+              referencia rápida para controlar actividad reciente de accesos e invitaciones.
             </p>
           </div>
 
@@ -764,16 +763,15 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
 
           <div className="rounded-3xl border border-sky-200 bg-sky-50 p-6 shadow-sm">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-700">
-              Alta controlada
+              Gestión de accesos
             </p>
 
             <h3 className="mt-2 text-xl font-bold text-sky-950">
-              Invitaciones antes de Supabase Auth real
+              Invitaciones operativas
             </h3>
 
             <p className="mt-2 text-sm leading-6 text-sky-800">
-              Las invitaciones funcionan como control operativo interno. Permiten preparar
-              altas, roles y trazabilidad antes de implementar creación real de cuentas.
+Las invitaciones permiten organizar altas, roles, estados y trazabilidad de accesos dentro de la organización.
             </p>
 
             <Link

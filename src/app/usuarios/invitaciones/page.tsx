@@ -207,7 +207,7 @@ export default async function UserInvitationsPage({
           </h2>
 
           <p className="mt-2 text-sm text-slate-600">
-            Alta operativa controlada para preparar nuevos accesos a la organización.
+Gestión operativa de invitaciones, roles y accesos a la organización.
           </p>
         </div>
 
@@ -256,7 +256,7 @@ export default async function UserInvitationsPage({
           <p className="mt-2 text-3xl font-bold text-slate-950">
             {pendingInvitations.length}
           </p>
-          <p className="mt-3 text-xs text-slate-500">Esperando activación manual</p>
+          <p className="mt-3 text-xs text-slate-500">Esperando gestión</p>
         </div>
 
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -287,8 +287,7 @@ export default async function UserInvitationsPage({
           </h3>
 
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Esta acción crea una invitación interna. Todavía no envía email automático
-            ni crea usuario real en Supabase Auth.
+Esta acción registra una invitación operativa para controlar el alta, rol y estado de acceso del usuario dentro de la organización.
           </p>
 
           {canManage ? (
@@ -329,7 +328,7 @@ export default async function UserInvitationsPage({
                 type="submit"
                 className="w-full rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800"
               >
-                Crear invitación operativa
+Registrar invitación
               </button>
             </form>
           ) : (
@@ -339,11 +338,10 @@ export default async function UserInvitationsPage({
           )}
 
           <div className="mt-6 rounded-2xl border border-sky-100 bg-sky-50 p-4">
-            <p className="font-bold text-sky-900">Modo actual</p>
+            <p className="font-bold text-sky-900">Control operativo</p>
 
             <p className="mt-2 text-sm leading-6 text-sky-800">
-              Invitación simulada/controlada. El alta real con email y registro Auth
-              se implementa en un bloque posterior.
+Las invitaciones permiten ordenar accesos, roles y trazabilidad durante la beta operativa.
             </p>
           </div>
         </section>

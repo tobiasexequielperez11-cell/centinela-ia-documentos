@@ -385,7 +385,7 @@ function getResourceLabel(
 
   if (log.resource_type === 'organization') return 'Organización';
 
-  return log.resource_type ?? 'Recurso no definido';
+  return log.resource_type ?? 'Recurso Sin clasificar';
 }
 
 function getAuditDetail(log: AuditLogRecordForReport) {
@@ -703,11 +703,11 @@ if (
       value: totalCases,
       helper: `${activeCases} activos`,
     },
-    {
-      label: 'Documentos cargados',
-      value: totalDocuments,
-      helper: 'Bóveda privada',
-    },
+{
+  label: 'Procesamientos IA',
+  value: aiOutputs.length,
+  helper: 'Análisis registrados',
+},
     {
       label: 'Análisis IA',
       value: aiOutputs.length,
@@ -718,11 +718,11 @@ if (
       value: `${coverage}%`,
       helper: `${analyzedDocuments}/${totalDocuments} documentos`,
     },
-    {
-      label: 'Pendientes IA',
-      value: pendingDocuments,
-      helper: 'Requieren análisis',
-    },
+{
+  label: 'Pendientes de revisión',
+  value: pendingDocuments,
+  helper: 'Requieren análisis IA',
+},
     {
       label: 'Reanalizados',
       value: reanalyzedDocuments,
@@ -895,12 +895,11 @@ if (
               </p>
 
               <h3 className="mt-2 text-2xl font-bold text-slate-950">
-                Control operativo de altas
+Control de invitaciones y accesos
               </h3>
 
               <p className="mt-2 text-sm text-slate-600">
-                Seguimiento de invitaciones creadas en modo controlado. Este módulo no
-                activa todavía altas automáticas con Supabase Auth.
+Seguimiento de invitaciones, altas pendientes y accesos gestionados durante la beta operativa.
               </p>
             </div>
 
@@ -952,7 +951,7 @@ if (
               >
                 {hasPendingExpiredInvitations
                   ? 'Hay invitaciones vencidas. Conviene cancelarlas o recrearlas para mantener limpio el control de accesos.'
-                  : 'No se detectan invitaciones vencidas. El control operativo de altas se mantiene estable.'}
+                  : 'No se detectan invitaciones vencidas. El control operativo de accesos se mantiene estable.'}
               </p>
 
               <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
@@ -968,13 +967,11 @@ if (
 
             <div className="rounded-2xl border border-slate-200 bg-white p-5">
               <p className="text-sm font-bold text-slate-950">
-                Uso recomendado para beta cerrada
+Gestión recomendada de accesos
               </p>
 
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Las invitaciones funcionan como registro operativo previo al alta real. Para
-                una beta cerrada online, el usuario tester puede crearse manualmente en
-                Supabase Auth y quedar documentado en esta bandeja como control interno.
+Las invitaciones permiten controlar altas, roles y estados de acceso dentro de la organización. Para la beta operativa, esta bandeja funciona como registro central de usuarios invitados, aceptados, vencidos o cancelados.
               </p>
 
               <div className="mt-4 flex flex-wrap gap-3">
@@ -1177,7 +1174,7 @@ if (
                   Cobertura IA completa.
                 </p>
                 <p className="mt-1 text-sm text-emerald-800">
-                  Todos los documentos cargados tienen al menos un análisis IA simulado.
+                  Todos los documentos cargados tienen al menos un análisis IA registrado.
                 </p>
               </div>
             )}
@@ -1366,7 +1363,7 @@ if (
                       </td>
 
                       <td className="px-4 py-3 text-slate-600">
-                        {document.document_type ?? 'No definido'}
+                        {document.document_type ?? 'Sin clasificar'}
                       </td>
 
                       <td className="px-4 py-3 text-slate-600">
@@ -1636,7 +1633,7 @@ if (
                     </div>
 
                     <p className="mt-3 text-sm text-slate-600">
-                      Tipo: {document.document_type ?? 'No definido'} · Sensibilidad:{' '}
+                      Tipo: {document.document_type ?? 'Sin clasificar'} · Sensibilidad:{' '}
                       {sensitivityLabel(document.sensitivity_level)}
                     </p>
                   </div>
@@ -1659,7 +1656,7 @@ if (
                 </h3>
 
                 <p className="mt-2 text-sm text-slate-500">
-                  Historial reciente de análisis simulados.
+                  Historial reciente de análisis registrados.
                 </p>
               </div>
 
