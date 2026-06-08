@@ -48,6 +48,19 @@ function formatDocumentType(value?: string | null) {
     general: 'General',
     rental: 'Contrato de alquiler',
     real_estate_purchase: 'Compraventa inmobiliaria',
+    contrato: 'Contrato',
+    factura: 'Factura',
+    recibo: 'Recibo',
+    escritura: 'Escritura',
+    dni: 'DNI',
+    demanda: 'Demanda',
+    escrito: 'Escrito',
+    boleto_compraventa: 'Boleto de compraventa',
+    certificado: 'Certificado',
+    poder: 'Poder',
+    garantia: 'Garantía',
+    reserva: 'Reserva',
+    otro: 'Otro',
   };
 
   return labels[value] ?? value;

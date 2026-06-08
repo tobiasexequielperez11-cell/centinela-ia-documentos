@@ -51,19 +51,23 @@ function sensitivityLabel(value?: string | null) {
 }
 
 function documentTypeLabel(value?: string | null) {
-  if (!value) return 'Sin clasificar';
-
   const labels: Record<string, string> = {
-    general: 'General',
-    rental: 'Contrato de alquiler',
-    real_estate_purchase: 'Compraventa inmobiliaria',
-    labor: 'Laboral',
-    administrative: 'Administrativo',
-    judicial: 'Judicial',
-    corporate: 'Societario',
+    contrato: 'Contrato',
+    factura: 'Factura',
+    recibo: 'Recibo',
+    escritura: 'Escritura',
+    dni: 'DNI',
+    demanda: 'Demanda',
+    escrito: 'Escrito',
+    boleto_compraventa: 'Boleto de compraventa',
+    certificado: 'Certificado',
+    poder: 'Poder',
+    garantia: 'Garantía',
+    reserva: 'Reserva',
+    otro: 'Otro',
   };
 
-  return labels[value] ?? value;
+  return labels[value ?? ''] ?? 'Sin clasificar';
 }
 
 function formatSize(size?: number | null) {

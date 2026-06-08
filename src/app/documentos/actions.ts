@@ -133,6 +133,113 @@ function hasAny(text: string, terms: string[]) {
 }
 
 function detectDocumentType(text: string, declaredType?: string | null) {
+    if (
+    hasAny(text, [
+      'demanda',
+      'demanda laboral',
+      'demanda judicial',
+      'actor',
+      'demandado',
+      'juzgado',
+      'expediente judicial',
+      'objeto de la demanda',
+      'petitorio',
+    ])
+  ) {
+    return 'demanda';
+  }
+
+  if (
+    hasAny(text, [
+      'escrito',
+      'escrito judicial',
+      'presenta escrito',
+      'se presenta',
+      'solicita',
+      'manifiesta',
+      'acompaña documentación',
+      'tenga presente',
+      'provea de conformidad',
+    ])
+  ) {
+    return 'escrito';
+  }
+
+  if (
+    hasAny(text, [
+      'boleto de compraventa',
+      'boleto compraventa',
+      'compraventa',
+      'comprador',
+      'vendedor',
+      'inmueble',
+      'precio de venta',
+      'seña',
+      'posesión',
+      'escritura traslativa',
+    ])
+  ) {
+    return 'boleto_compraventa';
+  }
+
+  if (
+    hasAny(text, [
+      'certificado',
+      'constancia',
+      'certifica',
+      'se certifica',
+      'certificación',
+      'emitido por',
+      'validez',
+    ])
+  ) {
+    return 'certificado';
+  }
+
+  if (
+    hasAny(text, [
+      'poder',
+      'poder especial',
+      'poder general',
+      'apoderado',
+      'poderdante',
+      'mandato',
+      'facultades',
+      'representación',
+      'representar',
+    ])
+  ) {
+    return 'poder';
+  }
+
+  if (
+    hasAny(text, [
+      'garantía',
+      'garante',
+      'fiador',
+      'aval',
+      'garantiza',
+      'obligación garantizada',
+      'responsable solidario',
+    ])
+  ) {
+    return 'garantia';
+  }
+
+  if (
+    hasAny(text, [
+      'reserva',
+      'reserva de inmueble',
+      'reserva inmobiliaria',
+      'monto de reserva',
+      'seña de reserva',
+      'operación reservada',
+      'interesado',
+    ])
+  ) {
+    return 'reserva';
+  }
+
   if (
     hasAny(text, [
       'contrato',
