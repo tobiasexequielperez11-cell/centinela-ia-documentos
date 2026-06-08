@@ -135,6 +135,38 @@ function hasAny(text: string, terms: string[]) {
 function detectDocumentType(text: string, declaredType?: string | null) {
   if (
     hasAny(text, [
+      'contrato',
+      'alquiler',
+      'locador',
+      'locatario',
+      'inmueble',
+      'compraventa',
+      'boleto',
+      'escritura',
+      'cláusula',
+      'partes',
+      'acuerdo',
+    ])
+  ) {
+    return 'contrato';
+  }
+
+  if (
+    hasAny(text, [
+      'demanda',
+      'actor',
+      'demandado',
+      'expediente judicial',
+      'juzgado',
+      'sentencia',
+      'escrito judicial',
+    ])
+  ) {
+    return 'otro';
+  }
+
+  if (
+    hasAny(text, [
       'plan de estudios',
       'asignatura',
       'materia',
@@ -145,10 +177,6 @@ function detectDocumentType(text: string, declaredType?: string | null) {
     ])
   ) {
     return 'plan_estudios';
-  }
-
-  if (hasAny(text, ['contrato', 'cláusula', 'partes', 'acuerdo'])) {
-    return 'contrato';
   }
 
   if (hasAny(text, ['factura', 'importe', 'iva', 'total'])) {
@@ -363,7 +391,7 @@ export async function analyzeDocument(formData: FormData) {
   const detectedSensitivity = detectSensitivity(extractedText);
 
   const analysis = {
-    modo: 'simulacion',
+modo: 'beta_controlada',
     resumen:
 'Análisis documental generado en modo controlado. El sistema extrajo texto del PDF y aplicó reglas básicas para clasificarlo sin enviar información a proveedores externos.',
     tipo_documental_detectado: detectedType,
@@ -381,7 +409,7 @@ export async function analyzeDocument(formData: FormData) {
     case_id: documentRecord.case_id,
     output_type: 'document_analysis',
     content: analysis.resumen,
-    model_name: 'simulated-local-v1',
+model_name: 'analisis-documental-beta-v1',
     result_json: analysis,
     created_by: user.id,
   });
@@ -399,7 +427,7 @@ export async function analyzeDocument(formData: FormData) {
     resourceId: documentRecord.id,
     metadata: {
       file_name: documentRecord.file_name,
-      model: 'simulated-local-v1',
+model: 'analisis-documental-beta-v1',
       output_type: 'document_analysis',
     },
   });
