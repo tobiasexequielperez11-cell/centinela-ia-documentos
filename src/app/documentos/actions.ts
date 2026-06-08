@@ -239,20 +239,27 @@ function detectSensitivity(text: string) {
   return 'low';
 }
 
-function buildRelevantData(text: string) {
+function buildRelevantData(text: string, documentType?: string) {
   const items: string[] = [];
 
-  if (hasAny(text, ['plan de estudios', 'asignatura', 'materia', 'carrera'])) {
-    items.push('El documento parece contener información académica o curricular.');
-  }
+if (
+  documentType === 'plan_estudios' &&
+  hasAny(text, ['plan de estudios', 'asignatura', 'materia', 'carrera'])
+) {
+  items.push('El documento parece contener información académica o curricular.');
+}
 
   if (hasAny(text, ['dni', 'cuit', 'cuil'])) {
     items.push('Se detectan posibles identificadores personales o fiscales.');
   }
 
-  if (hasAny(text, ['contrato', 'cláusula', 'acuerdo'])) {
-    items.push('Se detectan elementos compatibles con documentación contractual.');
-  }
+if (
+  documentType === 'contrato' ||
+  hasAny(text, ['contrato', 'alquiler', 'locador', 'locatario', 'inmueble', 'compraventa', 'boleto', 'escritura', 'cláusula', 'acuerdo'])
+) {
+  items.push('Se detectan elementos compatibles con documentación contractual.');
+  items.push('El documento contiene referencias a partes, condiciones, inmueble o cláusulas.');
+}
 
   if (hasAny(text, ['firma', 'firmado'])) {
     items.push('El documento podría contener referencias a firma o validación formal.');
@@ -396,7 +403,7 @@ modo: 'beta_controlada',
 'Análisis documental generado en modo controlado. El sistema extrajo texto del PDF y aplicó reglas básicas para clasificarlo sin enviar información a proveedores externos.',
     tipo_documental_detectado: detectedType,
     sensibilidad_detectada: detectedSensitivity,
-    datos_relevantes: buildRelevantData(extractedText),
+datos_relevantes: buildRelevantData(extractedText, detectedType),
     alertas: buildAlerts(extractedText, detectedSensitivity),
     proximas_acciones: buildNextActions(detectedType),
     texto_extraido_preview: extractedText.slice(0, 1200),
