@@ -451,11 +451,11 @@ export default async function DocumentDetailPage({
         </div>
       ) : null}
 
-      {query.analysis === 'simulated' ? (
-        <div className="mb-6 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-800">
-          Análisis IA generado y guardado correctamente.
-        </div>
-      ) : null}
+{query.analysis === 'beta' ? (
+  <div className="mb-6 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-800">
+    Análisis IA generado y guardado correctamente.
+  </div>
+) : null}
 
       <div className="grid gap-6 xl:grid-cols-[0.78fr_1.22fr]">
         <section className="space-y-6">
@@ -644,7 +644,7 @@ Dictamen IA documental
                   </p>
 
                   <p className="mt-2 text-xs font-semibold text-slate-500">
-                    Modelo: {latestAiOutput?.model_name ?? 'simulated-local-v1'} ·{' '}
+                    Modelo: {latestAiOutput?.model_name ?? 'analisis-documental-beta-v1'} ·{' '}
                     {formatDate(latestAiOutput?.created_at)}
                   </p>
                 </div>
@@ -757,7 +757,7 @@ Dictamen IA documental
                     </div>
 
                     <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-sky-700">
-                      {latestAiOutput.model_name ?? 'simulated-local-v1'}
+                      {latestAiOutput.model_name ?? 'analisis-documental-beta-v1'}
                     </span>
                   </div>
 
@@ -791,7 +791,7 @@ Dictamen IA documental
                           </div>
 
                           <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-600">
-                            {item.model_name ?? 'simulated-local-v1'}
+                            {item.model_name ?? 'analisis-documental-beta-v1'}
                           </span>
                         </div>
 

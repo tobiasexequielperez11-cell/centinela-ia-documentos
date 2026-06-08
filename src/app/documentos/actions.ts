@@ -422,14 +422,14 @@ model_name: 'analisis-documental-beta-v1',
   });
 
   if (aiInsertError) {
-    console.error('AI simulated insert error:', aiInsertError);
+console.error('AI analysis insert error:', aiInsertError);
     redirect(`/documentos/${documentId}?error=ai_save_failed`);
   }
 
   await createAuditLog({
     organizationId: profile.organization_id,
     userId: user.id,
-    action: 'document_analyzed_simulated',
+action: 'document_analyzed_beta',
     resourceType: 'document',
     resourceId: documentRecord.id,
     metadata: {
@@ -443,5 +443,5 @@ model: 'analisis-documental-beta-v1',
   revalidatePath('/documentos');
   revalidatePath(`/documentos/${documentId}`);
 
-  redirect(`/documentos/${documentId}?analysis=simulated`);
+  redirect(`/documentos/${documentId}?analysis=beta`);
 }

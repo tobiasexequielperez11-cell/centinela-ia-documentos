@@ -196,7 +196,7 @@ function actionLabel(value: string) {
     case_status_updated: 'Estado de expediente actualizado',
     document_uploaded: 'Documento cargado',
     document_viewed: 'Documento visualizado',
-    document_analyzed_simulated: 'Documento analizado con IA documental',
+    document_analyzed_beta: 'Documento analizado con IA documental',
     user_access_updated: 'Acceso de usuario actualizado',
     user_invitation_created: 'Invitación de usuario creada',
     user_invitation_cancelled: 'Invitación de usuario cancelada',
@@ -1690,7 +1690,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                       </div>
 
                       <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-600">
-                        {output.model_name ?? 'simulated-local-v1'}
+                        {output.model_name ?? 'analisis-documental-beta-v1'}
                       </span>
                     </div>
 
