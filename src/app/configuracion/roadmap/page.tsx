@@ -101,9 +101,9 @@ export default async function RoadmapPage() {
     {
       sprint: 'Sprint 10',
       title: 'Configuración interna y control operativo',
-      status: 'En curso',
+      status: 'Cerrado',
       priority: 'Alta',
-      tone: 'warning',
+      tone: 'success',
       objective:
         'Cerrar el módulo de configuración como centro interno de control del MVP.',
       blocks: [
@@ -122,9 +122,9 @@ export default async function RoadmapPage() {
     {
       sprint: 'Sprint 11',
       title: 'Invitaciones reales y alta de usuarios',
-      status: 'Pendiente',
+      status: 'Cerrado',
       priority: 'Alta',
-      tone: 'default',
+      tone: 'success',
       objective:
         'Convertir las invitaciones operativas actuales en un flujo más real para clientes y testers.',
       blocks: [
@@ -144,9 +144,9 @@ export default async function RoadmapPage() {
     {
       sprint: 'Sprint 12',
       title: 'Recuperación de contraseña y sesión',
-      status: 'Pendiente',
+      status: 'Cerrado',
       priority: 'Alta',
-      tone: 'default',
+      tone: 'success',
       objective:
         'Permitir que usuarios reales recuperen acceso sin intervención manual del administrador.',
       blocks: [
@@ -164,9 +164,9 @@ export default async function RoadmapPage() {
     {
       sprint: 'Sprint 13',
       title: 'Seguridad fuerte, RLS, Storage y permisos',
-      status: 'Pendiente',
+      status: 'Cerrado',
       priority: 'Crítica',
-      tone: 'default',
+      tone: 'success',
       objective:
         'Endurecer la seguridad para evitar accesos cruzados, permisos débiles o exposición accidental de datos.',
       blocks: [
@@ -185,9 +185,9 @@ export default async function RoadmapPage() {
     {
       sprint: 'Sprint 14',
       title: 'UX, experiencia y pulido profesional',
-      status: 'Pendiente',
+      status: 'Cerrado',
       priority: 'Media',
-      tone: 'default',
+      tone: 'success',
       objective:
         'Hacer que la app se sienta más clara, guiada, profesional y cercana a un producto comercial.',
       blocks: [
@@ -203,28 +203,27 @@ export default async function RoadmapPage() {
       result:
         'La app dejará de sentirse como beta técnica y empezará a sentirse como producto presentable.',
     },
-    {
-      sprint: 'Sprint 15',
-      title: 'Presentación comercial y preparación de venta',
-      status: 'Pendiente',
-      priority: 'Alta',
-      tone: 'default',
-      objective:
-        'Preparar el material necesario para mostrar, explicar y vender el MVP de forma profesional.',
-      blocks: [
-        'Landing comercial.',
-        'Demo guiada.',
-        'Guion para video corto de uso.',
-        'Documento comercial.',
-        'Casos de uso por rubro.',
-        'Plan de precios.',
-        'Pitch para estudios jurídicos.',
-        'Pitch para inmobiliarias y PyMEs.',
-        'Paquete comercial final.',
-      ],
-      result:
-        'El proyecto tendrá una app funcional y también una forma clara de presentarse comercialmente.',
-    },
+{
+  sprint: 'Sprint 15',
+  title: 'Comercialización, landing, demo y precontacto',
+  status: 'En curso avanzado',
+  priority: 'Alta',
+  tone: 'warning',
+  objective:
+    'Pasar de beta operativa interna a presentación comercial con landing, demo guiada, material comercial y contacto real con prospectos.',
+  blocks: [
+    'Diagnóstico comercial del MVP.',
+    'Landing comercial pública.',
+    'Pulido visual y responsive de la landing.',
+    'Demo guiada, pitch, PDF comercial y planilla de seguimiento.',
+    'Mejoras funcionales antes de contactar clientes.',
+    'README actualizado al estado comercial actual.',
+    'Actualización de configuración interna, resumen y roadmap.',
+    'Contacto comercial real y primeras demos.',
+  ],
+  result:
+    'Centinela IA queda en beta operativa comercial, listo para contactar prospectos, agendar demos y validar interés real del mercado.',
+}
   ];
 
   const currentPriorities = [

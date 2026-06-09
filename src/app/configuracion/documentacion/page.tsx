@@ -202,7 +202,7 @@ export default async function DocumentacionPage() {
       tone: 'warning',
       items: [
         'Variables reales administradas desde Vercel.',
-        'GitHub privado sin .env.local, node_modules, .next ni .vercel.',
+        'Repositorio GitHub documentado sin .env.local, node_modules, .next ni .vercel.',
         'Integración IA externa no activa durante esta etapa.',
       ],
       href: '/configuracion/entorno',
@@ -223,36 +223,64 @@ export default async function DocumentacionPage() {
     },
   ];
 
-  const sprintStatuses: SprintStatus[] = [
-    {
-      sprint: 'Sprint 7',
-      title: 'Usuarios, invitaciones y reportes operativos',
-      status: 'Aprobado',
-      detail:
-        'Invitaciones operativas integradas en usuarios, reportes, dashboard y auditoría.',
-    },
-    {
-      sprint: 'Sprint 8',
-      title: 'Navegación, roles, permisos y beta local',
-      status: 'Aprobado',
-      detail:
-        'Rutas principales validadas, roles revisados, acceso denegado creado y beta local aprobada.',
-    },
-    {
-      sprint: 'Sprint 9',
-      title: 'Deploy online y beta cerrada',
-      status: 'Aprobado',
-      detail:
-        'GitHub privado, Vercel, tester externo, permisos online, logout y cierre beta aprobados.',
-    },
-    {
-      sprint: 'Sprint 10',
-      title: 'Configuración interna',
-      status: 'En curso',
-      detail:
-        'Estado beta, seguridad, entorno y documentación interna dentro de configuración.',
-    },
-  ];
+const sprintStatuses: SprintStatus[] = [
+  {
+    sprint: 'Sprint 8',
+    title: 'Navegación, roles, permisos y beta local',
+    status: 'Aprobado',
+    detail:
+      'Rutas principales validadas, roles revisados, acceso denegado creado y beta local aprobada.',
+  },
+  {
+    sprint: 'Sprint 9',
+    title: 'Deploy online y beta cerrada',
+    status: 'Aprobado',
+    detail:
+      'Repositorio GitHub documentado, Vercel, tester externo, permisos online, logout y cierre beta aprobados.',
+  },
+  {
+    sprint: 'Sprint 10',
+    title: 'Configuración interna y control operativo',
+    status: 'Aprobado',
+    detail:
+      'Paneles internos de estado beta, seguridad, entorno, documentación, resumen y roadmap creados y validados.',
+  },
+  {
+    sprint: 'Sprint 11',
+    title: 'Invitaciones reales y alta de usuarios',
+    status: 'Aprobado',
+    detail:
+      'Flujo real de invitaciones, aceptación por enlace, validación de token/email y control por organización aprobados.',
+  },
+  {
+    sprint: 'Sprint 12',
+    title: 'Recuperación de contraseña y sesión',
+    status: 'Aprobado',
+    detail:
+      'Recuperación de contraseña, nueva contraseña, mensajes claros y control final de sesión aprobados.',
+  },
+  {
+    sprint: 'Sprint 13',
+    title: 'Seguridad fuerte, RLS, Storage y permisos',
+    status: 'Aprobado',
+    detail:
+      'RLS, Storage privado, aislamiento por organización, auditoría, permisos por rol y rutas sensibles aprobados.',
+  },
+  {
+    sprint: 'Sprint 14',
+    title: 'UX y pulido profesional',
+    status: 'Aprobado',
+    detail:
+      'Layout, dashboard, reportes, usuarios, expedientes, documentos, detalle de expediente y textos internos pulidos.',
+  },
+  {
+    sprint: 'Sprint 15',
+    title: 'Comercialización, landing, demo y precontacto',
+    status: 'En curso avanzado',
+    detail:
+      'Landing comercial, demo guiada, PDF comercial, README actualizado, mejoras funcionales y preparación de contacto real con prospectos.',
+  },
+];
 
   const internalRules = [
     'Toda mejora importante debe pasar por backup, build local, prueba local, commit, push y deploy en Vercel.',

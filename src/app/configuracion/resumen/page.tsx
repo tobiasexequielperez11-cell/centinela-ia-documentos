@@ -247,54 +247,51 @@ description: 'Bóveda documental, carga de archivos, visor PDF y análisis IA en
     },
   ];
 
-  const pendingModules: StatusItem[] = [
-    {
-      label: 'Invitaciones reales',
-      status: 'Sprint 11',
-      description: 'Aceptar invitaciones por enlace, crear perfil automático y asignar organización.',
-      tone: 'warning',
-      href: '/configuracion/roadmap',
-    },
-    {
-      label: 'Recuperación de contraseña',
-      status: 'Sprint 12',
-      description: 'Flujo “olvidé mi contraseña”, link de recuperación y nueva contraseña.',
-      tone: 'warning',
-      href: '/configuracion/roadmap',
-    },
-    {
-      label: 'Hardening de seguridad',
-      status: 'Sprint 13',
-      description: 'Revisión profunda de RLS, Storage, permisos y validaciones server-side.',
-      tone: 'warning',
-      href: '/configuracion/roadmap',
-    },
-    {
-      label: 'Pulido UX',
-      status: 'Sprint 14',
-      description: 'Estados de carga, pantallas vacías, mensajes claros y responsive.',
-      tone: 'default',
-      href: '/configuracion/roadmap',
-    },
-    {
-      label: 'Presentación comercial',
-      status: 'Sprint 15',
-      description: 'Landing, demo guiada, documento comercial, casos de uso, precios y pitch.',
-      tone: 'default',
-      href: '/configuracion/roadmap',
-    },
-  ];
+const pendingModules: StatusItem[] = [
+  {
+    label: 'Contacto comercial real',
+    status: 'Sprint 15 — Bloque 6',
+    description:
+      'Contactar primeros prospectos, registrar respuestas y agendar demos comerciales controladas.',
+    tone: 'warning',
+    href: '/configuracion/roadmap',
+  },
+  {
+    label: 'Primeras demos con clientes',
+    status: 'En preparación',
+    description:
+      'Usar la landing, el PDF comercial, el pitch de WhatsApp y la planilla de seguimiento para validar interés real.',
+    tone: 'warning',
+    href: '/configuracion/roadmap',
+  },
+  {
+    label: 'Feedback comercial',
+    status: 'Pendiente de clientes',
+    description:
+      'Registrar objeciones, rubros interesados, precio validado y necesidades de desarrollo a medida.',
+    tone: 'default',
+    href: '/configuracion/roadmap',
+  },
+  {
+    label: 'Roadmap posterior',
+    status: 'Luego de demos',
+    description:
+      'Definir próximas mejoras según respuesta real del mercado: filtros avanzados, clientes, reportes o integraciones futuras.',
+    tone: 'default',
+    href: '/configuracion/roadmap',
+  },
+];
 
   const systemHealth: StatusItem[] = [
     {
-      label: 'Beta cerrada online',
+      label: 'Beta operativa comercial online',
       status: 'Funcional',
       description: 'La app está desplegada en Vercel y conectada a Supabase.',
       tone: 'success',
     },
     {
       label: 'Repositorio GitHub',
-      status: 'Privado',
+status: 'Documentado',
       description: 'El código está versionado sin .env.local, node_modules, .next ni .vercel.',
       tone: 'success',
     },
@@ -319,18 +316,18 @@ description: 'Bóveda documental, carga de archivos, visor PDF y análisis IA en
     {
       label: 'Incidencias críticas',
       status: '0 abiertas',
-      description: 'No hay bugs críticos ni altos abiertos en la beta cerrada validada.',
+      description: 'No hay bugs críticos ni altos abiertos en la beta operativa comercial.',
       tone: 'success',
     },
   ];
 
-  const nextActions = [
-    'Cerrar Sprint 10 con un resumen formal de configuración interna.',
-    'Preparar Sprint 11 para invitaciones reales y alta automática de usuarios.',
-    'Mantener el análisis IA en modo controlado hasta definir propuesta comercial y control de costos.',
-    'No ampliar a más testers sin revisar seguridad fuerte en Sprint 13.',
-    'Conservar backups, commits y deploys por cada bloque aprobado.',
-  ];
+const nextActions = [
+  'Contactar primeros prospectos reales y registrar cada respuesta comercial.',
+  'Agendar demos breves con estudios jurídicos, inmobiliarias, escribanías o áreas administrativas.',
+  'Usar landing, PDF comercial, pitch de WhatsApp y planilla de seguimiento como kit mínimo de venta.',
+  'Validar interés real, objeciones frecuentes, precio beta y necesidades de desarrollo a medida.',
+  'Mantener backups, commits, builds y deploys por cada ajuste aprobado antes de mostrar a clientes.',
+];
 
   return (
     <AppShell>
@@ -348,14 +345,14 @@ description: 'Bóveda documental, carga de archivos, visor PDF y análisis IA en
 
               <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
                 Vista ejecutiva interna para revisar en una sola pantalla el
-                estado actual del MVP, módulos activos, módulos protegidos,
-                pendientes próximos, beta cerrada, IA, seguridad y despliegue.
+estado actual del MVP, módulos activos, módulos protegidos,
+próximos pasos comerciales, beta operativa comercial, IA, seguridad y despliegue.
               </p>
             </div>
 
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-950">
               <p className="font-black">Estado general</p>
-              <p className="mt-1">Beta cerrada online avanzada</p>
+              <p className="mt-1">Beta operativa comercial online</p>
             </div>
           </div>
         </section>
@@ -456,7 +453,7 @@ description: 'Bóveda documental, carga de archivos, visor PDF y análisis IA en
             </h2>
 
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Estado resumido de los componentes principales de la beta cerrada.
+Estado resumido de los componentes principales de la beta operativa comercial.
             </p>
 
             <div className="mt-5 space-y-3">
@@ -506,23 +503,23 @@ description: 'Bóveda documental, carga de archivos, visor PDF y análisis IA en
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-slate-950 p-6 text-white shadow-sm">
-            <h2 className="text-xl font-black">
-              Diagnóstico ejecutivo
-            </h2>
+  <h2 className="text-xl font-black">
+  Diagnóstico ejecutivo
+</h2>
 
-            <p className="mt-3 text-sm leading-6 text-slate-300">
-              Centinela IA Documentos ya funciona como beta cerrada online,
-              con dashboard, documentos, expedientes, reportes, usuarios,
-              invitaciones operativas, auditoría, configuración interna,
-              permisos básicos y tester externo. El próximo salto importante es
-              convertir los flujos operativos en flujos reales para clientes:
-              invitaciones, recuperación de contraseña, seguridad fuerte y
-              experiencia comercial.
-            </p>
+<p className="mt-3 text-sm leading-6 text-slate-300">
+  Centinela IA Documentos funciona actualmente como beta operativa comercial,
+  con landing pública, dashboard, expedientes, bóveda documental, visor PDF,
+  análisis documental beta, historial IA, reportes, usuarios, auditoría,
+  configuración interna, recuperación de contraseña, seguridad fuerte,
+  permisos por rol y material comercial preparado. El foco actual es pasar
+  del MVP validado a los primeros contactos reales con prospectos, demos
+  comerciales y registro de respuestas del mercado.
+</p>
 
-            <div className="mt-5 rounded-2xl border border-white/10 bg-white/10 p-4 text-sm font-bold leading-6">
-              Estado recomendado: cerrar Sprint 10 y avanzar luego a Sprint 11.
-            </div>
+<div className="mt-5 rounded-2xl border border-white/10 bg-white/10 p-4 text-sm font-bold">
+  Estado actual: Sprint 15 — Bloque 6 — contacto comercial real y primeras demos
+</div>
           </div>
         </section>
 
