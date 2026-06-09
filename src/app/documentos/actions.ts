@@ -528,24 +528,36 @@ model_name: 'analisis-documental-beta-v1',
     created_by: user.id,
   });
 
-  if (aiInsertError) {
-console.error('AI analysis insert error:', aiInsertError);
-    redirect(`/documentos/${documentId}?error=ai_save_failed`);
-  }
+if (aiInsertError) {
+  console.error('AI analysis insert error:', aiInsertError);
+  redirect(`/documentos/${documentId}?error=ai_save_failed`);
+}
 
-  await createAuditLog({
-    organizationId: profile.organization_id,
-    userId: user.id,
-action: 'document_analyzed_beta',
-    resourceType: 'document',
-    resourceId: documentRecord.id,
-    metadata: {
-      file_name: documentRecord.file_name,
-model: 'analisis-documental-beta-v1',
-      output_type: 'document_analysis',
-    },
-  });
+const { error: documentUpdateError } = await supabase
+  .from('documents')
+  .update({
+    document_type: detectedType,
+    sensitivity_level: detectedSensitivity,
+  })
+  .eq('id', documentRecord.id)
+  .eq('organization_id', profile.organization_id);
 
+if (documentUpdateError) {
+  console.error('Document metadata update error:', documentUpdateError);
+}
+
+await createAuditLog({
+  organizationId: profile.organization_id,
+  userId: user.id,
+  action: 'document_analyzed_beta',
+  resourceType: 'document',
+  resourceId: documentRecord.id,
+  metadata: {
+    file_name: documentRecord.file_name,
+    model: 'analisis-documental-beta-v1',
+    output_type: 'document_analysis',
+  },
+});
   revalidatePath('/dashboard');
   revalidatePath('/documentos');
   revalidatePath(`/documentos/${documentId}`);
