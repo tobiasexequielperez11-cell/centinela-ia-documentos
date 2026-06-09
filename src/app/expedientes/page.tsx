@@ -49,11 +49,12 @@ export default async function CasesPage() {
 
   const supabase = await createClient();
 
-  const { data: cases } = await supabase
-    .from('cases')
-    .select('*')
-    .eq('organization_id', profile.organization_id)
-    .order('created_at', { ascending: false });
+const { data: cases } = await supabase
+  .from('cases')
+  .select('*')
+  .eq('organization_id', profile.organization_id)
+  .neq('status', 'archived')
+  .order('created_at', { ascending: false });
 
   const records = (cases ?? []) as CaseRecord[];
 
