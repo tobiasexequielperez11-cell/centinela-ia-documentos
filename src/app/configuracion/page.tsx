@@ -113,7 +113,7 @@ export default async function ConfiguracionPage() {
     {
       title: 'Resumen general',
       description:
-        'Vista ejecutiva del estado actual del MVP, módulos activos, módulos protegidos, beta cerrada, IA, seguridad, deploy y próximos pasos.',
+        'Vista ejecutiva del estado actual del MVP, módulos activos, módulos protegidos, beta operativa comercial, IA, seguridad, deploy y próximos pasos.',
       status: 'Activo',
       badge: 'Sistema',
       href: '/configuracion/resumen',
@@ -181,9 +181,7 @@ export default async function ConfiguracionPage() {
               </h1>
 
               <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
-                Centro operativo para controlar el estado de la beta cerrada,
-                seguridad, permisos, entorno, documentación interna y próximos
-                módulos del sistema.
+Centro operativo para controlar el estado de la beta operativa comercial, seguridad, permisos, entorno, documentación interna y próximos pasos del sistema.
               </p>
             </div>
 
@@ -271,7 +269,7 @@ export default async function ConfiguracionPage() {
               </div>
 
               <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                No cargar documentos reales sensibles durante la beta cerrada.
+                No cargar documentos reales sensibles durante la beta operativa comercial.
               </div>
 
               <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">

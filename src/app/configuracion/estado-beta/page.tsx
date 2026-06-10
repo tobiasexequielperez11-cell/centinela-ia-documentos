@@ -188,7 +188,7 @@ export default async function EstadoBetaPage() {
                 Control interno
               </p>
               <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-950">
-                Estado de beta cerrada
+                Estado de beta operativa comercial
               </h1>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
                 Panel interno para revisar el estado operativo de la beta online,
@@ -252,7 +252,7 @@ export default async function EstadoBetaPage() {
 <CountCard
   title="Integración IA externa"
   value="No activa"
-  description="La beta mantiene análisis IA en modo controlado."
+  description="La plataforma mantiene análisis documental beta en modo controlado.."
   tone="success"
 />
         </section>
@@ -265,7 +265,7 @@ export default async function EstadoBetaPage() {
                   Checklist de beta
                 </h2>
                 <p className="mt-1 text-sm text-slate-600">
-                  Controles mínimos que ya fueron validados para la beta cerrada.
+Controles mínimos que ya fueron validados para la beta operativa comercial.
                 </p>
               </div>
             </div>
@@ -369,10 +369,10 @@ export default async function EstadoBetaPage() {
 
         <section className="rounded-3xl border border-slate-200 bg-slate-950 p-6 text-white shadow-sm">
           <h2 className="text-xl font-black">
-            Criterio actual de beta cerrada
+Criterio actual de beta operativa comercial
           </h2>
           <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-300">
-La beta se considera funcional mientras no existan bugs críticos o altos abiertos, el login online funcione, el tester externo pueda navegar los módulos permitidos, las rutas sensibles sigan bloqueadas y no se envíen documentos sensibles a proveedores externos de IA.
+La beta operativa comercial se considera funcional mientras no existan bugs críticos o altos abiertos, el login online funcione correctamente, los roles se mantengan protegidos y el análisis documental beta opere en modo controlado.
           </p>
         </section>
       </div>

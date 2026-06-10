@@ -286,16 +286,13 @@ const commercialReadiness = [
               </h1>
 
               <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
-                Vista interna para ordenar el camino desde la beta cerrada online
-                hasta una versión más cercana a un MVP comercial serio. Este
-                panel resume los próximos sprints, prioridades y pendientes
-                antes de mostrar el producto a más clientes reales.
+Vista interna para ordenar el avance comercial de Centinela IA desde la beta operativa comercial hacia los primeros contactos reales, demos controladas y validación de mercado.
               </p>
             </div>
 
             <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-950">
               <p className="font-black">Etapa actual</p>
-              <p className="mt-1">Beta cerrada online avanzada</p>
+              <p className="mt-1">Sprint 15 — Bloque 6</p>
             </div>
           </div>
         </section>
