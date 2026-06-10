@@ -226,47 +226,50 @@ export default async function RoadmapPage() {
 }
   ];
 
-  const currentPriorities = [
-    {
-      title: 'Terminar Sprint 10',
-      description:
-        'Cerrar configuración interna antes de avanzar a flujos más sensibles como invitaciones reales.',
-      status: 'Ahora',
-      tone: 'warning' as const,
-    },
-{
-  title: 'Mantener IA en modo controlado',
-  description:
-    'Mantener el análisis IA en modo controlado hasta validar propuesta comercial, costos y límites por usuario.',
-  status: 'Correcto',
-  tone: 'success' as const,
-},
-    {
-      title: 'Preparar seguridad fuerte',
-      description:
-        'Sprint 13 será clave antes de ampliar la prueba a más personas o clientes reales.',
-      status: 'Pendiente',
-      tone: 'default' as const,
-    },
-    {
-      title: 'Pensar comercialmente',
-      description:
-        'Sprint 15 convertirá la beta técnica en una propuesta vendible con landing, demo y pitch.',
-      status: 'Futuro',
-      tone: 'default' as const,
-    },
+const currentPriorities = [
+  {
+    title: 'Contacto comercial real',
+    description:
+      'Contactar primeros prospectos usando landing, PDF comercial, pitch de WhatsApp y planilla de seguimiento.',
+    status: 'Sprint 15 — Bloque 6',
+    tone: 'warning' as const,
+  },
+  {
+    title: 'Demos comerciales controladas',
+    description:
+      'Agendar demostraciones breves con estudios jurídicos, inmobiliarias, escribanías o áreas administrativas.',
+    status: 'Ahora',
+    tone: 'warning' as const,
+  },
+  {
+    title: 'Feedback de mercado',
+    description:
+      'Registrar objeciones, interés real, rubros más receptivos, precio beta y necesidades de desarrollo a medida.',
+    status: 'En validación',
+    tone: 'default' as const,
+  },
+  {
+    title: 'Roadmap posterior',
+    description:
+      'Definir las próximas mejoras según respuestas reales de prospectos y primeras demos comerciales.',
+    status: 'Luego de demos',
+    tone: 'default' as const,
+  },
+  
   ];
 
-  const commercialReadiness = [
-    'Producto online funcional.',
-    'Tester externo validado.',
-    'Permisos básicos funcionando.',
-    'Configuración interna en construcción.',
-    'Falta invitación real automatizada.',
-    'Falta recuperación de contraseña.',
-    'Falta hardening completo de seguridad.',
-    'Falta presentación comercial.',
-  ];
+const commercialReadiness = [
+  'Producto online funcional.',
+  'Tester externo validado.',
+  'Permisos por rol funcionando.',
+  'Configuración interna actualizada.',
+  'Landing comercial pública disponible.',
+  'PDF comercial preparado.',
+  'Pitch de WhatsApp preparado.',
+  'Planilla de seguimiento comercial preparada.',
+  'README actualizado al estado comercial actual.',
+  'Mejoras funcionales previas al contacto validadas.',
+];
 
   return (
     <AppShell>
@@ -408,21 +411,22 @@ export default async function RoadmapPage() {
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-slate-950 p-6 text-white shadow-sm">
-            <h2 className="text-xl font-black">
-              Criterio para avanzar a venta
-            </h2>
+<h2 className="text-xl font-black text-slate-950">
+  Criterio comercial actual
+</h2>
 
-            <p className="mt-3 text-sm leading-6 text-slate-300">
-              El proyecto estará más cerca de una versión comercial seria cuando
-              cuente con invitaciones reales, recuperación de contraseña,
-              seguridad fuerte, UX más pulida y material comercial claro. Hasta
-              entonces, el mejor uso es como beta privada controlada para validar
-              flujo, propuesta y casos de uso.
-            </p>
+<p className="mt-3 text-sm leading-6 text-slate-600">
+  El proyecto ya cuenta con una beta operativa comercial, landing pública,
+  documentación interna, análisis documental beta, seguridad por roles,
+  recuperación de contraseña, PDF comercial, pitch y planilla de seguimiento.
+  La etapa actual consiste en contactar prospectos reales, agendar demos
+  controladas y validar interés del mercado antes de definir el roadmap
+  posterior.
+</p>
 
-            <div className="mt-5 rounded-2xl border border-white/10 bg-white/10 p-4 text-sm font-bold leading-6 text-white">
-              Estado recomendado: seguir por sprints controlados hasta Sprint 15.
-            </div>
+<div className="mt-5 rounded-2xl border border-white/10 bg-white/10 p-4 text-sm font-bold">
+  Estado actual: Sprint 15 — Bloque 6 — contacto comercial real y primeras demos.
+</div>
           </div>
         </section>
       </div>
