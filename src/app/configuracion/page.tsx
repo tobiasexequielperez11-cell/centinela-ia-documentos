@@ -102,9 +102,9 @@ export default async function ConfiguracionPage() {
 
   const configCards = [
     {
-      title: 'Estado beta',
+      title: 'Estado operativo',
       description:
-        'Panel interno para revisar versión, métricas, testers activos, checklist de beta, actividad reciente y pendientes próximos.',
+        'Panel interno para revisar versión, métricas, testers activos, checklist operativo, actividad reciente y próximos pasos comerciales.',
       status: 'Activo',
       badge: 'Beta',
       href: '/configuracion/estado-beta',

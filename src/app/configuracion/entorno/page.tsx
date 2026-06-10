@@ -146,9 +146,9 @@ name: 'CLAVE_PROVEEDOR_IA',
     {
       name: 'APP_URL',
       description:
-        'URL base de la aplicación. Puede utilizarse más adelante para enlaces de invitación, recuperación de contraseña o notificaciones.',
+        'URL base de la aplicación. Puede utilizarse más adelante para enlaces de invitación, recuperación o flujos externos según configuración del entorno',
       environment: 'Vercel Environment Variables si se implementan flujos con enlaces externos.',
-      status: 'Pendiente',
+      status: 'Opcional según entorno',
       tone: 'default',
     },
 {

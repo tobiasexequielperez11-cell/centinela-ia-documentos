@@ -291,13 +291,13 @@ const sprintStatuses: SprintStatus[] = [
     'Todo cambio funcional importante debe validarse como admin y como employee antes de aprobarse.',
   ];
 
-  const nextDocumentationItems = [
-    'Agregar enlaces reales al documento de cierre y planilla de incidencias cuando se definan permisos de Drive.',
-    'Crear documentación para flujo de invitaciones reales en Sprint 11.',
-    'Crear documentación para recuperación de contraseña en Sprint 12.',
-    'Crear documentación de políticas RLS y Storage en Sprint 13.',
-    'Crear material comercial y demo guiada en Sprint 15.',
-  ];
+const nextDocumentationItems = [
+  'Mantener actualizada la documentación interna según cambios validados en la beta operativa comercial.',
+  'Registrar feedback de demos comerciales, objeciones frecuentes y necesidades detectadas en prospectos.',
+  'Actualizar casos de uso, pitch, material comercial y planilla de seguimiento según respuesta real del mercado.',
+  'Documentar próximas mejoras solo después de validarlas en contacto comercial real o demos controladas.',
+  'Conservar respaldo de builds, commits, deploys y decisiones aprobadas por cada bloque cerrado.',
+];
 
   return (
     <AppShell>
