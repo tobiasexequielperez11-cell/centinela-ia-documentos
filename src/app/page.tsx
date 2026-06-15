@@ -175,7 +175,7 @@ function MockupPanel() {
           {[
             ['Expedientes', '3 activos'],
             ['Documentos', '8 cargados'],
-            ['Análisis IA', '4 pendientes'],
+            ['Análisis documental', '4 procesados'],
             ['Auditoría', 'Eventos trazables'],
           ].map(([label, value]) => (
             <div key={label} className="rounded-2xl bg-white p-4">
@@ -243,7 +243,7 @@ export default function HomePage() {
               Demo
             </a>
             <a href="#beta" className="hover:text-white">
-              Beta cerrada
+              Acceso beta
             </a>
           </nav>
 
@@ -304,7 +304,7 @@ export default function HomePage() {
             </div>
 
             <p className="mt-6 text-sm font-semibold text-slate-400">
-              Beta operativa cerrada · Acceso por roles · Documentos privados ·
+              Beta operativa comercial · Acceso por roles · Documentos privados ·
               Actividad auditada
             </p>
           </div>
@@ -430,7 +430,7 @@ export default function HomePage() {
                 dentro de un flujo controlado.
               </p>
               <p className="mt-4 text-base leading-8 text-slate-600">
-                Durante la beta cerrada, el objetivo es validar la utilidad real del
+                Durante la Acceso beta, el objetivo es validar la utilidad real del
                 análisis documental, la experiencia de uso y la trazabilidad antes de
                 integrar proveedores externos.
               </p>
@@ -493,12 +493,12 @@ export default function HomePage() {
         <div className="mx-auto max-w-5xl rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm md:p-10">
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
             <div>
-              <SectionLabel>Beta cerrada</SectionLabel>
+              <SectionLabel>Acceso beta</SectionLabel>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
                 Acceso inicial para primeros clientes.
               </h2>
               <p className="mt-5 text-base leading-8 text-slate-600">
-                Centinela IA se ofrece inicialmente bajo modalidad de beta cerrada, con
+                Centinela IA se ofrece inicialmente bajo modalidad de acceso beta, con
                 cupos limitados para organizaciones que quieran validar el sistema en un
                 entorno controlado.
               </p>
@@ -562,7 +562,7 @@ export default function HomePage() {
           </div>
 
           <p className="mt-6 text-sm font-semibold text-slate-400">
-            Beta operativa cerrada para primeros clientes.
+            Beta operativa comercial para primeros clientes.
           </p>
         </div>
       </section>
