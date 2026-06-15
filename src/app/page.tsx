@@ -430,7 +430,7 @@ export default function HomePage() {
                 dentro de un flujo controlado.
               </p>
               <p className="mt-4 text-base leading-8 text-slate-600">
-                Durante la Acceso beta, el objetivo es validar la utilidad real del
+                Durante el acceso beta, el objetivo es validar la utilidad real del
                 análisis documental, la experiencia de uso y la trazabilidad antes de
                 integrar proveedores externos.
               </p>
