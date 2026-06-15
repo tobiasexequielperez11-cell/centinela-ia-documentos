@@ -13,7 +13,7 @@ const navigation = [
 export function Sidebar() {
   return (
     <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-slate-200 bg-white px-5 py-6 lg:block">
-      <Link href="/" className="mb-8 block">
+      <Link href="/dashboard" className="mb-8 block">
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-sky-600">
           Centinela IA
         </p>
