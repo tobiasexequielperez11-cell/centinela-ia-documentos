@@ -171,11 +171,11 @@ export default async function EstadoBetaPage() {
   ];
 
   const pendingItems = [
-    'Mejorar pantalla de configuración general.',
-    'Automatizar aceptación real de invitaciones.',
-    'Crear recuperación de contraseña controlada.',
-    'Mejorar documentación interna del sistema.',
-    'Evaluar integración IA externa solo si se decide avanzar con proveedor externo.',
+    'Registrar feedback comercial de los primeros prospectos.',
+    'Agendar y documentar demos controladas con clientes reales.',
+    'Actualizar material comercial según objeciones y necesidades detectadas.',
+    'Definir mejoras futuras según validación real del mercado.',
+    'Evaluar integración IA externa solo después de validar costos, privacidad y demanda.',
   ];
 
   return (
@@ -199,7 +199,7 @@ export default async function EstadoBetaPage() {
 
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-950">
               <p className="font-black">Estado general</p>
-              <p className="mt-1">Beta cerrada online funcional</p>
+              <p className="mt-1">Beta operativa comercial online</p>
             </div>
           </div>
         </section>
@@ -289,10 +289,11 @@ Controles mínimos que ya fueron validados para la beta operativa comercial.
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-black text-slate-950">
-              Pendientes próximos
+              Próximos pasos comerciales
             </h2>
             <p className="mt-1 text-sm text-slate-600">
-              Mejoras sugeridas para próximos bloques.
+              Acciones sugeridas para validar la beta operativa comercial con
+              prospectos reales.
             </p>
 
             <div className="mt-5 space-y-3">
