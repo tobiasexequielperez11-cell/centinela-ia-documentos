@@ -228,8 +228,16 @@ export default function HomePage() {
     <main className="min-h-screen bg-white text-slate-950">
       <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/95 px-6 py-4 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-          <Link href="/" className="text-lg font-black text-white">
-            Centinela IA
+          <Link
+            href="/"
+            className="flex items-center rounded-2xl bg-white/95 p-1.5 shadow-sm ring-1 ring-white/10"
+            aria-label="Centinela IA"
+          >
+            <img
+              src="/brand/centinela-logo-mark.png"
+              alt="Centinela IA"
+              className="h-9 w-9 rounded-xl object-contain"
+            />
           </Link>
 
           <nav className="hidden items-center gap-6 text-sm font-bold text-slate-300 md:flex">
