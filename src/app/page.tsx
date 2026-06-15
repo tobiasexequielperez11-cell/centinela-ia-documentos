@@ -226,17 +226,17 @@ function MockupPanel() {
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-white text-slate-950">
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/95 px-6 py-4 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-sky-400/10 bg-[#020b1f]/95 px-6 py-3 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
           <Link
             href="/"
-            className="flex items-center rounded-2xl bg-white/95 p-1.5 shadow-sm ring-1 ring-white/10"
+            className="flex h-14 w-40 items-center overflow-hidden rounded-2xl bg-[#020b1f] ring-1 ring-white/10 sm:w-48"
             aria-label="Centinela IA"
           >
             <img
-              src="/brand/centinela-logo-mark.png"
+              src="/brand/centinela-logo-full-dark.png"
               alt="Centinela IA"
-              className="h-9 w-9 rounded-xl object-contain"
+              className="h-full w-full object-contain"
             />
           </Link>
 
@@ -275,7 +275,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      <section className="overflow-hidden bg-slate-950 px-6 py-20 text-white lg:py-28">
+      <section className="overflow-hidden bg-[#020b1f] px-6 py-20 text-white lg:py-28">
         <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1fr_0.95fr]">
           <div>
             <div className="inline-flex rounded-full border border-sky-300/20 bg-sky-300/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-sky-200">
@@ -397,7 +397,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-slate-950 px-6 py-20 text-white">
+      <section className="bg-[#020b1f] px-6 py-20 text-white">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
             <SectionLabel>Seguridad</SectionLabel>

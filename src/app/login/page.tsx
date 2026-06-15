@@ -16,13 +16,17 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const errorMessage = getErrorMessage(params.error);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6 py-12 text-white">
+    <main className="flex min-h-screen items-center justify-center bg-[#020b1f] px-6 py-12 text-white">
       <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-sky-300">
-          Centinela IA
-        </p>
+        <div className="mx-auto mb-6 flex max-w-xs justify-center overflow-hidden rounded-3xl bg-[#020b1f] ring-1 ring-white/10">
+          <img
+            src="/brand/centinela-logo-full-dark.png"
+            alt="Centinela IA"
+            className="h-36 w-full object-contain"
+          />
+        </div>
 
-        <h1 className="mt-3 text-3xl font-bold">Ingresar al panel</h1>
+        <h1 className="text-3xl font-bold">Ingresar al panel</h1>
 
         <p className="mt-2 text-sm leading-6 text-slate-300">
           Acceso privado para organizaciones y usuarios autorizados.
