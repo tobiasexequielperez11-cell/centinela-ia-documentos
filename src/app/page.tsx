@@ -226,21 +226,9 @@ function MockupPanel() {
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-white text-slate-950">
-      <header className="sticky top-0 z-40 border-b border-sky-400/10 bg-[#020b1f]/95 px-6 py-3 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-          <Link
-            href="/"
-            className="flex h-14 w-40 items-center overflow-hidden rounded-2xl bg-[#020b1f] ring-1 ring-white/10 sm:w-48"
-            aria-label="Centinela IA"
-          >
-            <img
-              src="/brand/centinela-logo-full-dark.png"
-              alt="Centinela IA"
-              className="h-full w-full object-contain"
-            />
-          </Link>
-
-          <nav className="hidden items-center gap-6 text-sm font-bold text-slate-300 md:flex">
+      <header className="sticky top-0 z-40 border-b border-sky-400/10 bg-[#020b1f]/95 px-6 py-4 backdrop-blur">
+        <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
+          <nav className="hidden items-center gap-6 text-sm font-bold text-slate-300 lg:flex">
             <a href="#beneficios" className="hover:text-white">
               Beneficios
             </a>
@@ -255,7 +243,19 @@ export default function HomePage() {
             </a>
           </nav>
 
-          <div className="flex items-center gap-2">
+          <Link
+            href="/"
+            className="flex h-16 w-48 items-center justify-start overflow-hidden lg:h-20 lg:w-64 lg:justify-center"
+            aria-label="Centinela IA"
+          >
+            <img
+              src="/brand/centinela-logo-full-dark.png"
+              alt="Centinela IA"
+              className="h-full w-full object-contain"
+            />
+          </Link>
+
+          <div className="flex items-center justify-end gap-2">
             <Link
               href="/login"
               className="rounded-2xl border border-white/15 px-4 py-2 text-sm font-bold text-white hover:bg-white/10"
@@ -531,7 +531,7 @@ export default function HomePage() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-2xl bg-sky-500 px-6 py-5 text-center text-base font-black text-white hover:bg-sky-600 sm:col-span-2"
+                className="rounded-2xl bg-sky-500 px-6 py-4 text-center text-base font-black text-white hover:bg-sky-600 sm:col-span-2"
               >
                 Consultar disponibilidad
               </a>
