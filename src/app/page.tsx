@@ -226,7 +226,7 @@ function MockupPanel() {
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-white text-slate-950">
-      <header className="sticky top-0 z-40 border-b border-sky-200/60 bg-sky-400/95 px-6 py-4 shadow-sm backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-sky-100 bg-gradient-to-r from-slate-50 via-sky-100 to-slate-100 px-6 py-4 shadow-sm backdrop-blur">
         <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
           <nav className="hidden items-center gap-6 text-sm font-bold text-slate-950 lg:flex">
             <a href="#beneficios" className="hover:text-white">
@@ -245,7 +245,7 @@ export default function HomePage() {
 
           <Link
             href="/"
-            className="flex h-20 w-56 items-center justify-start overflow-hidden lg:h-28 lg:w-80 lg:justify-center"
+            className="flex h-24 w-64 items-center justify-start overflow-hidden lg:h-32 lg:w-96 lg:justify-center"
             aria-label="Centinela IA"
           >
             <img

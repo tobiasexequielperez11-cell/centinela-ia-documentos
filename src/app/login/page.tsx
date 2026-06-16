@@ -16,19 +16,19 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const errorMessage = getErrorMessage(params.error);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-sky-400 px-6 py-12 text-white">
-      <div className="w-full max-w-md rounded-3xl border border-slate-950/10 bg-[#020d29]/95 p-8 shadow-2xl">
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#020d29] via-[#06224a] to-slate-950 px-6 py-12 text-slate-950">
+      <div className="w-full max-w-md rounded-3xl border border-white/70 bg-white/95 p-8 shadow-2xl">
         <div className="mx-auto mb-6 flex max-w-sm justify-center overflow-visible">
           <img
             src="/brand/centinela-logo-transparent.png"
             alt="Centinela IA"
-            className="h-44 w-full object-contain"
+            className="h-48 w-full object-contain"
           />
         </div>
 
         <h1 className="text-3xl font-bold">Ingresar al panel</h1>
 
-        <p className="mt-2 text-sm leading-6 text-slate-300">
+        <p className="mt-2 text-sm leading-6 text-slate-600">
           Acceso privado para organizaciones y usuarios autorizados.
         </p>
 
@@ -40,7 +40,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
         <form action={signIn} className="mt-8 space-y-4">
           <div>
-            <label className="text-sm font-semibold text-slate-200">Email</label>
+            <label className="text-sm font-semibold text-slate-700">Email</label>
             <input
               name="email"
               type="email"
@@ -52,13 +52,13 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
           <div>
             <div className="flex items-center justify-between gap-4">
-              <label className="text-sm font-semibold text-slate-200">
+              <label className="text-sm font-semibold text-slate-700">
                 Contraseña
               </label>
 
               <Link
                 href="/recuperar-contrasena"
-                className="text-xs font-semibold text-sky-300 hover:text-sky-200"
+                className="text-xs font-semibold text-sky-600 hover:text-sky-700"
               >
                 ¿Olvidaste tu contraseña?
               </Link>
@@ -78,7 +78,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-xs leading-5 text-slate-400">
+        <p className="mt-6 text-center text-xs leading-5 text-slate-500">
           El acceso está limitado a usuarios autorizados por la organización.
         </p>
       </div>
