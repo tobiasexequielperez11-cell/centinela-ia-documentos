@@ -226,9 +226,9 @@ function MockupPanel() {
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-white text-slate-950">
-      <header className="sticky top-0 z-40 border-b border-sky-400/10 bg-[#020d29]/95 px-6 py-4 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-sky-200/60 bg-sky-400/95 px-6 py-4 shadow-sm backdrop-blur">
         <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
-          <nav className="hidden items-center gap-6 text-sm font-bold text-slate-300 lg:flex">
+          <nav className="hidden items-center gap-6 text-sm font-bold text-slate-950 lg:flex">
             <a href="#beneficios" className="hover:text-white">
               Beneficios
             </a>
@@ -258,7 +258,7 @@ export default function HomePage() {
           <div className="flex items-center justify-end gap-2">
             <Link
               href="/login"
-              className="rounded-2xl border border-white/15 px-4 py-2 text-sm font-bold text-white hover:bg-white/10"
+              className="rounded-2xl border border-slate-950/15 px-4 py-2 text-sm font-bold text-slate-950 hover:bg-white/20"
             >
               Ingresar
             </Link>
@@ -267,7 +267,7 @@ export default function HomePage() {
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="hidden rounded-2xl bg-sky-400 px-4 py-2 text-sm font-black text-slate-950 hover:bg-sky-300 sm:inline-flex"
+              className="hidden rounded-2xl bg-[#020d29] px-4 py-2 text-sm font-black text-white hover:bg-slate-900 sm:inline-flex"
             >
               Solicitar demo
             </a>

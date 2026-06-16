@@ -16,9 +16,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const errorMessage = getErrorMessage(params.error);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#020d29] px-6 py-12 text-white">
-      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur">
-        <div className="mx-auto mb-6 flex max-w-sm justify-center overflow-hidden rounded-3xl bg-[#020d29] ring-1 ring-white/10">
+    <main className="flex min-h-screen items-center justify-center bg-sky-400 px-6 py-12 text-white">
+      <div className="w-full max-w-md rounded-3xl border border-slate-950/10 bg-[#020d29]/95 p-8 shadow-2xl">
+        <div className="mx-auto mb-6 flex max-w-sm justify-center overflow-visible">
           <img
             src="/brand/centinela-logo-transparent.png"
             alt="Centinela IA"
