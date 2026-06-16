@@ -226,7 +226,7 @@ function MockupPanel() {
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-white text-slate-950">
-      <header className="sticky top-0 z-40 border-b border-sky-100 bg-gradient-to-r from-slate-50 via-sky-100 to-slate-100 px-6 py-4 shadow-sm backdrop-blur">
+      <header className="relative z-40 border-b border-sky-100 bg-gradient-to-r from-slate-50 via-sky-100 to-slate-100 px-6 py-4 shadow-sm">
         <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
           <nav className="hidden items-center gap-6 text-sm font-bold text-slate-950 lg:flex">
             <a href="#beneficios" className="hover:text-white">
@@ -575,15 +575,25 @@ export default function HomePage() {
         </div>
       </section>
 
-      <footer className="border-t border-slate-200 bg-white px-6 py-8">
-        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 text-sm text-slate-500 md:flex-row md:items-center">
-          <p className="font-bold text-slate-700">Centinela IA</p>
+      <footer className="border-t border-sky-100 bg-gradient-to-r from-slate-50 via-sky-100 to-slate-100 px-6 py-8">
+        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 text-sm text-slate-700 md:flex-row md:items-center">
+          <p className="font-black text-slate-950">Contacto comercial</p>
 
-          <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-5">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-6">
             <a
               href={emailUrl}
-              className="font-semibold text-slate-600 hover:text-slate-950"
+              className="inline-flex items-center gap-2 font-semibold text-slate-700 hover:text-slate-950"
             >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="h-4 w-4 text-sky-700"
+                aria-hidden="true"
+              >
+                <path d="M1.5 8.67v8.58A2.25 2.25 0 0 0 3.75 19.5h16.5a2.25 2.25 0 0 0 2.25-2.25V8.67l-8.93 5.36a3 3 0 0 1-3.14 0L1.5 8.67Z" />
+                <path d="M22.5 6.91V6.75a2.25 2.25 0 0 0-2.25-2.25H3.75A2.25 2.25 0 0 0 1.5 6.75v.16l9.7 5.82a1.5 1.5 0 0 0 1.6 0l9.7-5.82Z" />
+              </svg>
               tobiasexequielperez11@gmail.com
             </a>
 
@@ -591,9 +601,18 @@ export default function HomePage() {
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="font-semibold text-slate-600 hover:text-slate-950"
+              className="inline-flex items-center gap-2 font-semibold text-slate-700 hover:text-slate-950"
             >
-              WhatsApp: +54 379 4733321
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="h-4 w-4 text-emerald-600"
+                aria-hidden="true"
+              >
+                <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.33 4.96L2 22.18l5.43-1.42a9.9 9.9 0 0 0 4.61 1.17h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.46 17.51 2 12.04 2Zm0 18.25h-.01a8.2 8.2 0 0 1-4.18-1.14l-.3-.18-3.22.84.86-3.13-.2-.32a8.18 8.18 0 0 1-1.25-4.4c0-4.58 3.73-8.3 8.31-8.3 2.22 0 4.3.86 5.87 2.43a8.26 8.26 0 0 1 2.43 5.87c0 4.58-3.73 8.33-8.31 8.33Zm4.56-6.23c-.25-.12-1.47-.72-1.7-.8-.23-.09-.39-.12-.56.12-.16.25-.64.8-.78.96-.14.16-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.41-.56-.42h-.48c-.17 0-.43.06-.66.31-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.56.12.16 1.75 2.67 4.24 3.74.59.25 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.29Z" />
+              </svg>
+              +54 379 4733321
             </a>
 
             <Link
@@ -611,23 +630,17 @@ export default function HomePage() {
   target="_blank"
   rel="noreferrer"
   aria-label="Solicitar demo por WhatsApp"
-  className="group fixed bottom-4 right-4 z-50 inline-flex items-center justify-center rounded-full bg-emerald-500 p-3 text-white shadow-[0_12px_30px_rgba(16,185,129,0.35)] transition-all duration-300 hover:-translate-y-1 hover:bg-emerald-400 hover:shadow-[0_18px_40px_rgba(16,185,129,0.45)] active:translate-y-0 active:scale-95 sm:bottom-5 sm:right-5 sm:gap-3 sm:px-5 sm:py-3.5"
+  className="group fixed bottom-4 right-4 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500 text-white shadow-[0_12px_30px_rgba(16,185,129,0.35)] transition-all duration-300 hover:-translate-y-1 hover:bg-emerald-400 hover:shadow-[0_18px_40px_rgba(16,185,129,0.45)] active:translate-y-0 active:scale-95 sm:bottom-5 sm:right-5"
 >
-<span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/10 sm:h-9 sm:w-9">
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
     fill="currentColor"
-    className="h-[18px] w-[18px] text-white sm:h-5 sm:w-5"
+    className="h-6 w-6 text-white"
     aria-hidden="true"
   >
     <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.33 4.96L2 22.18l5.43-1.42a9.9 9.9 0 0 0 4.61 1.17h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.46 17.51 2 12.04 2Zm0 18.25h-.01a8.2 8.2 0 0 1-4.18-1.14l-.3-.18-3.22.84.86-3.13-.2-.32a8.18 8.18 0 0 1-1.25-4.4c0-4.58 3.73-8.3 8.31-8.3 2.22 0 4.3.86 5.87 2.43a8.26 8.26 0 0 1 2.43 5.87c0 4.58-3.73 8.33-8.31 8.33Zm4.56-6.23c-.25-.12-1.47-.72-1.7-.8-.23-.09-.39-.12-.56.12-.16.25-.64.8-.78.96-.14.16-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.41-.56-.42h-.48c-.17 0-.43.06-.66.31-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.56.12.16 1.75 2.67 4.24 3.74.59.25 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.29Z" />
   </svg>
-</span>
-
-  <span className="hidden text-sm font-black leading-none sm:inline">
-    Solicitar demo
-  </span>
 </a>
     </main>
   );
