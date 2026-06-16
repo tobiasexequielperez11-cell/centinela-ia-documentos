@@ -249,7 +249,7 @@ export default function HomePage() {
             aria-label="Centinela IA"
           >
             <img
-              src="/brand/centinela-logo-full-dark.png"
+              src="/brand/centinela-logo-transparent.png"
               alt="Centinela IA"
               className="h-full w-full object-contain"
             />
