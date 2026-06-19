@@ -16,8 +16,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const errorMessage = getErrorMessage(params.error);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#020d29] via-[#06224a] to-slate-950 px-6 py-12 text-slate-950">
-      <div className="w-full max-w-md rounded-3xl border border-white/70 bg-white/95 p-8 shadow-2xl">
+    <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_#124b73_0%,_#082746_34%,_#020d29_78%)] px-6 py-12 text-slate-950">
+      <div className="w-full max-w-md rounded-3xl border border-white/70 bg-white/95 p-8 shadow-[0_30px_80px_rgba(2,13,41,0.45)]">
         <div className="mx-auto mb-6 flex max-w-sm justify-center overflow-visible">
           <img
             src="/brand/centinela-logo-transparent.png"
@@ -73,7 +73,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             />
           </div>
 
-          <button className="w-full rounded-2xl bg-sky-400 px-5 py-3 text-sm font-bold text-slate-950 hover:bg-sky-300">
+          <button className="w-full rounded-2xl bg-[#0b6ea8] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#095a8a]">
             Ingresar
           </button>
         </form>

@@ -157,7 +157,7 @@ function SectionTitle({
 
 function MockupPanel() {
   return (
-    <div className="rounded-[2rem] border border-white/10 bg-white/10 p-3 shadow-2xl backdrop-blur">
+    <div className="landing-float rounded-[2rem] border border-white/15 bg-white/10 p-3 shadow-2xl backdrop-blur">
       <div className="rounded-[1.5rem] border border-slate-800 bg-slate-950 p-4">
         <div className="mb-4 flex items-center justify-between border-b border-white/10 pb-4">
           <div>
@@ -226,19 +226,19 @@ function MockupPanel() {
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-white text-slate-950">
-      <header className="relative z-40 border-b border-sky-100 bg-gradient-to-r from-slate-50 via-sky-100 to-slate-100 px-6 py-4 shadow-sm">
+      <header className="relative z-40 border-b border-[#c8dbea] bg-[#eaf2f8] px-6 py-4 shadow-sm">
         <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
           <nav className="hidden items-center gap-6 text-sm font-bold text-slate-950 lg:flex">
-            <a href="#beneficios" className="hover:text-white">
+            <a href="#beneficios" className="transition-colors hover:text-sky-700">
               Beneficios
             </a>
-            <a href="#rubros" className="hover:text-white">
+            <a href="#rubros" className="transition-colors hover:text-sky-700">
               Rubros
             </a>
-            <a href="#demo" className="hover:text-white">
+            <a href="#demo" className="transition-colors hover:text-sky-700">
               Demo
             </a>
-            <a href="#beta" className="hover:text-white">
+            <a href="#beta" className="transition-colors hover:text-sky-700">
               Acceso beta
             </a>
           </nav>
@@ -258,7 +258,7 @@ export default function HomePage() {
           <div className="flex items-center justify-end gap-2">
             <Link
               href="/login"
-              className="rounded-2xl border border-slate-950/15 px-4 py-2 text-sm font-bold text-slate-950 hover:bg-white/20"
+              className="rounded-2xl border border-[#12345d]/20 px-4 py-2 text-sm font-bold text-[#0b1f3a] transition-colors hover:bg-white/70"
             >
               Ingresar
             </Link>
@@ -267,7 +267,7 @@ export default function HomePage() {
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="hidden rounded-2xl bg-[#020d29] px-4 py-2 text-sm font-black text-white hover:bg-slate-900 sm:inline-flex"
+              className="hidden rounded-2xl bg-[#0b1f3a] px-4 py-2 text-sm font-black text-white shadow-sm transition-colors hover:bg-[#12345d] sm:inline-flex"
             >
               Solicitar demo
             </a>
@@ -275,9 +275,9 @@ export default function HomePage() {
         </div>
       </header>
 
-      <section className="overflow-hidden bg-[#020d29] px-6 py-20 text-white lg:py-28">
+      <section className="overflow-hidden bg-[radial-gradient(circle_at_top_right,_#124b73_0%,_#082746_34%,_#020d29_76%)] px-6 py-20 text-white lg:py-28">
         <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1fr_0.95fr]">
-          <div>
+          <div className="landing-reveal">
             <div className="inline-flex rounded-full border border-sky-300/20 bg-sky-300/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-sky-200">
               Gestión documental inteligente
             </div>
@@ -298,14 +298,14 @@ export default function HomePage() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-2xl bg-sky-400 px-6 py-4 text-center text-sm font-black text-slate-950 hover:bg-sky-300"
+                className="rounded-2xl bg-cyan-400 px-6 py-4 text-center text-sm font-black text-[#071a33] shadow-lg shadow-cyan-950/20 transition-all hover:-translate-y-0.5 hover:bg-cyan-300"
               >
                 Solicitar demo
               </a>
 
               <Link
                 href="/login"
-                className="rounded-2xl border border-white/15 px-6 py-4 text-center text-sm font-black text-white hover:bg-white/10"
+                className="rounded-2xl border border-white/20 px-6 py-4 text-center text-sm font-black text-white transition-colors hover:bg-white/10"
               >
                 Ingresar al sistema
               </Link>
@@ -321,7 +321,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="beneficios" className="bg-slate-50 px-6 py-20">
+      <section id="beneficios" className="bg-[#f4f8fb] px-6 py-20">
         <div className="mx-auto max-w-7xl">
           <SectionTitle
             label="Problema"
@@ -333,7 +333,7 @@ export default function HomePage() {
             {problemCards.map((card) => (
               <div
                 key={card.title}
-                className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
+                className="landing-card rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm"
               >
                 <h3 className="text-lg font-black text-slate-950">{card.title}</h3>
                 <p className="mt-3 text-sm leading-6 text-slate-600">
@@ -357,7 +357,7 @@ export default function HomePage() {
             {features.map((feature) => (
               <div
                 key={feature.title}
-                className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm hover:border-sky-200 hover:shadow-md"
+                className="landing-card rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm hover:border-sky-200"
               >
                 <h3 className="text-base font-black text-slate-950">
                   {feature.title}
@@ -371,7 +371,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="rubros" className="bg-slate-50 px-6 py-20">
+      <section id="rubros" className="bg-[#f4f8fb] px-6 py-20">
         <div className="mx-auto max-w-7xl">
           <SectionTitle
             label="Rubros"
@@ -383,7 +383,7 @@ export default function HomePage() {
             {industries.map((industry) => (
               <div
                 key={industry.title}
-                className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
+                className="landing-card rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm"
               >
                 <h3 className="text-xl font-black text-slate-950">
                   {industry.title}
@@ -397,7 +397,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-[#020d29] px-6 py-20 text-white">
+      <section className="bg-[linear-gradient(135deg,_#020d29,_#082746)] px-6 py-20 text-white">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
             <SectionLabel>Seguridad</SectionLabel>
@@ -458,7 +458,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="demo" className="bg-slate-50 px-6 py-20">
+      <section id="demo" className="bg-[#f4f8fb] px-6 py-20">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
           <div>
             <SectionLabel>Demo guiada</SectionLabel>
@@ -475,7 +475,7 @@ export default function HomePage() {
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="mt-7 inline-flex rounded-2xl bg-slate-950 px-6 py-4 text-sm font-black text-white hover:bg-slate-800"
+              className="mt-7 inline-flex rounded-2xl bg-[#0b1f3a] px-6 py-4 text-sm font-black text-white transition-all hover:-translate-y-0.5 hover:bg-[#12345d]"
             >
               Solicitar demo
             </a>
@@ -540,7 +540,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-slate-950 px-6 py-20 text-white">
+      <section className="bg-[linear-gradient(135deg,_#020d29,_#082746)] px-6 py-20 text-white">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-3xl font-black tracking-tight md:text-5xl">
             Ordená tus expedientes y documentos desde un solo lugar.
@@ -575,9 +575,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      <footer className="border-t border-sky-100 bg-gradient-to-r from-slate-50 via-sky-100 to-slate-100 px-6 py-8">
+      <footer className="border-t border-[#c8dbea] bg-[#eaf2f8] px-6 py-8">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 text-sm text-slate-700 md:flex-row md:items-center">
-          <p className="font-black text-slate-950">Contacto comercial</p>
+          <p className="font-semibold text-[#0b1f3a]">© 2026 Centinela IA</p>
 
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-6">
             <a
@@ -615,12 +615,6 @@ export default function HomePage() {
               +54 379 4733321
             </a>
 
-            <Link
-              href="/login"
-              className="font-semibold text-slate-600 hover:text-slate-950"
-            >
-              Ingresar
-            </Link>
           </div>
         </div>
       </footer>
