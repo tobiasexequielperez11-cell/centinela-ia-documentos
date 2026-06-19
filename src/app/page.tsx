@@ -156,6 +156,15 @@ function SectionTitle({
   );
 }
 
+function SectionGlow() {
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div className="absolute -left-24 top-16 h-64 w-64 rounded-full bg-sky-300/15 blur-3xl" />
+      <div className="absolute -right-24 bottom-10 h-72 w-72 rounded-full bg-cyan-300/15 blur-3xl" />
+    </div>
+  );
+}
+
 function MockupPanel() {
   return (
     <div className="landing-float rounded-[2rem] border border-white/15 bg-white/10 p-3 shadow-2xl backdrop-blur">
@@ -179,7 +188,7 @@ function MockupPanel() {
             ['Análisis documental', '4 procesados'],
             ['Auditoría', 'Eventos trazables'],
           ].map(([label, value]) => (
-            <div key={label} className="rounded-2xl bg-white p-4">
+            <div key={label} className="landing-panel-item rounded-2xl bg-white p-4">
               <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
                 {label}
               </p>
@@ -204,7 +213,7 @@ function MockupPanel() {
             ].map((item) => (
               <div
                 key={item}
-                className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-3"
+                className="landing-panel-item flex items-center justify-between rounded-xl bg-white/5 px-3 py-3"
               >
                 <span className="text-xs font-semibold text-slate-200">{item}</span>
                 <span className="text-xs font-bold text-emerald-300">Seguro</span>
@@ -213,7 +222,7 @@ function MockupPanel() {
           </div>
         </div>
 
-        <div className="mt-4 rounded-2xl bg-sky-400 p-4 text-slate-950">
+        <div className="landing-panel-item mt-4 rounded-2xl bg-sky-400 p-4 text-slate-950">
           <p className="text-sm font-black">Análisis documental</p>
           <p className="mt-1 text-xs font-semibold leading-5">
             Clasificación, sensibilidad y revisión inicial en entorno controlado.
@@ -230,23 +239,23 @@ export default function HomePage() {
       <header className="relative z-40 border-b border-[#c8dbea] bg-[#eaf2f8] px-6 py-3 shadow-sm">
         <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
           <nav className="hidden items-center gap-6 text-sm font-bold text-slate-950 lg:flex">
-            <a href="#beneficios" className="transition-colors hover:text-sky-700">
+            <a href="#beneficios" className="landing-nav-link">
               Beneficios
             </a>
-            <a href="#rubros" className="transition-colors hover:text-sky-700">
+            <a href="#rubros" className="landing-nav-link">
               Rubros
             </a>
-            <a href="#demo" className="transition-colors hover:text-sky-700">
+            <a href="#demo" className="landing-nav-link">
               Presentación
             </a>
-            <a href="#beta" className="transition-colors hover:text-sky-700">
+            <a href="#beta" className="landing-nav-link">
               Acceso beta
             </a>
           </nav>
 
-          <Link
-            href="/"
-            className="flex h-20 w-56 items-center justify-start overflow-hidden lg:h-24 lg:w-80 lg:justify-center"
+          <a
+            href="#inicio"
+            className="flex h-24 w-64 items-center justify-start overflow-hidden transition-transform hover:scale-[1.03] lg:h-28 lg:w-96 lg:justify-center"
             aria-label="Centinela IA"
           >
             <img
@@ -254,12 +263,12 @@ export default function HomePage() {
               alt="Centinela IA"
               className="h-full w-full object-contain"
             />
-          </Link>
+          </a>
 
           <div className="flex items-center justify-end gap-2">
             <Link
               href="/login"
-              className="rounded-2xl border border-[#12345d]/20 px-4 py-2 text-sm font-bold text-[#0b1f3a] transition-colors hover:bg-white/70"
+              className="rounded-2xl border border-[#12345d]/20 px-4 py-2 text-sm font-bold text-[#0b1f3a] transition-all hover:-translate-y-0.5 hover:bg-white/70 hover:shadow-sm"
             >
               Ingresar
             </Link>
@@ -276,7 +285,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      <section className="overflow-hidden bg-[radial-gradient(circle_at_top_right,_#124b73_0%,_#082746_34%,_#020d29_76%)] px-6 py-20 text-white lg:py-28">
+      <section id="inicio" className="overflow-hidden bg-[radial-gradient(circle_at_top_right,_#124b73_0%,_#082746_34%,_#020d29_76%)] px-6 py-20 text-white lg:py-28">
         <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1fr_0.95fr]">
           <div className="landing-reveal">
             <div className="inline-flex rounded-full border border-sky-300/20 bg-sky-300/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-sky-200">
@@ -299,14 +308,14 @@ export default function HomePage() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-2xl bg-cyan-400 px-6 py-4 text-center text-sm font-black text-[#071a33] shadow-lg shadow-cyan-950/20 transition-all hover:-translate-y-0.5 hover:bg-cyan-300"
+                className="rounded-2xl bg-sky-400 px-6 py-4 text-center text-sm font-black text-[#071a33] shadow-lg shadow-sky-950/20 transition-all hover:-translate-y-0.5 hover:bg-sky-300"
               >
                 Coordinar presentación
               </a>
 
               <Link
                 href="/login"
-                className="rounded-2xl border border-white/20 px-6 py-4 text-center text-sm font-black text-white transition-colors hover:bg-white/10"
+                className="rounded-2xl border border-white/20 px-6 py-4 text-center text-sm font-black text-white transition-all hover:-translate-y-0.5 hover:bg-white/10"
               >
                 Ingresar al sistema
               </Link>
@@ -322,8 +331,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      <RevealSection id="beneficios" className="flex min-h-[calc(100vh-7rem)] scroll-mt-28 items-center bg-[#f4f8fb] px-6 py-24">
-        <div className="mx-auto max-w-7xl">
+      <RevealSection id="beneficios" className="relative flex min-h-screen items-center overflow-hidden bg-[#f4f8fb] px-6 py-24">
+        <SectionGlow />
+        <div className="relative z-10 mx-auto max-w-7xl">
           <SectionTitle
             label="Problema"
             title="Tus documentos importantes no deberían estar dispersos."
@@ -372,8 +382,9 @@ export default function HomePage() {
         </div>
       </RevealSection>
 
-      <RevealSection id="rubros" className="flex min-h-[calc(100vh-7rem)] scroll-mt-28 items-center bg-[#f4f8fb] px-6 py-24">
-        <div className="mx-auto max-w-7xl">
+      <RevealSection id="rubros" className="relative flex min-h-screen items-center overflow-hidden bg-[#f4f8fb] px-6 py-24">
+        <SectionGlow />
+        <div className="relative z-10 mx-auto max-w-7xl">
           <SectionTitle
             label="Rubros"
             title="Pensado para equipos que manejan documentación sensible."
@@ -416,7 +427,7 @@ export default function HomePage() {
             {securityItems.map((item) => (
               <div
                 key={item}
-                className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm font-bold text-slate-100"
+                className="landing-panel-item rounded-2xl border border-white/10 bg-white/5 p-4 text-sm font-bold text-slate-100"
               >
                 {item}
               </div>
@@ -449,7 +460,7 @@ export default function HomePage() {
               {aiItems.map((item) => (
                 <div
                   key={item}
-                  className="rounded-2xl border border-sky-100 bg-sky-50 p-4 text-sm font-bold text-sky-900"
+                  className="landing-card rounded-2xl border border-sky-100 bg-sky-50 p-4 text-sm font-bold text-sky-900"
                 >
                   {item}
                 </div>
@@ -459,8 +470,9 @@ export default function HomePage() {
         </div>
       </RevealSection>
 
-      <RevealSection id="demo" className="flex min-h-[calc(100vh-7rem)] scroll-mt-28 items-center bg-[#f4f8fb] px-6 py-24">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+      <RevealSection id="demo" className="relative flex min-h-screen items-center overflow-hidden bg-[#f4f8fb] px-6 py-24">
+        <SectionGlow />
+        <div className="relative z-10 mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
           <div>
             <SectionLabel>Presentación guiada</SectionLabel>
             <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
@@ -486,7 +498,7 @@ export default function HomePage() {
             {demoSteps.map((step, index) => (
               <div
                 key={step}
-                className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                className="landing-card flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
               >
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sm font-black text-sky-700">
                   {index + 1}
@@ -498,8 +510,9 @@ export default function HomePage() {
         </div>
       </RevealSection>
 
-      <RevealSection id="beta" className="flex min-h-[calc(100vh-7rem)] scroll-mt-28 items-center px-6 py-24">
-        <div className="mx-auto max-w-5xl rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm md:p-10">
+      <RevealSection id="beta" className="relative flex min-h-screen items-center overflow-hidden px-6 py-24">
+        <SectionGlow />
+        <div className="relative z-10 mx-auto max-w-5xl rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm md:p-10">
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
             <div>
               <SectionLabel>Acceso beta</SectionLabel>
@@ -522,20 +535,22 @@ export default function HomePage() {
               {betaItems.map((item) => (
                 <div
                   key={item}
-                  className="rounded-2xl bg-slate-50 p-4 text-sm font-bold text-slate-700"
+                  className="landing-card rounded-2xl bg-slate-50 p-4 text-sm font-bold text-slate-700"
                 >
                   {item}
                 </div>
               ))}
 
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="justify-self-start rounded-xl bg-sky-500 px-5 py-3 text-center text-sm font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600 sm:col-span-2"
-              >
-                Consultar disponibilidad
-              </a>
+              <div className="flex justify-start sm:col-span-2">
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex rounded-xl bg-sky-500 px-5 py-3 text-center text-sm font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
+                >
+                  Consultar disponibilidad
+                </a>
+              </div>
             </div>
           </div>
         </div>

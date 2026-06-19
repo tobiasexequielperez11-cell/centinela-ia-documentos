@@ -28,10 +28,7 @@ export function RevealSection({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
+        setIsVisible(entry.isIntersecting);
       },
       { rootMargin: '0px 0px -8% 0px', threshold: 0.12 },
     );
