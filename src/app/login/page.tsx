@@ -18,13 +18,24 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   return (
     <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_#124b73_0%,_#082746_34%,_#020d29_78%)] px-6 py-12 text-slate-950">
       <div className="w-full max-w-md rounded-3xl border border-white/70 bg-white/95 p-8 shadow-[0_30px_80px_rgba(2,13,41,0.45)]">
-        <div className="mx-auto mb-6 flex max-w-sm justify-center overflow-visible">
+        <Link
+          href="/"
+          className="inline-flex items-center text-sm font-bold text-[#12345d] transition-colors hover:text-sky-700"
+        >
+          Volver al inicio
+        </Link>
+
+        <Link
+          href="/"
+          className="mx-auto mb-4 mt-2 flex max-w-xs justify-center overflow-visible"
+          aria-label="Volver al inicio de Centinela IA"
+        >
           <img
             src="/brand/centinela-logo-transparent.png"
             alt="Centinela IA"
-            className="h-48 w-full object-contain"
+            className="h-36 w-full object-contain"
           />
-        </div>
+        </Link>
 
         <h1 className="text-3xl font-bold">Ingresar al panel</h1>
 
@@ -73,7 +84,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             />
           </div>
 
-          <button className="w-full rounded-2xl bg-[#0b6ea8] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#095a8a]">
+          <button className="w-full rounded-2xl bg-[#0b1f3a] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-slate-950/15 transition-all hover:-translate-y-0.5 hover:bg-[#12345d] focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2">
             Ingresar
           </button>
         </form>

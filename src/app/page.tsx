@@ -226,7 +226,7 @@ function MockupPanel() {
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-white text-slate-950">
-      <header className="relative z-40 border-b border-[#c8dbea] bg-[#eaf2f8] px-6 py-4 shadow-sm">
+      <header className="relative z-40 border-b border-[#c8dbea] bg-[#eaf2f8] px-6 py-3 shadow-sm">
         <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
           <nav className="hidden items-center gap-6 text-sm font-bold text-slate-950 lg:flex">
             <a href="#beneficios" className="transition-colors hover:text-sky-700">
@@ -245,7 +245,7 @@ export default function HomePage() {
 
           <Link
             href="/"
-            className="flex h-24 w-64 items-center justify-start overflow-hidden lg:h-32 lg:w-96 lg:justify-center"
+            className="flex h-20 w-56 items-center justify-start overflow-hidden lg:h-24 lg:w-80 lg:justify-center"
             aria-label="Centinela IA"
           >
             <img
@@ -624,7 +624,7 @@ export default function HomePage() {
   target="_blank"
   rel="noreferrer"
   aria-label="Solicitar demo por WhatsApp"
-  className="group fixed bottom-4 right-4 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500 text-white shadow-[0_12px_30px_rgba(16,185,129,0.35)] transition-all duration-300 hover:-translate-y-1 hover:bg-emerald-400 hover:shadow-[0_18px_40px_rgba(16,185,129,0.45)] active:translate-y-0 active:scale-95 sm:bottom-5 sm:right-5"
+  className="group fixed bottom-5 right-4 z-50 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-emerald-500 text-white shadow-[0_12px_30px_rgba(16,185,129,0.3)] transition-all duration-300 hover:-translate-y-1 hover:bg-emerald-400 hover:shadow-[0_18px_40px_rgba(16,185,129,0.4)] active:translate-y-0 active:scale-95 sm:bottom-6 sm:right-6 sm:h-12 sm:w-12"
 >
   <svg
     xmlns="http://www.w3.org/2000/svg"
