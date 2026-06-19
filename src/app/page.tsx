@@ -32,15 +32,17 @@ const problemCards = [
 const commercialOutcomes = [
   {
     title: 'Menos dispersión documental',
-    description: 'Expedientes y archivos reunidos dentro de una estructura de trabajo común.',
+    description:
+      'Encontrá expedientes y documentos desde una estructura centralizada, sin depender de carpetas, emails o WhatsApp.',
   },
   {
     title: 'Mayor trazabilidad',
-    description: 'Actividad relevante registrada para facilitar seguimiento y control interno.',
+    description:
+      'Consultá la actividad auditada para identificar acciones relevantes realizadas sobre documentos.',
   },
   {
     title: 'Control centralizado',
-    description: 'Usuarios, roles, documentos y reportes administrados desde un mismo panel.',
+    description: 'Usuarios, permisos, documentos y reportes administrados desde un solo lugar.',
   },
 ];
 
@@ -397,7 +399,7 @@ export default function HomePage() {
           <SectionTitle
             label="Problema"
             title="Tus documentos importantes no deberían estar dispersos."
-            description="Muchos equipos trabajan con contratos, expedientes, legajos y PDFs repartidos entre WhatsApp, correo, carpetas locales o Drive. Eso dificulta encontrar archivos, controlar accesos y saber qué pasó con cada documento."
+            description="Muchos equipos trabajan con contratos, expedientes, legajos y PDFs repartidos entre WhatsApp, correo, carpetas locales o Drive. Eso dificulta encontrar archivos, controlar accesos y saber qué pasó con cada documento. Centinela IA reúne todo eso en un solo lugar seguro."
           />
 
           <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -495,7 +497,9 @@ export default function HomePage() {
             <p className="mt-5 text-base leading-8 text-slate-300">
               Centinela IA combina autenticación, aislamiento por organización,
               almacenamiento privado, permisos por rol y auditoría para reducir accesos
-              indebidos y mejorar el control interno.
+              indebidos y mejorar el control interno. Incorpora criterios de confidencialidad
+              y control de acceso orientados a buenas prácticas de protección de datos
+              personales.
             </p>
 
             <div className="mt-7 inline-flex rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-emerald-200">
@@ -608,7 +612,8 @@ export default function HomePage() {
 
               <p className="mt-4 text-sm font-semibold leading-6 text-slate-500">
                 También se puede presupuestar una versión personalizada según los
-                requerimientos de cada cliente.
+                requerimientos de cada cliente. Cupos limitados y acompañamiento básico
+                incluido durante la etapa beta.
               </p>
             </div>
 
