@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { LandingHashNavigation } from '@/components/landing-hash-navigation';
 import { RevealSection } from '@/components/landing-reveal-section';
 import { LandingMobileMenu } from '@/components/landing-mobile-menu';
 
@@ -254,8 +255,10 @@ function MockupPanel() {
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-white text-slate-950">
-      <header className="relative z-40 border-b border-[#c8dbea] bg-[#eaf2f8] px-6 py-3 shadow-sm">
-        <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
+      <LandingHashNavigation />
+
+      <header className="relative z-40 border-b border-[#c8dbea] bg-[#eaf2f8] px-4 py-3 shadow-sm sm:px-6">
+        <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-2 sm:gap-4 lg:grid-cols-[1fr_auto_1fr]">
           <nav className="hidden items-center gap-6 text-sm font-bold text-slate-950 lg:flex">
             <a href="#beneficios" className="landing-nav-link">
               Beneficios
@@ -276,7 +279,7 @@ export default function HomePage() {
 
           <a
             href="#inicio"
-            className="flex h-24 w-64 items-center justify-start overflow-hidden transition-transform hover:scale-[1.03] lg:h-28 lg:w-96 lg:justify-center"
+            className="flex h-20 w-44 items-center justify-start overflow-hidden transition-transform hover:scale-[1.03] sm:h-24 sm:w-64 lg:h-28 lg:w-96 lg:justify-center"
             aria-label="Centinela IA"
           >
             <img
@@ -578,7 +581,7 @@ export default function HomePage() {
                   rel="noreferrer"
                   className="inline-flex rounded-lg bg-sky-500 px-3.5 py-2 text-center text-xs font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
                 >
-                  Consultar disponibilidad
+                  Consultar
                 </a>
               </div>
             </div>
