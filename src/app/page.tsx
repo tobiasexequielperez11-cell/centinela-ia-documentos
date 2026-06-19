@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { RevealSection } from '@/components/landing-reveal-section';
 
 const whatsappUrl =
   'https://wa.me/543794733321?text=Hola,%20quiero%20solicitar%20una%20demo%20de%20Centinela%20IA';
@@ -236,7 +237,7 @@ export default function HomePage() {
               Rubros
             </a>
             <a href="#demo" className="transition-colors hover:text-sky-700">
-              Demo
+              Presentación
             </a>
             <a href="#beta" className="transition-colors hover:text-sky-700">
               Acceso beta
@@ -267,9 +268,9 @@ export default function HomePage() {
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="hidden rounded-2xl bg-[#0b1f3a] px-4 py-2 text-sm font-black text-white shadow-sm transition-colors hover:bg-[#12345d] sm:inline-flex"
+              className="hidden rounded-2xl bg-sky-500 px-4 py-2 text-sm font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600 sm:inline-flex"
             >
-              Solicitar demo
+              Coordinar presentación
             </a>
           </div>
         </div>
@@ -300,7 +301,7 @@ export default function HomePage() {
                 rel="noreferrer"
                 className="rounded-2xl bg-cyan-400 px-6 py-4 text-center text-sm font-black text-[#071a33] shadow-lg shadow-cyan-950/20 transition-all hover:-translate-y-0.5 hover:bg-cyan-300"
               >
-                Solicitar demo
+                Coordinar presentación
               </a>
 
               <Link
@@ -321,7 +322,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="beneficios" className="bg-[#f4f8fb] px-6 py-20">
+      <RevealSection id="beneficios" className="flex min-h-[calc(100vh-7rem)] scroll-mt-28 items-center bg-[#f4f8fb] px-6 py-24">
         <div className="mx-auto max-w-7xl">
           <SectionTitle
             label="Problema"
@@ -343,9 +344,9 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </RevealSection>
 
-      <section className="px-6 py-20">
+      <RevealSection className="px-6 py-24">
         <div className="mx-auto max-w-7xl">
           <SectionTitle
             label="Módulos"
@@ -369,9 +370,9 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </RevealSection>
 
-      <section id="rubros" className="bg-[#f4f8fb] px-6 py-20">
+      <RevealSection id="rubros" className="flex min-h-[calc(100vh-7rem)] scroll-mt-28 items-center bg-[#f4f8fb] px-6 py-24">
         <div className="mx-auto max-w-7xl">
           <SectionTitle
             label="Rubros"
@@ -395,9 +396,9 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </RevealSection>
 
-      <section className="bg-[linear-gradient(135deg,_#020d29,_#082746)] px-6 py-20 text-white">
+      <RevealSection className="bg-[linear-gradient(135deg,_#020d29,_#082746)] px-6 py-24 text-white">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
             <SectionLabel>Seguridad</SectionLabel>
@@ -422,9 +423,9 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </RevealSection>
 
-      <section className="px-6 py-20">
+      <RevealSection className="px-6 py-24">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div>
@@ -456,17 +457,17 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </RevealSection>
 
-      <section id="demo" className="bg-[#f4f8fb] px-6 py-20">
+      <RevealSection id="demo" className="flex min-h-[calc(100vh-7rem)] scroll-mt-28 items-center bg-[#f4f8fb] px-6 py-24">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
           <div>
-            <SectionLabel>Demo guiada</SectionLabel>
+            <SectionLabel>Presentación guiada</SectionLabel>
             <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
-              Conocé el flujo completo en una demo guiada.
+              Conocé el flujo completo en una presentación guiada.
             </h2>
             <p className="mt-5 text-base leading-8 text-slate-600">
-              La demo muestra cómo una organización puede ingresar al sistema, revisar
+              La presentación muestra cómo una organización puede ingresar al sistema, revisar
               métricas, crear expedientes, cargar documentos, visualizar PDFs, consultar
               reportes, administrar usuarios y revisar actividad auditada.
             </p>
@@ -475,9 +476,9 @@ export default function HomePage() {
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="mt-7 inline-flex rounded-2xl bg-[#0b1f3a] px-6 py-4 text-sm font-black text-white transition-all hover:-translate-y-0.5 hover:bg-[#12345d]"
+              className="mt-7 inline-flex rounded-2xl bg-sky-500 px-6 py-3.5 text-sm font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
             >
-              Solicitar demo
+              Coordinar presentación
             </a>
           </div>
 
@@ -495,9 +496,9 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </RevealSection>
 
-      <section id="beta" className="px-6 py-20">
+      <RevealSection id="beta" className="flex min-h-[calc(100vh-7rem)] scroll-mt-28 items-center px-6 py-24">
         <div className="mx-auto max-w-5xl rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm md:p-10">
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
             <div>
@@ -531,23 +532,23 @@ export default function HomePage() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="w-full max-w-sm justify-self-center rounded-2xl bg-sky-500 px-5 py-3.5 text-center text-sm font-black text-white hover:bg-sky-600 sm:col-span-2"
+                className="justify-self-start rounded-xl bg-sky-500 px-5 py-3 text-center text-sm font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600 sm:col-span-2"
               >
                 Consultar disponibilidad
               </a>
             </div>
           </div>
         </div>
-      </section>
+      </RevealSection>
 
-      <section className="bg-[linear-gradient(135deg,_#020d29,_#082746)] px-6 py-20 text-white">
+      <RevealSection className="bg-[linear-gradient(135deg,_#020d29,_#082746)] px-6 py-24 text-white">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-3xl font-black tracking-tight md:text-5xl">
             Ordená tus expedientes y documentos desde un solo lugar.
           </h2>
 
           <p className="mt-5 text-base leading-8 text-slate-300 md:text-lg">
-            Solicitá una demo de Centinela IA y evaluá si la plataforma se adapta a tu
+            Coordiná una presentación de Centinela IA y evaluá si la plataforma se adapta a tu
             estudio, inmobiliaria, escribanía o equipo de trabajo.
           </p>
 
@@ -558,7 +559,7 @@ export default function HomePage() {
               rel="noreferrer"
               className="rounded-2xl bg-sky-400 px-6 py-4 text-center text-sm font-black text-slate-950 hover:bg-sky-300"
             >
-              Solicitar demo
+              Coordinar presentación
             </a>
 
             <Link
@@ -573,7 +574,7 @@ export default function HomePage() {
             Beta operativa comercial para primeros clientes.
           </p>
         </div>
-      </section>
+      </RevealSection>
 
       <footer className="border-t border-[#c8dbea] bg-[#eaf2f8] px-6 py-8">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 text-sm text-slate-700 md:flex-row md:items-center">
@@ -623,7 +624,7 @@ export default function HomePage() {
   href={whatsappUrl}
   target="_blank"
   rel="noreferrer"
-  aria-label="Solicitar demo por WhatsApp"
+  aria-label="Coordinar presentación por WhatsApp"
   className="group fixed bottom-5 right-4 z-50 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-emerald-500 text-white shadow-[0_12px_30px_rgba(16,185,129,0.3)] transition-all duration-300 hover:-translate-y-1 hover:bg-emerald-400 hover:shadow-[0_18px_40px_rgba(16,185,129,0.4)] active:translate-y-0 active:scale-95 sm:bottom-6 sm:right-6 sm:h-12 sm:w-12"
 >
   <svg

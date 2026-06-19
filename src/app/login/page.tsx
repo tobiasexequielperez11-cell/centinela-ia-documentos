@@ -84,7 +84,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             />
           </div>
 
-          <button className="w-full rounded-2xl bg-[#0b1f3a] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-slate-950/15 transition-all hover:-translate-y-0.5 hover:bg-[#12345d] focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2">
+          <button className="w-full rounded-2xl bg-sky-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-sky-950/15 transition-all hover:-translate-y-0.5 hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2">
             Ingresar
           </button>
         </form>

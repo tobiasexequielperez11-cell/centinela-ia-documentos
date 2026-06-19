@@ -6,6 +6,11 @@
   color-scheme: light;
 }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 7rem;
+}
+
 body {
   margin: 0;
 }
@@ -48,6 +53,17 @@ body {
   box-shadow: 0 18px 40px rgba(15, 39, 66, 0.1);
 }
 
+.landing-section {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 700ms ease, transform 700ms ease;
+}
+
+.landing-section.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .landing-reveal,
   .landing-float {
@@ -55,6 +71,13 @@ body {
   }
 
   .landing-card {
+    transition: none;
+  }
+
+  .landing-section,
+  .landing-section.is-visible {
+    opacity: 1;
+    transform: none;
     transition: none;
   }
 }
