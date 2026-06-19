@@ -167,7 +167,7 @@ const betaItems = [
   'Configuración de organización',
   'Usuarios y roles',
   'Acompañamiento básico',
-  'Mensualidad accesible',
+  'Planes beta con precio reducido',
   'Ajustes según feedback',
   'Opción de desarrollo a medida',
 ];
@@ -353,14 +353,14 @@ export default function HomePage() {
             </div>
 
             <h1 className="mt-6 max-w-4xl text-4xl font-black tracking-tight md:text-6xl">
-              Organizá expedientes, documentos y accesos desde un solo panel.
+              Toda tu documentación sensible: ordenada, segura y bajo control.
             </h1>
 
             <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 md:text-lg">
-              Centinela IA es una plataforma web para estudios jurídicos,
-              inmobiliarias y escribanías que necesitan centralizar documentos PDF,
-              controlar usuarios, revisar actividad y trabajar con análisis documental
-              asistido en un entorno seguro.
+              Centinela IA reúne tus expedientes y PDFs en un solo lugar, controla los
+              accesos por usuario y organización y registra la actividad relevante, para
+              que trabajes con menos dispersión, mayor trazabilidad y una imagen más
+              profesional ante tus clientes.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -434,7 +434,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl">
           <SectionTitle
             label="Módulos"
-            title="Un panel operativo para tu gestión documental."
+            title="Todo lo que tu equipo necesita para gestionar documentación sensible."
             description="Centinela IA reúne las herramientas principales para organizar expedientes, cargar documentos, visualizar PDFs, controlar usuarios y revisar actividad desde un entorno privado."
           />
 
