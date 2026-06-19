@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { RevealSection } from '@/components/landing-reveal-section';
+import { LandingMobileMenu } from '@/components/landing-mobile-menu';
 
 const whatsappUrl =
-  'https://wa.me/543794733321?text=Hola,%20quiero%20solicitar%20una%20demo%20de%20Centinela%20IA';
+  'https://wa.me/543794733321?text=Hola,%20quiero%20coordinar%20una%20presentaci%C3%B3n%20de%20Centinela%20IA';
 
 const emailUrl =
   'mailto:tobiasexequielperez11@gmail.com?subject=Solicitud%20de%20demo%20Centinela%20IA';
@@ -85,13 +86,30 @@ const industries = [
 ];
 
 const securityItems = [
-  'Login seguro',
-  'Roles por usuario',
-  'Acceso por organización',
-  'Documentos privados',
-  'Enlaces temporales',
-  'Auditoría de actividad',
-  'Rutas sensibles protegidas',
+  {
+    title: 'Aislamiento por organización',
+    description: 'Cada usuario accede únicamente a la información vinculada con su organización.',
+  },
+  {
+    title: 'Almacenamiento privado',
+    description: 'Los documentos se guardan en un espacio privado y se consultan mediante enlaces temporales.',
+  },
+  {
+    title: 'Roles y permisos',
+    description: 'Las funciones sensibles se habilitan según el perfil asignado a cada usuario.',
+  },
+  {
+    title: 'Actividad auditada',
+    description: 'Las acciones relevantes quedan registradas para facilitar la trazabilidad operativa.',
+  },
+  {
+    title: 'Rutas protegidas',
+    description: 'El sistema valida sesión, estado y permisos antes de abrir áreas restringidas.',
+  },
+  {
+    title: 'Separación desde la base de datos',
+    description: 'Las políticas de acceso refuerzan la separación de registros entre organizaciones.',
+  },
 ];
 
 const aiItems = [
@@ -245,6 +263,9 @@ export default function HomePage() {
             <a href="#rubros" className="landing-nav-link">
               Rubros
             </a>
+            <a href="#seguridad" className="landing-nav-link">
+              Seguridad
+            </a>
             <a href="#demo" className="landing-nav-link">
               Presentación
             </a>
@@ -265,7 +286,7 @@ export default function HomePage() {
             />
           </a>
 
-          <div className="flex items-center justify-end gap-2">
+          <div className="hidden items-center justify-end gap-2 lg:flex">
             <Link
               href="/login"
               className="rounded-2xl border border-[#12345d]/20 px-4 py-2 text-sm font-bold text-[#0b1f3a] transition-all hover:-translate-y-0.5 hover:bg-white/70 hover:shadow-sm"
@@ -282,6 +303,8 @@ export default function HomePage() {
               Coordinar presentación
             </a>
           </div>
+
+          <LandingMobileMenu whatsappUrl={whatsappUrl} />
         </div>
       </header>
 
@@ -409,27 +432,34 @@ export default function HomePage() {
         </div>
       </RevealSection>
 
-      <RevealSection className="bg-[linear-gradient(135deg,_#020d29,_#082746)] px-6 py-24 text-white">
+      <RevealSection id="seguridad" className="flex min-h-screen items-center bg-[linear-gradient(135deg,_#020d29,_#082746)] px-6 py-24 text-white">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
-            <SectionLabel>Seguridad</SectionLabel>
+            <p className="text-sm font-bold uppercase tracking-[0.22em] text-sky-300">
+              Confidencialidad y seguridad
+            </p>
             <h2 className="mt-3 text-3xl font-black tracking-tight md:text-5xl">
-              Accesos protegidos y actividad trazable.
+              Controles activos para proteger información sensible.
             </h2>
             <p className="mt-5 text-base leading-8 text-slate-300">
-              Centinela IA incorpora autenticación, roles, permisos por organización,
-              almacenamiento privado y auditoría de acciones para mejorar el control
-              interno.
+              Centinela IA combina autenticación, aislamiento por organización,
+              almacenamiento privado, permisos por rol y auditoría para reducir accesos
+              indebidos y mejorar el control interno.
             </p>
+
+            <div className="mt-7 inline-flex rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-emerald-200">
+              Controles operativos en la beta actual
+            </div>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
             {securityItems.map((item) => (
               <div
-                key={item}
-                className="landing-panel-item rounded-2xl border border-white/10 bg-white/5 p-4 text-sm font-bold text-slate-100"
+                key={item.title}
+                className="landing-panel-item rounded-2xl border border-white/10 bg-white/5 p-5"
               >
-                {item}
+                <h3 className="text-sm font-black text-white">{item.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-300">{item.description}</p>
               </div>
             ))}
           </div>
