@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const navigationItems = [
   { href: '#beneficios', label: 'Beneficios' },
@@ -9,15 +9,38 @@ const navigationItems = [
   { href: '#seguridad', label: 'Seguridad' },
   { href: '#demo', label: 'Presentación' },
   { href: '#beta', label: 'Acceso beta' },
+  { href: '#contacto', label: 'Contacto' },
 ];
 
 export function LandingMobileMenu({ whatsappUrl }: { whatsappUrl: string }) {
   const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const closeMenu = () => setIsOpen(false);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeMenu();
+    };
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Node && !menuRef.current?.contains(event.target)) {
+        closeMenu();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('pointerdown', handlePointerDown);
+    };
+  }, [isOpen]);
+
   return (
-    <div className="relative lg:hidden">
+    <div ref={menuRef} className="relative lg:hidden">
       <button
         type="button"
         aria-expanded={isOpen}

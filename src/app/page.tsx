@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { LandingContactForm } from '@/components/landing-contact-form';
 import { LandingHashNavigation } from '@/components/landing-hash-navigation';
 import { RevealSection } from '@/components/landing-reveal-section';
 import { LandingMobileMenu } from '@/components/landing-mobile-menu';
@@ -7,7 +8,7 @@ const whatsappUrl =
   'https://wa.me/543794733321?text=Hola,%20quiero%20coordinar%20una%20presentaci%C3%B3n%20de%20Centinela%20IA';
 
 const emailUrl =
-  'mailto:tobiasexequielperez11@gmail.com?subject=Solicitud%20de%20demo%20Centinela%20IA';
+  'mailto:tobiasexequielperez11@gmail.com?subject=Consulta%20comercial%20Centinela%20IA';
 
 const problemCards = [
   {
@@ -27,6 +28,32 @@ const problemCards = [
     description: 'Usuarios, permisos y documentación sensible sin una gestión centralizada.',
   },
 ];
+
+const commercialOutcomes = [
+  {
+    title: 'Menos dispersión documental',
+    description: 'Expedientes y archivos reunidos dentro de una estructura de trabajo común.',
+  },
+  {
+    title: 'Mayor trazabilidad',
+    description: 'Actividad relevante registrada para facilitar seguimiento y control interno.',
+  },
+  {
+    title: 'Control centralizado',
+    description: 'Usuarios, roles, documentos y reportes administrados desde un mismo panel.',
+  },
+];
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Centinela IA',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  url: 'https://centinela-ia-documentos.vercel.app/',
+  description:
+    'Plataforma web para centralizar expedientes, documentos PDF, usuarios, permisos y actividad auditada en un entorno privado.',
+};
 
 const features = [
   {
@@ -255,6 +282,10 @@ function MockupPanel() {
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-white text-slate-950">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <LandingHashNavigation />
 
       <header className="relative z-40 border-b border-[#c8dbea] bg-[#eaf2f8] px-4 py-3 shadow-sm sm:px-6">
@@ -274,6 +305,9 @@ export default function HomePage() {
             </a>
             <a href="#beta" className="landing-nav-link">
               Acceso beta
+            </a>
+            <a href="#contacto" className="landing-nav-link">
+              Contacto
             </a>
           </nav>
 
@@ -378,6 +412,20 @@ export default function HomePage() {
                 </p>
               </div>
             ))}
+          </div>
+
+          <div className="mt-8 rounded-3xl bg-[#071a33] p-6 text-white shadow-xl sm:p-8">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-sky-300">
+              Resultados operativos
+            </p>
+            <div className="mt-5 grid gap-4 md:grid-cols-3">
+              {commercialOutcomes.map((outcome) => (
+                <div key={outcome.title} className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                  <h3 className="text-base font-black">{outcome.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">{outcome.description}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </RevealSection>
@@ -579,13 +627,35 @@ export default function HomePage() {
                   href={whatsappUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex rounded-lg bg-sky-500 px-3.5 py-2 text-center text-xs font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
+                  className="inline-flex rounded-md bg-sky-500 px-2.5 py-1.5 text-center text-[11px] font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
                 >
                   Consultar
                 </a>
               </div>
             </div>
           </div>
+        </div>
+      </RevealSection>
+
+      <RevealSection id="contacto" className="relative overflow-hidden bg-[#f4f8fb] px-6 py-24">
+        <SectionGlow />
+        <div className="relative z-10 mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+          <div>
+            <SectionLabel>Contacto comercial</SectionLabel>
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
+              Contanos qué necesita tu organización.
+            </h2>
+            <p className="mt-5 text-base leading-8 text-slate-600">
+              Completá los datos básicos para preparar una conversación enfocada en tu rubro,
+              flujo documental y necesidades de acceso.
+            </p>
+            <div className="mt-7 rounded-2xl border border-sky-100 bg-sky-50 p-5 text-sm leading-6 text-sky-950">
+              La consulta no crea una cuenta ni confirma una contratación. Sirve para coordinar
+              una presentación y evaluar si la beta se adapta al caso de uso.
+            </div>
+          </div>
+
+          <LandingContactForm />
         </div>
       </RevealSection>
 
@@ -624,11 +694,19 @@ export default function HomePage() {
         </div>
       </RevealSection>
 
-      <footer className="border-t border-[#c8dbea] bg-[#eaf2f8] px-6 py-8">
+      <footer className="border-t border-[#c8dbea] bg-[#eaf2f8] px-6 pb-24 pt-8 md:py-8">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 text-sm text-slate-700 md:flex-row md:items-center">
           <p className="font-semibold text-[#0b1f3a]">© 2026 Centinela IA</p>
 
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-6">
+            <Link href="/privacidad" className="font-semibold text-slate-700 hover:text-slate-950">
+              Privacidad
+            </Link>
+
+            <Link href="/terminos" className="font-semibold text-slate-700 hover:text-slate-950">
+              Términos
+            </Link>
+
             <a
               href={emailUrl}
               className="inline-flex items-center gap-2 font-semibold text-slate-700 hover:text-slate-950"
