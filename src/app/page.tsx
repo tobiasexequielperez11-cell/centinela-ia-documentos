@@ -546,7 +546,7 @@ export default function HomePage() {
                   href={whatsappUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex rounded-xl bg-sky-500 px-5 py-3 text-center text-sm font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
+                  className="inline-flex rounded-lg bg-sky-500 px-3.5 py-2 text-center text-xs font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
                 >
                   Consultar disponibilidad
                 </a>
