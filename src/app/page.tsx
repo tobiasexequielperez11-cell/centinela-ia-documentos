@@ -308,7 +308,7 @@ export default function HomePage() {
         </div>
       </RevealSection>
 
-      <RevealSection className="relative overflow-hidden px-6 py-24">
+      <RevealSection className="relative overflow-hidden px-6 py-12 md:py-16">
         <SectionGlow />
         <div className="relative z-10 mx-auto max-w-4xl text-center">
           <SectionLabel>Funciones</SectionLabel>
@@ -355,7 +355,7 @@ export default function HomePage() {
         </div>
       </RevealSection>
 
-      <RevealSection id="seguridad" className="bg-[linear-gradient(135deg,_#020d29,_#082746)] px-6 py-24 text-white">
+      <RevealSection id="seguridad" className="bg-[linear-gradient(135deg,_#020d29,_#082746)] px-6 py-12 text-white md:py-16">
         <div className="mx-auto max-w-4xl text-center">
           <p className="text-sm font-bold uppercase tracking-[0.22em] text-sky-300">
             Confidencialidad y seguridad
@@ -376,7 +376,7 @@ export default function HomePage() {
         </div>
       </RevealSection>
 
-      <RevealSection className="px-6 py-24">
+      <RevealSection className="px-6 py-12 md:py-16">
         <div className="mx-auto max-w-4xl text-center">
           <SectionLabel>IA documental</SectionLabel>
           <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
@@ -395,7 +395,7 @@ export default function HomePage() {
         </div>
       </RevealSection>
 
-      <RevealSection id="demo" className="relative overflow-hidden bg-[#f4f8fb] px-6 py-24">
+      <RevealSection id="demo" className="relative overflow-hidden bg-[#f4f8fb] px-6 py-12 md:py-16">
         <SectionGlow />
         <div className="relative z-10 mx-auto max-w-4xl text-center">
           <SectionLabel>Presentación guiada</SectionLabel>
@@ -415,7 +415,7 @@ export default function HomePage() {
         </div>
       </RevealSection>
 
-      <RevealSection id="beta" className="relative flex min-h-screen items-center overflow-hidden px-6 py-24">
+      <RevealSection id="beta" className="relative overflow-hidden px-6 py-12 md:py-16">
         <SectionGlow />
         <div className="relative z-10 mx-auto max-w-4xl rounded-[2rem] border border-slate-200 bg-white p-8 text-center shadow-sm md:p-10">
           <SectionLabel>Acceso beta</SectionLabel>
