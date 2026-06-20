@@ -63,16 +63,6 @@ const industries = [
   },
 ];
 
-const betaItems = [
-  'Setup inicial',
-  'Configuración de organización',
-  'Usuarios y roles',
-  'Acompañamiento básico',
-  'Planes beta con precio reducido',
-  'Ajustes según feedback',
-  'Opción de desarrollo a medida',
-];
-
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <p className="text-sm font-bold uppercase tracking-[0.22em] text-sky-600">
@@ -427,48 +417,21 @@ export default function HomePage() {
 
       <RevealSection id="beta" className="relative flex min-h-screen items-center overflow-hidden px-6 py-24">
         <SectionGlow />
-        <div className="relative z-10 mx-auto max-w-5xl rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm md:p-10">
-          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-            <div>
-              <SectionLabel>Acceso beta</SectionLabel>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
-                Acceso inicial para primeros clientes.
-              </h2>
-              <p className="mt-5 text-base leading-8 text-slate-600">
-                Centinela IA se ofrece inicialmente bajo modalidad de acceso beta, con
-                cupos limitados para organizaciones que quieran validar el sistema en un
-                entorno controlado.
-              </p>
-
-              <p className="mt-4 text-sm font-semibold leading-6 text-slate-500">
-                También se puede presupuestar una versión personalizada según los
-                requerimientos de cada cliente. Cupos limitados y acompañamiento básico
-                incluido durante la etapa beta.
-              </p>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              {betaItems.map((item) => (
-                <div
-                  key={item}
-                  className="landing-card rounded-2xl bg-slate-50 p-4 text-sm font-bold text-slate-700"
-                >
-                  {item}
-                </div>
-              ))}
-
-              <div className="flex justify-start sm:col-span-2">
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex rounded-md bg-sky-500 px-2.5 py-1.5 text-center text-[11px] font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
-                >
-                  Consultar
-                </a>
-              </div>
-            </div>
-          </div>
+        <div className="relative z-10 mx-auto max-w-4xl rounded-[2rem] border border-slate-200 bg-white p-8 text-center shadow-sm md:p-10">
+          <SectionLabel>Acceso beta</SectionLabel>
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
+            Acceso beta para los primeros clientes.
+          </h2>
+          <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-slate-600 md:text-lg">
+            Cupos limitados, acompañamiento incluido y opción de desarrollo a medida según tu
+            organización.
+          </p>
+          <Link
+            href="/planes"
+            className="mt-7 inline-flex rounded-2xl bg-sky-500 px-6 py-3.5 text-sm font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
+          >
+            Ver planes
+          </Link>
         </div>
       </RevealSection>
 
