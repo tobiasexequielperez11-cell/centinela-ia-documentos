@@ -182,21 +182,24 @@ export default function HomePage() {
       <header className="relative z-40 border-b border-[#c8dbea] bg-[#eaf2f8] px-4 py-3 shadow-sm sm:px-6">
         <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-2 sm:gap-4 lg:grid-cols-[1fr_auto_1fr]">
           <nav className="hidden items-center gap-6 text-sm font-bold text-slate-950 lg:flex">
-            <a href="#beneficios" className="landing-nav-link">
+            <Link href="/funciones" className="landing-nav-link">
               Beneficios
-            </a>
+            </Link>
             <a href="#rubros" className="landing-nav-link">
               Rubros
             </a>
-            <a href="#seguridad" className="landing-nav-link">
+            <Link href="/seguridad" className="landing-nav-link">
               Seguridad
-            </a>
-            <a href="#demo" className="landing-nav-link">
+            </Link>
+            <Link href="/analisis-documental" className="landing-nav-link">
+              Análisis documental
+            </Link>
+            <Link href="/como-funciona" className="landing-nav-link">
               Presentación
-            </a>
-            <a href="#beta" className="landing-nav-link">
+            </Link>
+            <Link href="/planes" className="landing-nav-link">
               Acceso beta
-            </a>
+            </Link>
             <a href="#contacto" className="landing-nav-link">
               Contacto
             </a>
