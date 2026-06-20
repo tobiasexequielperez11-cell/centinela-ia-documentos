@@ -151,19 +151,6 @@ const aiItems = [
   'Base preparada para futuras integraciones',
 ];
 
-const demoSteps = [
-  'Login seguro',
-  'Dashboard operativo',
-  'Expedientes',
-  'Carga documental',
-  'Visor PDF',
-  'Análisis documental',
-  'Reportes',
-  'Usuarios y permisos',
-  'Auditoría',
-  'Propuesta beta',
-];
-
 const betaItems = [
   'Setup inicial',
   'Configuración de organización',
@@ -555,43 +542,23 @@ export default function HomePage() {
         </div>
       </RevealSection>
 
-      <RevealSection id="demo" className="relative flex min-h-screen items-center overflow-hidden bg-[#f4f8fb] px-6 py-24">
+      <RevealSection id="demo" className="relative overflow-hidden bg-[#f4f8fb] px-6 py-24">
         <SectionGlow />
-        <div className="relative z-10 mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
-          <div>
-            <SectionLabel>Presentación guiada</SectionLabel>
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
-              Conocé el flujo completo en una presentación guiada.
-            </h2>
-            <p className="mt-5 text-base leading-8 text-slate-600">
-              La presentación muestra cómo una organización puede ingresar al sistema, revisar
-              métricas, crear expedientes, cargar documentos, visualizar PDFs, consultar
-              reportes, administrar usuarios y revisar actividad auditada.
-            </p>
-
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-7 inline-flex rounded-2xl bg-sky-500 px-6 py-3.5 text-sm font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
-            >
-              Coordinar presentación
-            </a>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            {demoSteps.map((step, index) => (
-              <div
-                key={step}
-                className="landing-card flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
-              >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sm font-black text-sky-700">
-                  {index + 1}
-                </span>
-                <p className="text-sm font-bold text-slate-800">{step}</p>
-              </div>
-            ))}
-          </div>
+        <div className="relative z-10 mx-auto max-w-4xl text-center">
+          <SectionLabel>Presentación guiada</SectionLabel>
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
+            Conocé cómo funciona, paso a paso.
+          </h2>
+          <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-slate-600 md:text-lg">
+            Un recorrido por el sistema: ingreso, expedientes, carga de documentos, visor PDF,
+            análisis documental y auditoría.
+          </p>
+          <Link
+            href="/como-funciona"
+            className="mt-7 inline-flex rounded-2xl bg-sky-500 px-6 py-3.5 text-sm font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
+          >
+            Ver la presentación guiada
+          </Link>
         </div>
       </RevealSection>
 
