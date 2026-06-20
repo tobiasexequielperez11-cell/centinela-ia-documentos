@@ -63,15 +63,6 @@ const industries = [
   },
 ];
 
-const aiItems = [
-  'Clasificación inicial de documentos',
-  'Detección de sensibilidad',
-  'Resumen operativo',
-  'Alertas documentales',
-  'Historial de análisis',
-  'Base preparada para futuras integraciones',
-];
-
 const betaItems = [
   'Setup inicial',
   'Configuración de organización',
@@ -396,36 +387,21 @@ export default function HomePage() {
       </RevealSection>
 
       <RevealSection className="px-6 py-24">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
-            <div>
-              <SectionLabel>IA documental</SectionLabel>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
-                Análisis documental en entorno beta controlado.
-              </h2>
-              <p className="mt-5 text-base leading-8 text-slate-600">
-                La plataforma permite preparar lecturas documentales, detectar
-                sensibilidad, generar revisiones iniciales y ordenar información clave
-                dentro de un flujo controlado.
-              </p>
-              <p className="mt-4 text-base leading-8 text-slate-600">
-                Durante el acceso beta, el objetivo es validar la utilidad real del
-                análisis documental, la experiencia de uso y la trazabilidad antes de
-                integrar proveedores externos.
-              </p>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              {aiItems.map((item) => (
-                <div
-                  key={item}
-                  className="landing-card rounded-2xl border border-sky-100 bg-sky-50 p-4 text-sm font-bold text-sky-900"
-                >
-                  {item}
-                </div>
-              ))}
-            </div>
-          </div>
+        <div className="mx-auto max-w-4xl text-center">
+          <SectionLabel>IA documental</SectionLabel>
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
+            Análisis documental asistido, en entorno controlado.
+          </h2>
+          <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-slate-600 md:text-lg">
+            Clasificación, detección de sensibilidad y revisión inicial de documentos para
+            ordenar la información clave.
+          </p>
+          <Link
+            href="/analisis-documental"
+            className="mt-7 inline-flex rounded-2xl bg-sky-500 px-6 py-3.5 text-sm font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
+          >
+            Ver análisis documental
+          </Link>
         </div>
       </RevealSection>
 
