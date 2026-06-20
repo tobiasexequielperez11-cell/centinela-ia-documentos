@@ -4,11 +4,12 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
 const navigationItems = [
-  { href: '#beneficios', label: 'Beneficios' },
+  { href: '/funciones', label: 'Beneficios' },
   { href: '#rubros', label: 'Rubros' },
-  { href: '#seguridad', label: 'Seguridad' },
-  { href: '#demo', label: 'Presentación' },
-  { href: '#beta', label: 'Acceso beta' },
+  { href: '/seguridad', label: 'Seguridad' },
+  { href: '/analisis-documental', label: 'Análisis documental' },
+  { href: '/como-funciona', label: 'Presentación' },
+  { href: '/planes', label: 'Acceso beta' },
   { href: '#contacto', label: 'Contacto' },
 ];
 
@@ -66,16 +67,27 @@ export function LandingMobileMenu({ whatsappUrl }: { whatsappUrl: string }) {
           className="absolute right-0 top-14 w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_24px_60px_rgba(2,13,41,0.2)]"
         >
           <nav aria-label="Navegación móvil" className="grid gap-1">
-            {navigationItems.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                onClick={closeMenu}
-                className="rounded-xl px-4 py-3 text-sm font-bold text-slate-800 transition-colors hover:bg-sky-50 hover:text-sky-700"
-              >
-                {item.label}
-              </a>
-            ))}
+            {navigationItems.map((item) =>
+              item.href.startsWith('/') ? (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={closeMenu}
+                  className="rounded-xl px-4 py-3 text-sm font-bold text-slate-800 transition-colors hover:bg-sky-50 hover:text-sky-700"
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  onClick={closeMenu}
+                  className="rounded-xl px-4 py-3 text-sm font-bold text-slate-800 transition-colors hover:bg-sky-50 hover:text-sky-700"
+                >
+                  {item.label}
+                </a>
+              ),
+            )}
           </nav>
 
           <div className="mt-3 grid gap-2 border-t border-slate-100 pt-3">
