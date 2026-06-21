@@ -7,8 +7,8 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createAuditLog } from '@/lib/audit/createAuditLog';
 import { sendInvitationEmail } from '@/lib/email/sendInvitationEmail';
+import { canManageUsers, isUserRole } from '@/lib/permissions/roles';
 
-const VALID_ROLES = ['admin', 'employee', 'auditor', 'client'];
 const VALID_STATUSES = ['active', 'inactive', 'invited'];
 
 function cleanValue(value: FormDataEntryValue | null) {
@@ -32,7 +32,7 @@ export async function updateUserAccess(formData: FormData) {
     redirect('/usuarios?error=missing_fields');
   }
 
-  if (!VALID_ROLES.includes(newRole)) {
+  if (!isUserRole(newRole)) {
     redirect('/usuarios?error=invalid_role');
   }
 
@@ -45,7 +45,7 @@ export async function updateUserAccess(formData: FormData) {
   if (!user) redirect('/login');
   if (!profile) redirect('/onboarding');
 
-  if (profile.role !== 'admin') {
+  if (!isUserRole(profile.role) || !canManageUsers(profile.role)) {
     redirect('/usuarios?error=admin_required');
   }
 
@@ -117,7 +117,7 @@ export async function createUserInvitation(formData: FormData) {
     redirect('/usuarios/invitaciones?error=invalid_email');
   }
 
-  if (!VALID_ROLES.includes(role)) {
+  if (!isUserRole(role)) {
     redirect('/usuarios/invitaciones?error=invalid_role');
   }
 
@@ -126,7 +126,7 @@ export async function createUserInvitation(formData: FormData) {
   if (!user) redirect('/login');
   if (!profile) redirect('/onboarding');
 
-  if (profile.role !== 'admin') {
+  if (!isUserRole(profile.role) || !canManageUsers(profile.role)) {
     redirect('/usuarios/invitaciones?error=admin_required');
   }
 
@@ -232,7 +232,7 @@ export async function cancelUserInvitation(formData: FormData) {
   if (!user) redirect('/login');
   if (!profile) redirect('/onboarding');
 
-  if (profile.role !== 'admin') {
+  if (!isUserRole(profile.role) || !canManageUsers(profile.role)) {
     redirect('/usuarios/invitaciones?error=admin_required');
   }
 

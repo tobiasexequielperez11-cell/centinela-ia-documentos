@@ -5,6 +5,11 @@ import { createClient } from '@/lib/supabase/server';
 import { AppShell } from '@/components/layout/AppShell';
 import { MetricCard } from '@/components/dashboard/MetricCard';
 import { analyzeDocument } from '../documentos/actions';
+import {
+  canManageUsers,
+  canViewAudit,
+  isUserRole,
+} from '@/lib/permissions/roles';
 
 interface DashboardDocument {
   id: string;
@@ -83,6 +88,10 @@ export default async function DashboardPage() {
   if (!user) redirect('/login');
   if (!profile) redirect('/onboarding');
 
+  const role = isUserRole(profile.role) ? profile.role : null;
+  const mayViewAudit = role ? canViewAudit(role) : false;
+  const mayViewInvitations = role ? canManageUsers(role) : false;
+
   const supabase = await createClient();
 
   const [
@@ -111,10 +120,12 @@ export default async function DashboardPage() {
       .eq('organization_id', profile.organization_id)
       .eq('output_type', 'document_analysis'),
 
-    supabase
-      .from('audit_logs')
-      .select('*', { count: 'exact', head: true })
-      .eq('organization_id', profile.organization_id),
+    mayViewAudit
+      ? supabase
+          .from('audit_logs')
+          .select('*', { count: 'exact', head: true })
+          .eq('organization_id', profile.organization_id)
+      : Promise.resolve({ count: 0, data: null, error: null }),
 
     supabase
       .from('documents')
@@ -128,12 +139,14 @@ export default async function DashboardPage() {
       .eq('organization_id', profile.organization_id)
       .eq('output_type', 'document_analysis'),
 
-    supabase
-      .from('invitation_operational_metrics')
-      .select(
-        'total_invitations, pending_invitations, accepted_invitations, cancelled_invitations, expired_invitations, last_invitation_created_at'
-      )
-      .maybeSingle(),
+    mayViewInvitations
+      ? supabase
+          .from('invitation_operational_metrics')
+          .select(
+            'total_invitations, pending_invitations, accepted_invitations, cancelled_invitations, expired_invitations, last_invitation_created_at'
+          )
+          .maybeSingle()
+      : Promise.resolve({ data: null, error: null }),
   ]);
 
   const documents = (documentsResult.data ?? []) as DashboardDocument[];

@@ -6,6 +6,15 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createAuditLog } from '@/lib/audit/createAuditLog';
+import {
+  canUploadDocument,
+  canUseAi,
+  isUserRole,
+} from '@/lib/permissions/roles';
+
+function denyDocumentAction(action: 'subir' | 'analizar') {
+  redirect(`/acceso-denegado?motivo=rol&accion=${action}`);
+}
 
 const ALLOWED_MIME_TYPES = [
   'application/pdf',
@@ -26,6 +35,10 @@ export async function uploadDocument(formData: FormData) {
 
   if (!user) redirect('/login');
   if (!profile) redirect('/onboarding');
+
+  if (!isUserRole(profile.role) || !canUploadDocument(profile.role)) {
+    denyDocumentAction('subir');
+  }
 
   const caseId = String(formData.get('case_id') || '');
   const documentType = String(formData.get('document_type') || '');
@@ -451,6 +464,10 @@ export async function analyzeDocument(formData: FormData) {
 
   if (!user) redirect('/login');
   if (!profile) redirect('/onboarding');
+
+  if (!isUserRole(profile.role) || !canUseAi(profile.role)) {
+    denyDocumentAction('analizar');
+  }
 
   const documentId = String(formData.get('document_id') || '');
 

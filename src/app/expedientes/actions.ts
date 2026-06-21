@@ -5,12 +5,25 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createAuditLog } from '@/lib/audit/createAuditLog';
+import {
+  canCreateCase,
+  canUpdateCase,
+  isUserRole,
+} from '@/lib/permissions/roles';
+
+function denyCaseAction() {
+  redirect('/acceso-denegado?motivo=rol&accion=expedientes');
+}
 
 export async function createCase(formData: FormData) {
   const { user, profile } = await getUserProfile();
 
   if (!user) redirect('/login');
   if (!profile) redirect('/onboarding');
+
+  if (!isUserRole(profile.role) || !canCreateCase(profile.role)) {
+    denyCaseAction();
+  }
 
   const title = String(formData.get('title') || '').trim();
   const clientName = String(formData.get('client_name') || '').trim();
@@ -64,6 +77,10 @@ export async function updateCaseStatus(formData: FormData) {
 
   if (!user) redirect('/login');
   if (!profile) redirect('/onboarding');
+
+  if (!isUserRole(profile.role) || !canUpdateCase(profile.role)) {
+    denyCaseAction();
+  }
 
   const caseId = String(formData.get('case_id') || '');
   const status = String(formData.get('status') || 'new');

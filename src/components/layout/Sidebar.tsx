@@ -1,16 +1,24 @@
 import Link from 'next/link';
 import { BarChart3, FileText, FolderKanban, Settings, Users } from 'lucide-react';
+import { getUserProfile } from '@/lib/auth/getUserProfile';
+import { isUserRole } from '@/lib/permissions/roles';
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
-  { name: 'Expedientes', href: '/expedientes', icon: FolderKanban },
-  { name: 'Documentos', href: '/documentos', icon: FileText },
-  { name: 'Usuarios', href: '/usuarios', icon: Users },
-  { name: 'Reportes', href: '/reportes', icon: BarChart3 },
-  { name: 'Configuración', href: '/configuracion', icon: Settings },
+  { name: 'Dashboard', href: '/dashboard', icon: BarChart3, roles: ['admin', 'employee', 'auditor', 'client'] },
+  { name: 'Expedientes', href: '/expedientes', icon: FolderKanban, roles: ['admin', 'employee', 'auditor', 'client'] },
+  { name: 'Documentos', href: '/documentos', icon: FileText, roles: ['admin', 'employee', 'auditor', 'client'] },
+  { name: 'Usuarios', href: '/usuarios', icon: Users, roles: ['admin'] },
+  { name: 'Reportes', href: '/reportes', icon: BarChart3, roles: ['admin', 'employee', 'auditor'] },
+  { name: 'Configuración', href: '/configuracion', icon: Settings, roles: ['admin'] },
 ];
 
-export function Sidebar() {
+export async function Sidebar() {
+  const { profile } = await getUserProfile();
+  const role = isUserRole(profile?.role) ? profile.role : null;
+  const visibleNavigation = role
+    ? navigation.filter((item) => item.roles.includes(role))
+    : [];
+
   return (
     <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-slate-200 bg-white px-5 py-6 lg:block">
       <Link href="/dashboard" className="mb-8 block">
@@ -23,7 +31,7 @@ export function Sidebar() {
       </Link>
 
       <nav className="space-y-1">
-        {navigation.map((item) => {
+        {visibleNavigation.map((item) => {
           const Icon = item.icon;
 
           return (

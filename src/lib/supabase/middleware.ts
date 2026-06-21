@@ -25,7 +25,25 @@ function isPrivatePath(pathname: string) {
 }
 
 function isAdminOnlyPath(pathname: string) {
-  return pathname.startsWith('/usuarios');
+  return (
+    pathname.startsWith('/usuarios') ||
+    pathname.startsWith('/configuracion')
+  );
+}
+
+function isOperatorActionPath(pathname: string) {
+  return (
+    pathname.startsWith('/expedientes/nuevo') ||
+    pathname.startsWith('/documentos/subir')
+  );
+}
+
+function isClientRestrictedPath(pathname: string) {
+  return (
+    pathname.startsWith('/usuarios') ||
+    pathname.startsWith('/reportes') ||
+    pathname.startsWith('/configuracion')
+  );
 }
 
 function isSensitiveReportPath(request: NextRequest) {
@@ -144,6 +162,16 @@ export async function updateSession(request: NextRequest) {
 
   if (isPrivateRoute && profile && isAdminOnlyPath(pathname)) {
     if (profile.role !== 'admin') {
+      return redirectTo(request, '/acceso-denegado', cookiesToSet, 'rol');
+    }
+  }
+
+  if (isPrivateRoute && profile?.role === 'client' && isClientRestrictedPath(pathname)) {
+    return redirectTo(request, '/acceso-denegado', cookiesToSet, 'rol');
+  }
+
+  if (isPrivateRoute && profile && isOperatorActionPath(pathname)) {
+    if (profile.role !== 'admin' && profile.role !== 'employee') {
       return redirectTo(request, '/acceso-denegado', cookiesToSet, 'rol');
     }
   }
