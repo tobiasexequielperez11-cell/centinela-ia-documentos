@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createAuditLog } from '@/lib/audit/createAuditLog';
+import { sendInvitationEmail } from '@/lib/email/sendInvitationEmail';
 
 const VALID_ROLES = ['admin', 'employee', 'auditor', 'client'];
 const VALID_STATUSES = ['active', 'inactive', 'invited'];
@@ -185,6 +186,17 @@ export async function createUserInvitation(formData: FormData) {
     console.error('Create invitation error:', insertError);
     redirect('/usuarios/invitaciones?error=invitation_create_failed');
   }
+
+  const appUrl =
+    process.env.APP_URL?.trim() || 'https://centinela-ia-documentos.vercel.app';
+  const invitationUrl = new URL('/invitacion/aceptar', appUrl);
+  invitationUrl.searchParams.set('email', invitation.email);
+  invitationUrl.searchParams.set('token', token);
+
+  await sendInvitationEmail({
+    to: invitation.email,
+    invitationUrl: invitationUrl.toString(),
+  });
 
   await createAuditLog({
     organizationId: profile.organization_id,

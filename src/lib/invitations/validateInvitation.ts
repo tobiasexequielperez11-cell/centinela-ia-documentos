@@ -211,7 +211,9 @@ export async function validateInvitation(
     };
   }
 
-  const tableHasToken = invitations.some((invitation) => 'token' in invitation);
+  const tableHasToken = invitations.some(
+    (invitation) => 'invitation_token' in invitation || 'token' in invitation
+  );
 
   if (!tableHasToken) {
     const latestInvitation = invitations[0];
@@ -219,10 +221,10 @@ export async function validateInvitation(
     return {
       title: 'Invitación encontrada, pero falta token en tabla',
       message:
-        'Se encontró una invitación para el email, pero la tabla user_invitations no expone una columna token. Para crear perfiles automáticamente hace falta validar token real.',
+        'Se encontró una invitación para el email, pero la tabla user_invitations no expone una columna de token. Para crear perfiles automáticamente hace falta validar un token real.',
       tone: 'warning',
       emailLabel: getStringValue(latestInvitation, 'email') ?? email,
-      tokenLabel: 'Token recibido por URL, pero no existe columna token',
+      tokenLabel: 'Token recibido por URL, pero no existe columna de token',
       statusLabel: getStringValue(latestInvitation, 'status') ?? 'No informado',
       roleLabel: getStringValue(latestInvitation, 'role') ?? 'No informado',
       expiresLabel: getDateLabel(getStringValue(latestInvitation, 'expires_at')),
@@ -235,7 +237,9 @@ export async function validateInvitation(
   }
 
   const matchingInvitation = invitations.find((invitation) => {
-    const invitationToken = getStringValue(invitation, 'token');
+    const invitationToken =
+      getStringValue(invitation, 'invitation_token') ??
+      getStringValue(invitation, 'token');
 
     return invitationToken === token;
   });
