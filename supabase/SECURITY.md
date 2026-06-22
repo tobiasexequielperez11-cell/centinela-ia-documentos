@@ -31,3 +31,17 @@ SQL Editor de Supabase. El script:
 La clave `SUPABASE_SERVICE_ROLE_KEY` omite RLS y solo debe usarse en codigo de
 servidor. El flujo de aceptacion de invitaciones la utiliza despues de validar
 email, token y organizacion.
+
+## Etapa 2: dueno de plataforma
+
+Ejecutar `platform-owner-stage-2.sql` en Supabase SQL Editor. El script:
+
+- crea `platform_admins`, separada de los roles de organizacion;
+- registra a `tobiasexequielperez11@gmail.com` como primer dueno;
+- habilita una funcion transaccional exclusiva de `service_role` para crear una
+  organizacion y su primera invitacion administrativa;
+- no concede acceso a `platform_admins` a usuarios `anon` ni `authenticated`.
+
+El panel privado se encuentra en `/plataforma`. Tanto la pagina como su accion
+vuelven a validar al dueno desde el servidor. La aceptacion reutiliza el flujo
+existente de invitaciones y crea el perfil `admin` dentro de la nueva organizacion.

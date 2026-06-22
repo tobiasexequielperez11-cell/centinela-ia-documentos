@@ -20,6 +20,7 @@ function isPrivatePath(pathname: string) {
     pathname.startsWith('/usuarios') ||
     pathname.startsWith('/reportes') ||
     pathname.startsWith('/configuracion') ||
+    pathname.startsWith('/plataforma') ||
     pathname.startsWith('/onboarding')
   );
 }
