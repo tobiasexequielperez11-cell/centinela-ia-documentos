@@ -116,6 +116,49 @@ body {
 .premium-panel-float { position: relative; overflow: hidden; border: 1px solid rgba(125,211,252,.18); border-radius: 2rem; padding: .7rem; background: linear-gradient(145deg, rgba(255,255,255,.13), rgba(30,155,240,.035)); box-shadow: 0 30px 80px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.1); backdrop-filter: blur(12px); animation: premium-panel-float 7s ease-in-out infinite; }
 .premium-panel-scan { position: absolute; z-index: 20; left: 4%; right: 4%; top: 2%; height: 12%; pointer-events: none; background: linear-gradient(to bottom, transparent, rgba(73,190,255,.18), rgba(125,211,252,.65), transparent); filter: blur(.5px); animation: premium-scan 8s ease-in-out infinite; }
 
+.site-header {
+  transition: background-color 280ms ease, border-color 280ms ease, box-shadow 280ms ease, backdrop-filter 280ms ease;
+}
+
+.premium-home {
+  background: #0a1830;
+}
+
+.premium-section-a {
+  background: radial-gradient(circle at 12% 18%, rgba(30, 155, 240, 0.09), transparent 30%), #0a1830;
+}
+
+.premium-section-b {
+  background: radial-gradient(circle at 88% 50%, rgba(30, 155, 240, 0.09), transparent 34%), linear-gradient(135deg, #0c2340, #091a31);
+}
+
+.premium-card {
+  transition: transform 260ms ease, box-shadow 260ms ease, border-color 260ms ease, background-color 260ms ease;
+}
+
+.premium-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(56, 189, 248, 0.34);
+  background-color: rgba(255, 255, 255, 0.075);
+  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.28), 0 0 34px rgba(30, 155, 240, 0.12);
+}
+
+.landing-section .premium-card {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 620ms cubic-bezier(.2,.7,.2,1), transform 620ms cubic-bezier(.2,.7,.2,1), box-shadow 260ms ease, border-color 260ms ease, background-color 260ms ease;
+}
+
+.landing-section.is-visible .premium-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.landing-section.is-visible .premium-card:nth-child(2) { transition-delay: 90ms; }
+.landing-section.is-visible .premium-card:nth-child(3) { transition-delay: 180ms; }
+.landing-section.is-visible .premium-card:nth-child(4) { transition-delay: 270ms; }
+.landing-section.is-visible .premium-card:hover { transform: translateY(-6px); }
+
 .landing-nav-link {
   position: relative;
   transition: color 180ms ease, transform 180ms ease;
@@ -136,7 +179,7 @@ body {
 }
 
 .landing-nav-link:hover {
-  color: #0369a1;
+  color: #38bdf8;
   transform: translateY(-1px);
 }
 
@@ -180,6 +223,12 @@ body {
   .hero-enter { opacity: 1; animation: none; }
   .premium-panel-float, .premium-panel-glow, .premium-panel-scan { animation: none; }
   .premium-primary-button, .premium-secondary-button, .premium-panel-card { transition: none; }
+  .landing-section .premium-card,
+  .landing-section.is-visible .premium-card {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 @media print {

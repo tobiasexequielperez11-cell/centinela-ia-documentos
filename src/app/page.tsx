@@ -66,7 +66,7 @@ const industries = [
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-sm font-bold uppercase tracking-[0.22em] text-sky-600">
+    <p className="text-sm font-bold uppercase tracking-[0.22em] text-sky-300">
       {children}
     </p>
   );
@@ -84,10 +84,10 @@ function SectionTitle({
   return (
     <div className="mx-auto max-w-3xl text-center">
       <SectionLabel>{label}</SectionLabel>
-      <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
+      <h2 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">
         {title}
       </h2>
-      <p className="mt-4 text-base leading-7 text-slate-600 md:text-lg">
+      <p className="mt-4 text-base leading-7 text-[#C2CCD9] md:text-lg">
         {description}
       </p>
     </div>
@@ -97,15 +97,15 @@ function SectionTitle({
 function SectionGlow() {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute -left-24 top-16 h-64 w-64 rounded-full bg-sky-300/15 blur-3xl" />
-      <div className="absolute -right-24 bottom-10 h-72 w-72 rounded-full bg-cyan-300/15 blur-3xl" />
+      <div className="absolute -left-24 top-16 h-64 w-64 rounded-full bg-sky-400/10 blur-3xl" />
+      <div className="absolute -right-24 bottom-10 h-72 w-72 rounded-full bg-cyan-400/10 blur-3xl" />
     </div>
   );
 }
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-white text-slate-950">
+    <main className="premium-home min-h-screen bg-[#0A1830] text-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -116,7 +116,7 @@ export default function HomePage() {
 
       <PremiumHero />
 
-      <RevealSection id="beneficios" className="relative flex min-h-screen items-center overflow-hidden bg-[#f4f8fb] px-6 py-24">
+      <RevealSection id="beneficios" className="premium-section-a relative flex min-h-screen items-center overflow-hidden px-6 py-24">
         <SectionGlow />
         <div className="relative z-10 mx-auto max-w-7xl">
           <SectionTitle
@@ -129,10 +129,10 @@ export default function HomePage() {
             {problemCards.map((card) => (
               <div
                 key={card.title}
-                className="landing-card rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm"
+                className="premium-card landing-card rounded-2xl border border-white/10 bg-white/[0.055] p-7 shadow-[0_18px_45px_rgba(0,0,0,0.18)] backdrop-blur-sm"
               >
-                <h3 className="text-lg font-black text-slate-950">{card.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-600">
+                <h3 className="text-lg font-black text-white">{card.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-[#C2CCD9]">
                   {card.description}
                 </p>
               </div>
@@ -142,27 +142,27 @@ export default function HomePage() {
         </div>
       </RevealSection>
 
-      <RevealSection className="relative overflow-hidden px-6 py-12 md:py-16">
+      <RevealSection className="premium-section-b relative overflow-hidden px-6 py-16 md:py-20">
         <SectionGlow />
         <div className="relative z-10 mx-auto max-w-4xl text-center">
           <SectionLabel>Funciones</SectionLabel>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">
             Todo lo que tu equipo necesita, en un solo panel.
           </h2>
-          <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-slate-600 md:text-lg">
+          <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-[#C2CCD9] md:text-lg">
             Expedientes, bóveda documental, visor PDF, reportes, usuarios y auditoría — más
             resultados operativos concretos.
           </p>
           <Link
             href="/funciones"
-            className="mt-7 inline-flex rounded-2xl bg-sky-500 px-6 py-3.5 text-sm font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
+            className="premium-primary-button mt-7 inline-flex rounded-2xl bg-[#1E9BF0] px-6 py-3.5 text-sm font-black text-[#061426] shadow-[0_12px_32px_rgba(30,155,240,0.22)]"
           >
             Ver funciones
           </Link>
         </div>
       </RevealSection>
 
-      <RevealSection id="rubros" className="relative flex min-h-screen items-center overflow-hidden bg-[#f4f8fb] px-6 py-24">
+      <RevealSection id="rubros" className="premium-section-a relative flex min-h-screen items-center overflow-hidden px-6 py-24">
         <SectionGlow />
         <div className="relative z-10 mx-auto max-w-7xl">
           <SectionTitle
@@ -175,12 +175,12 @@ export default function HomePage() {
             {industries.map((industry) => (
               <div
                 key={industry.title}
-                className="landing-card rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm"
+                className="premium-card landing-card rounded-2xl border border-white/10 bg-white/[0.055] p-7 shadow-[0_18px_45px_rgba(0,0,0,0.18)] backdrop-blur-sm"
               >
-                <h3 className="text-xl font-black text-slate-950">
+                <h3 className="text-xl font-black text-white">
                   {industry.title}
                 </h3>
-                <p className="mt-3 text-sm leading-6 text-slate-600">
+                <p className="mt-3 text-sm leading-6 text-[#C2CCD9]">
                   {industry.description}
                 </p>
               </div>
@@ -189,7 +189,7 @@ export default function HomePage() {
         </div>
       </RevealSection>
 
-      <RevealSection id="seguridad" className="bg-[linear-gradient(135deg,_#020d29,_#082746)] px-6 py-12 text-white md:py-16">
+      <RevealSection id="seguridad" className="premium-section-b px-6 py-16 text-white md:py-20">
         <div className="mx-auto max-w-4xl text-center">
           <p className="text-sm font-bold uppercase tracking-[0.22em] text-sky-300">
             Confidencialidad y seguridad
@@ -203,85 +203,85 @@ export default function HomePage() {
           </p>
           <Link
             href="/seguridad"
-            className="mt-7 inline-flex rounded-2xl bg-sky-500 px-6 py-3.5 text-sm font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
+            className="premium-primary-button mt-7 inline-flex rounded-2xl bg-[#1E9BF0] px-6 py-3.5 text-sm font-black text-[#061426] shadow-[0_12px_32px_rgba(30,155,240,0.22)]"
           >
             Ver seguridad
           </Link>
         </div>
       </RevealSection>
 
-      <RevealSection className="px-6 py-12 md:py-16">
+      <RevealSection className="premium-section-a px-6 py-16 md:py-20">
         <div className="mx-auto max-w-4xl text-center">
           <SectionLabel>IA documental</SectionLabel>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">
             Análisis documental asistido, en entorno controlado.
           </h2>
-          <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-slate-600 md:text-lg">
+          <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-[#C2CCD9] md:text-lg">
             Clasificación, detección de sensibilidad y revisión inicial de documentos para
             ordenar la información clave.
           </p>
           <Link
             href="/analisis-documental"
-            className="mt-7 inline-flex rounded-2xl bg-sky-500 px-6 py-3.5 text-sm font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
+            className="premium-primary-button mt-7 inline-flex rounded-2xl bg-[#1E9BF0] px-6 py-3.5 text-sm font-black text-[#061426] shadow-[0_12px_32px_rgba(30,155,240,0.22)]"
           >
             Ver análisis documental
           </Link>
         </div>
       </RevealSection>
 
-      <RevealSection id="demo" className="relative overflow-hidden bg-[#f4f8fb] px-6 py-12 md:py-16">
+      <RevealSection id="demo" className="premium-section-b relative overflow-hidden px-6 py-16 md:py-20">
         <SectionGlow />
         <div className="relative z-10 mx-auto max-w-4xl text-center">
           <SectionLabel>Presentación guiada</SectionLabel>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">
             Conocé cómo funciona, paso a paso.
           </h2>
-          <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-slate-600 md:text-lg">
+          <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-[#C2CCD9] md:text-lg">
             Un recorrido por el sistema: ingreso, expedientes, carga de documentos, visor PDF,
             análisis documental y auditoría.
           </p>
           <Link
             href="/como-funciona"
-            className="mt-7 inline-flex rounded-2xl bg-sky-500 px-6 py-3.5 text-sm font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
+            className="premium-primary-button mt-7 inline-flex rounded-2xl bg-[#1E9BF0] px-6 py-3.5 text-sm font-black text-[#061426] shadow-[0_12px_32px_rgba(30,155,240,0.22)]"
           >
             Ver la presentación guiada
           </Link>
         </div>
       </RevealSection>
 
-      <RevealSection id="beta" className="relative overflow-hidden px-6 py-12 md:py-16">
+      <RevealSection id="beta" className="premium-section-a relative overflow-hidden px-6 py-16 md:py-20">
         <SectionGlow />
-        <div className="relative z-10 mx-auto max-w-4xl rounded-[2rem] border border-slate-200 bg-white p-8 text-center shadow-sm md:p-10">
+        <div className="premium-card relative z-10 mx-auto max-w-4xl rounded-2xl border border-white/10 bg-white/[0.055] p-8 text-center shadow-[0_22px_55px_rgba(0,0,0,0.2)] backdrop-blur-sm md:p-10">
           <SectionLabel>Acceso beta</SectionLabel>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">
             Acceso beta para los primeros clientes.
           </h2>
-          <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-slate-600 md:text-lg">
+          <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-[#C2CCD9] md:text-lg">
             Cupos limitados, acompañamiento incluido y opción de desarrollo a medida según tu
             organización.
           </p>
           <Link
             href="/planes"
-            className="mt-7 inline-flex rounded-2xl bg-sky-500 px-6 py-3.5 text-sm font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
+            className="premium-primary-button mt-7 inline-flex rounded-2xl bg-[#1E9BF0] px-6 py-3.5 text-sm font-black text-[#061426] shadow-[0_12px_32px_rgba(30,155,240,0.22)]"
           >
             Ver planes
           </Link>
         </div>
       </RevealSection>
 
-      <RevealSection id="contacto" className="relative overflow-hidden bg-[#f4f8fb] px-6 py-24">
+      <RevealSection id="contacto" className="premium-section-b relative overflow-hidden px-6 py-24">
         <SectionGlow />
         <div className="relative z-10 mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
           <div>
             <SectionLabel>Contacto comercial</SectionLabel>
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">
               Contanos qué necesita tu organización.
             </h2>
-            <p className="mt-5 text-base leading-8 text-slate-600">
+            <p className="mt-5 text-base leading-8 text-[#C2CCD9]">
               Completá los datos básicos para preparar una conversación enfocada en tu rubro,
               flujo documental y necesidades de acceso.
             </p>
-            <div className="mt-7 rounded-2xl border border-sky-100 bg-sky-50 p-5 text-sm leading-6 text-sky-950">
+            <div className="mt-7 rounded-2xl border border-sky-300/15 bg-sky-400/[0.08] p-5 text-sm leading-6 text-sky-100">
               La consulta no crea una cuenta ni confirma una contratación. Sirve para coordinar
               una presentación y evaluar si la beta se adapta al caso de uso.
             </div>
@@ -291,7 +291,7 @@ export default function HomePage() {
         </div>
       </RevealSection>
 
-      <RevealSection className="bg-[linear-gradient(135deg,_#020d29,_#082746)] px-6 py-24 text-white">
+      <RevealSection className="premium-section-a border-t border-white/[0.06] px-6 py-24 text-white">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-3xl font-black tracking-tight md:text-5xl">
             Ordená tus expedientes y documentos desde un solo lugar.
@@ -307,14 +307,14 @@ export default function HomePage() {
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="rounded-2xl bg-sky-400 px-6 py-4 text-center text-sm font-black text-slate-950 hover:bg-sky-300"
+              className="premium-primary-button rounded-2xl bg-[#1E9BF0] px-6 py-4 text-center text-sm font-black text-[#061426]"
             >
               Coordinar presentación
             </a>
 
             <Link
               href="/login"
-              className="rounded-2xl border border-white/15 px-6 py-4 text-center text-sm font-black text-white hover:bg-white/10"
+              className="premium-secondary-button rounded-2xl border border-white/20 bg-white/[0.025] px-6 py-4 text-center text-sm font-black text-white"
             >
               Ingresar al sistema
             </Link>
@@ -326,22 +326,22 @@ export default function HomePage() {
         </div>
       </RevealSection>
 
-      <footer className="border-t border-[#c8dbea] bg-[#eaf2f8] px-6 pb-24 pt-8 md:py-8">
-        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 text-sm text-slate-700 md:flex-row md:items-center">
-          <p className="font-semibold text-[#0b1f3a]">© 2026 Centinela IA</p>
+      <footer className="border-t border-white/10 bg-[#071326] px-6 pb-24 pt-8 md:py-8">
+        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 text-sm text-slate-400 md:flex-row md:items-center">
+          <p className="font-semibold text-slate-200">© 2026 Centinela IA</p>
 
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-6">
-            <Link href="/privacidad" className="font-semibold text-slate-700 hover:text-slate-950">
+            <Link href="/privacidad" className="font-semibold text-slate-400 hover:text-sky-300">
               Privacidad
             </Link>
 
-            <Link href="/terminos" className="font-semibold text-slate-700 hover:text-slate-950">
+            <Link href="/terminos" className="font-semibold text-slate-400 hover:text-sky-300">
               Términos
             </Link>
 
             <a
               href={emailUrl}
-              className="inline-flex items-center gap-2 font-semibold text-slate-700 hover:text-slate-950"
+              className="inline-flex items-center gap-2 font-semibold text-slate-400 hover:text-sky-300"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -360,7 +360,7 @@ export default function HomePage() {
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 font-semibold text-slate-700 hover:text-slate-950"
+              className="inline-flex items-center gap-2 font-semibold text-slate-400 hover:text-sky-300"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

@@ -19,10 +19,19 @@ const navigationItems = [
 export function SiteHeader() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const closeMenu = () => setIsOpen(false);
   const isActive = (href: string) => !href.includes('#') && pathname === href;
+  const hasSolidBackground = pathname !== '/' || isScrolled || isOpen;
+
+  useEffect(() => {
+    const updateHeader = () => setIsScrolled(window.scrollY > 20);
+    updateHeader();
+    window.addEventListener('scroll', updateHeader, { passive: true });
+    return () => window.removeEventListener('scroll', updateHeader);
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -46,11 +55,17 @@ export function SiteHeader() {
   }, [isOpen]);
 
   return (
-    <header className="relative z-40 border-b border-[#c8dbea] bg-[#eaf2f8] px-4 py-3 shadow-sm sm:px-6">
+    <header
+      className={`site-header sticky top-0 z-40 px-4 py-2 sm:px-6 ${
+        hasSolidBackground
+          ? 'site-header-solid border-b border-white/10 bg-[#0A1830]/95 shadow-[0_10px_35px_rgba(0,0,0,0.22)] backdrop-blur-xl'
+          : 'border-b border-transparent bg-[#0A1830]'
+      }`}
+    >
       <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-2 sm:gap-4 lg:grid-cols-[1fr_auto_1fr]">
         <nav
           aria-label="Navegación principal"
-          className="hidden items-center gap-5 text-sm font-bold text-slate-950 lg:flex"
+          className="hidden items-center gap-5 text-sm font-bold text-slate-300 lg:flex"
         >
           {navigationItems.map((item) => (
             <Link
@@ -59,7 +74,7 @@ export function SiteHeader() {
               aria-current={isActive(item.href) ? 'page' : undefined}
               className={`landing-nav-link whitespace-nowrap ${
                 isActive(item.href)
-                  ? 'text-sky-700 underline decoration-2 underline-offset-8'
+                  ? 'text-[#1E9BF0] underline decoration-2 underline-offset-8'
                   : ''
               }`}
             >
@@ -74,7 +89,7 @@ export function SiteHeader() {
           aria-label="Centinela IA - Ir al inicio"
         >
           <img
-            src="/brand/centinela-logo-transparent.png"
+            src="/brand/centinela-logo-header-dark.png"
             alt="Centinela IA"
             className="h-full w-full object-contain"
           />
@@ -83,7 +98,7 @@ export function SiteHeader() {
         <div className="hidden items-center justify-end gap-2 lg:flex">
           <Link
             href="/login"
-            className="rounded-2xl border border-[#12345d]/20 px-4 py-2 text-sm font-bold text-[#0b1f3a] transition-all hover:-translate-y-0.5 hover:bg-white/70 hover:shadow-sm"
+            className="rounded-2xl border border-white/20 bg-white/[0.025] px-4 py-2 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:border-sky-300/50 hover:bg-white/[0.08] hover:shadow-sm"
           >
             Ingresar
           </Link>
@@ -91,7 +106,7 @@ export function SiteHeader() {
             href={whatsappUrl}
             target="_blank"
             rel="noreferrer"
-            className="rounded-2xl bg-sky-500 px-4 py-2 text-sm font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
+            className="rounded-2xl bg-[#1E9BF0] px-4 py-2 text-sm font-black text-[#061426] shadow-[0_10px_28px_rgba(30,155,240,0.22)] transition-all hover:-translate-y-0.5 hover:bg-sky-300"
           >
             Coordinar presentación
           </a>
@@ -104,7 +119,7 @@ export function SiteHeader() {
             aria-controls="site-mobile-navigation"
             aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'}
             onClick={() => setIsOpen((current) => !current)}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[#12345d]/20 bg-white/70 text-[#0b1f3a] shadow-sm transition-colors hover:bg-white"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/15 bg-white/[0.06] text-white shadow-sm transition-colors hover:border-sky-300/40 hover:bg-white/[0.1]"
           >
             {isOpen ? (
               <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
@@ -120,7 +135,7 @@ export function SiteHeader() {
           {isOpen ? (
             <div
               id="site-mobile-navigation"
-              className="absolute right-0 top-14 w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_24px_60px_rgba(2,13,41,0.2)]"
+              className="absolute right-0 top-14 w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-white/10 bg-[#0C2340]/95 p-3 shadow-[0_24px_60px_rgba(0,0,0,0.38)] backdrop-blur-xl"
             >
               <nav aria-label="Navegación móvil" className="grid gap-1">
                 {navigationItems.map((item) => (
@@ -129,10 +144,10 @@ export function SiteHeader() {
                     href={item.href}
                     onClick={closeMenu}
                     aria-current={isActive(item.href) ? 'page' : undefined}
-                    className={`rounded-xl px-4 py-3 text-sm font-bold transition-colors hover:bg-sky-50 hover:text-sky-700 ${
+                    className={`rounded-xl px-4 py-3 text-sm font-bold transition-colors hover:bg-white/[0.07] hover:text-sky-300 ${
                       isActive(item.href)
-                        ? 'bg-sky-50 text-sky-700'
-                        : 'text-slate-800'
+                        ? 'bg-sky-400/10 text-sky-300'
+                        : 'text-slate-200'
                     }`}
                   >
                     {item.label}
@@ -140,20 +155,20 @@ export function SiteHeader() {
                 ))}
               </nav>
 
-              <div className="mt-3 grid gap-2 border-t border-slate-100 pt-3">
+              <div className="mt-3 grid gap-2 border-t border-white/10 pt-3">
                 <a
                   href={whatsappUrl}
                   target="_blank"
                   rel="noreferrer"
                   onClick={closeMenu}
-                  className="rounded-xl bg-sky-500 px-4 py-3 text-center text-sm font-black text-white hover:bg-sky-600"
+                  className="rounded-xl bg-[#1E9BF0] px-4 py-3 text-center text-sm font-black text-[#061426] hover:bg-sky-300"
                 >
                   Coordinar presentación
                 </a>
                 <Link
                   href="/login"
                   onClick={closeMenu}
-                  className="rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-black text-[#0b1f3a] hover:bg-slate-50"
+                  className="rounded-xl border border-white/15 px-4 py-3 text-center text-sm font-black text-white hover:bg-white/[0.07]"
                 >
                   Ingresar al sistema
                 </Link>
