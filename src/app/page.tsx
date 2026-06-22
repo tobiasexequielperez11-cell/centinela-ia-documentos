@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { LandingContactForm } from '@/components/landing-contact-form';
 import { LandingHashNavigation } from '@/components/landing-hash-navigation';
 import { RevealSection } from '@/components/landing-reveal-section';
+import { PremiumHero } from '@/components/premium-hero';
 import { SiteHeader } from '@/components/SiteHeader';
 
 const whatsappUrl =
@@ -102,74 +103,6 @@ function SectionGlow() {
   );
 }
 
-function MockupPanel() {
-  return (
-    <div className="landing-float rounded-[2rem] border border-white/15 bg-white/10 p-3 shadow-2xl backdrop-blur">
-      <div className="rounded-[1.5rem] border border-slate-800 bg-slate-950 p-4">
-        <div className="mb-4 flex items-center justify-between border-b border-white/10 pb-4">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-sky-300">
-              Centinela IA
-            </p>
-            <p className="mt-1 text-lg font-black text-white">Panel operativo</p>
-          </div>
-          <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-bold text-emerald-300">
-            Beta activa
-          </span>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2">
-          {[
-            ['Expedientes', '3 activos'],
-            ['Documentos', '8 cargados'],
-            ['Análisis documental', '4 procesados'],
-            ['Auditoría', 'Eventos trazables'],
-          ].map(([label, value]) => (
-            <div key={label} className="landing-panel-item rounded-2xl bg-white p-4">
-              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-                {label}
-              </p>
-              <p className="mt-2 text-xl font-black text-slate-950">{value}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-4 rounded-2xl border border-slate-800 bg-slate-900 p-4">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-bold text-white">Bóveda documental</p>
-            <span className="rounded-full bg-sky-400/10 px-3 py-1 text-xs font-bold text-sky-300">
-              PDF privado
-            </span>
-          </div>
-
-          <div className="mt-4 space-y-3">
-            {[
-              'Contrato_Alquiler_Demo.pdf',
-              'Compraventa_Inmobiliaria.pdf',
-              'Informe_Documental.pdf',
-            ].map((item) => (
-              <div
-                key={item}
-                className="landing-panel-item flex items-center justify-between rounded-xl bg-white/5 px-3 py-3"
-              >
-                <span className="text-xs font-semibold text-slate-200">{item}</span>
-                <span className="text-xs font-bold text-emerald-300">Seguro</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="landing-panel-item mt-4 rounded-2xl bg-sky-400 p-4 text-slate-950">
-          <p className="text-sm font-black">Análisis documental</p>
-          <p className="mt-1 text-xs font-semibold leading-5">
-            Clasificación, sensibilidad y revisión inicial en entorno controlado.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-white text-slate-950">
@@ -181,51 +114,7 @@ export default function HomePage() {
 
       <SiteHeader />
 
-      <section id="inicio" className="overflow-hidden bg-[radial-gradient(circle_at_top_right,_#124b73_0%,_#082746_34%,_#020d29_76%)] px-6 py-20 text-white lg:py-28">
-        <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1fr_0.95fr]">
-          <div className="landing-reveal">
-            <div className="inline-flex rounded-full border border-sky-300/20 bg-sky-300/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-sky-200">
-              Gestión documental inteligente
-            </div>
-
-            <h1 className="mt-6 max-w-4xl text-4xl font-black tracking-tight md:text-6xl">
-              Toda tu documentación sensible: ordenada, segura y bajo control.
-            </h1>
-
-            <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 md:text-lg">
-              Centinela IA reúne tus expedientes y PDFs en un solo lugar, controla los
-              accesos por usuario y organización y registra la actividad relevante, para
-              que trabajes con menos dispersión, mayor trazabilidad y una imagen más
-              profesional ante tus clientes.
-            </p>
-
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-2xl bg-sky-400 px-6 py-4 text-center text-sm font-black text-[#071a33] shadow-lg shadow-sky-950/20 transition-all hover:-translate-y-0.5 hover:bg-sky-300"
-              >
-                Coordinar presentación
-              </a>
-
-              <Link
-                href="/login"
-                className="rounded-2xl border border-white/20 px-6 py-4 text-center text-sm font-black text-white transition-all hover:-translate-y-0.5 hover:bg-white/10"
-              >
-                Ingresar al sistema
-              </Link>
-            </div>
-
-            <p className="mt-6 text-sm font-semibold text-slate-400">
-              Beta operativa comercial · Acceso por roles · Documentos privados ·
-              Actividad auditada
-            </p>
-          </div>
-
-          <MockupPanel />
-        </div>
-      </section>
+      <PremiumHero />
 
       <RevealSection id="beneficios" className="relative flex min-h-screen items-center overflow-hidden bg-[#f4f8fb] px-6 py-24">
         <SectionGlow />
