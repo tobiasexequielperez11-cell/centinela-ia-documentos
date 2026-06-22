@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { LandingContactForm } from '@/components/landing-contact-form';
 import { LandingHashNavigation } from '@/components/landing-hash-navigation';
 import { RevealSection } from '@/components/landing-reveal-section';
-import { LandingMobileMenu } from '@/components/landing-mobile-menu';
+import { SiteHeader } from '@/components/SiteHeader';
 
 const whatsappUrl =
   'https://wa.me/543794733321?text=Hola,%20quiero%20coordinar%20una%20presentaci%C3%B3n%20de%20Centinela%20IA';
@@ -179,65 +179,7 @@ export default function HomePage() {
       />
       <LandingHashNavigation />
 
-      <header className="relative z-40 border-b border-[#c8dbea] bg-[#eaf2f8] px-4 py-3 shadow-sm sm:px-6">
-        <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-2 sm:gap-4 lg:grid-cols-[1fr_auto_1fr]">
-          <nav className="hidden items-center gap-6 text-sm font-bold text-slate-950 lg:flex">
-            <Link href="/funciones" className="landing-nav-link">
-              Beneficios
-            </Link>
-            <a href="#rubros" className="landing-nav-link">
-              Rubros
-            </a>
-            <Link href="/seguridad" className="landing-nav-link">
-              Seguridad
-            </Link>
-            <Link href="/analisis-documental" className="landing-nav-link">
-              Análisis documental
-            </Link>
-            <Link href="/como-funciona" className="landing-nav-link">
-              Presentación
-            </Link>
-            <Link href="/planes" className="landing-nav-link">
-              Acceso beta
-            </Link>
-            <a href="#contacto" className="landing-nav-link">
-              Contacto
-            </a>
-          </nav>
-
-          <a
-            href="#inicio"
-            className="flex h-20 w-44 items-center justify-start overflow-hidden transition-transform hover:scale-[1.03] sm:h-24 sm:w-64 lg:h-28 lg:w-96 lg:justify-center"
-            aria-label="Centinela IA"
-          >
-            <img
-              src="/brand/centinela-logo-transparent.png"
-              alt="Centinela IA"
-              className="h-full w-full object-contain"
-            />
-          </a>
-
-          <div className="hidden items-center justify-end gap-2 lg:flex">
-            <Link
-              href="/login"
-              className="rounded-2xl border border-[#12345d]/20 px-4 py-2 text-sm font-bold text-[#0b1f3a] transition-all hover:-translate-y-0.5 hover:bg-white/70 hover:shadow-sm"
-            >
-              Ingresar
-            </Link>
-
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="hidden rounded-2xl bg-sky-500 px-4 py-2 text-sm font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600 sm:inline-flex"
-            >
-              Coordinar presentación
-            </a>
-          </div>
-
-          <LandingMobileMenu whatsappUrl={whatsappUrl} />
-        </div>
-      </header>
+      <SiteHeader />
 
       <section id="inicio" className="overflow-hidden bg-[radial-gradient(circle_at_top_right,_#124b73_0%,_#082746_34%,_#020d29_76%)] px-6 py-20 text-white lg:py-28">
         <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1fr_0.95fr]">

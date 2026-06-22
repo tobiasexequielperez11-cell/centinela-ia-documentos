@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { RevealSection } from '@/components/landing-reveal-section';
+import { SiteHeader } from '@/components/SiteHeader';
 
 export const metadata: Metadata = {
   title: 'Funciones | Centinela IA',
@@ -91,14 +91,7 @@ function SectionTitle({
 export default function FuncionesPage() {
   return (
     <main className="min-h-screen bg-white text-slate-950">
-      <div className="mx-auto max-w-7xl px-6 pt-10">
-        <Link
-          href="/"
-          className="inline-flex text-sm font-black text-sky-700 transition-colors hover:text-sky-900"
-        >
-          ← Volver al inicio
-        </Link>
-      </div>
+      <SiteHeader />
 
       <RevealSection className="px-6 pb-24 pt-12">
         <div className="mx-auto max-w-7xl">

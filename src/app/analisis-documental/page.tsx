@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { RevealSection } from '@/components/landing-reveal-section';
+import { SiteHeader } from '@/components/SiteHeader';
 
 export const metadata: Metadata = {
   title: 'Análisis documental | Centinela IA',
@@ -28,16 +28,10 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 export default function AnalisisDocumentalPage() {
   return (
     <main className="min-h-screen bg-white text-slate-950">
+      <SiteHeader />
       <RevealSection className="flex min-h-screen items-center px-6 py-16 md:py-24">
         <div className="mx-auto w-full max-w-7xl">
-          <Link
-            href="/"
-            className="inline-flex text-sm font-black text-sky-700 transition-colors hover:text-sky-900"
-          >
-            ← Volver al inicio
-          </Link>
-
-          <div className="mt-10 grid gap-10 lg:grid-cols-2 lg:items-center">
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div>
               <SectionLabel>IA documental</SectionLabel>
               <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">

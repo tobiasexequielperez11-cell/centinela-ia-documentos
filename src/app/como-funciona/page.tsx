@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { RevealSection } from '@/components/landing-reveal-section';
+import { SiteHeader } from '@/components/SiteHeader';
 
 export const metadata: Metadata = {
   title: 'Cómo funciona | Centinela IA',
@@ -44,17 +44,11 @@ function SectionGlow() {
 export default function ComoFuncionaPage() {
   return (
     <main className="min-h-screen bg-[#f4f8fb] text-slate-950">
+      <SiteHeader />
       <RevealSection className="relative flex min-h-screen items-center overflow-hidden px-6 py-16 md:py-24">
         <SectionGlow />
         <div className="relative z-10 mx-auto w-full max-w-7xl">
-          <Link
-            href="/"
-            className="inline-flex text-sm font-black text-sky-700 transition-colors hover:text-sky-900"
-          >
-            ← Volver al inicio
-          </Link>
-
-          <div className="mt-10 grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+          <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
             <div>
               <SectionLabel>Presentación guiada</SectionLabel>
               <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">

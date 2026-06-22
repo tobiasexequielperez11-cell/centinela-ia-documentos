@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { RevealSection } from '@/components/landing-reveal-section';
+import { SiteHeader } from '@/components/SiteHeader';
 
 export const metadata: Metadata = {
   title: 'Seguridad | Centinela IA',
@@ -41,16 +41,10 @@ const securityItems = [
 export default function SeguridadPage() {
   return (
     <main className="min-h-screen bg-[linear-gradient(135deg,_#020d29,_#082746)] text-white">
+      <SiteHeader />
       <RevealSection className="flex min-h-screen items-center px-6 py-16 md:py-24">
         <div className="mx-auto w-full max-w-7xl">
-          <Link
-            href="/"
-            className="inline-flex text-sm font-black text-sky-300 transition-colors hover:text-white"
-          >
-            ← Volver al inicio
-          </Link>
-
-          <div className="mt-10 grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
             <div>
               <p className="text-sm font-bold uppercase tracking-[0.22em] text-sky-300">
                 Confidencialidad y seguridad
