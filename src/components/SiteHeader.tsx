@@ -55,17 +55,35 @@ export function SiteHeader() {
   }, [isOpen]);
 
   return (
-    <header
-      className={`site-header sticky top-0 z-40 px-4 py-2 sm:px-6 ${
-        hasSolidBackground
-          ? 'site-header-solid border-b border-white/10 bg-[#0A1830]/95 shadow-[0_10px_35px_rgba(0,0,0,0.22)] backdrop-blur-xl'
-          : 'border-b border-transparent bg-[#0A1830]'
-      }`}
-    >
-      <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-2 sm:gap-4 lg:grid-cols-[1fr_auto_1fr]">
+    <>
+      <header
+        className={`site-header fixed inset-x-0 top-0 z-40 px-4 py-4 sm:px-6 sm:py-[18px] ${
+          hasSolidBackground
+            ? 'site-header-solid border-b border-white/10 bg-[#0A1830]/95 shadow-[0_10px_35px_rgba(0,0,0,0.22)] backdrop-blur-xl'
+            : 'border-b border-transparent bg-transparent'
+        }`}
+      >
+      <div className="mx-auto grid max-w-[1440px] grid-cols-[1fr_auto] items-center gap-4 xl:grid-cols-[auto_minmax(0,1fr)_auto] xl:gap-8">
+        <Link
+          href="/"
+          className="group flex min-w-0 items-center gap-3 justify-self-start"
+          aria-label="Centinela IA - Ir al inicio"
+        >
+          <img
+            src="/isotipo.png"
+            alt=""
+            aria-hidden="true"
+            className="h-10 w-10 shrink-0 object-contain drop-shadow-[0_0_12px_rgba(30,155,240,0.2)] transition-transform duration-300 group-hover:scale-105"
+          />
+          <span className="whitespace-nowrap text-lg font-black tracking-[-0.03em] sm:text-xl">
+            <span className="text-white">Centinela</span>{' '}
+            <span className="text-[#1E9BF0]">IA</span>
+          </span>
+        </Link>
+
         <nav
           aria-label="Navegación principal"
-          className="hidden items-center gap-5 text-sm font-bold text-slate-300 lg:flex"
+          className="hidden items-center justify-center gap-7 text-[13px] font-bold text-slate-300 xl:flex 2xl:gap-8 2xl:text-sm"
         >
           {navigationItems.map((item) => (
             <Link
@@ -83,22 +101,10 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <Link
-          href="/"
-          className="flex h-20 w-44 items-center justify-start overflow-hidden transition-transform hover:scale-[1.03] sm:h-24 sm:w-64 lg:h-28 lg:w-96 lg:justify-center"
-          aria-label="Centinela IA - Ir al inicio"
-        >
-          <img
-            src="/brand/centinela-logo-header-dark.png"
-            alt="Centinela IA"
-            className="h-full w-full object-contain"
-          />
-        </Link>
-
-        <div className="hidden items-center justify-end gap-2 lg:flex">
+        <div className="hidden items-center justify-end gap-3 xl:flex">
           <Link
             href="/login"
-            className="rounded-2xl border border-white/20 bg-white/[0.025] px-4 py-2 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:border-sky-300/50 hover:bg-white/[0.08] hover:shadow-sm"
+            className="rounded-xl border border-white/20 bg-white/[0.025] px-5 py-3 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:border-sky-300/50 hover:bg-white/[0.08] hover:shadow-sm"
           >
             Ingresar
           </Link>
@@ -106,13 +112,13 @@ export function SiteHeader() {
             href={whatsappUrl}
             target="_blank"
             rel="noreferrer"
-            className="rounded-2xl bg-[#1E9BF0] px-4 py-2 text-sm font-black text-[#061426] shadow-[0_10px_28px_rgba(30,155,240,0.22)] transition-all hover:-translate-y-0.5 hover:bg-sky-300"
+            className="rounded-xl bg-[#1E9BF0] px-5 py-3 text-sm font-black text-[#061426] shadow-[0_10px_28px_rgba(30,155,240,0.22)] transition-all hover:-translate-y-0.5 hover:bg-sky-300 hover:shadow-[0_14px_34px_rgba(30,155,240,0.34)]"
           >
             Coordinar presentación
           </a>
         </div>
 
-        <div ref={menuRef} className="relative lg:hidden">
+        <div ref={menuRef} className="relative justify-self-end xl:hidden">
           <button
             type="button"
             aria-expanded={isOpen}
@@ -177,6 +183,8 @@ export function SiteHeader() {
           ) : null}
         </div>
       </div>
-    </header>
+      </header>
+      {pathname === '/' ? null : <div aria-hidden="true" className="h-[72px] sm:h-[76px]" />}
+    </>
   );
 }

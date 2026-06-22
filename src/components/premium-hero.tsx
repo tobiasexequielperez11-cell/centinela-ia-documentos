@@ -107,7 +107,7 @@ function ProductMockup() {
 
 export function PremiumHero() {
   return (
-    <section id="inicio" className="premium-hero relative isolate overflow-hidden bg-[#0A1830] px-6 py-16 text-white sm:py-20 lg:py-24">
+    <section id="inicio" className="premium-hero relative isolate overflow-hidden bg-[#0A1830] px-6 pb-16 pt-32 text-white sm:pb-20 sm:pt-36 lg:pb-24 lg:pt-40">
       <div className="premium-hero-grid" aria-hidden="true" />
       <div className="premium-hero-orb premium-hero-orb-left" aria-hidden="true" />
       <div className="premium-hero-orb premium-hero-orb-right" aria-hidden="true" />
