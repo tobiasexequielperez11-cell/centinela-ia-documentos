@@ -62,7 +62,7 @@ const commercialOutcomes = [
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-sm font-bold uppercase tracking-[0.22em] text-sky-600">
+    <p className="text-sm font-bold uppercase tracking-[0.22em] text-sky-300">
       {children}
     </p>
   );
@@ -80,20 +80,20 @@ function SectionTitle({
   return (
     <div className="mx-auto max-w-3xl text-center">
       <SectionLabel>{label}</SectionLabel>
-      <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
+      <h1 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">
         {title}
       </h1>
-      <p className="mt-4 text-base leading-7 text-slate-600 md:text-lg">{description}</p>
+      <p className="mt-4 text-base leading-7 text-[#C2CCD9] md:text-lg">{description}</p>
     </div>
   );
 }
 
 export default function FuncionesPage() {
   return (
-    <main className="min-h-screen bg-white text-slate-950">
+    <main className="min-h-screen bg-[#0A1830] text-white">
       <SiteHeader />
 
-      <RevealSection className="px-6 pb-24 pt-12">
+      <RevealSection className="premium-section-a relative overflow-hidden px-6 pb-24 pt-16 md:pt-20">
         <div className="mx-auto max-w-7xl">
           <SectionTitle
             label="Módulos"
@@ -105,15 +105,15 @@ export default function FuncionesPage() {
             {features.map((feature) => (
               <div
                 key={feature.title}
-                className="landing-card rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm hover:border-sky-200"
+                className="premium-card landing-card rounded-2xl border border-white/10 bg-white/[0.055] p-7 shadow-[0_18px_45px_rgba(0,0,0,0.2)] backdrop-blur-sm"
               >
-                <h2 className="text-base font-black text-slate-950">{feature.title}</h2>
-                <p className="mt-3 text-sm leading-6 text-slate-600">{feature.description}</p>
+                <h2 className="text-base font-black text-white">{feature.title}</h2>
+                <p className="mt-3 text-sm leading-6 text-[#C2CCD9]">{feature.description}</p>
               </div>
             ))}
           </div>
 
-          <div className="mt-8 rounded-3xl bg-[#071a33] p-6 text-white shadow-xl sm:p-8">
+          <div className="premium-card mt-8 rounded-2xl border border-sky-300/15 bg-gradient-to-br from-[#0C2340] to-[#071326] p-6 text-white shadow-[0_22px_55px_rgba(0,0,0,0.25)] sm:p-8">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-sky-300">
               Resultados operativos
             </p>
@@ -121,7 +121,7 @@ export default function FuncionesPage() {
               {commercialOutcomes.map((outcome) => (
                 <div
                   key={outcome.title}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-5"
+                  className="premium-card rounded-2xl border border-white/10 bg-white/[0.055] p-5"
                 >
                   <h2 className="text-base font-black">{outcome.title}</h2>
                   <p className="mt-2 text-sm leading-6 text-slate-300">

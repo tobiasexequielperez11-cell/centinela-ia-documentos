@@ -26,7 +26,7 @@ const demoSteps = [
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-sm font-bold uppercase tracking-[0.22em] text-sky-600">
+    <p className="text-sm font-bold uppercase tracking-[0.22em] text-sky-300">
       {children}
     </p>
   );
@@ -35,26 +35,26 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 function SectionGlow() {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute -left-24 top-16 h-64 w-64 rounded-full bg-sky-300/15 blur-3xl" />
-      <div className="absolute -right-24 bottom-10 h-72 w-72 rounded-full bg-cyan-300/15 blur-3xl" />
+      <div className="absolute -left-24 top-16 h-64 w-64 rounded-full bg-sky-400/10 blur-3xl" />
+      <div className="absolute -right-24 bottom-10 h-72 w-72 rounded-full bg-cyan-400/10 blur-3xl" />
     </div>
   );
 }
 
 export default function ComoFuncionaPage() {
   return (
-    <main className="min-h-screen bg-[#f4f8fb] text-slate-950">
+    <main className="min-h-screen bg-[#0A1830] text-white">
       <SiteHeader />
-      <RevealSection className="relative flex min-h-screen items-center overflow-hidden px-6 py-16 md:py-24">
+      <RevealSection className="premium-section-b relative flex min-h-screen items-center overflow-hidden px-6 py-16 md:py-24">
         <SectionGlow />
         <div className="relative z-10 mx-auto w-full max-w-7xl">
           <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
             <div>
               <SectionLabel>Presentación guiada</SectionLabel>
-              <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
+              <h1 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">
                 Conocé el flujo completo en una presentación guiada.
               </h1>
-              <p className="mt-5 text-base leading-8 text-slate-600">
+              <p className="mt-5 text-base leading-8 text-[#C2CCD9]">
                 La presentación muestra cómo una organización puede ingresar al sistema,
                 revisar métricas, crear expedientes, cargar documentos, visualizar PDFs,
                 consultar reportes, administrar usuarios y revisar actividad auditada.
@@ -64,7 +64,7 @@ export default function ComoFuncionaPage() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-7 inline-flex rounded-2xl bg-sky-500 px-6 py-3.5 text-sm font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
+                className="premium-primary-button mt-7 inline-flex rounded-2xl bg-[#1E9BF0] px-6 py-3.5 text-sm font-black text-[#061426] shadow-[0_12px_32px_rgba(30,155,240,0.22)]"
               >
                 Coordinar presentación
               </a>
@@ -74,12 +74,12 @@ export default function ComoFuncionaPage() {
               {demoSteps.map((step, index) => (
                 <div
                   key={step}
-                  className="landing-card flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                  className="premium-card landing-card flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.055] p-5 shadow-[0_16px_38px_rgba(0,0,0,0.18)] backdrop-blur-sm"
                 >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sm font-black text-sky-700">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-sky-300/25 bg-sky-400/10 text-sm font-black text-sky-300 shadow-[0_0_18px_rgba(30,155,240,0.14)]">
                     {index + 1}
                   </span>
-                  <p className="text-sm font-bold text-slate-800">{step}</p>
+                  <p className="text-sm font-bold text-slate-100">{step}</p>
                 </div>
               ))}
             </div>

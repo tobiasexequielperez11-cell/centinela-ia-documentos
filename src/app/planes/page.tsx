@@ -42,7 +42,7 @@ const plans = [
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-sm font-bold uppercase tracking-[0.22em] text-sky-600">
+    <p className="text-sm font-bold uppercase tracking-[0.22em] text-sky-300">
       {children}
     </p>
   );
@@ -51,32 +51,32 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 function SectionGlow() {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute -left-24 top-16 h-64 w-64 rounded-full bg-sky-300/15 blur-3xl" />
-      <div className="absolute -right-24 bottom-10 h-72 w-72 rounded-full bg-cyan-300/15 blur-3xl" />
+      <div className="absolute -left-24 top-16 h-64 w-64 rounded-full bg-sky-400/10 blur-3xl" />
+      <div className="absolute -right-24 bottom-10 h-72 w-72 rounded-full bg-cyan-400/10 blur-3xl" />
     </div>
   );
 }
 
 export default function PlanesPage() {
   return (
-    <main className="min-h-screen bg-white text-slate-950">
+    <main className="min-h-screen bg-[#0A1830] text-white">
       <SiteHeader />
-      <RevealSection className="relative flex min-h-screen items-center overflow-hidden px-6 py-16 md:py-24">
+      <RevealSection className="premium-section-a relative flex min-h-screen items-center overflow-hidden px-6 py-16 md:py-24">
         <SectionGlow />
         <div className="relative z-10 mx-auto w-full max-w-7xl">
-          <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm md:p-10">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-8 shadow-[0_24px_65px_rgba(0,0,0,0.22)] backdrop-blur-sm md:p-10">
             <div>
               <SectionLabel>Acceso beta</SectionLabel>
-              <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
+              <h1 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">
                 Acceso inicial para primeros clientes.
               </h1>
-              <p className="mt-5 max-w-3xl text-base leading-8 text-slate-600">
+              <p className="mt-5 max-w-3xl text-base leading-8 text-[#C2CCD9]">
                 Centinela IA se ofrece inicialmente bajo modalidad de acceso beta, con cupos
                 limitados para organizaciones que quieran validar el sistema en un entorno
                 controlado.
               </p>
 
-              <p className="mt-4 max-w-3xl text-sm font-semibold leading-6 text-slate-500">
+              <p className="mt-4 max-w-3xl text-sm font-semibold leading-6 text-slate-400">
                 También se puede presupuestar una versión personalizada según los
                 requerimientos de cada cliente. Cupos limitados y acompañamiento básico
                 incluido durante la etapa beta.
@@ -87,28 +87,28 @@ export default function PlanesPage() {
               {plans.map((plan) => (
                 <article
                   key={plan.title}
-                  className={`landing-card relative flex h-full flex-col rounded-3xl border p-6 shadow-sm ${
+                  className={`premium-card landing-card relative flex h-full flex-col rounded-2xl border p-7 shadow-[0_18px_45px_rgba(0,0,0,0.2)] backdrop-blur-sm ${
                     plan.recommended
-                      ? 'border-sky-400 bg-sky-50/70 ring-1 ring-sky-200'
-                      : 'border-slate-200 bg-white'
+                      ? 'border-sky-400/70 bg-sky-400/[0.09] ring-1 ring-sky-300/30 shadow-[0_22px_60px_rgba(30,155,240,0.16)]'
+                      : 'border-white/10 bg-white/[0.055]'
                   }`}
                 >
                   {plan.recommended ? (
-                    <span className="mb-4 inline-flex w-fit rounded-full bg-sky-500 px-3 py-1 text-xs font-black uppercase tracking-wide text-white">
+                    <span className="mb-4 inline-flex w-fit rounded-full border border-sky-300/25 bg-sky-400/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-sky-200">
                       Recomendado
                     </span>
                   ) : null}
 
-                  <h2 className="text-2xl font-black text-slate-950">{plan.title}</h2>
-                  <p className="mt-3 min-h-12 text-sm leading-6 text-slate-600">
+                  <h2 className="text-2xl font-black text-white">{plan.title}</h2>
+                  <p className="mt-3 min-h-12 text-sm leading-6 text-[#C2CCD9]">
                     {plan.subtitle}
                   </p>
-                  <p className="mt-6 text-2xl font-black text-slate-950">A consultar</p>
+                  <p className="mt-6 text-2xl font-black text-white">A consultar</p>
 
-                  <p className="mt-6 text-xs font-black uppercase tracking-[0.16em] text-sky-700">
+                  <p className="mt-6 text-xs font-black uppercase tracking-[0.16em] text-sky-300">
                     Incluye
                   </p>
-                  <ul className="mt-4 flex-1 space-y-3 pl-5 text-sm leading-6 text-slate-700">
+                  <ul className="mt-4 flex-1 space-y-3 pl-5 text-sm leading-6 text-slate-300">
                     {plan.items.map((item) => (
                       <li key={item} className="list-disc marker:text-sky-500">
                         {item}
@@ -118,7 +118,7 @@ export default function PlanesPage() {
 
                   <Link
                     href="/#contacto"
-                    className="mt-8 inline-flex justify-center rounded-2xl bg-sky-500 px-5 py-3 text-center text-sm font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sky-600"
+                    className="premium-primary-button mt-8 inline-flex justify-center rounded-2xl bg-[#1E9BF0] px-5 py-3 text-center text-sm font-black text-[#061426] shadow-[0_12px_32px_rgba(30,155,240,0.22)]"
                   >
                     {plan.button}
                   </Link>
