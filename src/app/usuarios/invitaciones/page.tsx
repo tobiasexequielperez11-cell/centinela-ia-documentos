@@ -39,7 +39,6 @@ const roleOptions = [
   { value: 'employee', label: 'Operador' },
   { value: 'auditor', label: 'Auditor' },
   { value: 'client', label: 'Cliente' },
-  { value: 'admin', label: 'Administrador' },
 ];
 
 function formatDate(value?: string | null) {
@@ -124,6 +123,8 @@ function getMessage(params: { success?: string; error?: string }) {
     invalid_email: 'El email ingresado no tiene un formato válido.',
     invalid_role: 'El rol seleccionado no es válido.',
     admin_required: 'Solo un administrador puede gestionar invitaciones.',
+    admin_role_platform_only:
+      'Solo el dueño de plataforma puede crear Administradores.',
     user_already_exists: 'Ya existe un usuario con ese email en la organización.',
     invitation_already_pending: 'Ya existe una invitación pendiente para ese email.',
     invitation_already_accepted: 'Ya existe una invitación aceptada para ese email.',

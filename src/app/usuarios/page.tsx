@@ -44,7 +44,6 @@ interface InvitationMetricsRecord {
 }
 
 const roleOptions = [
-  { value: 'admin', label: 'Administrador' },
   { value: 'employee', label: 'Operador' },
   { value: 'auditor', label: 'Auditor' },
   { value: 'client', label: 'Cliente' },
@@ -189,6 +188,8 @@ function getMessage(params: { success?: string; error?: string }) {
     invalid_role: 'El rol seleccionado no es válido.',
     invalid_status: 'El estado seleccionado no es válido.',
     admin_required: 'Solo un administrador puede modificar accesos.',
+    admin_role_platform_only:
+      'Solo el dueño de plataforma puede crear o asignar Administradores.',
     user_not_found: 'No se encontró el usuario dentro de la organización.',
     self_change_blocked:
       'Por seguridad, no podés modificar tu propio rol o estado desde este panel.',
@@ -624,6 +625,11 @@ Seguimiento de invitaciones, altas pendientes y accesos gestionados durante la b
                           <div className="rounded-2xl border border-sky-100 bg-sky-50 p-3 text-xs font-semibold leading-5 text-sky-700">
                             Usuario protegido. No podés modificar tu propio rol o estado desde
                             este panel.
+                          </div>
+                        ) : item.role === 'admin' ? (
+                          <div className="rounded-2xl border border-amber-100 bg-amber-50 p-3 text-xs font-semibold leading-5 text-amber-800">
+                            Administrador protegido. Solo el dueño de plataforma
+                            puede crear o reasignar este rol.
                           </div>
                         ) : (
                           <form action={updateUserAccess} className="space-y-3">

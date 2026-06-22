@@ -1,6 +1,11 @@
 export type UserRole = 'admin' | 'employee' | 'client' | 'auditor';
 
 const USER_ROLES: UserRole[] = ['admin', 'employee', 'client', 'auditor'];
+const ORG_ADMIN_INVITABLE_ROLES: UserRole[] = [
+  'employee',
+  'auditor',
+  'client',
+];
 
 export function isUserRole(role: unknown): role is UserRole {
   return typeof role === 'string' && USER_ROLES.includes(role as UserRole);
@@ -8,6 +13,10 @@ export function isUserRole(role: unknown): role is UserRole {
 
 export function canManageUsers(role: UserRole) {
   return role === 'admin';
+}
+
+export function canOrgAdminAssignRole(role: unknown): role is UserRole {
+  return isUserRole(role) && ORG_ADMIN_INVITABLE_ROLES.includes(role);
 }
 
 export function canCreateCase(role: UserRole) {

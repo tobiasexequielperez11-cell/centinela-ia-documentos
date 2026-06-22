@@ -7,7 +7,11 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createAuditLog } from '@/lib/audit/createAuditLog';
 import { sendInvitationEmail } from '@/lib/email/sendInvitationEmail';
-import { canManageUsers, isUserRole } from '@/lib/permissions/roles';
+import {
+  canManageUsers,
+  canOrgAdminAssignRole,
+  isUserRole,
+} from '@/lib/permissions/roles';
 
 const VALID_STATUSES = ['active', 'inactive', 'invited'];
 
@@ -47,6 +51,10 @@ export async function updateUserAccess(formData: FormData) {
 
   if (!isUserRole(profile.role) || !canManageUsers(profile.role)) {
     redirect('/usuarios?error=admin_required');
+  }
+
+  if (newRole === 'admin') {
+    redirect('/usuarios?error=admin_role_platform_only');
   }
 
   const supabase = await createClient();
@@ -128,6 +136,10 @@ export async function createUserInvitation(formData: FormData) {
 
   if (!isUserRole(profile.role) || !canManageUsers(profile.role)) {
     redirect('/usuarios/invitaciones?error=admin_required');
+  }
+
+  if (!canOrgAdminAssignRole(role)) {
+    redirect('/usuarios/invitaciones?error=admin_role_platform_only');
   }
 
   const supabase = await createClient();
