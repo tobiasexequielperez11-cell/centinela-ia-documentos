@@ -11,7 +11,6 @@ const navigationItems = [
   { href: '/funciones', label: 'Beneficios' },
   { href: '/#rubros', label: 'Rubros' },
   { href: '/seguridad', label: 'Seguridad' },
-  { href: '/analisis-documental', label: 'Análisis documental' },
   { href: '/como-funciona', label: 'Presentación' },
   { href: '/planes', label: 'Acceso beta' },
 ];

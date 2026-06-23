@@ -64,6 +64,33 @@ const industries = [
   },
 ];
 
+const functionCards = [
+  {
+    title: 'Expedientes',
+    description: 'Carpetas de trabajo para organizar casos, operaciones o trámites.',
+  },
+  {
+    title: 'Bóveda documental',
+    description: 'Carga y consulta de documentos PDF en un entorno privado.',
+  },
+  {
+    title: 'Visor PDF',
+    description: 'Visualización de archivos mediante enlaces temporales seguros.',
+  },
+  {
+    title: 'Usuarios y roles',
+    description: 'Control de accesos según perfil y organización.',
+  },
+  {
+    title: 'Reportes y auditoría',
+    description: 'Vistas operativas para documentos, invitaciones, actividad y auditoría.',
+  },
+  {
+    title: 'Análisis documental',
+    description: 'Lectura asistida para clasificación, sensibilidad y revisión inicial.',
+  },
+];
+
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <p className="text-sm font-bold uppercase tracking-[0.22em] text-sky-300">
@@ -116,7 +143,7 @@ export default function HomePage() {
 
       <PremiumHero />
 
-      <RevealSection id="beneficios" className="premium-section-a relative flex min-h-screen items-center overflow-hidden px-6 py-24">
+      <RevealSection id="beneficios" className="premium-section-a relative overflow-hidden px-6 py-20 lg:py-24">
         <SectionGlow />
         <div className="relative z-10 mx-auto max-w-7xl">
           <SectionTitle
@@ -125,11 +152,11 @@ export default function HomePage() {
             description="Muchos equipos trabajan con contratos, expedientes, legajos y PDFs repartidos entre WhatsApp, correo, carpetas locales o Drive. Eso dificulta encontrar archivos, controlar accesos y saber qué pasó con cada documento. Centinela IA reúne todo eso en un solo lugar seguro."
           />
 
-          <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid items-stretch gap-5 md:grid-cols-2 lg:grid-cols-4">
             {problemCards.map((card) => (
               <div
                 key={card.title}
-                className="premium-card landing-card rounded-2xl border border-white/10 bg-white/[0.055] p-7 shadow-[0_18px_45px_rgba(0,0,0,0.18)] backdrop-blur-sm"
+                className="premium-card landing-card flex h-full flex-col rounded-2xl border border-white/10 bg-white/[0.055] p-7 shadow-[0_18px_45px_rgba(0,0,0,0.18)] backdrop-blur-sm"
               >
                 <h3 className="text-lg font-black text-white">{card.title}</h3>
                 <p className="mt-3 text-sm leading-6 text-[#C2CCD9]">
@@ -142,27 +169,46 @@ export default function HomePage() {
         </div>
       </RevealSection>
 
-      <RevealSection className="premium-section-b relative overflow-hidden px-6 py-16 md:py-20">
+      <RevealSection className="premium-section-b relative overflow-hidden px-6 py-20 lg:py-24">
         <SectionGlow />
-        <div className="relative z-10 mx-auto max-w-4xl text-center">
-          <SectionLabel>Funciones</SectionLabel>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">
-            Todo lo que tu equipo necesita, en un solo panel.
-          </h2>
-          <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-[#C2CCD9] md:text-lg">
-            Expedientes, bóveda documental, visor PDF, reportes, usuarios y auditoría — más
-            resultados operativos concretos.
-          </p>
-          <Link
-            href="/funciones"
-            className="premium-primary-button mt-7 inline-flex rounded-2xl bg-[#1E9BF0] px-6 py-3.5 text-sm font-black text-[#061426] shadow-[0_12px_32px_rgba(30,155,240,0.22)]"
-          >
-            Ver funciones
-          </Link>
+        <div className="relative z-10 mx-auto max-w-7xl">
+          <div className="mx-auto max-w-4xl text-center">
+            <SectionLabel>Funciones</SectionLabel>
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">
+              Todo lo que tu equipo necesita, en un solo panel.
+            </h2>
+            <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-[#C2CCD9] md:text-lg">
+              Expedientes, bóveda documental, visor PDF, reportes, usuarios y auditoría — más
+              resultados operativos concretos.
+            </p>
+          </div>
+
+          <div className="mt-12 grid items-stretch gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {functionCards.map((card) => (
+              <div
+                key={card.title}
+                className="premium-card landing-card flex h-full flex-col rounded-2xl border border-white/10 bg-white/[0.055] p-7 shadow-[0_18px_45px_rgba(0,0,0,0.18)] backdrop-blur-sm"
+              >
+                <h3 className="text-lg font-black text-white">{card.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-[#C2CCD9]">
+                  {card.description}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <Link
+              href="/funciones"
+              className="premium-secondary-button mt-8 inline-flex rounded-2xl border border-white/25 bg-white/[0.03] px-6 py-3.5 text-sm font-black text-white backdrop-blur-sm"
+            >
+              Ver funciones
+            </Link>
+          </div>
         </div>
       </RevealSection>
 
-      <RevealSection id="rubros" className="premium-section-a relative flex min-h-screen items-center overflow-hidden px-6 py-24">
+      <RevealSection id="rubros" className="premium-section-a relative overflow-hidden px-6 py-20 lg:py-24">
         <SectionGlow />
         <div className="relative z-10 mx-auto max-w-7xl">
           <SectionTitle
@@ -171,11 +217,11 @@ export default function HomePage() {
             description="La plataforma está orientada inicialmente a rubros donde el orden documental, el control de acceso y la trazabilidad son claves."
           />
 
-          <div className="mt-12 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-12 grid items-stretch gap-5 md:grid-cols-2 xl:grid-cols-4">
             {industries.map((industry) => (
               <div
                 key={industry.title}
-                className="premium-card landing-card rounded-2xl border border-white/10 bg-white/[0.055] p-7 shadow-[0_18px_45px_rgba(0,0,0,0.18)] backdrop-blur-sm"
+                className="premium-card landing-card flex h-full flex-col rounded-2xl border border-white/10 bg-white/[0.055] p-7 shadow-[0_18px_45px_rgba(0,0,0,0.18)] backdrop-blur-sm"
               >
                 <h3 className="text-xl font-black text-white">
                   {industry.title}
@@ -189,11 +235,9 @@ export default function HomePage() {
         </div>
       </RevealSection>
 
-      <RevealSection id="seguridad" className="premium-section-b px-6 py-16 text-white md:py-20">
+      <RevealSection id="seguridad" className="premium-section-b px-6 py-20 text-white lg:py-24">
         <div className="mx-auto max-w-4xl text-center">
-          <p className="text-sm font-bold uppercase tracking-[0.22em] text-sky-300">
-            Confidencialidad y seguridad
-          </p>
+          <SectionLabel>Confidencialidad y seguridad</SectionLabel>
           <h2 className="mt-3 text-3xl font-black tracking-tight md:text-5xl">
             Tu información sensible, protegida y bajo control.
           </h2>
@@ -203,33 +247,14 @@ export default function HomePage() {
           </p>
           <Link
             href="/seguridad"
-            className="premium-primary-button mt-7 inline-flex rounded-2xl bg-[#1E9BF0] px-6 py-3.5 text-sm font-black text-[#061426] shadow-[0_12px_32px_rgba(30,155,240,0.22)]"
+            className="premium-secondary-button mt-8 inline-flex rounded-2xl border border-white/25 bg-white/[0.03] px-6 py-3.5 text-sm font-black text-white backdrop-blur-sm"
           >
             Ver seguridad
           </Link>
         </div>
       </RevealSection>
 
-      <RevealSection className="premium-section-a px-6 py-16 md:py-20">
-        <div className="mx-auto max-w-4xl text-center">
-          <SectionLabel>IA documental</SectionLabel>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-white md:text-5xl">
-            Análisis documental asistido, en entorno controlado.
-          </h2>
-          <p className="mx-auto mt-5 max-w-3xl text-base leading-8 text-[#C2CCD9] md:text-lg">
-            Clasificación, detección de sensibilidad y revisión inicial de documentos para
-            ordenar la información clave.
-          </p>
-          <Link
-            href="/analisis-documental"
-            className="premium-primary-button mt-7 inline-flex rounded-2xl bg-[#1E9BF0] px-6 py-3.5 text-sm font-black text-[#061426] shadow-[0_12px_32px_rgba(30,155,240,0.22)]"
-          >
-            Ver análisis documental
-          </Link>
-        </div>
-      </RevealSection>
-
-      <RevealSection id="demo" className="premium-section-b relative overflow-hidden px-6 py-16 md:py-20">
+      <RevealSection id="demo" className="premium-section-a relative overflow-hidden px-6 py-20 lg:py-24">
         <SectionGlow />
         <div className="relative z-10 mx-auto max-w-4xl text-center">
           <SectionLabel>Presentación guiada</SectionLabel>
@@ -242,14 +267,14 @@ export default function HomePage() {
           </p>
           <Link
             href="/como-funciona"
-            className="premium-primary-button mt-7 inline-flex rounded-2xl bg-[#1E9BF0] px-6 py-3.5 text-sm font-black text-[#061426] shadow-[0_12px_32px_rgba(30,155,240,0.22)]"
+            className="premium-secondary-button mt-8 inline-flex rounded-2xl border border-white/25 bg-white/[0.03] px-6 py-3.5 text-sm font-black text-white backdrop-blur-sm"
           >
             Ver la presentación guiada
           </Link>
         </div>
       </RevealSection>
 
-      <RevealSection id="beta" className="premium-section-a relative overflow-hidden px-6 py-16 md:py-20">
+      <RevealSection id="beta" className="premium-section-b relative overflow-hidden px-6 py-20 lg:py-24">
         <SectionGlow />
         <div className="premium-card relative z-10 mx-auto max-w-4xl rounded-2xl border border-white/10 bg-white/[0.055] p-8 text-center shadow-[0_22px_55px_rgba(0,0,0,0.2)] backdrop-blur-sm md:p-10">
           <SectionLabel>Acceso beta</SectionLabel>
@@ -262,14 +287,14 @@ export default function HomePage() {
           </p>
           <Link
             href="/planes"
-            className="premium-primary-button mt-7 inline-flex rounded-2xl bg-[#1E9BF0] px-6 py-3.5 text-sm font-black text-[#061426] shadow-[0_12px_32px_rgba(30,155,240,0.22)]"
+            className="premium-secondary-button mt-8 inline-flex rounded-2xl border border-white/25 bg-white/[0.03] px-6 py-3.5 text-sm font-black text-white backdrop-blur-sm"
           >
             Ver planes
           </Link>
         </div>
       </RevealSection>
 
-      <RevealSection id="contacto" className="premium-section-b relative overflow-hidden px-6 py-24">
+      <RevealSection id="contacto" className="premium-section-a relative overflow-hidden px-6 py-20 lg:py-24">
         <SectionGlow />
         <div className="relative z-10 mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
           <div>
@@ -288,41 +313,6 @@ export default function HomePage() {
           </div>
 
           <LandingContactForm />
-        </div>
-      </RevealSection>
-
-      <RevealSection className="premium-section-a border-t border-white/[0.06] px-6 py-24 text-white">
-        <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl font-black tracking-tight md:text-5xl">
-            Ordená tus expedientes y documentos desde un solo lugar.
-          </h2>
-
-          <p className="mt-5 text-base leading-8 text-slate-300 md:text-lg">
-            Coordiná una presentación de Centinela IA y evaluá si la plataforma se adapta a tu
-            estudio, inmobiliaria, escribanía o equipo de trabajo.
-          </p>
-
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="premium-primary-button rounded-2xl bg-[#1E9BF0] px-6 py-4 text-center text-sm font-black text-[#061426]"
-            >
-              Coordinar presentación
-            </a>
-
-            <Link
-              href="/login"
-              className="premium-secondary-button rounded-2xl border border-white/20 bg-white/[0.025] px-6 py-4 text-center text-sm font-black text-white"
-            >
-              Ingresar al sistema
-            </Link>
-          </div>
-
-          <p className="mt-6 text-sm font-semibold text-slate-400">
-            Beta operativa comercial para primeros clientes.
-          </p>
         </div>
       </RevealSection>
 
