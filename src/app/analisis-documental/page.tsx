@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { BackHomeLink } from '@/components/BackHomeLink';
 import { RevealSection } from '@/components/landing-reveal-section';
 import { SiteHeader } from '@/components/SiteHeader';
 
@@ -29,6 +30,7 @@ export default function AnalisisDocumentalPage() {
   return (
     <main className="min-h-screen bg-[#0A1830] text-white">
       <SiteHeader />
+      <BackHomeLink />
       <RevealSection className="premium-section-a relative flex min-h-screen items-center overflow-hidden px-6 py-16 md:py-24">
         <div className="mx-auto w-full max-w-7xl">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">

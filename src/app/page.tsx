@@ -1,4 +1,20 @@
 import Link from 'next/link';
+import {
+  BarChart3,
+  Briefcase,
+  Building2,
+  FileStack,
+  FileText,
+  Folder,
+  FolderOpen,
+  Lock,
+  PenTool,
+  Scale,
+  ScanText,
+  Search,
+  Unlock,
+  Users,
+} from 'lucide-react';
 import { LandingContactForm } from '@/components/landing-contact-form';
 import { LandingHashNavigation } from '@/components/landing-hash-navigation';
 import { RevealSection } from '@/components/landing-reveal-section';
@@ -15,18 +31,22 @@ const problemCards = [
   {
     title: 'Documentos dispersos',
     description: 'Archivos repartidos entre WhatsApp, correo, carpetas locales o Drive.',
+    icon: FileStack,
   },
   {
     title: 'Poca trazabilidad',
     description: 'Dificultad para saber quién accedió, revisó o gestionó información.',
+    icon: Search,
   },
   {
     title: 'Expedientes desordenados',
     description: 'Carpetas, contratos y documentos sin una estructura clara.',
+    icon: FolderOpen,
   },
   {
     title: 'Accesos sin control',
     description: 'Usuarios, permisos y documentación sensible sin una gestión centralizada.',
+    icon: Unlock,
   },
 ];
 
@@ -46,21 +66,25 @@ const industries = [
     title: 'Estudios jurídicos',
     description:
       'Expedientes, escritos, sentencias, contratos y documentación asociada a clientes o causas.',
+    icon: Scale,
   },
   {
     title: 'Inmobiliarias',
     description:
       'Contratos de alquiler, reservas, boletos, documentación de clientes, garantías y operaciones.',
+    icon: Building2,
   },
   {
     title: 'Escribanías',
     description:
       'Trámites, escrituras, poderes, certificados y documentación crítica por operación.',
+    icon: PenTool,
   },
   {
     title: 'Empresas',
     description:
       'Áreas administrativas, legales, contables, comerciales o de recursos humanos.',
+    icon: Briefcase,
   },
 ];
 
@@ -68,26 +92,32 @@ const functionCards = [
   {
     title: 'Expedientes',
     description: 'Carpetas de trabajo para organizar casos, operaciones o trámites.',
+    icon: Folder,
   },
   {
     title: 'Bóveda documental',
     description: 'Carga y consulta de documentos PDF en un entorno privado.',
+    icon: Lock,
   },
   {
     title: 'Visor PDF',
     description: 'Visualización de archivos mediante enlaces temporales seguros.',
+    icon: FileText,
   },
   {
     title: 'Usuarios y roles',
     description: 'Control de accesos según perfil y organización.',
+    icon: Users,
   },
   {
     title: 'Reportes y auditoría',
     description: 'Vistas operativas para documentos, invitaciones, actividad y auditoría.',
+    icon: BarChart3,
   },
   {
     title: 'Análisis documental',
     description: 'Lectura asistida para clasificación, sensibilidad y revisión inicial.',
+    icon: ScanText,
   },
 ];
 
@@ -153,11 +183,12 @@ export default function HomePage() {
           />
 
           <div className="mt-12 grid items-stretch gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {problemCards.map((card) => (
+            {problemCards.map(({ icon: Icon, ...card }) => (
               <div
                 key={card.title}
                 className="premium-card landing-card flex h-full flex-col rounded-2xl border border-white/10 bg-white/[0.055] p-7 shadow-[0_18px_45px_rgba(0,0,0,0.18)] backdrop-blur-sm"
               >
+                <Icon className="mb-5 h-8 w-8 text-[#29C5FF]" aria-hidden="true" />
                 <h3 className="text-lg font-black text-white">{card.title}</h3>
                 <p className="mt-3 text-sm leading-6 text-[#C2CCD9]">
                   {card.description}
@@ -184,11 +215,12 @@ export default function HomePage() {
           </div>
 
           <div className="mt-12 grid items-stretch gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {functionCards.map((card) => (
+            {functionCards.map(({ icon: Icon, ...card }) => (
               <div
                 key={card.title}
                 className="premium-card landing-card flex h-full flex-col rounded-2xl border border-white/10 bg-white/[0.055] p-7 shadow-[0_18px_45px_rgba(0,0,0,0.18)] backdrop-blur-sm"
               >
+                <Icon className="mb-5 h-8 w-8 text-[#29C5FF]" aria-hidden="true" />
                 <h3 className="text-lg font-black text-white">{card.title}</h3>
                 <p className="mt-3 text-sm leading-6 text-[#C2CCD9]">
                   {card.description}
@@ -218,11 +250,12 @@ export default function HomePage() {
           />
 
           <div className="mt-12 grid items-stretch gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {industries.map((industry) => (
+            {industries.map(({ icon: Icon, ...industry }) => (
               <div
                 key={industry.title}
                 className="premium-card landing-card flex h-full flex-col rounded-2xl border border-white/10 bg-white/[0.055] p-7 shadow-[0_18px_45px_rgba(0,0,0,0.18)] backdrop-blur-sm"
               >
+                <Icon className="mb-5 h-8 w-8 text-[#29C5FF]" aria-hidden="true" />
                 <h3 className="text-xl font-black text-white">
                   {industry.title}
                 </h3>

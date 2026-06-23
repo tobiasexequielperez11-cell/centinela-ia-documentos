@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { BackHomeLink } from '@/components/BackHomeLink';
 import { RevealSection } from '@/components/landing-reveal-section';
 import { SiteHeader } from '@/components/SiteHeader';
 
@@ -45,6 +46,7 @@ export default function ComoFuncionaPage() {
   return (
     <main className="min-h-screen bg-[#0A1830] text-white">
       <SiteHeader />
+      <BackHomeLink />
       <RevealSection className="premium-section-b relative flex min-h-screen items-center overflow-hidden px-6 py-16 md:py-24">
         <SectionGlow />
         <div className="relative z-10 mx-auto w-full max-w-7xl">

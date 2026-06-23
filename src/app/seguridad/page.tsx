@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { BackHomeLink } from '@/components/BackHomeLink';
 import { RevealSection } from '@/components/landing-reveal-section';
 import { SiteHeader } from '@/components/SiteHeader';
 
@@ -42,6 +43,7 @@ export default function SeguridadPage() {
   return (
     <main className="min-h-screen bg-[linear-gradient(135deg,_#020d29,_#082746)] text-white">
       <SiteHeader />
+      <BackHomeLink />
       <RevealSection className="flex min-h-screen items-center px-6 py-16 md:py-24">
         <div className="mx-auto w-full max-w-7xl">
           <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
