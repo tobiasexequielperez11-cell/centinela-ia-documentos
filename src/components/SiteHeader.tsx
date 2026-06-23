@@ -55,6 +55,15 @@ export function SiteHeader() {
 
   return (
     <>
+      {isOpen ? (
+        <button
+          type="button"
+          aria-label="Cerrar menú móvil"
+          onClick={closeMenu}
+          className="fixed inset-0 z-30 bg-[#020817]/70 xl:hidden"
+        />
+      ) : null}
+
       <header
         className={`site-header fixed inset-x-0 top-0 z-40 px-4 py-4 sm:px-6 sm:py-[18px] ${
           hasSolidBackground
@@ -140,7 +149,7 @@ export function SiteHeader() {
           {isOpen ? (
             <div
               id="site-mobile-navigation"
-              className="absolute right-0 top-14 w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-white/10 bg-[#0C2340]/95 p-3 shadow-[0_24px_60px_rgba(0,0,0,0.38)] backdrop-blur-xl"
+              className="absolute right-0 top-14 w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-white/10 bg-[#0A1830] p-3 shadow-[0_24px_60px_rgba(0,0,0,0.38)]"
             >
               <nav aria-label="Navegación móvil" className="grid gap-1">
                 {navigationItems.map((item) => (
