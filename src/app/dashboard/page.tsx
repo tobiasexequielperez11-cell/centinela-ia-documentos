@@ -205,19 +205,9 @@ export default async function DashboardPage() {
       helper: 'Bóveda privada',
     },
     {
-      label: 'Procesamientos IA',
-      value: String(aiRunsCount.count ?? 0),
-      helper: 'Análisis registrados',
-    },
-    {
       label: 'Cobertura IA',
       value: `${coverage}%`,
       helper: 'Documentos procesados',
-    },
-    {
-      label: 'Pendientes de revisión',
-      value: String(pendingDocuments.length),
-      helper: 'Requieren análisis IA',
     },
     {
       label: 'Actividad auditada',
@@ -272,118 +262,11 @@ export default async function DashboardPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (
           <MetricCard key={metric.label} {...metric} />
         ))}
       </div>
-
-      <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
-              Invitaciones operativas
-            </p>
-
-            <h3 className="mt-2 text-2xl font-bold text-slate-950">
-              Estado de invitaciones
-            </h3>
-
-            <p className="mt-2 text-sm text-slate-600">
-              Seguimiento de altas, invitaciones pendientes y accesos gestionados durante la beta.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/usuarios/invitaciones"
-              className="rounded-2xl bg-slate-950 px-5 py-3 text-center text-sm font-bold text-white hover:bg-slate-800"
-            >
-              Gestionar invitaciones
-            </Link>
-
-            <Link
-              href="/reportes?vista=invitaciones"
-              className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-center text-sm font-bold text-slate-700 hover:bg-slate-50"
-            >
-              Ver reporte
-            </Link>
-          </div>
-        </div>
-
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {invitationCards.map((metric) => (
-            <div
-              key={metric.label}
-              className="rounded-2xl border border-slate-200 bg-slate-50 p-5"
-            >
-              <p className="text-sm font-semibold text-slate-500">
-                {metric.label}
-              </p>
-
-              <p className="mt-2 text-3xl font-bold text-slate-950">
-                {metric.value}
-              </p>
-
-              <p className="mt-3 text-xs text-slate-500">
-                {metric.helper}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-5 grid gap-4 xl:grid-cols-[0.85fr_1.15fr]">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-sm font-bold text-slate-950">
-              Última invitación creada
-            </p>
-
-            <p className="mt-2 text-sm text-slate-600">
-              {formatDate(invitationMetrics?.last_invitation_created_at)}
-            </p>
-
-            <p className="mt-3 text-xs leading-5 text-slate-500">
-              Este dato permite revisar actividad reciente de altas e invitaciones dentro de la organización.
-            </p>
-          </div>
-
-          <div
-            className={`rounded-2xl border p-5 ${
-              hasExpiredInvitations
-                ? 'border-amber-200 bg-amber-50'
-                : 'border-emerald-200 bg-emerald-50'
-            }`}
-          >
-            <p
-              className={`text-sm font-bold ${
-                hasExpiredInvitations ? 'text-amber-950' : 'text-emerald-950'
-              }`}
-            >
-              Estado operativo de accesos
-            </p>
-
-            <p
-              className={`mt-2 text-sm leading-6 ${
-                hasExpiredInvitations ? 'text-amber-800' : 'text-emerald-800'
-              }`}
-            >
-              {hasExpiredInvitations
-                ? 'Hay invitaciones vencidas. Conviene revisarlas antes de avanzar con nuevos usuarios o testers externos.'
-                : 'No se detectan invitaciones vencidas. El control operativo de accesos se mantiene estable.'}
-            </p>
-
-            <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
-              <span className="rounded-full bg-white/70 px-3 py-1 text-slate-700">
-                {totalInvitations} totales
-              </span>
-
-              <span className="rounded-full bg-white/70 px-3 py-1 text-slate-700">
-                {pendingInvitations} pendientes
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_0.8fr]">
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">

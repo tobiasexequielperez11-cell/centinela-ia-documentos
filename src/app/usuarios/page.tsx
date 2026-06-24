@@ -339,11 +339,6 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
           <h2 className="mt-2 text-3xl font-bold text-slate-950">
             Control de usuarios y accesos
           </h2>
-
-          <p className="mt-2 text-sm text-slate-600">
-            Administración controlada de perfiles, roles, estado de acceso, invitaciones
-            operativas y actividad auditada.
-          </p>
         </div>
 
         <div className="flex flex-wrap gap-3">
@@ -414,10 +409,6 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
             <h3 className="mt-2 text-2xl font-bold text-slate-950">
               Estado general de invitaciones
             </h3>
-
-            <p className="mt-2 text-sm text-slate-600">
-Seguimiento de invitaciones, altas pendientes y accesos gestionados durante la beta operativa.
-            </p>
           </div>
 
           <Link
@@ -451,11 +442,6 @@ Seguimiento de invitaciones, altas pendientes y accesos gestionados durante la b
 
             <p className="mt-2 text-sm text-slate-600">
               {formatDate(invitationMetrics?.last_invitation_created_at)}
-            </p>
-
-            <p className="mt-3 text-xs leading-5 text-slate-500">
-              Esta fecha proviene de la vista operativa de invitaciones y sirve como
-              referencia rápida para controlar actividad reciente de accesos e invitaciones.
             </p>
           </div>
 
@@ -520,10 +506,6 @@ Seguimiento de invitaciones, altas pendientes y accesos gestionados durante la b
               <h3 className="mt-2 text-2xl font-bold text-slate-950">
                 Usuarios de la organización
               </h3>
-
-              <p className="mt-2 text-sm text-slate-600">
-                Perfiles registrados con control de rol y estado operativo.
-              </p>
             </div>
 
             <span className="rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-600">
@@ -589,10 +571,6 @@ Seguimiento de invitaciones, altas pendientes y accesos gestionados durante la b
                         >
                           {roleLabel(item.role)}
                         </span>
-
-                        <p className="mt-2 max-w-xs text-xs leading-5 text-slate-500">
-                          {roleDescription(item.role)}
-                        </p>
                       </td>
 
                       <td className="px-4 py-4">
@@ -704,11 +682,7 @@ Seguimiento de invitaciones, altas pendientes y accesos gestionados durante la b
               Distribución de accesos
             </h3>
 
-            <p className="mt-2 text-sm text-slate-600">
-              Resumen de perfiles según rol operativo.
-            </p>
-
-            <div className="mt-6 grid gap-3">
+            <div className="mt-5 grid gap-3">
               <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4">
                 <div>
                   <p className="font-bold text-slate-950">Administradores</p>
@@ -759,12 +733,6 @@ Seguimiento de invitaciones, altas pendientes y accesos gestionados durante la b
             <h3 className="mt-2 text-xl font-bold text-emerald-950">
               Administración protegida
             </h3>
-
-            <p className="mt-2 text-sm leading-6 text-emerald-800">
-              Solo usuarios administradores pueden modificar roles y estados. Además,
-              el sistema bloquea cambios sobre el propio usuario para evitar perder acceso
-              al panel.
-            </p>
           </div>
 
           <div className="rounded-3xl border border-sky-200 bg-sky-50 p-6 shadow-sm">
@@ -776,13 +744,9 @@ Seguimiento de invitaciones, altas pendientes y accesos gestionados durante la b
               Invitaciones operativas
             </h3>
 
-            <p className="mt-2 text-sm leading-6 text-sky-800">
-Las invitaciones permiten organizar altas, roles, estados y trazabilidad de accesos dentro de la organización.
-            </p>
-
             <Link
               href="/usuarios/invitaciones"
-              className="mt-5 inline-flex rounded-2xl bg-sky-700 px-5 py-3 text-sm font-bold text-white hover:bg-sky-800"
+              className="mt-4 inline-flex rounded-2xl bg-sky-700 px-5 py-3 text-sm font-bold text-white hover:bg-sky-800"
             >
               Revisar invitaciones
             </Link>
@@ -800,10 +764,6 @@ Las invitaciones permiten organizar altas, roles, estados y trazabilidad de acce
             <h3 className="mt-2 text-2xl font-bold text-slate-950">
               Actividad reciente por usuarios
             </h3>
-
-            <p className="mt-2 text-sm text-slate-600">
-              Últimos eventos vinculados a usuarios dentro de la organización.
-            </p>
           </div>
 
           <Link
