@@ -20,12 +20,13 @@ export async function Sidebar() {
     : [];
 
   return (
-    <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-slate-200 bg-white px-5 py-6 lg:block">
+    <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-white/10 bg-[#071326] px-5 py-6 shadow-[18px_0_55px_rgba(0,0,0,0.24)] lg:block">
       <Link href="/dashboard" className="mb-8 block">
-        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-sky-600">
-          Centinela IA
+        <p className="text-xs font-semibold uppercase tracking-[0.25em]">
+          <span className="text-white">Centinela</span>{' '}
+          <span className="text-[#1E9BF0]">IA</span>
         </p>
-        <h1 className="mt-2 text-xl font-bold text-slate-950">
+        <h1 className="mt-2 text-xl font-bold text-white">
           Panel operativo
         </h1>
       </Link>
@@ -38,25 +39,25 @@ export async function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100 hover:text-slate-950"
+              className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-[#C2CCD9] transition-all hover:bg-[#1E9BF0]/12 hover:text-[#29C5FF]"
             >
-              <Icon className="h-4 w-4" />
+              <Icon className="h-4 w-4 text-current" />
               {item.name}
             </Link>
           );
         })}
       </nav>
 
-      <div className="absolute bottom-6 left-5 right-5 rounded-3xl bg-slate-950 p-5 text-white">
+      <div className="absolute bottom-6 left-5 right-5 rounded-3xl border border-white/10 bg-white/[0.055] p-5 text-white shadow-[0_20px_45px_rgba(0,0,0,0.22)]">
         <p className="text-sm font-bold">
           MVP V1
         </p>
 
-        <p className="mt-2 text-xs font-semibold text-slate-100">
+        <p className="mt-2 text-xs font-semibold text-sky-200">
           Entorno beta seguro
         </p>
 
-        <p className="mt-2 text-xs leading-5 text-slate-300">
+        <p className="mt-2 text-xs leading-5 text-[#C2CCD9]">
           Acceso protegido por organización y rol.
         </p>
       </div>

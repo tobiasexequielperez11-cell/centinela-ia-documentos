@@ -16,11 +16,11 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const errorMessage = getErrorMessage(params.error);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_#124b73_0%,_#082746_34%,_#020d29_78%)] px-6 py-12 text-slate-950">
-      <div className="w-full max-w-md rounded-3xl border border-white/70 bg-white/95 p-8 shadow-[0_30px_80px_rgba(2,13,41,0.45)]">
+    <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(30,155,240,0.28)_0%,_#0C2340_34%,_#0A1830_78%)] px-6 py-12 text-white">
+      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.065] p-8 shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl">
         <Link
           href="/"
-          className="inline-flex items-center text-sm font-bold text-[#12345d] transition-colors hover:text-sky-700"
+          className="inline-flex items-center text-sm font-bold text-[#C2CCD9] transition-colors hover:text-[#1E9BF0]"
         >
           Volver al inicio
         </Link>
@@ -37,9 +37,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           />
         </Link>
 
-        <h1 className="text-3xl font-bold">Ingresar al panel</h1>
+        <h1 className="text-3xl font-bold text-white">Ingresar al panel</h1>
 
-        <p className="mt-2 text-sm leading-6 text-slate-600">
+        <p className="mt-2 text-sm leading-6 text-[#C2CCD9]">
           Acceso privado para organizaciones y usuarios autorizados.
         </p>
 
@@ -51,25 +51,25 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
         <form action={signIn} className="mt-8 space-y-4">
           <div>
-            <label className="text-sm font-semibold text-slate-700">Email</label>
+            <label className="text-sm font-semibold text-[#C2CCD9]">Email</label>
             <input
               name="email"
               type="email"
               required
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-sky-400"
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-[#071326]/80 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-[#29C5FF] focus:ring-2 focus:ring-sky-400"
               placeholder="usuario@empresa.com"
             />
           </div>
 
           <div>
             <div className="flex items-center justify-between gap-4">
-              <label className="text-sm font-semibold text-slate-700">
+              <label className="text-sm font-semibold text-[#C2CCD9]">
                 Contraseña
               </label>
 
               <Link
                 href="/recuperar-contrasena"
-                className="text-xs font-semibold text-sky-600 hover:text-sky-700"
+                className="text-xs font-semibold text-[#29C5FF] hover:text-sky-200"
               >
                 ¿Olvidaste tu contraseña?
               </Link>
@@ -79,17 +79,17 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               name="password"
               type="password"
               required
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-white px-4 py-3 text-slate-950 outline-none focus:ring-2 focus:ring-sky-400"
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-[#071326]/80 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-[#29C5FF] focus:ring-2 focus:ring-sky-400"
               placeholder="••••••••"
             />
           </div>
 
-          <button className="w-full rounded-2xl bg-sky-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-sky-950/15 transition-all hover:-translate-y-0.5 hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2">
+          <button className="w-full rounded-2xl bg-[#1E9BF0] px-5 py-3 text-sm font-bold text-white shadow-[0_14px_34px_rgba(30,155,240,0.28)] transition-all hover:-translate-y-0.5 hover:bg-[#1485D6] focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2 focus:ring-offset-[#0A1830]">
             Ingresar
           </button>
         </form>
 
-        <p className="mt-6 text-center text-xs leading-5 text-slate-500">
+        <p className="mt-6 text-center text-xs leading-5 text-slate-400">
           El acceso está limitado a usuarios autorizados por la organización.
         </p>
       </div>
