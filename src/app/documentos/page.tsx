@@ -71,6 +71,7 @@ function getAiStatus(count: number) {
   if (count <= 0) {
     return {
       label: 'Pendiente',
+      countLabel: null,
       className: 'bg-slate-100 text-slate-500',
     };
   }
@@ -78,12 +79,14 @@ function getAiStatus(count: number) {
   if (count === 1) {
     return {
       label: 'Analizado IA',
+      countLabel: null,
       className: 'bg-sky-50 text-sky-700',
     };
   }
 
   return {
-    label: `Reanalizado x${count}`,
+    label: 'Reanalizado',
+    countLabel: `x${count}`,
     className: 'bg-emerald-50 text-emerald-700',
   };
 }
@@ -333,9 +336,14 @@ export default async function DocumentsPage({
 
                   <td className="px-5 py-4">
                     <span
-                      className={`rounded-full px-3 py-1 text-xs font-bold ${aiStatus.className}`}
+                      className={`inline-flex h-8 items-center gap-2 whitespace-nowrap rounded-full px-3 text-xs font-bold leading-none ${aiStatus.className}`}
                     >
-                      {aiStatus.label}
+                      <span>{aiStatus.label}</span>
+                      {aiStatus.countLabel ? (
+                        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white/70 px-1.5 text-[11px] font-black leading-none text-current">
+                          {aiStatus.countLabel}
+                        </span>
+                      ) : null}
                     </span>
                   </td>
 

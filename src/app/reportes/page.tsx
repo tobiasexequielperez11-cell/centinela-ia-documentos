@@ -210,32 +210,30 @@ function actionLabel(value: string) {
   return labels[value] ?? value;
 }
 
-function actionTone(value: string) {
-  if (value.includes('invitation') || value.includes('invitacion')) {
-    return 'bg-indigo-50 text-indigo-700';
+function actionDotTone(value: string) {
+  if (value.includes('cancel')) {
+    return 'bg-rose-500';
   }
 
-  if (value.includes('analyzed')) {
-    return 'bg-sky-50 text-sky-700';
+  if (value.includes('updated') || value.includes('status')) {
+    return 'bg-slate-400';
   }
 
-  if (value.includes('uploaded')) {
-    return 'bg-emerald-50 text-emerald-700';
+  if (
+    value.includes('created') ||
+    value.includes('accepted') ||
+    value.includes('uploaded') ||
+    value.includes('authorized') ||
+    value.includes('autoriz')
+  ) {
+    return 'bg-emerald-400';
   }
 
-  if (value.includes('status')) {
-    return 'bg-amber-50 text-amber-700';
+  if (value.includes('viewed') || value.includes('access') || value.includes('analyzed')) {
+    return 'bg-sky-400';
   }
 
-  if (value.includes('viewed')) {
-    return 'bg-slate-100 text-slate-600';
-  }
-
-  if (value.includes('created')) {
-    return 'bg-violet-50 text-violet-700';
-  }
-
-  return 'bg-slate-100 text-slate-600';
+  return 'bg-slate-400';
 }
 
 function getPercentage(value: number, total: number) {
@@ -1512,7 +1510,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                 <tr>
-                  <th className="px-4 py-3">Evento</th>
+                  <th className="w-72 px-4 py-3">Evento</th>
                   <th className="px-4 py-3">Usuario</th>
                   <th className="px-4 py-3">Recurso</th>
                   <th className="px-4 py-3">Detalle</th>
@@ -1523,12 +1521,13 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
               <tbody className="divide-y divide-slate-200">
                 {filteredAuditLogs.map((log) => (
                   <tr key={log.id} className="align-top hover:bg-slate-50">
-                    <td className="px-4 py-4">
-                      <span
-                        className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${actionTone(
-                          log.action
-                        )}`}
-                      >
+                    <td className="px-4 py-4 align-middle">
+                      <span className="inline-flex items-center gap-2 whitespace-nowrap text-xs font-bold text-slate-700">
+                        <span
+                          className={`h-2.5 w-2.5 shrink-0 rounded-full ${actionDotTone(
+                            log.action
+                          )}`}
+                        />
                         {actionLabel(log.action)}
                       </span>
 
@@ -1778,7 +1777,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
               <table className="w-full text-left text-sm">
                 <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                   <tr>
-                    <th className="px-4 py-3">Evento</th>
+                    <th className="w-72 px-4 py-3">Evento</th>
                     <th className="px-4 py-3">Usuario</th>
                     <th className="px-4 py-3">Recurso</th>
                     <th className="px-4 py-3">Fecha</th>
@@ -1788,12 +1787,13 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                 <tbody className="divide-y divide-slate-200">
                   {auditLogs.slice(0, 10).map((log) => (
                     <tr key={log.id} className="hover:bg-slate-50">
-                      <td className="px-4 py-3">
-                        <span
-                          className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${actionTone(
-                            log.action
-                          )}`}
-                        >
+                      <td className="px-4 py-3 align-middle">
+                        <span className="inline-flex items-center gap-2 whitespace-nowrap text-xs font-bold text-slate-700">
+                          <span
+                            className={`h-2.5 w-2.5 shrink-0 rounded-full ${actionDotTone(
+                              log.action
+                            )}`}
+                          />
                           {actionLabel(log.action)}
                         </span>
                       </td>

@@ -672,8 +672,8 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
           </div>
         </section>
 
-        <section className="space-y-6">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <section className="space-y-5 xl:pr-0">
+          <div className="rounded-3xl border border-slate-200 bg-white p-6">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
               Roles
             </p>
@@ -683,49 +683,45 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
             </h3>
 
             <div className="mt-5 grid gap-3">
-              <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4">
-                <div>
+              <div className="flex items-center justify-between gap-5 rounded-2xl bg-slate-50 p-4">
+                <div className="min-w-0 flex-1">
                   <p className="font-bold text-slate-950">Administradores</p>
-                  <p className="text-xs text-slate-500">Control general</p>
                 </div>
-                <span className="text-2xl font-bold text-slate-950">
+                <span className="min-w-12 shrink-0 text-right text-2xl font-bold text-slate-950">
                   {adminUsers}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4">
-                <div>
+              <div className="flex items-center justify-between gap-5 rounded-2xl bg-slate-50 p-4">
+                <div className="min-w-0 flex-1">
                   <p className="font-bold text-slate-950">Operadores</p>
-                  <p className="text-xs text-slate-500">Trabajo documental</p>
                 </div>
-                <span className="text-2xl font-bold text-slate-950">
+                <span className="min-w-12 shrink-0 text-right text-2xl font-bold text-slate-950">
                   {employeeUsers}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4">
-                <div>
+              <div className="flex items-center justify-between gap-5 rounded-2xl bg-slate-50 p-4">
+                <div className="min-w-0 flex-1">
                   <p className="font-bold text-slate-950">Auditores</p>
-                  <p className="text-xs text-slate-500">Control y revisión</p>
                 </div>
-                <span className="text-2xl font-bold text-slate-950">
+                <span className="min-w-12 shrink-0 text-right text-2xl font-bold text-slate-950">
                   {auditorUsers}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between rounded-2xl bg-slate-50 p-4">
-                <div>
+              <div className="flex items-center justify-between gap-5 rounded-2xl bg-slate-50 p-4">
+                <div className="min-w-0 flex-1">
                   <p className="font-bold text-slate-950">Clientes</p>
-                  <p className="text-xs text-slate-500">Acceso limitado</p>
                 </div>
-                <span className="text-2xl font-bold text-slate-950">
+                <span className="min-w-12 shrink-0 text-right text-2xl font-bold text-slate-950">
                   {clientUsers}
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
+          <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-700">
               Seguridad
             </p>
@@ -735,7 +731,7 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
             </h3>
           </div>
 
-          <div className="rounded-3xl border border-sky-200 bg-sky-50 p-6 shadow-sm">
+          <div className="rounded-3xl border border-sky-200 bg-sky-50 p-6">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-700">
               Gestión de accesos
             </p>
