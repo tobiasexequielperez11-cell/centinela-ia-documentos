@@ -336,7 +336,7 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
             Usuarios
           </p>
 
-          <h2 className="mt-2 text-3xl font-bold text-slate-950">
+          <h2 className="mt-2 text-3xl font-bold text-white">
             Control de usuarios y accesos
           </h2>
         </div>
@@ -351,14 +351,14 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
 
           <Link
             href="/reportes?vista=auditoria"
-            className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50"
+            className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 hover:border-sky-400/40 hover:text-sky-200"
           >
             Ver auditoría
           </Link>
 
           <Link
             href="/documentos"
-            className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800"
+            className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 hover:border-sky-400/40 hover:text-sky-200"
           >
             Ver documentos
           </Link>
@@ -369,8 +369,8 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
         <div
           className={`mb-6 rounded-2xl border px-5 py-4 text-sm font-semibold ${
             message.type === 'success'
-              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-              : 'border-rose-200 bg-rose-50 text-rose-700'
+              ? 'border-emerald-400/25 bg-emerald-400/10 text-emerald-200'
+              : 'border-rose-400/25 bg-rose-400/10 text-rose-200'
           }`}
         >
           {message.text}
@@ -378,7 +378,7 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
       ) : null}
 
       {hasInvitationMetricsError ? (
-        <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-semibold text-amber-800">
+        <div className="mb-6 rounded-2xl border border-amber-300/25 bg-amber-300/10 px-5 py-4 text-sm font-semibold text-amber-200">
           No se pudieron leer las métricas operativas de invitaciones. Verificá que la vista
           public.invitation_operational_metrics exista y tenga permisos de lectura.
         </div>
@@ -388,32 +388,32 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
         {metrics.map((metric) => (
           <div
             key={metric.label}
-            className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
+            className="rounded-3xl border border-white/10 bg-white/[0.04] p-5"
           >
-            <p className="text-sm font-semibold text-slate-500">{metric.label}</p>
+            <p className="text-sm font-semibold text-slate-300">{metric.label}</p>
 
-            <p className="mt-2 text-3xl font-bold text-slate-950">{metric.value}</p>
+            <p className="mt-2 text-3xl font-bold text-white">{metric.value}</p>
 
-            <p className="mt-3 text-xs text-slate-500">{metric.helper}</p>
+            <p className="mt-3 text-xs text-slate-400">{metric.helper}</p>
           </div>
         ))}
       </div>
 
-      <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-6">
         <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-300">
               Invitaciones operativas
             </p>
 
-            <h3 className="mt-2 text-2xl font-bold text-slate-950">
+            <h3 className="mt-2 text-2xl font-bold text-white">
               Estado general de invitaciones
             </h3>
           </div>
 
           <Link
             href="/usuarios/invitaciones"
-            className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800"
+            className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 hover:border-sky-400/40 hover:text-sky-200"
           >
             Abrir bandeja de invitaciones
           </Link>
@@ -423,24 +423,24 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
           {invitationCards.map((metric) => (
             <div
               key={metric.label}
-              className="rounded-2xl border border-slate-200 bg-slate-50 p-5"
+              className="rounded-2xl border border-white/10 bg-white/[0.04] p-5"
             >
-              <p className="text-sm font-semibold text-slate-500">{metric.label}</p>
+              <p className="text-sm font-semibold text-slate-300">{metric.label}</p>
 
-              <p className="mt-2 text-3xl font-bold text-slate-950">{metric.value}</p>
+              <p className="mt-2 text-3xl font-bold text-white">{metric.value}</p>
 
-              <p className="mt-3 text-xs text-slate-500">{metric.helper}</p>
+              <p className="mt-3 text-xs text-slate-400">{metric.helper}</p>
             </div>
           ))}
         </div>
 
         <div className="mt-5 grid gap-4 xl:grid-cols-[1fr_0.8fr]">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-sm font-bold text-slate-950">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+            <p className="text-sm font-bold text-white">
               Última invitación creada
             </p>
 
-            <p className="mt-2 text-sm text-slate-600">
+            <p className="mt-2 text-sm text-slate-300">
               {formatDate(invitationMetrics?.last_invitation_created_at)}
             </p>
           </div>
@@ -448,13 +448,13 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
           <div
             className={`rounded-2xl border p-5 ${
               hasPendingExpiredInvitations
-                ? 'border-amber-200 bg-amber-50'
-                : 'border-emerald-200 bg-emerald-50'
+                ? 'border-amber-300/25 bg-amber-300/10'
+                : 'border-emerald-400/25 bg-emerald-400/10'
             }`}
           >
             <p
               className={`text-sm font-bold ${
-                hasPendingExpiredInvitations ? 'text-amber-950' : 'text-emerald-950'
+                hasPendingExpiredInvitations ? 'text-amber-100' : 'text-emerald-100'
               }`}
             >
               Estado operativo
@@ -462,7 +462,7 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
 
             <p
               className={`mt-2 text-sm leading-6 ${
-                hasPendingExpiredInvitations ? 'text-amber-800' : 'text-emerald-800'
+                hasPendingExpiredInvitations ? 'text-amber-200' : 'text-emerald-200'
               }`}
             >
               {hasPendingExpiredInvitations
@@ -474,8 +474,8 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
               <span
                 className={`rounded-full px-3 py-1 ${
                   pendingInvitations > 0
-                    ? 'bg-sky-100 text-sky-700'
-                    : 'bg-slate-100 text-slate-600'
+                    ? 'bg-sky-400/15 text-sky-200'
+                    : 'bg-white/[0.06] text-slate-300'
                 }`}
               >
                 {pendingInvitations} pendientes
@@ -484,8 +484,8 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
               <span
                 className={`rounded-full px-3 py-1 ${
                   cancelledInvitations > 0
-                    ? 'bg-rose-100 text-rose-700'
-                    : 'bg-slate-100 text-slate-600'
+                    ? 'bg-rose-400/15 text-rose-200'
+                    : 'bg-white/[0.06] text-slate-300'
                 }`}
               >
                 {cancelledInvitations} canceladas
@@ -495,68 +495,68 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
         </div>
       </section>
 
-      <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_0.75fr]">
-        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <section className="min-w-0 rounded-3xl border border-white/10 bg-white/[0.04] p-6">
           <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-300">
                 Directorio
               </p>
 
-              <h3 className="mt-2 text-2xl font-bold text-slate-950">
+              <h3 className="mt-2 text-2xl font-bold text-white">
                 Usuarios de la organización
               </h3>
             </div>
 
-            <span className="rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-600">
+            <span className="rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-bold text-slate-200">
               {users.length} perfiles
             </span>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+          <div className="overflow-x-auto rounded-2xl border border-white/10">
+            <table className="w-full min-w-[900px] text-left text-sm">
+              <thead className="bg-white/[0.05] text-xs uppercase tracking-wide text-slate-300">
                 <tr>
                   <th className="px-4 py-3">Usuario</th>
                   <th className="px-4 py-3">Rol actual</th>
                   <th className="px-4 py-3">Estado</th>
                   <th className="px-4 py-3">Actividad</th>
-                  <th className="px-4 py-3">Administración</th>
+                  <th className="px-4 py-3">Acceso</th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-slate-200">
+              <tbody className="divide-y divide-white/10">
                 {sortedUsers.map((item) => {
                   const eventCount = countUserEvents(item.id, auditLogs);
                   const lastEvent = getLastUserEvent(item.id, auditLogs);
                   const isCurrentUser = item.id === user.id;
 
                   return (
-                    <tr key={item.id} className="align-top hover:bg-slate-50">
+                    <tr key={item.id} className="align-top hover:bg-white/[0.03]">
                       <td className="px-4 py-4">
                         <div className="flex items-start gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-sm font-bold text-white">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sky-500/15 text-sm font-bold text-sky-100">
                             {getInitials(item.full_name, item.email)}
                           </div>
 
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
-                              <p className="font-bold text-slate-950">
+                              <p className="font-bold text-white">
                                 {item.full_name ?? 'Usuario sin nombre'}
                               </p>
 
                               {isCurrentUser ? (
-                                <span className="rounded-full bg-sky-50 px-2 py-1 text-[11px] font-bold text-sky-700">
+                                <span className="rounded-full border border-sky-400/20 bg-sky-400/10 px-2 py-1 text-[11px] font-bold text-sky-200">
                                   Tu usuario
                                 </span>
                               ) : null}
                             </div>
 
-                            <p className="mt-1 text-xs text-slate-500">
+                            <p className="mt-1 text-xs text-slate-300">
                               {item.email ?? 'Sin email registrado'}
                             </p>
 
-                            <p className="mt-2 text-xs text-slate-400">
+                            <p className="mt-2 text-xs text-slate-500">
                               Último acceso: {formatDate(item.last_login_at)}
                             </p>
                           </div>
@@ -584,11 +584,11 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
                       </td>
 
                       <td className="px-4 py-4">
-                        <p className="font-bold text-slate-950">
+                        <p className="font-bold text-white">
                           {eventCount} eventos
                         </p>
 
-                        <p className="mt-1 text-xs text-slate-500">
+                        <p className="mt-1 text-xs text-slate-400">
                           Último:{' '}
                           {lastEvent ? actionLabel(lastEvent.action) : 'Sin actividad'}
                         </p>
@@ -596,32 +596,39 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
 
                       <td className="px-4 py-4">
                         {!canManageAccess ? (
-                          <div className="rounded-2xl bg-slate-50 p-3 text-xs font-semibold text-slate-500">
-                            Solo administradores pueden modificar accesos.
-                          </div>
+                          <span
+                            title="Solo administradores pueden modificar accesos."
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-xs font-black text-slate-300"
+                          >
+                            i
+                          </span>
                         ) : isCurrentUser ? (
-                          <div className="rounded-2xl border border-sky-100 bg-sky-50 p-3 text-xs font-semibold leading-5 text-sky-700">
-                            Usuario protegido. No podés modificar tu propio rol o estado desde
-                            este panel.
-                          </div>
+                          <span
+                            title="Usuario protegido. No podés modificar tu propio rol o estado desde este panel."
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-sky-400/25 bg-sky-400/10 text-xs font-black text-sky-200"
+                          >
+                            i
+                          </span>
                         ) : item.role === 'admin' ? (
-                          <div className="rounded-2xl border border-amber-100 bg-amber-50 p-3 text-xs font-semibold leading-5 text-amber-800">
-                            Administrador protegido. Solo el dueño de plataforma
-                            puede crear o reasignar este rol.
-                          </div>
+                          <span
+                            title="Administrador protegido. Solo el dueño de plataforma puede crear o reasignar este rol."
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-amber-300/25 bg-amber-300/10 text-xs font-black text-amber-200"
+                          >
+                            i
+                          </span>
                         ) : (
-                          <form action={updateUserAccess} className="space-y-3">
+                          <form action={updateUserAccess} className="grid min-w-[220px] gap-2">
                             <input type="hidden" name="user_id" value={item.id} />
 
                             <div>
-                              <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">
+                              <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
                                 Rol
                               </label>
 
                               <select
                                 name="role"
                                 defaultValue={item.role ?? 'employee'}
-                                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-sky-400"
+                                className="w-full rounded-xl border border-white/10 bg-[#071226] px-3 py-2 text-xs font-semibold text-slate-100 outline-none focus:border-sky-400"
                               >
                                 {roleOptions.map((option) => (
                                   <option key={option.value} value={option.value}>
@@ -632,14 +639,14 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
                             </div>
 
                             <div>
-                              <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500">
+                              <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
                                 Estado
                               </label>
 
                               <select
                                 name="status"
                                 defaultValue={item.status ?? 'active'}
-                                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-sky-400"
+                                className="w-full rounded-xl border border-white/10 bg-[#071226] px-3 py-2 text-xs font-semibold text-slate-100 outline-none focus:border-sky-400"
                               >
                                 {statusOptions.map((option) => (
                                   <option key={option.value} value={option.value}>
@@ -651,7 +658,7 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
 
                             <button
                               type="submit"
-                              className="w-full rounded-xl bg-slate-950 px-4 py-2 text-xs font-bold text-white hover:bg-slate-800"
+                              className="w-full rounded-xl bg-sky-600 px-4 py-2 text-xs font-bold text-white hover:bg-sky-700"
                             >
                               Actualizar acceso
                             </button>
@@ -665,84 +672,84 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
             </table>
 
             {sortedUsers.length === 0 ? (
-              <div className="p-6 text-sm text-slate-500">
+              <div className="p-6 text-sm text-slate-400">
                 Todavía no hay usuarios registrados para esta organización.
               </div>
             ) : null}
           </div>
         </section>
 
-        <section className="space-y-5 xl:pr-0">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+        <section className="space-y-4 lg:w-[300px] lg:max-w-[300px]">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">
               Roles
             </p>
 
-            <h3 className="mt-2 text-2xl font-bold text-slate-950">
+            <h3 className="mt-2 text-xl font-bold text-white">
               Distribución de accesos
             </h3>
 
-            <div className="mt-5 grid gap-3">
-              <div className="flex items-center justify-between gap-5 rounded-2xl bg-slate-50 p-4">
+            <div className="mt-4 grid grid-cols-2 gap-2.5">
+              <div className="flex items-center justify-between gap-3 rounded-2xl bg-white/[0.05] p-3">
                 <div className="min-w-0 flex-1">
-                  <p className="font-bold text-slate-950">Administradores</p>
+                  <p className="truncate text-xs font-bold text-slate-200">Administradores</p>
                 </div>
-                <span className="min-w-12 shrink-0 text-right text-2xl font-bold text-slate-950">
+                <span className="shrink-0 text-right text-xl font-bold text-white">
                   {adminUsers}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between gap-5 rounded-2xl bg-slate-50 p-4">
+              <div className="flex items-center justify-between gap-3 rounded-2xl bg-white/[0.05] p-3">
                 <div className="min-w-0 flex-1">
-                  <p className="font-bold text-slate-950">Operadores</p>
+                  <p className="truncate text-xs font-bold text-slate-200">Operadores</p>
                 </div>
-                <span className="min-w-12 shrink-0 text-right text-2xl font-bold text-slate-950">
+                <span className="shrink-0 text-right text-xl font-bold text-white">
                   {employeeUsers}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between gap-5 rounded-2xl bg-slate-50 p-4">
+              <div className="flex items-center justify-between gap-3 rounded-2xl bg-white/[0.05] p-3">
                 <div className="min-w-0 flex-1">
-                  <p className="font-bold text-slate-950">Auditores</p>
+                  <p className="truncate text-xs font-bold text-slate-200">Auditores</p>
                 </div>
-                <span className="min-w-12 shrink-0 text-right text-2xl font-bold text-slate-950">
+                <span className="shrink-0 text-right text-xl font-bold text-white">
                   {auditorUsers}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between gap-5 rounded-2xl bg-slate-50 p-4">
+              <div className="flex items-center justify-between gap-3 rounded-2xl bg-white/[0.05] p-3">
                 <div className="min-w-0 flex-1">
-                  <p className="font-bold text-slate-950">Clientes</p>
+                  <p className="truncate text-xs font-bold text-slate-200">Clientes</p>
                 </div>
-                <span className="min-w-12 shrink-0 text-right text-2xl font-bold text-slate-950">
+                <span className="shrink-0 text-right text-xl font-bold text-white">
                   {clientUsers}
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-700">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">
               Seguridad
             </p>
 
-            <h3 className="mt-2 text-xl font-bold text-emerald-950">
+            <h3 className="mt-2 text-lg font-bold text-white">
               Administración protegida
             </h3>
           </div>
 
-          <div className="rounded-3xl border border-sky-200 bg-sky-50 p-6">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-700">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">
               Gestión de accesos
             </p>
 
-            <h3 className="mt-2 text-xl font-bold text-sky-950">
+            <h3 className="mt-2 text-lg font-bold text-white">
               Invitaciones operativas
             </h3>
 
             <Link
               href="/usuarios/invitaciones"
-              className="mt-4 inline-flex rounded-2xl bg-sky-700 px-5 py-3 text-sm font-bold text-white hover:bg-sky-800"
+              className="mt-4 inline-flex rounded-2xl bg-sky-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-sky-700"
             >
               Revisar invitaciones
             </Link>
@@ -750,29 +757,29 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
         </section>
       </div>
 
-      <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-6">
         <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-300">
               Trazabilidad
             </p>
 
-            <h3 className="mt-2 text-2xl font-bold text-slate-950">
+            <h3 className="mt-2 text-2xl font-bold text-white">
               Actividad reciente por usuarios
             </h3>
           </div>
 
           <Link
             href="/reportes?vista=auditoria"
-            className="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50"
+            className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 hover:border-sky-400/40 hover:text-sky-200"
           >
             Abrir centro de auditoría
           </Link>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-slate-200">
+        <div className="overflow-x-auto rounded-2xl border border-white/10">
           <table className="w-full text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+            <thead className="bg-white/[0.05] text-xs uppercase tracking-wide text-slate-300">
               <tr>
                 <th className="px-4 py-3">Evento</th>
                 <th className="px-4 py-3">Usuario</th>
@@ -781,37 +788,37 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-white/10">
               {recentUserActivity.map((event) => {
                 const actor = users.find((item) => item.id === event.user_id);
 
                 return (
-                  <tr key={event.id} className="hover:bg-slate-50">
+                  <tr key={event.id} className="hover:bg-white/[0.03]">
                     <td className="px-4 py-3">
-                      <p className="font-bold text-slate-950">
+                      <p className="font-bold text-white">
                         {actionLabel(event.action)}
                       </p>
 
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="mt-1 text-xs text-slate-400">
                         {event.action}
                       </p>
                     </td>
 
                     <td className="px-4 py-3">
-                      <p className="font-semibold text-slate-800">
+                      <p className="font-semibold text-slate-100">
                         {actor?.full_name ?? actor?.email ?? 'Usuario no identificado'}
                       </p>
 
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="mt-1 text-xs text-slate-400">
                         {roleLabel(actor?.role)}
                       </p>
                     </td>
 
-                    <td className="px-4 py-3 text-slate-600">
+                    <td className="px-4 py-3 text-slate-300">
                       {resourceLabel(event.resource_type)}
                     </td>
 
-                    <td className="px-4 py-3 text-slate-500">
+                    <td className="px-4 py-3 text-slate-400">
                       {formatDate(event.created_at)}
                     </td>
                   </tr>
@@ -821,7 +828,7 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
           </table>
 
           {recentUserActivity.length === 0 ? (
-            <div className="p-6 text-sm text-slate-500">
+            <div className="p-6 text-sm text-slate-400">
               Todavía no hay actividad auditada vinculada a usuarios.
             </div>
           ) : null}
