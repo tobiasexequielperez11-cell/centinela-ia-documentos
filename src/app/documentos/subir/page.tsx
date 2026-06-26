@@ -2,6 +2,10 @@ import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
+import {
+  getDocumentTypes,
+  normalizeIndustryType,
+} from '@/lib/industries/documentTypes';
 import { uploadDocument } from '../actions';
 
 interface UploadDocumentPageProps {
@@ -39,6 +43,16 @@ export default async function UploadDocumentPage({
     .select('id, title')
     .eq('organization_id', profile.organization_id)
     .order('created_at', { ascending: false });
+
+  const { data: organization } = await supabase
+    .from('organizations')
+    .select('industry_type')
+    .eq('id', profile.organization_id)
+    .maybeSingle();
+
+  const documentTypes = getDocumentTypes(
+    normalizeIndustryType(organization?.industry_type)
+  );
 
   return (
     <AppShell>
@@ -97,13 +111,11 @@ export default async function UploadDocumentPage({
                 className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-sky-400"
               >
                 <option value="">Sin Clasificar</option>
-                <option value="dni">DNI</option>
-                <option value="contrato">Contrato</option>
-                <option value="factura">Factura</option>
-                <option value="recibo">Recibo</option>
-                <option value="escritura">Escritura</option>
-                <option value="constancia_fiscal">Constancia fiscal</option>
-                <option value="otro">Otro</option>
+                {documentTypes.map((documentType) => (
+                  <option key={documentType} value={documentType}>
+                    {documentType}
+                  </option>
+                ))}
               </select>
             </div>
 

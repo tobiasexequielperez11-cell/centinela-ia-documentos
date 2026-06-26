@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
+import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
 import { analyzeDocument } from '../documentos/actions';
 
 type ReportView =
@@ -1361,7 +1362,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                       </td>
 
                       <td className="px-4 py-3 text-slate-600">
-                        {document.document_type ?? 'Sin clasificar'}
+                        {getDocumentTypeLabel(document.document_type)}
                       </td>
 
                       <td className="px-4 py-3 text-slate-600">
@@ -1632,7 +1633,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                     </div>
 
                     <p className="mt-3 text-sm text-slate-600">
-                      Tipo: {document.document_type ?? 'Sin clasificar'} · Sensibilidad:{' '}
+                      Tipo: {getDocumentTypeLabel(document.document_type)} · Sensibilidad:{' '}
                       {sensitivityLabel(document.sensitivity_level)}
                     </p>
                   </div>

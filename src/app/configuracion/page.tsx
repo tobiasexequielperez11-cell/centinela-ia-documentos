@@ -2,6 +2,14 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
+import {
+  INDUSTRY_TYPES,
+  industryLabels,
+  normalizeIndustryType,
+} from '@/lib/industries/documentTypes';
+import { updateOrganizationIndustryType } from './actions';
 
 interface ConfigCardProps {
   title: string;
@@ -99,6 +107,30 @@ export default async function ConfiguracionPage() {
   }
 
   const isAdmin = profile.role === 'admin';
+  const supabase = await createClient();
+  const { data: organization } = await supabase
+    .from('organizations')
+    .select('id, name, industry_type')
+    .eq('id', profile.organization_id)
+    .maybeSingle();
+
+  const admin = createAdminClient();
+  let isPlatformOwner = false;
+
+  if (admin) {
+    const { data: platformOwner } = await admin
+      .from('platform_admins')
+      .select('user_id')
+      .eq('user_id', user.id)
+      .eq('active', true)
+      .maybeSingle();
+
+    isPlatformOwner = Boolean(platformOwner);
+  }
+
+  const organizationIndustry = normalizeIndustryType(
+    organization?.industry_type
+  );
 
   const configCards = [
     {
@@ -211,6 +243,76 @@ Centro operativo para controlar el estado de la beta operativa comercial, seguri
               isAdmin={isAdmin}
             />
           ))}
+        </section>
+
+        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.35em] text-sky-600">
+                Rubro documental
+              </p>
+              <h2 className="mt-3 text-xl font-black text-slate-950">
+                Configuracion por rubro
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                Define que diccionario documental usa esta organizacion al
+                cargar y clasificar documentos. No modifica documentos ya
+                cargados.
+              </p>
+
+              <div className="mt-4 inline-flex rounded-full border border-sky-100 bg-sky-50 px-4 py-2 text-sm font-black text-sky-800">
+                {industryLabels[organizationIndustry]}
+              </div>
+            </div>
+
+            {isPlatformOwner && organization?.id ? (
+              <form
+                action={updateOrganizationIndustryType}
+                className="w-full max-w-sm rounded-2xl border border-slate-200 bg-slate-50 p-4"
+              >
+                <input
+                  type="hidden"
+                  name="organization_id"
+                  value={organization.id}
+                />
+
+                <label
+                  htmlFor="industry_type"
+                  className="text-sm font-black text-slate-950"
+                >
+                  Cambiar rubro
+                </label>
+
+                <select
+                  id="industry_type"
+                  name="industry_type"
+                  defaultValue={organizationIndustry}
+                  className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-sky-400"
+                >
+                  {INDUSTRY_TYPES.map((industry) => (
+                    <option key={industry} value={industry}>
+                      {industryLabels[industry]}
+                    </option>
+                  ))}
+                </select>
+
+                <button
+                  type="submit"
+                  className="mt-4 w-full rounded-2xl bg-sky-500 px-5 py-3 text-sm font-black text-white transition hover:bg-sky-600"
+                >
+                  Guardar rubro
+                </button>
+              </form>
+            ) : (
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-600">
+                <p className="font-black text-slate-950">Solo lectura</p>
+                <p className="mt-1">
+                  Por ahora solo el dueno de plataforma puede cambiar este
+                  valor.
+                </p>
+              </div>
+            )}
+          </div>
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[1fr_0.9fr]">

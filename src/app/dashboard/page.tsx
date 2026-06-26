@@ -4,6 +4,7 @@ import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createClient } from '@/lib/supabase/server';
 import { AppShell } from '@/components/layout/AppShell';
 import { MetricCard } from '@/components/dashboard/MetricCard';
+import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
 import { analyzeDocument } from '../documentos/actions';
 import {
   canManageUsers,
@@ -44,31 +45,6 @@ function formatDate(value?: string | null) {
 
 function getMetricValue(value?: number | null) {
   return value ?? 0;
-}
-
-function formatDocumentType(value?: string | null) {
-  if (!value) return 'Sin clasificar';
-
-  const labels: Record<string, string> = {
-    general: 'General',
-    rental: 'Contrato de alquiler',
-    real_estate_purchase: 'Compraventa inmobiliaria',
-    contrato: 'Contrato',
-    factura: 'Factura',
-    recibo: 'Recibo',
-    escritura: 'Escritura',
-    dni: 'DNI',
-    demanda: 'Demanda',
-    escrito: 'Escrito',
-    boleto_compraventa: 'Boleto de compraventa',
-    certificado: 'Certificado',
-    poder: 'Poder',
-    garantia: 'Garantía',
-    reserva: 'Reserva',
-    otro: 'Otro',
-  };
-
-  return labels[value] ?? value;
 }
 
 function formatSensitivity(value: string) {
@@ -373,7 +349,7 @@ export default async function DashboardPage() {
                     </Link>
 
                     <p className="mt-1 text-xs text-slate-500">
-                      Tipo: {formatDocumentType(document.document_type)} · Sensibilidad:{' '}
+                      Tipo: {getDocumentTypeLabel(document.document_type)} · Sensibilidad:{' '}
                       {formatSensitivity(document.sensitivity_level)}
                     </p>
 

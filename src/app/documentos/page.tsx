@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
+import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
 import { analyzeDocument } from './actions';
 import type { DocumentRecord } from '@/types/document';
 
@@ -26,26 +27,6 @@ function sensitivityLabel(value: string) {
   };
 
   return labels[String(value ?? '').toLowerCase()] ?? value;
-}
-
-function documentTypeLabel(value?: string | null) {
-  const labels: Record<string, string> = {
-    contrato: 'Contrato',
-    factura: 'Factura',
-    recibo: 'Recibo',
-    escritura: 'Escritura',
-    dni: 'DNI',
-    demanda: 'Demanda',
-    escrito: 'Escrito',
-    boleto_compraventa: 'Boleto de compraventa',
-    certificado: 'Certificado',
-    poder: 'Poder',
-    garantia: 'Garantía',
-    reserva: 'Reserva',
-    otro: 'Otro',
-  };
-
-  return labels[value ?? ''] ?? 'Sin clasificar';
 }
 
 function formatSize(size?: number | null) {
@@ -327,7 +308,7 @@ export default async function DocumentsPage({
                   </td>
 
                   <td className="px-5 py-4 text-slate-600">
-                    {documentTypeLabel(item.document_type)}
+                    {getDocumentTypeLabel(item.document_type)}
                   </td>
 
                   <td className="px-5 py-4 text-slate-600">

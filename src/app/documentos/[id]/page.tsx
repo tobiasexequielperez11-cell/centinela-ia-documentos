@@ -4,6 +4,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createAuditLog } from '@/lib/audit/createAuditLog';
+import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
 import { analyzeDocument } from '../actions';
 import type { DocumentRecord } from '@/types/document';
 
@@ -48,26 +49,6 @@ function sensitivityLabel(value?: string | null) {
   };
 
   return labels[normalizedValue] ?? value ?? 'Sin clasificar';
-}
-
-function documentTypeLabel(value?: string | null) {
-  const labels: Record<string, string> = {
-    contrato: 'Contrato',
-    factura: 'Factura',
-    recibo: 'Recibo',
-    escritura: 'Escritura',
-    dni: 'DNI',
-    demanda: 'Demanda',
-    escrito: 'Escrito',
-    boleto_compraventa: 'Boleto de compraventa',
-    certificado: 'Certificado',
-    poder: 'Poder',
-    garantia: 'Garantía',
-    reserva: 'Reserva',
-    otro: 'Otro',
-  };
-
-  return labels[value ?? ''] ?? 'Sin clasificar';
 }
 
 function formatSize(size?: number | null) {
@@ -485,7 +466,7 @@ export default async function DocumentDetailPage({
                   Tipo documental
                 </p>
                 <p className="mt-2 font-bold text-slate-950">
-{documentTypeLabel(document.document_type)}
+{getDocumentTypeLabel(document.document_type)}
                 </p>
               </div>
 

@@ -5,6 +5,7 @@ create table if not exists public.organizations (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   industry text,
+  industry_type text not null default 'general' check (industry_type in ('general', 'legal', 'escribania', 'gestoria', 'inmobiliaria', 'empresa', 'contable', 'drogueria', 'farma', 'industria', 'compliance', 'seguridad_documental')),
   city text,
   province text,
   plan text not null default 'starter',
