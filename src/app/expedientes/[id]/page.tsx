@@ -73,9 +73,13 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
   const industry = normalizeIndustryType(organization?.industry_type);
   const caseFields = getCaseFields(industry);
   const caseStatuses = getCaseStatuses(industry);
-  const statusOptions = caseStatuses.includes(caseRecord.status)
+  const statusValues = caseStatuses.map((status) => status.value);
+  const statusOptions = statusValues.includes(caseRecord.status)
     ? caseStatuses
-    : [caseRecord.status, ...caseStatuses];
+    : [
+        { value: caseRecord.status, label: getCaseStatusLabel(caseRecord.status) },
+        ...caseStatuses,
+      ];
   const visibleMetadataFields = caseFields.filter((field) =>
     getMetadataValue(caseRecord.metadata, field.key)
   );
@@ -152,8 +156,8 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                 className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-sky-400"
               >
                 {statusOptions.map((status) => (
-                  <option key={status} value={status}>
-                    {getCaseStatusLabel(status)}
+                  <option key={status.value} value={status.value}>
+                    {status.label}
                   </option>
                 ))}
               </select>

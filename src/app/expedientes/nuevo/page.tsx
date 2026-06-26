@@ -91,12 +91,12 @@ export default async function NewCasePage() {
               </label>
               <select
                 name="status"
-                defaultValue={caseStatuses[0]}
+                defaultValue={caseStatuses[0]?.value ?? 'active'}
                 className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-sky-400"
               >
                 {caseStatuses.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
+                  <option key={status.value} value={status.value}>
+                    {status.label}
                   </option>
                 ))}
               </select>

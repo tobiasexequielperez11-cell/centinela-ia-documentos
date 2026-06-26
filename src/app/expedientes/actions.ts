@@ -65,7 +65,7 @@ function resolveCaseStatus(
     return requestedStatus;
   }
 
-  return getCaseStatuses(industry)[0] ?? 'Activo';
+  return getCaseStatuses(industry)[0]?.value ?? 'active';
 }
 
 export async function createCase(formData: FormData) {

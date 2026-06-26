@@ -10,6 +10,11 @@ export type CaseFieldDef = {
   sensitive?: boolean;
 };
 
+export type CaseStatusDef = {
+  value: string;
+  label: string;
+};
+
 export const caseFieldsByIndustry: Record<IndustryType, CaseFieldDef[]> = {
   legal: [
     { key: 'parte_contraria', label: 'Parte contraria', type: 'text' },
@@ -92,9 +97,17 @@ export const dashboardCardsByIndustry: Record<IndustryType, DashboardCardKey[]> 
   seguridad_documental: [],
 };
 
-export const caseStatusesByIndustry: Record<IndustryType, string[]> = {
-  legal: ['Activo', 'En trámite', 'Con observaciones', 'Archivado'],
-  general: ['Activo', 'Archivado'],
+export const caseStatusesByIndustry: Record<IndustryType, CaseStatusDef[]> = {
+  legal: [
+    { value: 'active', label: 'Activo' },
+    { value: 'in_review', label: 'En trámite' },
+    { value: 'waiting_client', label: 'Esperando cliente' },
+    { value: 'archived', label: 'Archivado' },
+  ],
+  general: [
+    { value: 'active', label: 'Activo' },
+    { value: 'archived', label: 'Archivado' },
+  ],
   escribania: [],
   gestoria: [],
   inmobiliaria: [],
@@ -109,19 +122,25 @@ export const caseStatusesByIndustry: Record<IndustryType, string[]> = {
 
 export const legacyCaseStatusLabels: Record<string, string> = {
   new: 'Nuevo',
-  in_review: 'En revisión',
+  active: 'Activo',
+  in_review: 'En trámite',
   incomplete: 'Incompleto',
   waiting_client: 'Esperando cliente',
   complete: 'Completo',
   completed: 'Completo',
   archived: 'Archivado',
+  Activo: 'Activo',
+  Archivado: 'Archivado',
+  'En tramite': 'En trámite',
+  'En trámite': 'En trámite',
+  'En trÃ¡mite': 'En trámite',
 };
 
 export function getCaseFields(industry: IndustryType): CaseFieldDef[] {
   return caseFieldsByIndustry[industry] ?? [];
 }
 
-export function getCaseStatuses(industry: IndustryType): string[] {
+export function getCaseStatuses(industry: IndustryType): CaseStatusDef[] {
   const statuses = caseStatusesByIndustry[industry];
   return statuses && statuses.length ? statuses : caseStatusesByIndustry.general;
 }
@@ -138,12 +157,18 @@ export function getDashboardCards(industry: IndustryType): DashboardCardKey[] {
 
 export function getCaseStatusLabel(status?: string | null) {
   if (!status) return 'Sin estado';
+
+  for (const statuses of Object.values(caseStatusesByIndustry)) {
+    const found = statuses.find((item) => item.value === status);
+    if (found) return found.label;
+  }
+
   return legacyCaseStatusLabels[status] ?? status;
 }
 
 export function getAllowedCaseStatuses(industry: IndustryType): string[] {
   return [
-    ...getCaseStatuses(industry),
+    ...getCaseStatuses(industry).map((status) => status.value),
     ...Object.keys(legacyCaseStatusLabels),
   ];
 }

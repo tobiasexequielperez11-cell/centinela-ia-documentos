@@ -4,6 +4,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
+import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
 import { analyzeDocument } from '../documentos/actions';
 
 type ReportView =
@@ -147,16 +148,7 @@ function sensitivityRank(value?: string | null) {
 }
 
 function statusLabel(value?: string | null) {
-  const labels: Record<string, string> = {
-    new: 'Nuevo',
-    incomplete: 'Incompleto',
-    waiting_client: 'Esperando cliente',
-    in_review: 'En revisión',
-    completed: 'Completo',
-    archived: 'Archivado',
-  };
-
-  return labels[value ?? ''] ?? value ?? 'Sin estado';
+  return getCaseStatusLabel(value);
 }
 
 function invitationStatusLabel(value?: string | null) {

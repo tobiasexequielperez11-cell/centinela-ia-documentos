@@ -173,7 +173,7 @@ export default async function DashboardPage() {
       .from('cases')
       .select('*', { count: 'exact', head: true })
       .eq('organization_id', profile.organization_id)
-      .eq('status', 'Activo'),
+      .eq('status', 'active'),
 
     supabase
       .from('documents')
