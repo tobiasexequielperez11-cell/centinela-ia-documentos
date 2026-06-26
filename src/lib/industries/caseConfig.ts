@@ -64,6 +64,34 @@ export const caseTypesByIndustry: Record<IndustryType, string[]> = {
   seguridad_documental: [],
 };
 
+export type DashboardCardKey =
+  | 'expedientes_activos'
+  | 'documentos_cargados'
+  | 'analisis_pendientes'
+  | 'documentos_sensibles'
+  | 'actividad_reciente';
+
+export const dashboardCardsByIndustry: Record<IndustryType, DashboardCardKey[]> = {
+  legal: [
+    'expedientes_activos',
+    'documentos_cargados',
+    'analisis_pendientes',
+    'documentos_sensibles',
+    'actividad_reciente',
+  ],
+  general: ['documentos_cargados', 'analisis_pendientes', 'actividad_reciente'],
+  escribania: [],
+  gestoria: [],
+  inmobiliaria: [],
+  empresa: [],
+  contable: [],
+  drogueria: [],
+  farma: [],
+  industria: [],
+  compliance: [],
+  seguridad_documental: [],
+};
+
 export const caseStatusesByIndustry: Record<IndustryType, string[]> = {
   legal: ['Activo', 'En trámite', 'Con observaciones', 'Archivado'],
   general: ['Activo', 'Archivado'],
@@ -101,6 +129,11 @@ export function getCaseStatuses(industry: IndustryType): string[] {
 export function getCaseTypes(industry: IndustryType): string[] {
   const types = caseTypesByIndustry[industry];
   return types && types.length ? types : caseTypesByIndustry.general;
+}
+
+export function getDashboardCards(industry: IndustryType): DashboardCardKey[] {
+  const cards = dashboardCardsByIndustry[industry];
+  return cards && cards.length ? cards : dashboardCardsByIndustry.general;
 }
 
 export function getCaseStatusLabel(status?: string | null) {

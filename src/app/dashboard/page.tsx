@@ -4,13 +4,16 @@ import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createClient } from '@/lib/supabase/server';
 import { AppShell } from '@/components/layout/AppShell';
 import { MetricCard } from '@/components/dashboard/MetricCard';
-import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
-import { analyzeDocument } from '../documentos/actions';
 import {
-  canManageUsers,
-  canViewAudit,
-  isUserRole,
-} from '@/lib/permissions/roles';
+  getDocumentTypeLabel,
+  normalizeIndustryType,
+} from '@/lib/industries/documentTypes';
+import {
+  getDashboardCards,
+  type DashboardCardKey,
+} from '@/lib/industries/caseConfig';
+import { analyzeDocument } from '../documentos/actions';
+import { canViewAudit, isUserRole } from '@/lib/permissions/roles';
 
 interface DashboardDocument {
   id: string;
@@ -21,13 +24,12 @@ interface DashboardDocument {
   created_at?: string | null;
 }
 
-interface InvitationMetricsRecord {
-  total_invitations?: number | null;
-  pending_invitations?: number | null;
-  accepted_invitations?: number | null;
-  cancelled_invitations?: number | null;
-  expired_invitations?: number | null;
-  last_invitation_created_at?: string | null;
+interface DashboardActivityLog {
+  id: string;
+  action: string;
+  resource_type?: string | null;
+  created_at?: string | null;
+  metadata?: Record<string, unknown> | null;
 }
 
 function formatDate(value?: string | null) {
@@ -43,19 +45,103 @@ function formatDate(value?: string | null) {
   }).format(date);
 }
 
-function getMetricValue(value?: number | null) {
-  return value ?? 0;
-}
-
 function formatSensitivity(value: string) {
   const labels: Record<string, string> = {
     low: 'Baja',
     medium: 'Media',
     high: 'Alta',
-    critical: 'Crítica',
+    critical: 'Critica',
   };
 
   return labels[value] ?? value;
+}
+
+function isSensitiveDocument(value?: string | null) {
+  const normalized = String(value ?? '').toLowerCase();
+  return ['high', 'critical', 'alto', 'alta', 'critica', 'crítica'].includes(
+    normalized
+  );
+}
+
+function formatAuditAction(action: string) {
+  const labels: Record<string, string> = {
+    document_uploaded: 'Documento cargado',
+    document_viewed: 'Documento visualizado',
+    document_analyzed: 'Analisis documental',
+    case_created: 'Expediente creado',
+    case_updated: 'Expediente actualizado',
+    invitation_created: 'Invitacion creada',
+    invitation_accepted: 'Invitacion aceptada',
+    invitation_cancelled: 'Invitacion cancelada',
+    user_role_updated: 'Rol actualizado',
+  };
+
+  return (
+    labels[action] ??
+    action
+      .split('_')
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ')
+  );
+}
+
+function getAuditDetail(log: DashboardActivityLog) {
+  const metadata = log.metadata ?? {};
+  const candidates = [
+    metadata.file_name,
+    metadata.case_title,
+    metadata.email,
+    metadata.target_email,
+    log.resource_type,
+  ];
+
+  const detail = candidates.find(
+    (value) => typeof value === 'string' && value.trim().length > 0
+  );
+
+  return typeof detail === 'string' ? detail : 'Actividad registrada';
+}
+
+function buildMetricCard(
+  card: DashboardCardKey,
+  values: {
+    activeCases: number;
+    loadedDocuments: number;
+    pendingAnalysis: number;
+    sensitiveDocuments: number;
+  }
+) {
+  switch (card) {
+    case 'expedientes_activos':
+      return {
+        label: 'Expedientes activos',
+        value: String(values.activeCases),
+        helper: 'Estado Activo',
+      };
+    case 'documentos_cargados':
+      return {
+        label: 'Documentos cargados',
+        value: String(values.loadedDocuments),
+        helper: 'Boveda privada',
+      };
+    case 'analisis_pendientes':
+      return {
+        label: 'Analisis pendientes',
+        value: String(values.pendingAnalysis),
+        helper: 'Sin analisis IA',
+      };
+    case 'documentos_sensibles':
+      return {
+        label: 'Documentos sensibles',
+        value: String(values.sensitiveDocuments),
+        helper: 'Alta o critica',
+      };
+    case 'actividad_reciente':
+      return null;
+    default:
+      return null;
+  }
 }
 
 export default async function DashboardPage() {
@@ -66,43 +152,33 @@ export default async function DashboardPage() {
 
   const role = isUserRole(profile.role) ? profile.role : null;
   const mayViewAudit = role ? canViewAudit(role) : false;
-  const mayViewInvitations = role ? canManageUsers(role) : false;
 
   const supabase = await createClient();
 
   const [
+    organizationResult,
     casesCount,
     documentsCount,
-    aiRunsCount,
-    activityCount,
     documentsResult,
     aiOutputsResult,
-    invitationMetricsResult,
+    activityLogsResult,
   ] = await Promise.all([
+    supabase
+      .from('organizations')
+      .select('industry_type')
+      .eq('id', profile.organization_id)
+      .maybeSingle(),
+
     supabase
       .from('cases')
       .select('*', { count: 'exact', head: true })
       .eq('organization_id', profile.organization_id)
-      .neq('status', 'archived')
-      .neq('status', 'Archivado'),
+      .eq('status', 'Activo'),
 
     supabase
       .from('documents')
       .select('*', { count: 'exact', head: true })
       .eq('organization_id', profile.organization_id),
-
-    supabase
-      .from('ai_outputs')
-      .select('*', { count: 'exact', head: true })
-      .eq('organization_id', profile.organization_id)
-      .eq('output_type', 'document_analysis'),
-
-    mayViewAudit
-      ? supabase
-          .from('audit_logs')
-          .select('*', { count: 'exact', head: true })
-          .eq('organization_id', profile.organization_id)
-      : Promise.resolve({ count: 0, data: null, error: null }),
 
     supabase
       .from('documents')
@@ -116,20 +192,22 @@ export default async function DashboardPage() {
       .eq('organization_id', profile.organization_id)
       .eq('output_type', 'document_analysis'),
 
-    mayViewInvitations
+    mayViewAudit
       ? supabase
-          .from('invitation_operational_metrics')
-          .select(
-            'total_invitations, pending_invitations, accepted_invitations, cancelled_invitations, expired_invitations, last_invitation_created_at'
-          )
-          .maybeSingle()
-      : Promise.resolve({ data: null, error: null }),
+          .from('audit_logs')
+          .select('id, action, resource_type, metadata, created_at')
+          .eq('organization_id', profile.organization_id)
+          .order('created_at', { ascending: false })
+          .limit(5)
+      : Promise.resolve({ data: [], error: null }),
   ]);
 
+  const industry = normalizeIndustryType(organizationResult.data?.industry_type);
+  const dashboardCards = getDashboardCards(industry);
   const documents = (documentsResult.data ?? []) as DashboardDocument[];
   const aiOutputs = aiOutputsResult.data ?? [];
-  const invitationMetrics =
-    (invitationMetricsResult.data as InvitationMetricsRecord | null) ?? null;
+  const recentActivity =
+    (activityLogsResult.data ?? []) as DashboardActivityLog[];
 
   const analysisCountByDocument = new Map<string, number>();
 
@@ -161,60 +239,22 @@ export default async function DashboardPage() {
       : 0;
 
   const pendingPreview = pendingDocuments.slice(0, 5);
+  const sensitiveDocuments = documents.filter((document) =>
+    isSensitiveDocument(document.sensitivity_level)
+  );
 
-  const totalInvitations = getMetricValue(invitationMetrics?.total_invitations);
-  const pendingInvitations = getMetricValue(invitationMetrics?.pending_invitations);
-  const acceptedInvitations = getMetricValue(invitationMetrics?.accepted_invitations);
-  const cancelledInvitations = getMetricValue(invitationMetrics?.cancelled_invitations);
-  const expiredInvitations = getMetricValue(invitationMetrics?.expired_invitations);
-  const hasInvitationMetricsError = Boolean(invitationMetricsResult.error);
-  const hasExpiredInvitations = expiredInvitations > 0;
+  const metricCards = dashboardCards
+    .map((card) =>
+      buildMetricCard(card, {
+        activeCases: casesCount.count ?? 0,
+        loadedDocuments: documentsCount.count ?? 0,
+        pendingAnalysis: pendingDocuments.length,
+        sensitiveDocuments: sensitiveDocuments.length,
+      })
+    )
+    .filter((card): card is NonNullable<typeof card> => Boolean(card));
 
-  const metrics = [
-    {
-      label: 'Expedientes activos',
-      value: String(casesCount.count ?? 0),
-      helper: 'No archivados',
-    },
-    {
-      label: 'Documentos cargados',
-      value: String(documentsCount.count ?? 0),
-      helper: 'Bóveda privada',
-    },
-    {
-      label: 'Cobertura IA',
-      value: `${coverage}%`,
-      helper: 'Documentos procesados',
-    },
-    {
-      label: 'Actividad auditada',
-      value: String(activityCount.count ?? 0),
-      helper: 'Eventos registrados',
-    },
-  ];
-
-  const invitationCards = [
-    {
-      label: 'Pendientes',
-      value: pendingInvitations,
-      helper: 'Esperando gestión',
-    },
-    {
-      label: 'Vencidas',
-      value: expiredInvitations,
-      helper: 'Requieren revisión',
-    },
-    {
-      label: 'Aceptadas',
-      value: acceptedInvitations,
-      helper: 'Accesos validados',
-    },
-    {
-      label: 'Canceladas',
-      value: cancelledInvitations,
-      helper: 'Sin continuidad',
-    },
-  ];
+  const showRecentActivity = dashboardCards.includes('actividad_reciente');
 
   return (
     <AppShell>
@@ -228,22 +268,67 @@ export default async function DashboardPage() {
         </h2>
 
         <p className="mt-2 text-sm text-slate-600">
-          Resumen operativo de expedientes, documentos, análisis IA, invitaciones y actividad auditada.
+          Resumen operativo de expedientes, documentos, analisis IA y actividad auditada.
         </p>
       </div>
 
-      {hasInvitationMetricsError ? (
-        <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-semibold text-amber-800">
-          No se pudieron leer las métricas de invitaciones. Verificá que exista la vista
-          public.invitation_operational_metrics.
-        </div>
-      ) : null}
-
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {metrics.map((metric) => (
+        {metricCards.map((metric) => (
           <MetricCard key={metric.label} {...metric} />
         ))}
       </div>
+
+      {showRecentActivity ? (
+        <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.055] p-6 shadow-[0_18px_45px_rgba(0,0,0,0.18)] backdrop-blur-sm">
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-400">
+                Actividad reciente
+              </p>
+              <h3 className="mt-2 text-2xl font-bold text-white">
+                Ultimos eventos auditados
+              </h3>
+            </div>
+            <Link
+              href="/reportes"
+              className="rounded-2xl border border-white/10 px-5 py-3 text-center text-sm font-bold text-white hover:border-sky-400 hover:text-sky-300"
+            >
+              Ver reportes
+            </Link>
+          </div>
+
+          <div className="mt-5 space-y-3">
+            {!mayViewAudit ? (
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-slate-300">
+                Tu rol no tiene acceso a la auditoria.
+              </div>
+            ) : recentActivity.length > 0 ? (
+              recentActivity.map((log) => (
+                <div
+                  key={log.id}
+                  className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div>
+                    <p className="font-bold text-white">
+                      {formatAuditAction(log.action)}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-400">
+                      {getAuditDetail(log)}
+                    </p>
+                  </div>
+                  <span className="text-xs font-semibold text-slate-400">
+                    {formatDate(log.created_at)}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-slate-300">
+                Todavia no hay actividad auditada para mostrar.
+              </div>
+            )}
+          </div>
+        </section>
+      ) : null}
 
       <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_0.8fr]">
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -254,7 +339,7 @@ export default async function DashboardPage() {
               </p>
 
               <h3 className="mt-2 text-2xl font-bold text-slate-950">
-                Cobertura de análisis
+                Cobertura de analisis
               </h3>
 
               <p className="mt-2 text-sm text-slate-600">
@@ -320,11 +405,11 @@ export default async function DashboardPage() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <h3 className="text-xl font-bold text-slate-950">
-                Documentos pendientes de análisis
+                Documentos pendientes de analisis
               </h3>
 
               <p className="mt-2 text-sm text-slate-500">
-                Primeros documentos que todavía requieren procesamiento IA.
+                Primeros documentos que todavia requieren procesamiento IA.
               </p>
             </div>
 
@@ -350,7 +435,7 @@ export default async function DashboardPage() {
                     </Link>
 
                     <p className="mt-1 text-xs text-slate-500">
-                      Tipo: {getDocumentTypeLabel(document.document_type)} · Sensibilidad:{' '}
+                      Tipo: {getDocumentTypeLabel(document.document_type)} - Sensibilidad:{' '}
                       {formatSensitivity(document.sensitivity_level)}
                     </p>
 
@@ -385,7 +470,7 @@ export default async function DashboardPage() {
               })
             ) : (
               <div className="rounded-2xl bg-sky-50 p-4 text-sm text-sky-800">
-                Todos los documentos cargados ya tienen al menos un análisis IA.
+                Todos los documentos cargados ya tienen al menos un analisis IA.
               </div>
             )}
           </div>
