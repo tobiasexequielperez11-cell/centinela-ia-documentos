@@ -99,12 +99,14 @@ export const dashboardCardsByIndustry: Record<IndustryType, DashboardCardKey[]> 
 
 export const caseStatusesByIndustry: Record<IndustryType, CaseStatusDef[]> = {
   legal: [
+    { value: 'new', label: 'Nuevo' },
     { value: 'active', label: 'Activo' },
     { value: 'in_review', label: 'En trámite' },
     { value: 'waiting_client', label: 'Esperando cliente' },
     { value: 'archived', label: 'Archivado' },
   ],
   general: [
+    { value: 'new', label: 'Nuevo' },
     { value: 'active', label: 'Activo' },
     { value: 'archived', label: 'Archivado' },
   ],
