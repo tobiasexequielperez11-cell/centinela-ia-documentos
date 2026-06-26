@@ -12,7 +12,6 @@ export type CaseFieldDef = {
 
 export const caseFieldsByIndustry: Record<IndustryType, CaseFieldDef[]> = {
   legal: [
-    { key: 'cliente', label: 'Cliente', type: 'text' },
     { key: 'parte_contraria', label: 'Parte contraria', type: 'text' },
     { key: 'tipo_causa', label: 'Tipo de causa', type: 'text' },
     { key: 'estado_procesal', label: 'Estado procesal', type: 'text' },
@@ -31,6 +30,33 @@ export const caseFieldsByIndustry: Record<IndustryType, CaseFieldDef[]> = {
   inmobiliaria: [],
   empresa: [],
   contable: [],
+  drogueria: [],
+  farma: [],
+  industria: [],
+  compliance: [],
+  seguridad_documental: [],
+};
+
+export const caseTypesByIndustry: Record<IndustryType, string[]> = {
+  legal: [
+    'Caso jurídico',
+    'Demanda',
+    'Sucesión',
+    'Contrato / Asesoramiento',
+    'Reclamo',
+    'Otro',
+  ],
+  general: ['General', 'Otro'],
+  inmobiliaria: [
+    'Compraventa de inmueble',
+    'Alquiler',
+    'Reserva',
+    'Otro',
+  ],
+  contable: ['Carpeta contable mensual', 'Cliente', 'Proveedor', 'Otro'],
+  escribania: ['Escritura', 'Poder', 'Sucesión', 'Otro'],
+  gestoria: [],
+  empresa: [],
   drogueria: [],
   farma: [],
   industria: [],
@@ -70,6 +96,11 @@ export function getCaseFields(industry: IndustryType): CaseFieldDef[] {
 export function getCaseStatuses(industry: IndustryType): string[] {
   const statuses = caseStatusesByIndustry[industry];
   return statuses && statuses.length ? statuses : caseStatusesByIndustry.general;
+}
+
+export function getCaseTypes(industry: IndustryType): string[] {
+  const types = caseTypesByIndustry[industry];
+  return types && types.length ? types : caseTypesByIndustry.general;
 }
 
 export function getCaseStatusLabel(status?: string | null) {

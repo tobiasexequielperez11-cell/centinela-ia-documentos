@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
-import { getCaseFields, getCaseStatuses } from '@/lib/industries/caseConfig';
+import { getCaseFields, getCaseStatuses, getCaseTypes } from '@/lib/industries/caseConfig';
 import { normalizeIndustryType } from '@/lib/industries/documentTypes';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createClient } from '@/lib/supabase/server';
@@ -22,6 +22,7 @@ export default async function NewCasePage() {
   const industry = normalizeIndustryType(organization?.industry_type);
   const caseFields = getCaseFields(industry);
   const caseStatuses = getCaseStatuses(industry);
+  const caseTypes = getCaseTypes(industry);
 
   return (
     <AppShell>
@@ -76,15 +77,11 @@ export default async function NewCasePage() {
                 name="case_type"
                 className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-sky-400"
               >
-                <option value="real_estate_purchase">
-                  Compraventa de inmueble
-                </option>
-                <option value="rental">Alquiler</option>
-                <option value="accounting_monthly">
-                  Carpeta contable mensual
-                </option>
-                <option value="legal_case">Caso jurídico</option>
-                <option value="general">General</option>
+                {caseTypes.map((caseType) => (
+                  <option key={caseType} value={caseType}>
+                    {caseType}
+                  </option>
+                ))}
               </select>
             </div>
 
