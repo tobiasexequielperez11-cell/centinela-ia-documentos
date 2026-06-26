@@ -83,7 +83,8 @@ export default async function DashboardPage() {
       .from('cases')
       .select('*', { count: 'exact', head: true })
       .eq('organization_id', profile.organization_id)
-      .neq('status', 'archived'),
+      .neq('status', 'archived')
+      .neq('status', 'Archivado'),
 
     supabase
       .from('documents')

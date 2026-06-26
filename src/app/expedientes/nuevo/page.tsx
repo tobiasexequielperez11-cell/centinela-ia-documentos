@@ -1,7 +1,28 @@
+import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
+import { getCaseFields, getCaseStatuses } from '@/lib/industries/caseConfig';
+import { normalizeIndustryType } from '@/lib/industries/documentTypes';
+import { getUserProfile } from '@/lib/auth/getUserProfile';
+import { createClient } from '@/lib/supabase/server';
 import { createCase } from '../actions';
 
-export default function NewCasePage() {
+export default async function NewCasePage() {
+  const { user, profile } = await getUserProfile();
+
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+
+  const supabase = await createClient();
+  const { data: organization } = await supabase
+    .from('organizations')
+    .select('industry_type')
+    .eq('id', profile.organization_id)
+    .maybeSingle();
+
+  const industry = normalizeIndustryType(organization?.industry_type);
+  const caseFields = getCaseFields(industry);
+  const caseStatuses = getCaseStatuses(industry);
+
   return (
     <AppShell>
       <div className="mx-auto max-w-2xl">
@@ -66,6 +87,61 @@ export default function NewCasePage() {
                 <option value="general">General</option>
               </select>
             </div>
+
+            <div>
+              <label className="text-sm font-semibold text-slate-700">
+                Estado inicial
+              </label>
+              <select
+                name="status"
+                defaultValue={caseStatuses[0]}
+                className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-sky-400"
+              >
+                {caseStatuses.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {caseFields.length > 0 ? (
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-600">
+                  Datos del rubro
+                </p>
+
+                <div className="mt-4 grid gap-4">
+                  {caseFields.map((field) => (
+                    <div key={field.key}>
+                      <label className="text-sm font-semibold text-slate-700">
+                        {field.label}
+                      </label>
+
+                      {field.type === 'select' ? (
+                        <select
+                          name={`case_metadata.${field.key}`}
+                          className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-sky-400"
+                        >
+                          <option value="">Sin definir</option>
+                          {(field.options ?? []).map((option) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          name={`case_metadata.${field.key}`}
+                          type={field.type}
+                          className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-sky-400"
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
 
           <button className="mt-6 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800">

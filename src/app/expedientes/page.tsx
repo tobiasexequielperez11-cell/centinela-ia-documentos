@@ -3,21 +3,8 @@ import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
+import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
 import type { CaseRecord } from '@/types/case';
-
-function statusLabel(status: string) {
-  const labels: Record<string, string> = {
-    new: 'Nuevo',
-    in_review: 'En revisión',
-    incomplete: 'Incompleto',
-    waiting_client: 'Esperando cliente',
-    complete: 'Completo',
-    completed: 'Completo',
-    archived: 'Archivado',
-  };
-
-  return labels[status] ?? status;
-}
 
 function caseTypeLabel(type?: string | null) {
   const labels: Record<string, string> = {
@@ -28,6 +15,8 @@ function caseTypeLabel(type?: string | null) {
     administrative: 'Administrativo',
     judicial: 'Judicial',
     corporate: 'Societario',
+    legal_case: 'Caso juridico',
+    accounting_monthly: 'Carpeta contable mensual',
   };
 
   return labels[type ?? ''] ?? type ?? 'General';
@@ -49,12 +38,13 @@ export default async function CasesPage() {
 
   const supabase = await createClient();
 
-const { data: cases } = await supabase
-  .from('cases')
-  .select('*')
-  .eq('organization_id', profile.organization_id)
-  .neq('status', 'archived')
-  .order('created_at', { ascending: false });
+  const { data: cases } = await supabase
+    .from('cases')
+    .select('*')
+    .eq('organization_id', profile.organization_id)
+    .neq('status', 'archived')
+    .neq('status', 'Archivado')
+    .order('created_at', { ascending: false });
 
   const records = (cases ?? []) as CaseRecord[];
 
@@ -71,7 +61,7 @@ const { data: cases } = await supabase
           </h2>
 
           <p className="mt-2 text-sm text-slate-600">
-            Gestioná casos, clientes, estados y documentación asociada desde un único panel.
+            Gestiona casos, clientes, estados y documentacion asociada desde un unico panel.
           </p>
         </div>
 
@@ -91,7 +81,7 @@ const { data: cases } = await supabase
               <th className="px-5 py-4">Cliente</th>
               <th className="px-5 py-4">Tipo</th>
               <th className="px-5 py-4">Estado</th>
-              <th className="px-5 py-4">Acción</th>
+              <th className="px-5 py-4">Accion</th>
             </tr>
           </thead>
 
@@ -99,7 +89,7 @@ const { data: cases } = await supabase
             {records.map((item) => (
               <tr key={item.id} className="hover:bg-slate-50">
                 <td className="px-5 py-4 font-bold text-slate-950">
-                  {displayText(item.title, 'Expediente sin título')}
+                  {displayText(item.title, 'Expediente sin titulo')}
                 </td>
 
                 <td className="px-5 py-4 text-slate-600">
@@ -111,7 +101,7 @@ const { data: cases } = await supabase
                 </td>
 
                 <td className="px-5 py-4 text-slate-600">
-                  {statusLabel(item.status)}
+                  {getCaseStatusLabel(item.status)}
                 </td>
 
                 <td className="px-5 py-4">
@@ -130,11 +120,11 @@ const { data: cases } = await supabase
         {records.length === 0 ? (
           <div className="p-10 text-center">
             <p className="font-bold text-slate-950">
-              Todavía no hay expedientes.
+              Todavia no hay expedientes.
             </p>
 
             <p className="mt-2 text-sm text-slate-500">
-              Creá el primer expediente para comenzar la gestión documental.
+              Crea el primer expediente para comenzar la gestion documental.
             </p>
           </div>
         ) : null}
