@@ -49,6 +49,15 @@ type CaseDocumentRecord = {
   created_at: string;
 };
 
+type ChecklistDocumentOptionRecord = {
+  id: string;
+  file_name: string;
+  case_id: string | null;
+  created_at: string;
+};
+
+const darkOptionStyle = { backgroundColor: '#0C2340', color: '#FFFFFF' };
+
 function caseTypeLabel(type?: string | null) {
   const labels: Record<string, string> = {
     general: 'General',
@@ -162,8 +171,16 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
     .eq('organization_id', profile.organization_id)
     .order('created_at', { ascending: false });
 
+  const { data: availableDocumentsData } = await supabase
+    .from('documents')
+    .select('id, file_name, case_id, created_at')
+    .eq('organization_id', profile.organization_id)
+    .order('created_at', { ascending: false });
+
   const checklistItems = (checklistItemsData ?? []) as unknown as ChecklistItemRecord[];
   const caseDocuments = (caseDocumentsData ?? []) as CaseDocumentRecord[];
+  const availableDocuments = (availableDocumentsData ??
+    []) as ChecklistDocumentOptionRecord[];
   const completedChecklistItems = checklistItems.filter(
     (item) => item.status !== 'pending'
   ).length;
@@ -238,10 +255,15 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
               <select
                 name="status"
                 defaultValue={caseRecord.status}
-                className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-sky-400"
+                className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#0C2340] px-4 py-3 text-white outline-none focus:ring-2 focus:ring-sky-400"
               >
                 {statusOptions.map((status) => (
-                  <option key={status.value} value={status.value}>
+                  <option
+                    key={status.value}
+                    value={status.value}
+                    className="bg-[#0C2340] text-white"
+                    style={darkOptionStyle}
+                  >
                     {status.label}
                   </option>
                 ))}
@@ -260,11 +282,22 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                       <select
                         name={`case_metadata.${field.key}`}
                         defaultValue={getMetadataValue(caseRecord.metadata, field.key)}
-                        className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-sky-400"
+                        className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#0C2340] px-4 py-3 text-white outline-none focus:ring-2 focus:ring-sky-400"
                       >
-                        <option value="">Sin definir</option>
+                        <option
+                          value=""
+                          className="bg-[#0C2340] text-white"
+                          style={darkOptionStyle}
+                        >
+                          Sin definir
+                        </option>
                         {(field.options ?? []).map((option) => (
-                          <option key={option} value={option}>
+                          <option
+                            key={option}
+                            value={option}
+                            className="bg-[#0C2340] text-white"
+                            style={darkOptionStyle}
+                          >
                             {option}
                           </option>
                         ))}
@@ -421,11 +454,22 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                         <select
                           name="document_id"
                           defaultValue={item.document_id ?? ''}
-                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-400"
+                          className="w-full rounded-xl border border-slate-200 bg-[#0C2340] px-3 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-sky-400"
                         >
-                          <option value="">-- sin vincular --</option>
-                          {caseDocuments.map((document) => (
-                            <option key={document.id} value={document.id}>
+                          <option
+                            value=""
+                            className="bg-[#0C2340] text-white"
+                            style={darkOptionStyle}
+                          >
+                            -- sin vincular --
+                          </option>
+                          {availableDocuments.map((document) => (
+                            <option
+                              key={document.id}
+                              value={document.id}
+                              className="bg-[#0C2340] text-white"
+                              style={darkOptionStyle}
+                            >
                               {document.file_name}
                             </option>
                           ))}

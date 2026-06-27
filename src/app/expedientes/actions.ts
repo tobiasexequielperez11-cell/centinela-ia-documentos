@@ -346,9 +346,8 @@ export async function linkChecklistItemDocument(formData: FormData) {
   if (documentId) {
     const { data: documentRecord, error: documentError } = await supabase
       .from('documents')
-      .select('id, file_name')
+      .select('id, file_name, case_id')
       .eq('id', documentId)
-      .eq('case_id', caseId)
       .eq('organization_id', profile.organization_id)
       .maybeSingle();
 
@@ -359,6 +358,19 @@ export async function linkChecklistItemDocument(formData: FormData) {
     }
 
     linkedDocumentId = documentRecord.id;
+
+    if (!documentRecord.case_id) {
+      const { error: documentCaseError } = await supabase
+        .from('documents')
+        .update({ case_id: caseId })
+        .eq('id', documentRecord.id)
+        .eq('organization_id', profile.organization_id)
+        .is('case_id', null);
+
+      if (documentCaseError) {
+        console.error('Checklist document case assignment error:', documentCaseError);
+      }
+    }
   }
 
   const { error } = await supabase
