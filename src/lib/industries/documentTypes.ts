@@ -27,6 +27,16 @@ export const INDUSTRY_TYPES: IndustryType[] = [
   'seguridad_documental',
 ];
 
+// Rubros ofrecidos hoy (verticales activas). El resto queda en el tipo para el futuro
+// pero no se ofrece aun en los selectores.
+export const ACTIVE_INDUSTRY_TYPES: IndustryType[] = [
+  'general',
+  'legal',
+  'escribania',
+  'inmobiliaria',
+  'empresa',
+];
+
 export const industryLabels: Record<IndustryType, string> = {
   general: 'General',
   legal: 'Jurídico',

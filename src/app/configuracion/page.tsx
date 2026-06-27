@@ -5,7 +5,7 @@ import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import {
-  INDUSTRY_TYPES,
+  ACTIVE_INDUSTRY_TYPES,
   industryLabels,
   normalizeIndustryType,
 } from '@/lib/industries/documentTypes';
@@ -288,10 +288,15 @@ Centro operativo para controlar el estado de la beta operativa comercial, seguri
                   id="industry_type"
                   name="industry_type"
                   defaultValue={organizationIndustry}
-                  className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-sky-400"
+                  className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#0C2340] px-4 py-3 text-sm font-bold text-white outline-none focus:border-sky-400"
                 >
-                  {INDUSTRY_TYPES.map((industry) => (
-                    <option key={industry} value={industry}>
+                  {ACTIVE_INDUSTRY_TYPES.map((industry) => (
+                    <option
+                      key={industry}
+                      value={industry}
+                      className="bg-[#0C2340] text-white"
+                      style={{ backgroundColor: '#0C2340', color: '#FFFFFF' }}
+                    >
                       {industryLabels[industry]}
                     </option>
                   ))}
