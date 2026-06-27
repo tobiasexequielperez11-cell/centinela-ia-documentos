@@ -43,7 +43,7 @@ export default async function AccessDeniedPage({
 
         <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <p className="text-sm font-bold text-slate-950">
-            Control de beta cerrada
+            Control de Beta operativa comercial
           </p>
 
           <p className="mt-2 text-sm leading-6 text-slate-600">

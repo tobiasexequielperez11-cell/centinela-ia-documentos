@@ -141,9 +141,9 @@ export default async function DocumentacionPage() {
 
   const documentationCards: DocCardProps[] = [
     {
-      title: 'Cierre beta cerrada mínima',
+      title: 'Cierre Beta operativa comercial mínima',
       description:
-        'Documento interno donde se registró el estado formal de la beta cerrada online funcional.',
+        'Documento interno donde se registró el estado formal de la Beta operativa comercial online funcional.',
       status: 'Creado',
       category: 'Documento',
       tone: 'success',
@@ -169,7 +169,7 @@ export default async function DocumentacionPage() {
     {
       title: 'Checklist de tester externo',
       description:
-        'Listado de acciones mínimas que debe probar una persona externa durante la beta cerrada.',
+        'Listado de acciones mínimas que debe probar una persona externa durante la Beta operativa comercial.',
       status: 'Validado',
       category: 'Tester',
       tone: 'success',
@@ -233,7 +233,7 @@ const sprintStatuses: SprintStatus[] = [
   },
   {
     sprint: 'Sprint 9',
-    title: 'Deploy online y beta cerrada',
+    title: 'Deploy online y Beta operativa comercial',
     status: 'Aprobado',
     detail:
       'Repositorio GitHub documentado, Vercel, tester externo, permisos online, logout y cierre beta aprobados.',
@@ -287,7 +287,7 @@ const sprintStatuses: SprintStatus[] = [
 'No se debe activar una integración IA externa hasta definir propuesta comercial, control de costos y límites de uso.',
     'Los testers externos no deben recibir acceso a Supabase, GitHub, Vercel ni credenciales internas.',
     'Los documentos usados para pruebas no deben contener información real sensible.',
-    'Toda incidencia detectada debe registrarse en la planilla de beta cerrada.',
+    'Toda incidencia detectada debe registrarse en la planilla de Beta operativa comercial.',
     'Todo cambio funcional importante debe validarse como admin y como employee antes de aprobarse.',
   ];
 
@@ -322,7 +322,7 @@ const nextDocumentationItems = [
 
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-950">
               <p className="font-black">Estado documental</p>
-              <p className="mt-1">Beta cerrada documentada</p>
+              <p className="mt-1">Beta operativa comercial documentada</p>
             </div>
           </div>
         </section>

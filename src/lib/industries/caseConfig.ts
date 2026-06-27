@@ -135,7 +135,6 @@ export const legacyCaseStatusLabels: Record<string, string> = {
   Archivado: 'Archivado',
   'En tramite': 'En trámite',
   'En trámite': 'En trámite',
-  'En trÃ¡mite': 'En trámite',
 };
 
 export function getCaseFields(industry: IndustryType): CaseFieldDef[] {

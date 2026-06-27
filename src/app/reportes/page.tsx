@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
+import { formatAuditActionLabel } from '@/lib/audit/actionLabels';
 import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
 import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
 import { formatFileSize } from '@/lib/format/fileSize';
@@ -174,27 +175,6 @@ function invitationRoleLabel(value?: string | null) {
   };
 
   return labels[value ?? ''] ?? value ?? 'Sin rol';
-}
-
-function actionLabel(value: string) {
-  const labels: Record<string, string> = {
-    organization_created: 'Organización creada',
-    case_created: 'Expediente creado',
-    case_status_updated: 'Estado de expediente actualizado',
-    document_uploaded: 'Documento cargado',
-    document_viewed: 'Documento visualizado',
-    document_analyzed_beta: 'Documento analizado con IA documental',
-    user_access_updated: 'Acceso de usuario actualizado',
-    user_invitation_created: 'Invitación de usuario creada',
-    user_invitation_cancelled: 'Invitación de usuario cancelada',
-    user_invitation_accepted: 'Invitación de usuario aceptada',
-    user_invitation_status_updated: 'Estado de invitación actualizado',
-    invitation_created: 'Invitación creada',
-    invitation_cancelled: 'Invitación cancelada',
-    invitation_accepted: 'Invitación aceptada',
-  };
-
-  return labels[value] ?? value;
 }
 
 function actionDotTone(value: string) {
@@ -392,7 +372,7 @@ function getAuditDetail(log: AuditLogRecordForReport) {
 
   if (model) details.push(`Modelo: ${model}`);
   if (outputType) details.push(`Salida: ${outputType}`);
-  if (statusFrom || statusTo) details.push(`Estado: ${statusFrom ?? '-'} → ${statusTo ?? '-'}`);
+  if (statusFrom || statusTo) details.push(`Estado: ${statusFrom ?? '-'} â†’ ${statusTo ?? '-'}`);
   if (documentType) details.push(`Tipo: ${documentType}`);
   if (sensitivity) details.push(`Sensibilidad: ${sensitivityLabel(sensitivity)}`);
   if (fileName && !details.some((item) => item.includes(fileName))) {
@@ -1515,7 +1495,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                             log.action
                           )}`}
                         />
-                        {actionLabel(log.action)}
+                        {formatAuditActionLabel(log.action)}
                       </span>
 
                       <p className="mt-2 text-xs text-slate-500">
@@ -1781,7 +1761,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                               log.action
                             )}`}
                           />
-                          {actionLabel(log.action)}
+                          {formatAuditActionLabel(log.action)}
                         </span>
                       </td>
 

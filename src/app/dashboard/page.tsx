@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
+import { formatAuditActionLabel } from '@/lib/audit/actionLabels';
 import { createClient } from '@/lib/supabase/server';
 import { AppShell } from '@/components/layout/AppShell';
 import { MetricCard } from '@/components/dashboard/MetricCard';
@@ -60,29 +61,6 @@ function isSensitiveDocument(value?: string | null) {
   const normalized = String(value ?? '').toLowerCase();
   return ['high', 'critical', 'alto', 'alta', 'critica', 'crítica'].includes(
     normalized
-  );
-}
-
-function formatAuditAction(action: string) {
-  const labels: Record<string, string> = {
-    document_uploaded: 'Documento cargado',
-    document_viewed: 'Documento visualizado',
-    document_analyzed: 'Analisis documental',
-    case_created: 'Expediente creado',
-    case_updated: 'Expediente actualizado',
-    invitation_created: 'Invitacion creada',
-    invitation_accepted: 'Invitacion aceptada',
-    invitation_cancelled: 'Invitacion cancelada',
-    user_role_updated: 'Rol actualizado',
-  };
-
-  return (
-    labels[action] ??
-    action
-      .split('_')
-      .filter(Boolean)
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join(' ')
   );
 }
 
@@ -310,7 +288,7 @@ export default async function DashboardPage() {
                 >
                   <div>
                     <p className="font-bold text-white">
-                      {formatAuditAction(log.action)}
+                      {formatAuditActionLabel(log.action)}
                     </p>
                     <p className="mt-1 text-sm text-slate-400">
                       {getAuditDetail(log)}

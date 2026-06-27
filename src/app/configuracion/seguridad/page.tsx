@@ -106,7 +106,7 @@ export default async function SeguridadPage() {
     {
       title: 'Rol admin',
       description:
-        'Perfil con acceso operativo completo dentro de la beta cerrada.',
+        'Perfil con acceso operativo completo dentro de la Beta operativa comercial.',
       tone: 'success' as const,
       items: [
         'Puede acceder a dashboard, expedientes, documentos, reportes, configuración y paneles internos.',
@@ -124,7 +124,7 @@ export default async function SeguridadPage() {
         'Puede ingresar a dashboard, expedientes, documentos y reportes generales.',
         'Puede validar navegación, visor PDF, métricas visibles y cierre de sesión.',
         'No puede acceder a usuarios, invitaciones, auditoría ni paneles internos de configuración.',
-        'No debe cargar documentos reales sensibles durante la beta cerrada.',
+        'No debe cargar documentos reales sensibles durante la Beta operativa comercial.',
       ],
     },
   ];
@@ -196,7 +196,7 @@ export default async function SeguridadPage() {
   ];
 
   const betaRules = [
-    'La beta cerrada se prueba con usuarios controlados y perfiles definidos.',
+    'La Beta operativa comercial se prueba con usuarios controlados y perfiles definidos.',
     'Los testers externos deben usar rol employee y estado active.',
     'Los módulos administrativos quedan reservados para admin.',
     'Las variables privadas se administran en Vercel y no deben subirse a GitHub.',
@@ -263,7 +263,7 @@ export default async function SeguridadPage() {
 
               <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
                 Panel interno para revisar roles, accesos, rutas protegidas,
-                reglas actuales de beta cerrada y controles mínimos de seguridad
+                reglas actuales de Beta operativa comercial y controles mínimos de seguridad
                 antes de ampliar la prueba externa.
               </p>
             </div>
@@ -365,7 +365,7 @@ export default async function SeguridadPage() {
         <section className="grid gap-6 xl:grid-cols-[0.9fr_1fr]">
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-black text-slate-950">
-              Reglas actuales de beta cerrada
+              Reglas actuales de Beta operativa comercial
             </h2>
 
             <p className="mt-2 text-sm leading-6 text-slate-600">

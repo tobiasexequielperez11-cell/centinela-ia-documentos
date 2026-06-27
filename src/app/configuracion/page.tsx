@@ -252,11 +252,10 @@ Centro operativo para controlar el estado de la beta operativa comercial, seguri
                 Rubro documental
               </p>
               <h2 className="mt-3 text-xl font-black text-slate-950">
-                Configuracion por rubro
+                Configuración por rubro
               </h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                Define que diccionario documental usa esta organizacion al
-                cargar y clasificar documentos. No modifica documentos ya
+                Define qué diccionario documental usa esta organización al cargar y clasificar documentos. No modifica documentos ya
                 cargados.
               </p>
 
@@ -307,8 +306,7 @@ Centro operativo para controlar el estado de la beta operativa comercial, seguri
               <div className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-600">
                 <p className="font-black text-slate-950">Solo lectura</p>
                 <p className="mt-1">
-                  Por ahora solo el dueno de plataforma puede cambiar este
-                  valor.
+                  Solo el responsable de plataforma puede cambiar el rubro.
                 </p>
               </div>
             )}

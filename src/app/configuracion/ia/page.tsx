@@ -128,7 +128,7 @@ export default async function IaConfigPage() {
     {
       title: 'Estado actual de IA',
       description:
-        'La beta cerrada utiliza análisis IA en modo controlado para validar el flujo documental sin generar costos externos.',
+        'La Beta operativa comercial utiliza análisis IA en modo controlado para validar el flujo documental sin generar costos externos.',
       status: 'Controlado',
       badge: 'Actual',
       tone: 'success',
@@ -389,7 +389,7 @@ Flujo futuro de integración IA externa
 
             <div className="mt-5 space-y-3 text-sm leading-6 text-slate-700">
               <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-Mantener el análisis IA en modo controlado durante la beta cerrada.
+Mantener el análisis IA en modo controlado durante la Beta operativa comercial.
               </div>
 
               <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
@@ -416,7 +416,7 @@ La decisión técnica recomendada es mantener el análisis IA en modo controlado
             </p>
 
             <div className="mt-5 rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm font-bold leading-6 text-emerald-900">
-Estado recomendado: mantener el análisis IA en modo controlado durante la beta cerrada.
+Estado recomendado: mantener el análisis IA en modo controlado durante la Beta operativa comercial.
             </div>
           </div>
         </section>

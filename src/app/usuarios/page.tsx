@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
+import { formatAuditActionLabel } from '@/lib/audit/actionLabels';
 import { updateUserAccess } from './actions';
 
 interface UsuariosPageProps {
@@ -129,21 +130,6 @@ function statusTone(status?: string | null) {
   if (status === 'invited') return 'bg-amber-50 text-amber-700';
 
   return 'bg-slate-100 text-slate-600';
-}
-
-function actionLabel(value: string) {
-  const labels: Record<string, string> = {
-    organization_created: 'Organización creada',
-    case_created: 'Expediente creado',
-    case_status_updated: 'Estado de expediente actualizado',
-    document_uploaded: 'Documento cargado',
-    document_viewed: 'Documento visualizado',
-    document_analyzed_beta: 'Documento analizado con IA documental',
-    user_access_updated: 'Acceso de usuario actualizado',
-    user_invitation_created: 'Invitación de usuario creada',
-  };
-
-  return labels[value] ?? value;
 }
 
 function resourceLabel(value?: string | null) {
@@ -590,7 +576,7 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
 
                         <p className="mt-1 text-xs text-slate-400">
                           Último:{' '}
-                          {lastEvent ? actionLabel(lastEvent.action) : 'Sin actividad'}
+                          {lastEvent ? formatAuditActionLabel(lastEvent.action) : 'Sin actividad'}
                         </p>
                       </td>
 
@@ -796,7 +782,7 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
                   <tr key={event.id} className="hover:bg-white/[0.03]">
                     <td className="px-4 py-3">
                       <p className="font-bold text-white">
-                        {actionLabel(event.action)}
+                        {formatAuditActionLabel(event.action)}
                       </p>
 
                       <p className="mt-1 text-xs text-slate-400">

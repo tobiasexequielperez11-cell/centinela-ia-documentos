@@ -234,7 +234,7 @@ name: 'CLAVE_PROVEEDOR_IA',
               <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
                 Panel interno para revisar nombres de variables, estado del
                 entorno online, archivos protegidos y reglas para evitar exponer
-                claves privadas durante la beta cerrada.
+                claves privadas durante la Beta operativa comercial.
               </p>
             </div>
 

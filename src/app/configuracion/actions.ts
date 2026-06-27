@@ -38,6 +38,12 @@ export async function updateOrganizationIndustryType(formData: FormData) {
     redirect('/configuracion?error=platform_owner_required');
   }
 
+  const { data: currentOrganization } = await admin
+    .from('organizations')
+    .select('industry_type')
+    .eq('id', organizationId)
+    .maybeSingle();
+
   const { error } = await admin
     .from('organizations')
     .update({ industry_type: industryType })
@@ -46,6 +52,22 @@ export async function updateOrganizationIndustryType(formData: FormData) {
   if (error) {
     console.error('Organization industry update failed:', error);
     redirect('/configuracion?error=industry_update_failed');
+  }
+
+  const { error: auditError } = await admin.from('audit_logs').insert({
+    organization_id: organizationId,
+    user_id: user.id,
+    action: 'organization_industry_updated',
+    resource_type: 'organization',
+    resource_id: organizationId,
+    metadata: {
+      from: currentOrganization?.industry_type ?? null,
+      to: industryType,
+    },
+  });
+
+  if (auditError) {
+    console.error('Organization industry audit log failed:', auditError);
   }
 
   revalidatePath('/configuracion');
