@@ -46,12 +46,6 @@ export const caseFieldsByIndustry: Record<IndustryType, CaseFieldDef[]> = {
   gestoria: [],
   inmobiliaria: [
     { key: 'direccion_inmueble', label: 'Dirección del inmueble', type: 'text' },
-    {
-      key: 'tipo_operacion',
-      label: 'Tipo de operación',
-      type: 'select',
-      options: ['Compraventa', 'Alquiler', 'Reserva'],
-    },
     { key: 'contraparte', label: 'Cliente / contraparte', type: 'text' },
     { key: 'valor_operacion', label: 'Valor de la operación', type: 'text' },
     { key: 'fecha_relevante', label: 'Fecha relevante', type: 'date' },
@@ -234,8 +228,13 @@ export function getDashboardCards(industry: IndustryType): DashboardCardKey[] {
   return cards && cards.length ? cards : dashboardCardsByIndustry.general;
 }
 
-export function getCaseStatusLabel(status?: string | null) {
+export function getCaseStatusLabel(status?: string | null, industry?: IndustryType) {
   if (!status) return 'Sin estado';
+
+  if (industry) {
+    const industryStatus = getCaseStatuses(industry).find((item) => item.value === status);
+    if (industryStatus) return industryStatus.label;
+  }
 
   for (const statuses of Object.values(caseStatusesByIndustry)) {
     const found = statuses.find((item) => item.value === status);

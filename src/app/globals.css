@@ -436,3 +436,9 @@ body {
     padding: 0 !important;
   }
 }
+
+/* Opciones de los desplegables legibles en tema oscuro (todas las pantallas/rubros) */
+select option {
+  background-color: #0C2340;
+  color: #ffffff;
+}

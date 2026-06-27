@@ -4,6 +4,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
+import { normalizeIndustryType } from '@/lib/industries/documentTypes';
 import type { CaseRecord } from '@/types/case';
 
 function caseTypeLabel(type?: string | null) {
@@ -46,6 +47,13 @@ export default async function CasesPage() {
     .neq('status', 'Archivado')
     .order('created_at', { ascending: false });
 
+  const { data: organization } = await supabase
+    .from('organizations')
+    .select('industry_type')
+    .eq('id', profile.organization_id)
+    .maybeSingle();
+
+  const organizationIndustry = normalizeIndustryType(organization?.industry_type);
   const records = (cases ?? []) as CaseRecord[];
 
   return (
@@ -101,7 +109,7 @@ export default async function CasesPage() {
                 </td>
 
                 <td className="px-5 py-4 text-slate-600">
-                  {getCaseStatusLabel(item.status)}
+                  {getCaseStatusLabel(item.status, organizationIndustry)}
                 </td>
 
                 <td className="px-5 py-4">

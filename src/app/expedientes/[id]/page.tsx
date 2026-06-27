@@ -148,7 +148,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
   const statusOptions = statusValues.includes(caseRecord.status)
     ? caseStatuses
     : [
-        { value: caseRecord.status, label: getCaseStatusLabel(caseRecord.status) },
+        { value: caseRecord.status, label: getCaseStatusLabel(caseRecord.status, industry) },
         ...caseStatuses,
       ];
   const visibleMetadataFields = caseFields.filter((field) =>
@@ -199,7 +199,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
 
           <p className="mt-2 text-sm text-slate-600">
             Cliente: {displayText(caseRecord.client_name, 'Sin cliente asignado')} - Estado actual:{' '}
-            {getCaseStatusLabel(caseRecord.status)}
+            {getCaseStatusLabel(caseRecord.status, industry)}
           </p>
         </div>
       </div>
@@ -228,7 +228,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
               </p>
 
               <p className="mt-2 font-bold text-slate-950">
-                {getCaseStatusLabel(caseRecord.status)}
+                {getCaseStatusLabel(caseRecord.status, industry)}
               </p>
             </div>
 
