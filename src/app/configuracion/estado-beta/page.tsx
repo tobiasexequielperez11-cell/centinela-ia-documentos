@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
+import { formatAuditActionLabel } from '@/lib/audit/actionLabels';
 
 interface CountCardProps {
   title: string;
@@ -338,7 +339,7 @@ Controles mínimos que ya fueron validados para la beta operativa comercial.
                   >
                     <div>
                       <p className="font-black text-slate-800">
-                        {log.action ?? 'Evento sin acción'}
+                        {formatAuditActionLabel(log.action)}
                       </p>
                       <p className="text-xs text-slate-500">
                         Acción registrada
