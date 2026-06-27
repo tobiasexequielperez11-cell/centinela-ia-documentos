@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
 import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
+import { formatFileSize } from '@/lib/format/fileSize';
 import { analyzeDocument } from '../documentos/actions';
 
 type ReportView =
@@ -108,13 +109,6 @@ function formatDate(value?: string | null) {
     dateStyle: 'short',
     timeStyle: 'short',
   }).format(date);
-}
-
-function formatSize(size?: number | null) {
-  if (!size) return '-';
-
-  const mb = size / 1024 / 1024;
-  return `${mb.toFixed(2)} MB`;
 }
 
 function sensitivityLabel(value?: string | null) {
@@ -1372,7 +1366,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                       </td>
 
                       <td className="px-4 py-3 text-slate-600">
-                        {formatSize(document.file_size)}
+                        {formatFileSize(document.file_size)}
                       </td>
 
                       <td className="px-4 py-3">
@@ -1611,7 +1605,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
 
                         <p className="mt-1 text-xs text-slate-500">
                           {formatDate(document.created_at)} ·{' '}
-                          {formatSize(document.file_size)}
+                          {formatFileSize(document.file_size)}
                         </p>
                       </div>
 

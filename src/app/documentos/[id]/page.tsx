@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createAuditLog } from '@/lib/audit/createAuditLog';
 import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
+import { formatFileSize } from '@/lib/format/fileSize';
 import { analyzeDocument } from '../actions';
 import type { DocumentRecord } from '@/types/document';
 
@@ -49,13 +50,6 @@ function sensitivityLabel(value?: string | null) {
   };
 
   return labels[normalizedValue] ?? value ?? 'Sin clasificar';
-}
-
-function formatSize(size?: number | null) {
-  if (!size) return '-';
-
-  const mb = size / 1024 / 1024;
-  return `${mb.toFixed(2)} MB`;
 }
 
 function formatDate(value?: string | null) {
@@ -395,7 +389,7 @@ export default async function DocumentDetailPage({
             </span>
 
             <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-600">
-              {formatSize(document.file_size)}
+              {formatFileSize(document.file_size)}
             </span>
 
             <span className="rounded-full bg-sky-50 px-3 py-1 text-sky-700">
@@ -484,7 +478,7 @@ export default async function DocumentDetailPage({
                   Tamaño
                 </p>
                 <p className="mt-2 font-bold text-slate-950">
-                  {formatSize(document.file_size)}
+                  {formatFileSize(document.file_size)}
                 </p>
               </div>
 

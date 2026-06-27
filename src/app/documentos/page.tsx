@@ -4,6 +4,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
+import { formatFileSize } from '@/lib/format/fileSize';
 import { analyzeDocument } from './actions';
 import type { DocumentRecord } from '@/types/document';
 
@@ -27,13 +28,6 @@ function sensitivityLabel(value: string) {
   };
 
   return labels[String(value ?? '').toLowerCase()] ?? value;
-}
-
-function formatSize(size?: number | null) {
-  if (!size) return '-';
-
-  const mb = size / 1024 / 1024;
-  return `${mb.toFixed(2)} MB`;
 }
 
 function normalizeIaFilter(value?: string): IaFilter {
@@ -329,7 +323,7 @@ export default async function DocumentsPage({
                   </td>
 
                   <td className="px-5 py-4 text-slate-600">
-                    {formatSize(item.file_size)}
+                    {formatFileSize(item.file_size)}
                   </td>
 
                   <td className="px-5 py-4">
