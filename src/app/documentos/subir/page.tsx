@@ -9,7 +9,7 @@ import {
 import { uploadDocument } from '../actions';
 
 interface UploadDocumentPageProps {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ case?: string; error?: string }>;
 }
 
 function getErrorMessage(error?: string) {
@@ -30,6 +30,7 @@ export default async function UploadDocumentPage({
 }: UploadDocumentPageProps) {
   const params = await searchParams;
   const errorMessage = getErrorMessage(params.error);
+  const selectedCaseId = typeof params.case === 'string' ? params.case : '';
 
   const { user, profile } = await getUserProfile();
 
@@ -89,6 +90,7 @@ export default async function UploadDocumentPage({
 
               <select
                 name="case_id"
+                defaultValue={selectedCaseId}
                 className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-sky-400"
               >
                 <option value="">Sin expediente / general</option>

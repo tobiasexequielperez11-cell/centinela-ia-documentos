@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
@@ -7,8 +8,15 @@ import {
   getCaseStatuses,
   getCaseStatusLabel,
 } from '@/lib/industries/caseConfig';
-import { normalizeIndustryType } from '@/lib/industries/documentTypes';
-import { toggleChecklistItem, updateCaseStatus } from '../actions';
+import {
+  getDocumentTypeLabel,
+  normalizeIndustryType,
+} from '@/lib/industries/documentTypes';
+import {
+  linkChecklistItemDocument,
+  toggleChecklistItem,
+  updateCaseStatus,
+} from '../actions';
 import type { CaseRecord } from '@/types/case';
 
 interface CaseDetailPageProps {
@@ -20,12 +28,25 @@ type ChecklistItemRecord = {
   checklist_id: string;
   title: string;
   status: string;
+  document_id: string | null;
   notes: string | null;
   created_at: string;
+  documents: {
+    id: string;
+    file_name: string;
+  } | null;
   checklists: {
     case_id: string;
     organization_id: string;
   };
+};
+
+type CaseDocumentRecord = {
+  id: string;
+  file_name: string;
+  document_type: string | null;
+  sensitivity_level: string | null;
+  created_at: string;
 };
 
 function caseTypeLabel(type?: string | null) {
@@ -67,6 +88,22 @@ function checklistStatusLabel(status: string) {
   };
 
   return labels[status] ?? status;
+}
+
+function sensitivityLabel(value?: string | null) {
+  const labels: Record<string, string> = {
+    low: 'Bajo',
+    medium: 'Medio',
+    high: 'Alto',
+    critical: 'Critico',
+    bajo: 'Bajo',
+    medio: 'Medio',
+    alto: 'Alto',
+    critico: 'Critico',
+    crítico: 'Critico',
+  };
+
+  return labels[String(value ?? '').toLowerCase()] ?? value ?? 'Sin clasificar';
 }
 
 export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
@@ -111,12 +148,22 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
 
   const { data: checklistItemsData } = await supabase
     .from('checklist_items')
-    .select('id, checklist_id, title, status, notes, created_at, checklists!inner(case_id, organization_id)')
+    .select(
+      'id, checklist_id, title, status, document_id, notes, created_at, documents(id, file_name), checklists!inner(case_id, organization_id)'
+    )
     .eq('checklists.case_id', caseRecord.id)
     .eq('checklists.organization_id', profile.organization_id)
     .order('created_at', { ascending: true });
 
+  const { data: caseDocumentsData } = await supabase
+    .from('documents')
+    .select('id, file_name, document_type, sensitivity_level, created_at')
+    .eq('case_id', caseRecord.id)
+    .eq('organization_id', profile.organization_id)
+    .order('created_at', { ascending: false });
+
   const checklistItems = (checklistItemsData ?? []) as unknown as ChecklistItemRecord[];
+  const caseDocuments = (caseDocumentsData ?? []) as CaseDocumentRecord[];
   const completedChecklistItems = checklistItems.filter(
     (item) => item.status !== 'pending'
   ).length;
@@ -141,6 +188,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_0.7fr]">
+        <div className="space-y-6">
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <h3 className="text-lg font-bold text-slate-950">
             Informacion general
@@ -234,11 +282,69 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
               </div>
             ) : null}
 
-            <button className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800">
+          <button className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800">
               Actualizar expediente
             </button>
           </form>
         </section>
+
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+              <div>
+                <h3 className="text-lg font-bold text-slate-950">
+                  Documentos del expediente
+                </h3>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Documentos cargados en la boveda y asociados a este expediente.
+                </p>
+              </div>
+
+              <Link
+                href={`/documentos/subir?case=${caseRecord.id}`}
+                className="rounded-2xl bg-sky-500 px-5 py-3 text-sm font-bold text-white hover:bg-sky-600"
+              >
+                Subir documento
+              </Link>
+            </div>
+
+            {caseDocuments.length > 0 ? (
+              <div className="mt-5 space-y-3">
+                {caseDocuments.map((document) => (
+                  <div
+                    key={document.id}
+                    className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold text-slate-950">
+                        {document.file_name}
+                      </p>
+                      <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        {getDocumentTypeLabel(document.document_type)}
+                      </p>
+                    </div>
+
+                    <div className="flex shrink-0 items-center gap-3">
+                      <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-bold text-sky-700">
+                        {sensitivityLabel(document.sensitivity_level)}
+                      </span>
+                      <Link
+                        href={`/documentos/${document.id}`}
+                        className="text-sm font-bold text-sky-600 hover:text-sky-700"
+                      >
+                        Ver documento
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="mt-5 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">
+                Aun no hay documentos en este expediente.
+              </div>
+            )}
+          </section>
+        </div>
 
         <div className="space-y-6">
           <aside className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -258,8 +364,8 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                   const isDone = item.status !== 'pending';
 
                   return (
+                    <div key={item.id} className="space-y-3">
                     <form
-                      key={item.id}
                       action={toggleChecklistItem}
                       className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3"
                     >
@@ -294,6 +400,43 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                         </p>
                       </div>
                     </form>
+
+                    {item.documents ? (
+                      <p className="rounded-xl bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-700">
+                        Vinculado: {item.documents.file_name}
+                      </p>
+                    ) : null}
+
+                    <form
+                      action={linkChecklistItemDocument}
+                      className="rounded-2xl border border-slate-200 bg-white p-3"
+                    >
+                      <input type="hidden" name="case_id" value={caseRecord.id} />
+                      <input type="hidden" name="item_id" value={item.id} />
+
+                      <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Vincular documento
+                      </label>
+                      <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_auto]">
+                        <select
+                          name="document_id"
+                          defaultValue={item.document_id ?? ''}
+                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-400"
+                        >
+                          <option value="">-- sin vincular --</option>
+                          {caseDocuments.map((document) => (
+                            <option key={document.id} value={document.id}>
+                              {document.file_name}
+                            </option>
+                          ))}
+                        </select>
+
+                        <button className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold text-slate-700 hover:border-sky-400 hover:text-sky-600">
+                          Guardar
+                        </button>
+                      </div>
+                    </form>
+                    </div>
                   );
                 })}
               </div>

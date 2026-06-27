@@ -306,3 +306,86 @@ export async function toggleChecklistItem(formData: FormData) {
 
   revalidatePath(`/expedientes/${caseId}`);
 }
+
+export async function linkChecklistItemDocument(formData: FormData) {
+  const { user, profile } = await getUserProfile();
+
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+
+  if (!isUserRole(profile.role) || !canUpdateCase(profile.role)) {
+    denyCaseAction();
+  }
+
+  const caseId = String(formData.get('case_id') || '');
+  const itemId = String(formData.get('item_id') || '');
+  const documentId = String(formData.get('document_id') || '').trim();
+
+  if (!caseId || !itemId) {
+    redirect('/expedientes');
+  }
+
+  const supabase = await createClient();
+
+  const { data: checklistItem, error: itemError } = await supabase
+    .from('checklist_items')
+    .select('id, title, document_id, checklists!inner(id, case_id, organization_id)')
+    .eq('id', itemId)
+    .eq('checklists.case_id', caseId)
+    .eq('checklists.organization_id', profile.organization_id)
+    .maybeSingle();
+
+  if (itemError || !checklistItem) {
+    console.error('Checklist item document link lookup error:', itemError);
+    revalidatePath(`/expedientes/${caseId}`);
+    return;
+  }
+
+  let linkedDocumentId: string | null = null;
+
+  if (documentId) {
+    const { data: documentRecord, error: documentError } = await supabase
+      .from('documents')
+      .select('id, file_name')
+      .eq('id', documentId)
+      .eq('case_id', caseId)
+      .eq('organization_id', profile.organization_id)
+      .maybeSingle();
+
+    if (documentError || !documentRecord) {
+      console.error('Checklist document link document lookup error:', documentError);
+      revalidatePath(`/expedientes/${caseId}`);
+      return;
+    }
+
+    linkedDocumentId = documentRecord.id;
+  }
+
+  const { error } = await supabase
+    .from('checklist_items')
+    .update({
+      document_id: linkedDocumentId,
+      status: linkedDocumentId ? 'received' : 'pending',
+    })
+    .eq('id', itemId);
+
+  if (error) {
+    console.error('Checklist item document link error:', error);
+  } else {
+    await createAuditLog({
+      organizationId: profile.organization_id,
+      userId: user.id,
+      action: linkedDocumentId
+        ? 'checklist_item_linked'
+        : 'checklist_item_unlinked',
+      resourceType: 'case',
+      resourceId: caseId,
+      metadata: {
+        checklist_item_id: itemId,
+        document_id: linkedDocumentId,
+      },
+    });
+  }
+
+  revalidatePath(`/expedientes/${caseId}`);
+}
