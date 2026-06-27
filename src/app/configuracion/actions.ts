@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { isIndustryType } from '@/lib/industries/documentTypes';
+import { isIndustryType, normalizeIndustryType } from '@/lib/industries/documentTypes';
 
 export async function updateOrganizationIndustryType(formData: FormData) {
   const supabase = await createClient();
@@ -27,22 +27,42 @@ export async function updateOrganizationIndustryType(formData: FormData) {
     redirect('/configuracion?error=platform_unavailable');
   }
 
-  const { data: owner, error: ownerError } = await admin
+  const { data: owner } = await admin
     .from('platform_admins')
     .select('user_id, active')
     .eq('user_id', user.id)
     .eq('active', true)
     .maybeSingle();
 
-  if (ownerError || !owner) {
-    redirect('/configuracion?error=platform_owner_required');
-  }
+  const isPlatformOwner = Boolean(owner);
+
+  const { data: actingProfile } = await admin
+    .from('profiles')
+    .select('role, organization_id, status')
+    .eq('id', user.id)
+    .maybeSingle();
 
   const { data: currentOrganization } = await admin
     .from('organizations')
     .select('industry_type')
     .eq('id', organizationId)
     .maybeSingle();
+
+  const currentIndustry = normalizeIndustryType(
+    currentOrganization?.industry_type
+  );
+  const isUnset = currentIndustry === 'general';
+
+  const isOrgAdmin =
+    actingProfile?.role === 'admin' &&
+    actingProfile?.status === 'active' &&
+    actingProfile?.organization_id === organizationId;
+
+  const canChange = isPlatformOwner || (isOrgAdmin && isUnset);
+
+  if (!canChange) {
+    redirect('/configuracion?error=industry_locked');
+  }
 
   const { error } = await admin
     .from('organizations')

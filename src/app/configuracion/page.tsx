@@ -131,6 +131,8 @@ export default async function ConfiguracionPage() {
   const organizationIndustry = normalizeIndustryType(
     organization?.industry_type
   );
+  const isIndustryUnset = organizationIndustry === 'general';
+  const canEditIndustry = isPlatformOwner || (isAdmin && isIndustryUnset);
 
   const configCards = [
     {
@@ -264,7 +266,7 @@ Centro operativo para controlar el estado de la beta operativa comercial, seguri
               </div>
             </div>
 
-            {isPlatformOwner && organization?.id ? (
+            {canEditIndustry && organization?.id ? (
               <form
                 action={updateOrganizationIndustryType}
                 className="w-full max-w-sm rounded-2xl border border-slate-200 bg-slate-50 p-4"
@@ -295,6 +297,12 @@ Centro operativo para controlar el estado de la beta operativa comercial, seguri
                   ))}
                 </select>
 
+                {isAdmin && !isPlatformOwner ? (
+                  <p className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-bold leading-5 text-amber-800">
+                    ⚠️ Elegí con cuidado: al guardar, el rubro queda bloqueado y solo el responsable de plataforma podrá cambiarlo luego.
+                  </p>
+                ) : null}
+
                 <button
                   type="submit"
                   className="mt-4 w-full rounded-2xl bg-sky-500 px-5 py-3 text-sm font-black text-white transition hover:bg-sky-600"
@@ -306,7 +314,9 @@ Centro operativo para controlar el estado de la beta operativa comercial, seguri
               <div className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-600">
                 <p className="font-black text-slate-950">Solo lectura</p>
                 <p className="mt-1">
-                  Solo el responsable de plataforma puede cambiar el rubro.
+                  {isIndustryUnset
+                    ? 'Solo el responsable de plataforma puede cambiar el rubro.'
+                    : 'Rubro definido. Solo el responsable de plataforma puede modificarlo.'}
                 </p>
               </div>
             )}
