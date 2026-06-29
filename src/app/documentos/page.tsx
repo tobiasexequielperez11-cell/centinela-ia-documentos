@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
 import { formatFileSize } from '@/lib/format/fileSize';
+import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles, getDaysUntilExpiry } from '@/lib/documents/expiry';
 import { analyzeDocument } from './actions';
 import type { DocumentRecord } from '@/types/document';
 
@@ -104,6 +105,15 @@ export default async function DocumentsPage({
   }
 
   const records = (documents ?? []) as DocumentRecord[];
+
+  let expiringDocs = 0;
+  let expiredDocs = 0;
+
+  for (const item of records) {
+    const status = getDocumentExpiryStatus(item.expires_at);
+    if (status === 'por_vencer') expiringDocs++;
+    if (status === 'vencido') expiredDocs++;
+  }
 
   const totalDocuments = records.length;
 
@@ -275,6 +285,19 @@ export default async function DocumentsPage({
         </div>
       )}
 
+      {expiringDocs > 0 || expiredDocs > 0 ? (
+        <div className="mb-6 rounded-3xl border border-amber-200 bg-amber-50 p-5">
+          <p className="font-bold text-amber-950">
+            Alertas de vencimiento
+          </p>
+          <p className="mt-1 text-sm text-amber-800">
+            {expiringDocs > 0 ? `${expiringDocs} documento(s) por vencer` : ''} 
+            {expiringDocs > 0 && expiredDocs > 0 ? ' y ' : ''}
+            {expiredDocs > 0 ? `${expiredDocs} documento(s) vencido(s)` : ''}.
+          </p>
+        </div>
+      ) : null}
+
       <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full text-left text-sm">
           <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
@@ -283,6 +306,7 @@ export default async function DocumentsPage({
               <th className="px-5 py-4">Tipo</th>
               <th className="px-5 py-4">Sensibilidad</th>
               <th className="px-5 py-4">Estado IA</th>
+              <th className="px-5 py-4">Vencimiento</th>
               <th className="px-5 py-4">Tamaño</th>
               <th className="px-5 py-4">Acción</th>
             </tr>
@@ -294,6 +318,16 @@ export default async function DocumentsPage({
               const aiStatus = getAiStatus(analysisCount);
               const isPending = analysisCount === 0;
               const isPdf = item.file_mime_type === 'application/pdf';
+
+              const expiryStatus = getDocumentExpiryStatus(item.expires_at);
+              const expiryBadge = getExpiryBadgeStyles(expiryStatus);
+              let expiryText = expiryStatusLabel(expiryStatus);
+              if (expiryStatus === 'por_vencer') {
+                const days = getDaysUntilExpiry(item.expires_at);
+                if (days !== null) {
+                  expiryText = `Por vencer · ${days} días`;
+                }
+              }
 
               return (
                 <tr key={item.id} className="hover:bg-slate-50">
@@ -320,6 +354,16 @@ export default async function DocumentsPage({
                         </span>
                       ) : null}
                     </span>
+                  </td>
+
+                  <td className="px-5 py-4">
+                    {expiryStatus === 'sin_vencimiento' ? (
+                      <span className="text-slate-400">—</span>
+                    ) : (
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${expiryBadge.className}`}>
+                        {expiryText}
+                      </span>
+                    )}
                   </td>
 
                   <td className="px-5 py-4 text-slate-600">

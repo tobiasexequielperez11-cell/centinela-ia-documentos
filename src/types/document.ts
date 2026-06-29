@@ -11,6 +11,7 @@ export interface DocumentRecord {
   document_type: string | null;
   sensitivity_level: SensitivityLevel;
   uploaded_by: string | null;
+  expires_at?: string | null;
   created_at: string;
   updated_at: string;
 }

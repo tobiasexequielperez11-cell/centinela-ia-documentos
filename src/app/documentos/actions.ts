@@ -43,6 +43,8 @@ export async function uploadDocument(formData: FormData) {
   const caseId = String(formData.get('case_id') || '');
   const documentType = String(formData.get('document_type') || '');
   const sensitivityLevel = String(formData.get('sensitivity_level') || 'medium');
+  const expiresAtForm = String(formData.get('expires_at') || '');
+  const expiresAt = expiresAtForm ? expiresAtForm : null;
   const file = formData.get('file');
 
   if (!(file instanceof File)) {
@@ -100,6 +102,7 @@ export async function uploadDocument(formData: FormData) {
     document_type: documentType || null,
     sensitivity_level: sensitivityLevel,
     uploaded_by: user.id,
+    expires_at: expiresAt,
   });
 
   if (insertError) {
@@ -119,6 +122,7 @@ export async function uploadDocument(formData: FormData) {
       case_id: caseId || null,
       document_type: documentType || null,
       sensitivity_level: sensitivityLevel,
+      expires_at: expiresAt,
     },
   });
 

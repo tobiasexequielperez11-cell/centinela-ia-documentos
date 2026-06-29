@@ -6,6 +6,7 @@ import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createAuditLog } from '@/lib/audit/createAuditLog';
 import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
 import { formatFileSize } from '@/lib/format/fileSize';
+import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles } from '@/lib/documents/expiry';
 import { analyzeDocument } from '../actions';
 import type { DocumentRecord } from '@/types/document';
 
@@ -59,6 +60,12 @@ function formatDate(value?: string | null) {
     dateStyle: 'short',
     timeStyle: 'short',
   }).format(new Date(value));
+}
+
+function formatExpiryDate(value?: string | null) {
+  if (!value) return 'Sin fecha de vencimiento';
+  const [year, month, day] = value.split('-');
+  return `${day}/${month}/${year}`;
 }
 
 function canPreview(mimeType?: string | null) {
@@ -370,6 +377,9 @@ export default async function DocumentDetailPage({
     : 'Analizar IA';
 
   const aiStatus = getDocumentAiStatus(aiHistory.length);
+  
+  const expiryStatus = getDocumentExpiryStatus(document.expires_at);
+  const expiryBadge = getExpiryBadgeStyles(expiryStatus);
 
   return (
     <AppShell>
@@ -489,6 +499,22 @@ export default async function DocumentDetailPage({
                 <p className="mt-2 break-all font-bold text-slate-950">
                   {document.file_mime_type ?? '-'}
                 </p>
+              </div>
+              
+              <div className="rounded-2xl bg-slate-50 p-4 sm:col-span-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Vencimiento
+                </p>
+                <div className="mt-2 flex items-center gap-2">
+                  <p className="font-bold text-slate-950">
+                    {formatExpiryDate(document.expires_at)}
+                  </p>
+                  {document.expires_at && (
+                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${expiryBadge.className}`}>
+                      {expiryStatusLabel(expiryStatus)}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
