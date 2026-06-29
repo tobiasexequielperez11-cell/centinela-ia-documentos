@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
 import { normalizeIndustryType } from '@/lib/industries/documentTypes';
+import { summarizeChecklistStatuses } from '@/lib/checklist/progress';
 import type { CaseRecord } from '@/types/case';
 
 function caseTypeLabel(type?: string | null) {
@@ -56,6 +57,23 @@ export default async function CasesPage() {
   const organizationIndustry = normalizeIndustryType(organization?.industry_type);
   const records = (cases ?? []) as CaseRecord[];
 
+  let statusesByCase: Record<string, string[]> = {};
+  if (records.length > 0) {
+    const caseIds = records.map((c) => c.id);
+    const { data: checklistItems } = await supabase
+      .from('checklist_items')
+      .select('status, checklists!inner(case_id)')
+      .eq('checklists.organization_id', profile.organization_id)
+      .in('checklists.case_id', caseIds);
+
+    statusesByCase = (checklistItems ?? []).reduce((acc: Record<string, string[]>, item: any) => {
+      const caseId = item.checklists.case_id;
+      if (!acc[caseId]) acc[caseId] = [];
+      acc[caseId].push(item.status);
+      return acc;
+    }, {});
+  }
+
   return (
     <AppShell>
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -89,6 +107,7 @@ export default async function CasesPage() {
               <th className="px-5 py-4">Cliente</th>
               <th className="px-5 py-4">Tipo</th>
               <th className="px-5 py-4">Estado</th>
+              <th className="px-5 py-4">Documentación</th>
               <th className="px-5 py-4">Accion</th>
             </tr>
           </thead>
@@ -110,6 +129,39 @@ export default async function CasesPage() {
 
                 <td className="px-5 py-4 text-slate-600">
                   {getCaseStatusLabel(item.status, organizationIndustry)}
+                </td>
+
+                <td className="px-5 py-4">
+                  {(() => {
+                    const statuses = statusesByCase[item.id];
+                    if (!statuses || statuses.length === 0) {
+                      return (
+                        <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                          Sin checklist
+                        </span>
+                      );
+                    }
+                    const progress = summarizeChecklistStatuses(statuses);
+                    if (progress.total === 0) {
+                      return (
+                        <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                          Sin checklist
+                        </span>
+                      );
+                    }
+                    if (progress.isComplete) {
+                      return (
+                        <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-[#22C55E] border border-green-200">
+                          Completo
+                        </span>
+                      );
+                    }
+                    return (
+                      <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-[#F59E0B] border border-amber-200">
+                        Faltan {progress.missing}
+                      </span>
+                    );
+                  })()}
                 </td>
 
                 <td className="px-5 py-4">

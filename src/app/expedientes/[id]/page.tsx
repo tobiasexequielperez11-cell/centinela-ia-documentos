@@ -12,6 +12,7 @@ import {
   getDocumentTypeLabel,
   normalizeIndustryType,
 } from '@/lib/industries/documentTypes';
+import { summarizeChecklistStatuses } from '@/lib/checklist/progress';
 import {
   linkChecklistItemDocument,
   toggleChecklistItem,
@@ -181,9 +182,12 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
   const caseDocuments = (caseDocumentsData ?? []) as CaseDocumentRecord[];
   const availableDocuments = (availableDocumentsData ??
     []) as ChecklistDocumentOptionRecord[];
-  const completedChecklistItems = checklistItems.filter(
-    (item) => item.status !== 'pending'
-  ).length;
+    
+  const checklistStatuses = checklistItems.map((item) => item.status);
+  const checklistProgress = summarizeChecklistStatuses(checklistStatuses);
+  const missingItems = checklistItems.filter(
+    (item) => item.status === 'pending' || item.status === 'rejected'
+  );
 
   return (
     <AppShell>
@@ -385,26 +389,72 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
               Checklist documental
             </h3>
 
-            <p className="mt-1 text-sm text-slate-500">
-              {checklistItems.length > 0
-                ? `${completedChecklistItems} de ${checklistItems.length} completados`
-                : 'Sin checklist para este expediente.'}
-            </p>
+            {checklistItems.length === 0 && (
+              <p className="mt-1 text-sm text-slate-500">
+                Sin checklist para este expediente.
+              </p>
+            )}
 
             {checklistItems.length > 0 ? (
-              <div className="mt-5 space-y-3">
-                {checklistItems.map((item) => {
-                  const isDone = item.status !== 'pending';
+              <>
+                <div className="mt-5 rounded-2xl bg-[#0C2340] p-5 text-white shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-bold">
+                      {checklistProgress.isComplete ? (
+                        <span className="flex items-center gap-2 text-[#22C55E]">
+                          ✓ Documentación completa
+                        </span>
+                      ) : (
+                        <span>
+                          Faltan <span className="text-[#F59E0B]">{checklistProgress.missing}</span> de {checklistProgress.total} documentos
+                        </span>
+                      )}
+                    </p>
+                    <span className="text-sm font-bold text-[#C2CCD9]">{checklistProgress.percent}%</span>
+                  </div>
+                  
+                  <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-700/50">
+                    <div
+                      className="h-full bg-[#22C55E] transition-all duration-500"
+                      style={{ width: `${checklistProgress.percent}%` }}
+                    />
+                  </div>
 
-                  return (
-                    <div key={item.id} className="space-y-3">
-                    <form
-                      action={toggleChecklistItem}
-                      className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3"
-                    >
-                      <input type="hidden" name="case_id" value={caseRecord.id} />
-                      <input type="hidden" name="item_id" value={item.id} />
-                      <input type="hidden" name="current_status" value={item.status} />
+                  {!checklistProgress.isComplete && missingItems.length > 0 && (
+                    <div className="mt-4 border-t border-slate-700/50 pt-4">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-[#C2CCD9]">
+                        Faltantes:
+                      </p>
+                      <ul className="mt-3 space-y-2">
+                        {missingItems.map((item) => (
+                          <li key={`missing-${item.id}`} className="text-sm flex items-start gap-2">
+                            <span className="text-[#F59E0B] mt-0.5 font-bold">!</span>
+                            <span className="text-white">{item.title}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-5 space-y-3">
+                  {checklistItems.map((item) => {
+                    const isDone = item.status === 'received' || item.status === 'reviewed';
+                    const isMissing = item.status === 'pending' || item.status === 'rejected';
+
+                    return (
+                      <div key={item.id} className="space-y-3">
+                      <form
+                        action={toggleChecklistItem}
+                        className={`flex items-center gap-3 rounded-2xl border p-3 transition-colors ${
+                          isMissing
+                            ? 'border-[#F59E0B] bg-white'
+                            : 'border-slate-200 bg-slate-50'
+                        }`}
+                      >
+                        <input type="hidden" name="case_id" value={caseRecord.id} />
+                        <input type="hidden" name="item_id" value={item.id} />
+                        <input type="hidden" name="current_status" value={item.status} />
 
                       <button
                         type="submit"
@@ -484,6 +534,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                   );
                 })}
               </div>
+            </>
             ) : null}
           </aside>
 
