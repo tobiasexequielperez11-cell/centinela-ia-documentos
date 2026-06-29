@@ -8,6 +8,7 @@ import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
 import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
 import { formatFileSize } from '@/lib/format/fileSize';
 import { analyzeDocument } from '../documentos/actions';
+import { getDocumentExpiryStatus, getDaysUntilExpiry, expiryStatusLabel, getExpiryBadgeStyles } from '@/lib/documents/expiry';
 
 type ReportView =
   | 'general'
@@ -15,7 +16,8 @@ type ReportView =
   | 'ia'
   | 'sensibilidad'
   | 'auditoria'
-  | 'invitaciones';
+  | 'invitaciones'
+  | 'vencimientos';
 
 type AuditFilter = 'todos' | 'documentos' | 'ia' | 'expedientes' | 'invitaciones';
 
@@ -40,6 +42,7 @@ interface DocumentRecordForReport {
   file_size?: number | null;
   file_mime_type?: string | null;
   created_at?: string | null;
+  expires_at?: string | null;
 }
 
 interface AiOutputRecordForReport {
@@ -110,6 +113,15 @@ function formatDate(value?: string | null) {
     dateStyle: 'short',
     timeStyle: 'short',
   }).format(date);
+}
+
+function formatExpiryDate(value?: string | null) {
+  if (!value) return '-';
+  const parts = value.split('-');
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+  return value;
 }
 
 function sensitivityLabel(value?: string | null) {
@@ -244,7 +256,8 @@ function isValidView(value?: string): value is ReportView {
     value === 'ia' ||
     value === 'sensibilidad' ||
     value === 'auditoria' ||
-    value === 'invitaciones'
+    value === 'invitaciones' ||
+    value === 'vencimientos'
   );
 }
 
@@ -471,7 +484,7 @@ if (
     supabase
       .from('documents')
       .select(
-        'id, file_name, document_type, sensitivity_level, file_size, file_mime_type, created_at'
+        'id, file_name, document_type, sensitivity_level, file_size, file_mime_type, created_at, expires_at'
       )
       .eq('organization_id', profile.organization_id)
       .order('created_at', { ascending: false }),
@@ -580,6 +593,27 @@ if (
   const filteredAuditLogs = filterAuditLogs(auditLogs, activeAuditFilter);
 
   const auditedUsers = new Set(auditLogs.map((log) => log.user_id).filter(Boolean)).size;
+
+  let vigentes = 0;
+  let porVencer = 0;
+  let vencidos = 0;
+  let sinVencimiento = 0;
+
+  const documentosConVencimiento = documents.filter((doc) => {
+    if (!doc.expires_at) {
+      sinVencimiento++;
+      return false;
+    }
+    const status = getDocumentExpiryStatus(doc.expires_at);
+    if (status === 'vigente') vigentes++;
+    else if (status === 'por_vencer') porVencer++;
+    else if (status === 'vencido') vencidos++;
+    return true;
+  }).sort((a, b) => {
+    const daysA = getDaysUntilExpiry(a.expires_at!) ?? 0;
+    const daysB = getDaysUntilExpiry(b.expires_at!) ?? 0;
+    return daysA - daysB;
+  });
 
   const pendingInvitationsFromRows = invitations.filter(
     (item) => item.status === 'pending' && !isInvitationExpired(item)
@@ -726,6 +760,7 @@ if (
   const views: Array<{ label: string; value: ReportView; href: string }> = [
     { label: 'General', value: 'general', href: '/reportes' },
     { label: 'Documentos', value: 'documentos', href: '/reportes?vista=documentos' },
+    { label: 'Vencimientos', value: 'vencimientos', href: '/reportes?vista=vencimientos' },
     { label: 'IA documental', value: 'ia', href: '/reportes?vista=ia' },
     { label: 'Sensibilidad', value: 'sensibilidad', href: '/reportes?vista=sensibilidad' },
     { label: 'Invitaciones', value: 'invitaciones', href: '/reportes?vista=invitaciones' },
@@ -1789,6 +1824,104 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
             </div>
           </section>
         </div>
+      ) : null}
+
+      {activeView === 'vencimientos' ? (
+        <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+                Vencimientos
+              </p>
+              <h3 className="mt-2 text-2xl font-bold text-slate-950">
+                Control de vencimientos documentales
+              </h3>
+              <p className="mt-2 text-sm text-slate-600">
+                Seguimiento de documentos vigentes, por vencer y vencidos en entorno controlado.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <p className="text-sm font-semibold text-slate-500">Vencidos</p>
+              <p className="mt-2 text-3xl font-bold text-rose-600">{vencidos}</p>
+              <p className="mt-3 text-xs text-slate-500">Documentos expirados</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <p className="text-sm font-semibold text-slate-500">Por vencer</p>
+              <p className="mt-2 text-3xl font-bold text-amber-500">{porVencer}</p>
+              <p className="mt-3 text-xs text-slate-500">Próximos 30 días</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <p className="text-sm font-semibold text-slate-500">Vigentes</p>
+              <p className="mt-2 text-3xl font-bold text-emerald-600">{vigentes}</p>
+              <p className="mt-3 text-xs text-slate-500">En regla</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <p className="text-sm font-semibold text-slate-500">Sin fecha</p>
+              <p className="mt-2 text-3xl font-bold text-slate-950">{sinVencimiento}</p>
+              <p className="mt-3 text-xs text-slate-500">No aplica o no cargada</p>
+            </div>
+          </div>
+
+          <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th className="px-4 py-3">Archivo</th>
+                  <th className="px-4 py-3">Tipo</th>
+                  <th className="px-4 py-3">Fecha de vencimiento</th>
+                  <th className="px-4 py-3">Días restantes</th>
+                  <th className="px-4 py-3">Estado</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {documentosConVencimiento.map((document) => {
+                  const days = getDaysUntilExpiry(document.expires_at!) ?? 0;
+                  const status = getDocumentExpiryStatus(document.expires_at);
+                  const badgeStyles = getExpiryBadgeStyles(status);
+                  const label = expiryStatusLabel(status);
+                  
+                  let daysLabel = `${days} días`;
+                  if (days < 0) daysLabel = `Vencido hace ${Math.abs(days)} días`;
+                  else if (days === 0) daysLabel = 'Vence hoy';
+
+                  return (
+                    <tr key={document.id} className="hover:bg-slate-50">
+                      <td className="px-4 py-3">
+                        <Link href={`/documentos/${document.id}`}>
+                          <p className="font-bold text-slate-950 hover:text-sky-700">
+                            {document.file_name}
+                          </p>
+                        </Link>
+                      </td>
+                      <td className="px-4 py-3 text-slate-600">
+                        {getDocumentTypeLabel(document.document_type)}
+                      </td>
+                      <td className="px-4 py-3 text-slate-600">
+                        {formatExpiryDate(document.expires_at)}
+                      </td>
+                      <td className="px-4 py-3 text-slate-600 font-medium">
+                        {daysLabel}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`rounded-full px-3 py-1 text-xs font-bold ${badgeStyles}`}>
+                          {label}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {documentosConVencimiento.length === 0 ? (
+              <div className="p-6 text-sm text-slate-500">
+                No hay documentos con fecha de vencimiento cargada.
+              </div>
+            ) : null}
+          </div>
+        </section>
       ) : null}
     </AppShell>
   );

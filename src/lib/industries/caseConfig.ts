@@ -110,6 +110,7 @@ export type DashboardCardKey =
   | 'documentos_cargados'
   | 'analisis_pendientes'
   | 'documentos_sensibles'
+  | 'documentos_por_vencer'
   | 'actividad_reciente';
 
 export const dashboardCardsByIndustry: Record<IndustryType, DashboardCardKey[]> = {
@@ -118,14 +119,16 @@ export const dashboardCardsByIndustry: Record<IndustryType, DashboardCardKey[]> 
     'documentos_cargados',
     'analisis_pendientes',
     'documentos_sensibles',
+    'documentos_por_vencer',
     'actividad_reciente',
   ],
-  general: ['documentos_cargados', 'analisis_pendientes', 'actividad_reciente'],
+  general: ['documentos_cargados', 'analisis_pendientes', 'documentos_por_vencer', 'actividad_reciente'],
   escribania: [
     'expedientes_activos',
     'documentos_cargados',
     'analisis_pendientes',
     'documentos_sensibles',
+    'documentos_por_vencer',
     'actividad_reciente',
   ],
   gestoria: [],
@@ -134,6 +137,7 @@ export const dashboardCardsByIndustry: Record<IndustryType, DashboardCardKey[]> 
     'documentos_cargados',
     'analisis_pendientes',
     'documentos_sensibles',
+    'documentos_por_vencer',
     'actividad_reciente',
   ],
   empresa: [
@@ -141,6 +145,7 @@ export const dashboardCardsByIndustry: Record<IndustryType, DashboardCardKey[]> 
     'documentos_cargados',
     'analisis_pendientes',
     'documentos_sensibles',
+    'documentos_por_vencer',
     'actividad_reciente',
   ],
   contable: [],

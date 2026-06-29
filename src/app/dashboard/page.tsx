@@ -15,6 +15,7 @@ import {
 } from '@/lib/industries/caseConfig';
 import { analyzeDocument } from '../documentos/actions';
 import { canViewAudit, isUserRole } from '@/lib/permissions/roles';
+import { getDocumentExpiryStatus } from '@/lib/documents/expiry';
 
 interface DashboardDocument {
   id: string;
@@ -23,6 +24,7 @@ interface DashboardDocument {
   document_type?: string | null;
   sensitivity_level: string;
   created_at?: string | null;
+  expires_at?: string | null;
 }
 
 interface DashboardActivityLog {
@@ -88,6 +90,7 @@ function buildMetricCard(
     loadedDocuments: number;
     pendingAnalysis: number;
     sensitiveDocuments: number;
+    expiringDocuments: number;
   }
 ) {
   switch (card) {
@@ -114,6 +117,12 @@ function buildMetricCard(
         label: 'Documentos sensibles',
         value: String(values.sensitiveDocuments),
         helper: 'Alta o critica',
+      };
+    case 'documentos_por_vencer':
+      return {
+        label: 'Documentos por vencer',
+        value: String(values.expiringDocuments),
+        helper: 'Por vencer o vencidos',
       };
     case 'actividad_reciente':
       return null;
@@ -160,7 +169,7 @@ export default async function DashboardPage() {
 
     supabase
       .from('documents')
-      .select('id, file_name, file_mime_type, document_type, sensitivity_level, created_at')
+      .select('id, file_name, file_mime_type, document_type, sensitivity_level, created_at, expires_at')
       .eq('organization_id', profile.organization_id)
       .order('created_at', { ascending: false }),
 
@@ -221,6 +230,12 @@ export default async function DashboardPage() {
     isSensitiveDocument(document.sensitivity_level)
   );
 
+  const expiringDocuments = documents.filter((document) => {
+    if (!document.expires_at) return false;
+    const status = getDocumentExpiryStatus(document.expires_at);
+    return status === 'por_vencer' || status === 'vencido';
+  }).length;
+
   const metricCards = dashboardCards
     .map((card) =>
       buildMetricCard(card, {
@@ -228,6 +243,7 @@ export default async function DashboardPage() {
         loadedDocuments: documentsCount.count ?? 0,
         pendingAnalysis: pendingDocuments.length,
         sensitiveDocuments: sensitiveDocuments.length,
+        expiringDocuments,
       })
     )
     .filter((card): card is NonNullable<typeof card> => Boolean(card));
