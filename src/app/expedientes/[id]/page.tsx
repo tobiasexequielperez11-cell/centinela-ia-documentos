@@ -18,6 +18,9 @@ import {
   linkChecklistItemDocument,
   toggleChecklistItem,
   updateCaseStatus,
+  toggleChecklistItemNotRequired,
+  addChecklistItem,
+  removeChecklistItem,
 } from '../actions';
 import type { CaseRecord } from '@/types/case';
 
@@ -422,10 +425,13 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
             <h3 className="text-lg font-bold text-slate-950">
               Checklist documental
             </h3>
+            <p className="mt-1 text-sm text-slate-500">
+              Lista sugerida. Marcá lo que no aplica o agregá lo que necesites.
+            </p>
 
             {checklistItems.length === 0 && (
-              <p className="mt-1 text-sm text-slate-500">
-                Sin checklist para este expediente.
+              <p className="mt-5 text-sm text-slate-500">
+                Aún no hay ítems en este checklist.
               </p>
             )}
 
@@ -475,57 +481,81 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                   {checklistItems.map((item) => {
                     const isDone = item.status === 'received' || item.status === 'reviewed';
                     const isMissing = item.status === 'pending' || item.status === 'rejected';
+                    const isNotRequired = item.status === 'not_required';
 
                     return (
-                      <div key={item.id} className="space-y-3">
-                      <form
-                        action={toggleChecklistItem}
-                        className={`flex items-center gap-3 rounded-2xl border p-3 transition-colors ${
+                      <div key={item.id} className={`space-y-3 ${isNotRequired ? 'opacity-60' : ''}`}>
+                      <div className={`flex items-center gap-3 rounded-2xl border p-3 transition-colors ${
                           isMissing
                             ? 'border-[#F59E0B] bg-white'
+                            : isNotRequired
+                            ? 'border-slate-200 bg-slate-100'
                             : 'border-slate-200 bg-slate-50'
-                        }`}
-                      >
-                        <input type="hidden" name="case_id" value={caseRecord.id} />
-                        <input type="hidden" name="item_id" value={item.id} />
-                        <input type="hidden" name="current_status" value={item.status} />
+                        }`}>
+                        
+                        {!isNotRequired ? (
+                          <form action={toggleChecklistItem} className="shrink-0">
+                            <input type="hidden" name="case_id" value={caseRecord.id} />
+                            <input type="hidden" name="item_id" value={item.id} />
+                            <input type="hidden" name="current_status" value={item.status} />
+                            <button
+                              type="submit"
+                              aria-label={isDone ? 'Marcar como pendiente' : 'Marcar como recibido'}
+                              className={`flex h-5 w-5 items-center justify-center rounded-md border text-xs font-bold ${
+                                isDone
+                                  ? 'border-sky-500 bg-sky-500 text-white'
+                                  : 'border-slate-300 bg-white text-transparent'
+                              }`}
+                            >
+                              ✓
+                            </button>
+                          </form>
+                        ) : (
+                          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-slate-300 bg-slate-200 text-xs text-transparent">✓</div>
+                        )}
 
-                      <button
-                        type="submit"
-                        aria-label={isDone ? 'Marcar como pendiente' : 'Marcar como recibido'}
-                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border text-xs font-bold ${
-                          isDone
-                            ? 'border-sky-500 bg-sky-500 text-white'
-                            : 'border-slate-300 bg-white text-transparent'
-                        }`}
-                      >
-                        ✓
-                      </button>
-
-                      <div className="min-w-0 flex-1">
-                        <p
-                          className={`text-sm font-semibold ${
-                            isDone
-                              ? 'text-slate-500 line-through'
-                              : 'text-slate-900'
-                          }`}
-                        >
-                          {item.title}
-                        </p>
-                        <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                          {checklistStatusLabel(item.status)}
-                        </p>
+                        <div className="min-w-0 flex-1">
+                          <p
+                            className={`text-sm font-semibold ${
+                              isDone || isNotRequired
+                                ? 'text-slate-500 line-through'
+                                : 'text-slate-900'
+                            }`}
+                          >
+                            {item.title}
+                          </p>
+                          <div className="mt-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                            <span>{checklistStatusLabel(item.status)}</span>
+                            <span>•</span>
+                            <form action={toggleChecklistItemNotRequired} className="inline-block">
+                              <input type="hidden" name="case_id" value={caseRecord.id} />
+                              <input type="hidden" name="item_id" value={item.id} />
+                              <input type="hidden" name="current_status" value={item.status} />
+                              <button type="submit" className="text-slate-500 hover:text-slate-700 underline decoration-slate-300 underline-offset-2">
+                                {isNotRequired ? 'Restaurar' : 'No aplica'}
+                              </button>
+                            </form>
+                            <span>•</span>
+                            <form action={removeChecklistItem} className="inline-block">
+                              <input type="hidden" name="case_id" value={caseRecord.id} />
+                              <input type="hidden" name="item_id" value={item.id} />
+                              <button type="submit" className="text-rose-400 hover:text-rose-600 underline decoration-rose-200 underline-offset-2">
+                                Quitar
+                              </button>
+                            </form>
+                          </div>
+                        </div>
                       </div>
-                    </form>
 
-                    {item.documents ? (
+                    {item.documents && !isNotRequired ? (
                       <p className="rounded-xl bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-700">
                         Vinculado: {item.documents.file_name}
                       </p>
                     ) : null}
 
-                    <form
-                      action={linkChecklistItemDocument}
+                    {!isNotRequired && (
+                      <form
+                        action={linkChecklistItemDocument}
                       className="rounded-2xl border border-slate-200 bg-white p-3"
                     >
                       <input type="hidden" name="case_id" value={caseRecord.id} />
@@ -564,12 +594,26 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                         </button>
                       </div>
                     </form>
+                    )}
                     </div>
                   );
                 })}
               </div>
             </>
             ) : null}
+            <form action={addChecklistItem} className="mt-5 flex items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+              <input type="hidden" name="case_id" value={caseRecord.id} />
+              <input 
+                type="text" 
+                name="title" 
+                placeholder="Agregar documento al checklist…" 
+                required
+                className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400"
+              />
+              <button className="shrink-0 rounded-xl bg-slate-950 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800">
+                Agregar
+              </button>
+            </form>
           </aside>
 
         </div>

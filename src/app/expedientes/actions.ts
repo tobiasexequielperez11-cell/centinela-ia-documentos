@@ -401,3 +401,153 @@ export async function linkChecklistItemDocument(formData: FormData) {
 
   revalidatePath(`/expedientes/${caseId}`);
 }
+
+export async function toggleChecklistItemNotRequired(formData: FormData) {
+  const { user, profile } = await getUserProfile();
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+  if (!isUserRole(profile.role) || !canUpdateCase(profile.role)) denyCaseAction();
+
+  const caseId = String(formData.get('case_id') || '');
+  const itemId = String(formData.get('item_id') || '');
+  const currentStatus = String(formData.get('current_status') || '');
+  const nextStatus = currentStatus === 'not_required' ? 'pending' : 'not_required';
+
+  if (!caseId || !itemId) redirect('/expedientes');
+  const supabase = await createClient();
+
+  const { data: checklistItem, error: itemError } = await supabase
+    .from('checklist_items')
+    .select('id, status, checklists!inner(id, case_id, organization_id)')
+    .eq('id', itemId)
+    .eq('checklists.case_id', caseId)
+    .eq('checklists.organization_id', profile.organization_id)
+    .maybeSingle();
+
+  if (itemError || !checklistItem) {
+    revalidatePath(`/expedientes/${caseId}`);
+    return;
+  }
+
+  const { error } = await supabase
+    .from('checklist_items')
+    .update({ status: nextStatus })
+    .eq('id', itemId);
+
+  if (!error) {
+    await createAuditLog({
+      organizationId: profile.organization_id,
+      userId: user.id,
+      action: 'checklist_item_marked',
+      resourceType: 'case',
+      resourceId: caseId,
+      metadata: { checklist_item_id: itemId, previous_status: currentStatus, next_status: nextStatus },
+    });
+  }
+  revalidatePath(`/expedientes/${caseId}`);
+}
+
+export async function addChecklistItem(formData: FormData) {
+  const { user, profile } = await getUserProfile();
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+  if (!isUserRole(profile.role) || !canUpdateCase(profile.role)) denyCaseAction();
+
+  const caseId = String(formData.get('case_id') || '');
+  const title = String(formData.get('title') || '').trim();
+
+  if (!caseId || !title) {
+    revalidatePath(`/expedientes/${caseId}`);
+    return;
+  }
+  const supabase = await createClient();
+
+  let checklistId: string | undefined = undefined;
+  const { data: existingChecklist } = await supabase
+    .from('checklists')
+    .select('id')
+    .eq('case_id', caseId)
+    .eq('organization_id', profile.organization_id)
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (existingChecklist) {
+    checklistId = existingChecklist.id;
+  } else {
+    const { data: newChecklist, error: newChecklistError } = await supabase
+      .from('checklists')
+      .insert({
+        organization_id: profile.organization_id,
+        case_id: caseId,
+        name: 'Checklist documental',
+        template_type: 'custom',
+      })
+      .select('id')
+      .single();
+    if (!newChecklistError && newChecklist) {
+      checklistId = newChecklist.id;
+    }
+  }
+
+  if (checklistId) {
+    const { error } = await supabase
+      .from('checklist_items')
+      .insert({ checklist_id: checklistId, title, status: 'pending' });
+
+    if (!error) {
+      await createAuditLog({
+        organizationId: profile.organization_id,
+        userId: user.id,
+        action: 'checklist_item_added',
+        resourceType: 'case',
+        resourceId: caseId,
+        metadata: { title },
+      });
+    }
+  }
+  revalidatePath(`/expedientes/${caseId}`);
+}
+
+export async function removeChecklistItem(formData: FormData) {
+  const { user, profile } = await getUserProfile();
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+  if (!isUserRole(profile.role) || !canUpdateCase(profile.role)) denyCaseAction();
+
+  const caseId = String(formData.get('case_id') || '');
+  const itemId = String(formData.get('item_id') || '');
+
+  if (!caseId || !itemId) redirect('/expedientes');
+  const supabase = await createClient();
+
+  const { data: checklistItem, error: itemError } = await supabase
+    .from('checklist_items')
+    .select('id, checklists!inner(id, case_id, organization_id)')
+    .eq('id', itemId)
+    .eq('checklists.case_id', caseId)
+    .eq('checklists.organization_id', profile.organization_id)
+    .maybeSingle();
+
+  if (itemError || !checklistItem) {
+    revalidatePath(`/expedientes/${caseId}`);
+    return;
+  }
+
+  const { error } = await supabase
+    .from('checklist_items')
+    .delete()
+    .eq('id', itemId);
+
+  if (!error) {
+    await createAuditLog({
+      organizationId: profile.organization_id,
+      userId: user.id,
+      action: 'checklist_item_removed',
+      resourceType: 'case',
+      resourceId: caseId,
+      metadata: { checklist_item_id: itemId },
+    });
+  }
+  revalidatePath(`/expedientes/${caseId}`);
+}
