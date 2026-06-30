@@ -538,18 +538,6 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
             ) : null}
           </aside>
 
-          <aside className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-950">
-              Estado del expediente
-            </h3>
-
-            <div className="mt-5 space-y-3 text-sm text-slate-600">
-              <p>- Documentacion asociada desde la boveda documental.</p>
-              <p>- Seguimiento operativo del estado del caso.</p>
-              <p>- Control de revision documental e IA.</p>
-              <p>- Preparado para reportes y trazabilidad.</p>
-            </div>
-          </aside>
         </div>
       </div>
     </AppShell>
