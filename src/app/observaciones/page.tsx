@@ -1,0 +1,288 @@
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { AppShell } from '@/components/layout/AppShell';
+import { createClient } from '@/lib/supabase/server';
+import { getUserProfile } from '@/lib/auth/getUserProfile';
+import { summarizeChecklistStatuses } from '@/lib/checklist/progress';
+import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles, getDaysUntilExpiry } from '@/lib/documents/expiry';
+import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
+
+function isSensitiveDocument(value?: string | null) {
+  const normalized = String(value ?? '').toLowerCase();
+  return ['high', 'critical', 'alto', 'alta', 'critica', 'crítica', 'critico'].includes(
+    normalized
+  );
+}
+
+function formatExpiryDate(value?: string | null) {
+  if (!value) return '-';
+  const parts = value.split('-');
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+  return value;
+}
+
+export default async function ObservacionesPage() {
+  const { user, profile } = await getUserProfile();
+
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+
+  const supabase = await createClient();
+
+  const [documentsResult, aiOutputsResult, casesResult, checklistItemsResult] = await Promise.all([
+    supabase
+      .from('documents')
+      .select('id, file_name, document_type, sensitivity_level, expires_at, case_id, file_mime_type, created_at')
+      .eq('organization_id', profile.organization_id)
+      .order('created_at', { ascending: false }),
+
+    supabase
+      .from('ai_outputs')
+      .select('document_id')
+      .eq('organization_id', profile.organization_id)
+      .eq('output_type', 'document_analysis'),
+
+    supabase
+      .from('cases')
+      .select('id, title, status')
+      .eq('organization_id', profile.organization_id)
+      .neq('status', 'archived')
+      .neq('status', 'Archivado')
+      .order('created_at', { ascending: false }),
+
+    supabase
+      .from('checklist_items')
+      .select('status, checklists!inner(case_id)')
+      .eq('checklists.organization_id', profile.organization_id)
+  ]);
+
+  const documents = documentsResult.data ?? [];
+  const aiOutputs = aiOutputsResult.data ?? [];
+  const cases = casesResult.data ?? [];
+  const checklistItems = checklistItemsResult.data ?? [];
+
+  // 1. Documentos sensibles
+  const sensiblesAll = documents.filter((doc) => isSensitiveDocument(doc.sensitivity_level));
+  const sensibles = sensiblesAll.slice(0, 8);
+
+  // 2. Vencimientos a revisar
+  const vencimientosAll = documents.filter((doc) => {
+    if (!doc.expires_at) return false;
+    const status = getDocumentExpiryStatus(doc.expires_at);
+    return status === 'por_vencer' || status === 'vencido';
+  }).sort((a, b) => {
+    const daysA = getDaysUntilExpiry(a.expires_at!) ?? 0;
+    const daysB = getDaysUntilExpiry(b.expires_at!) ?? 0;
+    return daysA - daysB;
+  });
+  const vencimientos = vencimientosAll.slice(0, 8);
+
+  // 3. Expedientes incompletos
+  const statusesByCase = checklistItems.reduce((acc: Record<string, string[]>, item: any) => {
+    const caseId = item.checklists.case_id;
+    if (!acc[caseId]) acc[caseId] = [];
+    acc[caseId].push(item.status);
+    return acc;
+  }, {});
+
+  const incompletosAll = cases.map((c) => {
+    const statuses = statusesByCase[c.id] || [];
+    const summary = summarizeChecklistStatuses(statuses);
+    return { ...c, summary };
+  }).filter((c) => !c.summary.isComplete && c.summary.total > 0);
+  const incompletos = incompletosAll.slice(0, 8);
+
+  // 4. Análisis IA pendientes
+  const analyzedDocIds = new Set(aiOutputs.map(o => String(o.document_id)));
+  const iaPendientesAll = documents.filter((doc) => !analyzedDocIds.has(String(doc.id)));
+  const iaPendientes = iaPendientesAll.slice(0, 8);
+
+  // 5. Documentos sin clasificar
+  const sinClasificarAll = documents.filter((doc) => !doc.document_type || doc.document_type.trim() === '');
+  const sinClasificar = sinClasificarAll.slice(0, 8);
+
+  const totalObservaciones = sensiblesAll.length + vencimientosAll.length + incompletosAll.length + iaPendientesAll.length + sinClasificarAll.length;
+
+  return (
+    <AppShell>
+      <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+            Observaciones IA
+          </p>
+          <h2 className="mt-2 text-3xl font-bold text-slate-950">
+            Centro de atención operativa
+          </h2>
+          <p className="mt-2 text-sm text-slate-600">
+            Documentos y expedientes que requieren revisión en entorno controlado.
+          </p>
+        </div>
+      </div>
+
+      <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-semibold text-slate-500">Doc. sensibles</p>
+          <p className={`mt-2 text-3xl font-bold ${sensiblesAll.length > 0 ? 'text-rose-600' : 'text-slate-950'}`}>
+            {sensiblesAll.length}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-semibold text-slate-500">Vencimientos</p>
+          <p className={`mt-2 text-3xl font-bold ${vencimientosAll.length > 0 ? 'text-amber-500' : 'text-slate-950'}`}>
+            {vencimientosAll.length}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-semibold text-slate-500">Exp. incompletos</p>
+          <p className={`mt-2 text-3xl font-bold ${incompletosAll.length > 0 ? 'text-amber-500' : 'text-slate-950'}`}>
+            {incompletosAll.length}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-semibold text-slate-500">IA pendiente</p>
+          <p className={`mt-2 text-3xl font-bold ${iaPendientesAll.length > 0 ? 'text-sky-600' : 'text-slate-950'}`}>
+            {iaPendientesAll.length}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-semibold text-slate-500">Sin clasificar</p>
+          <p className={`mt-2 text-3xl font-bold ${sinClasificarAll.length > 0 ? 'text-slate-600' : 'text-slate-950'}`}>
+            {sinClasificarAll.length}
+          </p>
+        </div>
+      </div>
+
+      {totalObservaciones === 0 ? (
+        <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-8 text-center shadow-sm">
+          <p className="text-lg font-bold text-emerald-900">No hay observaciones pendientes. Todo en orden. ✅</p>
+          <p className="mt-2 text-sm text-emerald-800">El entorno controlado no detecta tareas operativas críticas en este momento.</p>
+        </div>
+      ) : (
+        <div className="grid gap-6 xl:grid-cols-2">
+          {/* 1. Documentos sensibles */}
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 className="text-lg font-bold text-slate-950">Documentos sensibles</h3>
+            <p className="mt-1 text-sm text-slate-500">Archivos marcados con alta criticidad.</p>
+            <div className="mt-4 space-y-3">
+              {sensibles.length > 0 ? sensibles.map((doc) => (
+                <div key={doc.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                  <div className="overflow-hidden">
+                    <Link href={`/documentos/${doc.id}`}>
+                      <p className="truncate font-bold text-slate-950 hover:text-sky-700">{doc.file_name}</p>
+                    </Link>
+                    <p className="truncate text-xs text-slate-500">{getDocumentTypeLabel(doc.document_type)}</p>
+                  </div>
+                  <span className="ml-3 shrink-0 rounded-full bg-rose-100 px-2 py-1 text-xs font-bold text-rose-700">Sensible</span>
+                </div>
+              )) : (
+                <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800">Sin documentos sensibles.</div>
+              )}
+              {sensiblesAll.length > 8 && <Link href="/reportes?vista=sensibilidad" className="block text-sm font-bold text-sky-600 hover:text-sky-700">Ver todos los sensibles ({sensiblesAll.length})</Link>}
+            </div>
+          </section>
+
+          {/* 2. Vencimientos a revisar */}
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 className="text-lg font-bold text-slate-950">Vencimientos a revisar</h3>
+            <p className="mt-1 text-sm text-slate-500">Documentos próximos a vencer o vencidos.</p>
+            <div className="mt-4 space-y-3">
+              {vencimientos.length > 0 ? vencimientos.map((doc) => {
+                const status = getDocumentExpiryStatus(doc.expires_at!);
+                const badgeStyles = getExpiryBadgeStyles(status);
+                const label = expiryStatusLabel(status);
+                return (
+                  <div key={doc.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                    <div className="overflow-hidden">
+                      <Link href={`/documentos/${doc.id}`}>
+                        <p className="truncate font-bold text-slate-950 hover:text-sky-700">{doc.file_name}</p>
+                      </Link>
+                      <p className="truncate text-xs text-slate-500">{formatExpiryDate(doc.expires_at)}</p>
+                    </div>
+                    <span className={`ml-3 shrink-0 rounded-full px-2 py-1 text-xs font-bold ${badgeStyles}`}>{label}</span>
+                  </div>
+                );
+              }) : (
+                <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800">Sin vencimientos próximos.</div>
+              )}
+              {vencimientosAll.length > 8 && <Link href="/reportes?vista=vencimientos" className="block text-sm font-bold text-sky-600 hover:text-sky-700">Ver todos los vencimientos ({vencimientosAll.length})</Link>}
+            </div>
+          </section>
+
+          {/* 3. Expedientes incompletos */}
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 className="text-lg font-bold text-slate-950">Expedientes incompletos</h3>
+            <p className="mt-1 text-sm text-slate-500">Falta documentación requerida en checklist.</p>
+            <div className="mt-4 space-y-3">
+              {incompletos.length > 0 ? incompletos.map((c) => (
+                <div key={c.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                  <div className="overflow-hidden">
+                    <Link href={`/expedientes/${c.id}`}>
+                      <p className="truncate font-bold text-slate-950 hover:text-sky-700">{c.title || 'Expediente sin título'}</p>
+                    </Link>
+                  </div>
+                  <span className="ml-3 shrink-0 rounded-full bg-amber-100 px-2 py-1 text-xs font-bold text-amber-700">
+                    Faltan {c.summary.missing} de {c.summary.total}
+                  </span>
+                </div>
+              )) : (
+                <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800">Todos los expedientes están completos.</div>
+              )}
+              {incompletosAll.length > 8 && <Link href="/expedientes" className="block text-sm font-bold text-sky-600 hover:text-sky-700">Ver todos los expedientes</Link>}
+            </div>
+          </section>
+
+          {/* 4. Análisis IA pendientes */}
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 className="text-lg font-bold text-slate-950">Análisis IA pendientes</h3>
+            <p className="mt-1 text-sm text-slate-500">Documentos que no han sido procesados por la IA.</p>
+            <div className="mt-4 space-y-3">
+              {iaPendientes.length > 0 ? iaPendientes.map((doc) => {
+                const isPdf = doc.file_mime_type === 'application/pdf';
+                return (
+                  <div key={doc.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                    <div className="overflow-hidden">
+                      <Link href={`/documentos/${doc.id}`}>
+                        <p className="truncate font-bold text-slate-950 hover:text-sky-700">{doc.file_name}</p>
+                      </Link>
+                    </div>
+                    {isPdf ? (
+                      <span className="ml-3 shrink-0 rounded-full bg-sky-100 px-2 py-1 text-xs font-bold text-sky-700">IA pendiente</span>
+                    ) : (
+                      <span className="ml-3 shrink-0 rounded-full bg-slate-200 px-2 py-1 text-xs font-bold text-slate-600">Solo PDF</span>
+                    )}
+                  </div>
+                );
+              }) : (
+                <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800">Análisis IA al día.</div>
+              )}
+              {iaPendientesAll.length > 8 && <Link href="/documentos?ia=pendientes" className="block text-sm font-bold text-sky-600 hover:text-sky-700">Ver todos los pendientes ({iaPendientesAll.length})</Link>}
+            </div>
+          </section>
+
+          {/* 5. Documentos sin clasificar */}
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm xl:col-span-2">
+            <h3 className="text-lg font-bold text-slate-950">Documentos sin clasificar</h3>
+            <p className="mt-1 text-sm text-slate-500">Documentos que no tienen un tipo asignado.</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {sinClasificar.length > 0 ? sinClasificar.map((doc) => (
+                <div key={doc.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                  <div className="overflow-hidden">
+                    <Link href={`/documentos/${doc.id}`}>
+                      <p className="truncate font-bold text-slate-950 hover:text-sky-700">{doc.file_name}</p>
+                    </Link>
+                  </div>
+                  <span className="ml-3 shrink-0 rounded-full bg-slate-200 px-2 py-1 text-xs font-bold text-slate-600">Sin clasificar</span>
+                </div>
+              )) : (
+                <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800 sm:col-span-2">Todos los documentos están clasificados.</div>
+              )}
+            </div>
+            {sinClasificarAll.length > 8 && <Link href="/documentos" className="mt-3 block text-sm font-bold text-sky-600 hover:text-sky-700">Ver todos los documentos</Link>}
+          </section>
+        </div>
+      )}
+    </AppShell>
+  );
+}
