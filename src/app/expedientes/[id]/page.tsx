@@ -13,6 +13,7 @@ import {
   normalizeIndustryType,
 } from '@/lib/industries/documentTypes';
 import { summarizeChecklistStatuses } from '@/lib/checklist/progress';
+import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles, getDaysUntilExpiry } from '@/lib/documents/expiry';
 import {
   linkChecklistItemDocument,
   toggleChecklistItem,
@@ -114,6 +115,15 @@ function sensitivityLabel(value?: string | null) {
   };
 
   return labels[String(value ?? '').toLowerCase()] ?? value ?? 'Sin clasificar';
+}
+
+function formatPlazoDate(value?: string | null) {
+  if (!value) return '—';
+  const parts = value.split('-');
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+  return value;
 }
 
 export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
@@ -236,17 +246,41 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
               </p>
             </div>
 
-            {visibleMetadataFields.map((field) => (
-              <div key={field.key} className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  {field.label}
-                </p>
-
-                <p className="mt-2 font-bold text-slate-950">
-                  {getMetadataValue(caseRecord.metadata, field.key)}
-                </p>
-              </div>
-            ))}
+            {visibleMetadataFields.map((field) => {
+              const value = getMetadataValue(caseRecord.metadata, field.key);
+              if (field.key === 'fecha_relevante' && value) {
+                const status = getDocumentExpiryStatus(value);
+                const days = getDaysUntilExpiry(value) ?? 0;
+                return (
+                  <div key={field.key} className="rounded-2xl bg-slate-50 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      {field.label}
+                    </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <p className="font-bold text-slate-950">
+                        {formatPlazoDate(value)}
+                      </p>
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getExpiryBadgeStyles(status)}`}>
+                        {expiryStatusLabel(status)}
+                      </span>
+                      <span className="text-xs font-medium text-slate-500">
+                        {days >= 0 ? `(faltan ${days} días)` : `(vencido hace ${Math.abs(days)} días)`}
+                      </span>
+                    </div>
+                  </div>
+                );
+              }
+              return (
+                <div key={field.key} className="rounded-2xl bg-slate-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    {field.label}
+                  </p>
+                  <p className="mt-2 font-bold text-slate-950">
+                    {value}
+                  </p>
+                </div>
+              );
+            })}
           </div>
 
           <form action={updateCaseStatus} className="mt-6 grid gap-4">

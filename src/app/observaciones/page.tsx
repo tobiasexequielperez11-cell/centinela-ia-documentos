@@ -46,7 +46,7 @@ export default async function ObservacionesPage() {
 
     supabase
       .from('cases')
-      .select('id, title, status')
+      .select('id, title, status, metadata')
       .eq('organization_id', profile.organization_id)
       .neq('status', 'archived')
       .neq('status', 'Archivado')
@@ -103,7 +103,21 @@ export default async function ObservacionesPage() {
   const sinClasificarAll = documents.filter((doc) => !doc.document_type || doc.document_type.trim() === '');
   const sinClasificar = sinClasificarAll.slice(0, 8);
 
-  const totalObservaciones = sensiblesAll.length + vencimientosAll.length + incompletosAll.length + iaPendientesAll.length + sinClasificarAll.length;
+  // 6. Plazos procesales / fechas clave
+  const plazosAll = cases
+    .map((c) => {
+      const fecha = ((c.metadata as Record<string, unknown> | null)?.fecha_relevante as string | undefined)?.trim();
+      return fecha ? { id: c.id, title: c.title, fecha } : null;
+    })
+    .filter((c): c is { id: string; title: string; fecha: string } => {
+      if (!c) return false;
+      const status = getDocumentExpiryStatus(c.fecha);
+      return status === 'por_vencer' || status === 'vencido';
+    })
+    .sort((a, b) => (getDaysUntilExpiry(a.fecha) ?? 0) - (getDaysUntilExpiry(b.fecha) ?? 0));
+  const plazos = plazosAll.slice(0, 8);
+
+  const totalObservaciones = sensiblesAll.length + vencimientosAll.length + incompletosAll.length + iaPendientesAll.length + sinClasificarAll.length + plazosAll.length;
 
   return (
     <AppShell>
@@ -121,7 +135,7 @@ export default async function ObservacionesPage() {
         </div>
       </div>
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <p className="text-sm font-semibold text-slate-500">Doc. sensibles</p>
           <p className={`mt-2 text-3xl font-bold ${sensiblesAll.length > 0 ? 'text-rose-600' : 'text-slate-950'}`}>
@@ -150,6 +164,12 @@ export default async function ObservacionesPage() {
           <p className="text-sm font-semibold text-slate-500">Sin clasificar</p>
           <p className={`mt-2 text-3xl font-bold ${sinClasificarAll.length > 0 ? 'text-slate-600' : 'text-slate-950'}`}>
             {sinClasificarAll.length}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-semibold text-slate-500">Plazos</p>
+          <p className={`mt-2 text-3xl font-bold ${plazosAll.length > 0 ? 'text-amber-500' : 'text-slate-950'}`}>
+            {plazosAll.length}
           </p>
         </div>
       </div>
@@ -182,6 +202,7 @@ export default async function ObservacionesPage() {
               {sensiblesAll.length > 8 && <Link href="/reportes?vista=sensibilidad" className="block text-sm font-bold text-sky-600 hover:text-sky-700">Ver todos los sensibles ({sensiblesAll.length})</Link>}
             </div>
           </section>
+
 
           {/* 2. Vencimientos a revisar */}
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -280,6 +301,33 @@ export default async function ObservacionesPage() {
               )}
             </div>
             {sinClasificarAll.length > 8 && <Link href="/documentos" className="mt-3 block text-sm font-bold text-sky-600 hover:text-sky-700">Ver todos los documentos</Link>}
+          </section>
+
+          {/* 6. Plazos procesales / fechas clave */}
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 className="text-lg font-bold text-slate-950">Plazos procesales / fechas clave</h3>
+            <p className="mt-1 text-sm text-slate-500">Expedientes con audiencia o plazo próximo o vencido.</p>
+            <div className="mt-4 space-y-3">
+              {plazos.length > 0 ? plazos.map((item) => {
+                const status = getDocumentExpiryStatus(item.fecha);
+                const badgeStyles = getExpiryBadgeStyles(status);
+                const label = expiryStatusLabel(status);
+                return (
+                  <div key={item.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                    <div className="overflow-hidden">
+                      <Link href={`/expedientes/${item.id}`}>
+                        <p className="truncate font-bold text-slate-950 hover:text-sky-700">{item.title || 'Expediente sin título'}</p>
+                      </Link>
+                      <p className="truncate text-xs text-slate-500">{formatExpiryDate(item.fecha)}</p>
+                    </div>
+                    <span className={`ml-3 shrink-0 rounded-full px-2 py-1 text-xs font-bold ${badgeStyles}`}>{label}</span>
+                  </div>
+                );
+              }) : (
+                <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800">Sin plazos próximos.</div>
+              )}
+              {plazosAll.length > 8 && <Link href="/expedientes" className="block text-sm font-bold text-sky-600 hover:text-sky-700">Ver todos ({plazosAll.length})</Link>}
+            </div>
           </section>
         </div>
       )}

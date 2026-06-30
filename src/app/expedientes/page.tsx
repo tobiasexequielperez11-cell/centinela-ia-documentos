@@ -6,6 +6,7 @@ import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
 import { normalizeIndustryType } from '@/lib/industries/documentTypes';
 import { summarizeChecklistStatuses } from '@/lib/checklist/progress';
+import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles } from '@/lib/documents/expiry';
 import type { CaseRecord } from '@/types/case';
 
 function caseTypeLabel(type?: string | null) {
@@ -30,6 +31,15 @@ function displayText(value?: string | null, fallback = 'Sin definir') {
   if (!cleanValue) return fallback;
 
   return cleanValue;
+}
+
+function formatPlazoDate(value?: string | null) {
+  if (!value) return '—';
+  const parts = value.split('-');
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+  return value;
 }
 
 export default async function CasesPage() {
@@ -107,6 +117,7 @@ export default async function CasesPage() {
               <th className="px-5 py-4">Cliente</th>
               <th className="px-5 py-4">Tipo</th>
               <th className="px-5 py-4">Estado</th>
+              <th className="px-5 py-4">Próximo plazo</th>
               <th className="px-5 py-4">Documentación</th>
               <th className="px-5 py-4">Accion</th>
             </tr>
@@ -129,6 +140,28 @@ export default async function CasesPage() {
 
                 <td className="px-5 py-4 text-slate-600">
                   {getCaseStatusLabel(item.status, organizationIndustry)}
+                </td>
+
+                <td className="px-5 py-4">
+                  {(() => {
+                    const plazo = ((item.metadata as Record<string, unknown> | null)?.fecha_relevante as string | undefined)?.trim();
+                    if (!plazo) {
+                      return (
+                        <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                          Sin fecha
+                        </span>
+                      );
+                    }
+                    const status = getDocumentExpiryStatus(plazo);
+                    return (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-slate-700">{formatPlazoDate(plazo)}</span>
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${getExpiryBadgeStyles(status)}`}>
+                          {expiryStatusLabel(status)}
+                        </span>
+                      </div>
+                    );
+                  })()}
                 </td>
 
                 <td className="px-5 py-4">
