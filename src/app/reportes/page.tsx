@@ -4,7 +4,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { formatAuditActionLabel } from '@/lib/audit/actionLabels';
-import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
+import { getDocumentTypeLabel, normalizeIndustryType } from '@/lib/industries/documentTypes';
 import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
 import { formatFileSize } from '@/lib/format/fileSize';
 import { analyzeDocument } from '../documentos/actions';
@@ -17,7 +17,8 @@ type ReportView =
   | 'sensibilidad'
   | 'auditoria'
   | 'invitaciones'
-  | 'vencimientos';
+  | 'vencimientos'
+  | 'estado_procesal';
 
 type AuditFilter = 'todos' | 'documentos' | 'ia' | 'expedientes' | 'invitaciones';
 
@@ -32,6 +33,7 @@ interface CaseRecord {
   case_type?: string | null;
   status?: string | null;
   created_at?: string | null;
+  metadata?: Record<string, unknown> | null;
 }
 
 interface DocumentRecordForReport {
@@ -257,7 +259,8 @@ function isValidView(value?: string): value is ReportView {
     value === 'sensibilidad' ||
     value === 'auditoria' ||
     value === 'invitaciones' ||
-    value === 'vencimientos'
+    value === 'vencimientos' ||
+    value === 'estado_procesal'
   );
 }
 
@@ -466,6 +469,14 @@ if (
 }
   const supabase = await createClient();
 
+  const { data: organization } = await supabase
+    .from('organizations')
+    .select('industry_type')
+    .eq('id', profile.organization_id)
+    .maybeSingle();
+  const industry = normalizeIndustryType(organization?.industry_type);
+  const isLegal = industry === 'legal';
+
   const [
     casesResult,
     documentsResult,
@@ -477,7 +488,7 @@ if (
   ] = await Promise.all([
     supabase
       .from('cases')
-      .select('id, title, client_name, case_type, status, created_at')
+      .select('id, title, client_name, case_type, status, created_at, metadata')
       .eq('organization_id', profile.organization_id)
       .order('created_at', { ascending: false }),
 
@@ -757,10 +768,34 @@ if (
     },
   ];
 
+  const ORDEN_ESTADO_PROCESAL = [
+    'Etapa prejudicial / Mediación','Inicio de demanda','Traslado / Notificación',
+    'Contestación de demanda','Etapa de prueba','Alegatos','Sentencia (1ª instancia)',
+    'Apelación / 2ª instancia','Ejecución de sentencia','Archivado','Otro'
+  ];
+  const casesByEstadoProcesal = new Map<string, CaseRecord[]>();
+  for (const c of cases) {
+    const ep = metadataText(c.metadata, 'estado_procesal') || 'Sin definir';
+    if (!casesByEstadoProcesal.has(ep)) casesByEstadoProcesal.set(ep, []);
+    casesByEstadoProcesal.get(ep)!.push(c);
+  }
+  const estadoProcesalStats = [];
+  for (const label of ORDEN_ESTADO_PROCESAL) {
+    if (casesByEstadoProcesal.has(label)) {
+      const items = casesByEstadoProcesal.get(label)!;
+      estadoProcesalStats.push({ label, items, count: items.length, percent: getPercentage(items.length, totalCases) });
+    }
+  }
+  if (casesByEstadoProcesal.has('Sin definir')) {
+    const items = casesByEstadoProcesal.get('Sin definir')!;
+    estadoProcesalStats.push({ label: 'Sin definir', items, count: items.length, percent: getPercentage(items.length, totalCases) });
+  }
+
   const views: Array<{ label: string; value: ReportView; href: string }> = [
     { label: 'General', value: 'general', href: '/reportes' },
     { label: 'Documentos', value: 'documentos', href: '/reportes?vista=documentos' },
     { label: 'Vencimientos', value: 'vencimientos', href: '/reportes?vista=vencimientos' },
+    ...(isLegal ? [{ label: 'Estado procesal', value: 'estado_procesal' as ReportView, href: '/reportes?vista=estado_procesal' }] : []),
     { label: 'IA documental', value: 'ia', href: '/reportes?vista=ia' },
     { label: 'Sensibilidad', value: 'sensibilidad', href: '/reportes?vista=sensibilidad' },
     { label: 'Invitaciones', value: 'invitaciones', href: '/reportes?vista=invitaciones' },
@@ -1921,6 +1956,67 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
               </div>
             ) : null}
           </div>
+        </section>
+      ) : null}
+
+      {activeView === 'estado_procesal' ? (
+        <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+                Estado procesal
+              </p>
+              <h3 className="mt-2 text-2xl font-bold text-slate-950">
+                Cartera de expedientes por etapa procesal
+              </h3>
+              <p className="mt-2 text-sm text-slate-600">
+                Seguimiento del estado de avance de los expedientes jurídicos.
+              </p>
+            </div>
+          </div>
+
+          {!isLegal ? (
+            <div className="p-6 text-sm text-slate-500 rounded-2xl border border-slate-200 bg-slate-50">
+              Este reporte aplica al rubro jurídico.
+            </div>
+          ) : estadoProcesalStats.length === 0 ? (
+            <div className="p-6 text-sm text-slate-500 rounded-2xl border border-slate-200 bg-slate-50">
+              Todavía no hay expedientes para reportar.
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {estadoProcesalStats.map((stat) => (
+                <div key={stat.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-950">{stat.label}</h4>
+                      <p className="mt-1 text-xs text-slate-500">{stat.count} expedientes ({stat.percent}%)</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-200">
+                    <div
+                      className="h-full bg-sky-500 transition-all duration-500"
+                      style={{ width: `${stat.percent}%` }}
+                    />
+                  </div>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                    {stat.items.map((c) => (
+                      <div key={c.id} className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+                        <Link href={`/expedientes/${c.id}`} className="block truncate font-bold text-sm text-slate-950 hover:text-sky-700">
+                          {c.title}
+                        </Link>
+                        {c.client_name && (
+                          <p className="mt-1 truncate text-xs text-slate-500">
+                            Cliente: {c.client_name}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       ) : null}
     </AppShell>
