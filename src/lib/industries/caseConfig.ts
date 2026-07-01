@@ -136,6 +136,7 @@ export const caseTypesByIndustry: Record<IndustryType, string[]> = {
 
 export type DashboardCardKey =
   | 'expedientes_activos'
+  | 'proximos_plazos'
   | 'documentos_cargados'
   | 'analisis_pendientes'
   | 'documentos_sensibles'
@@ -145,10 +146,11 @@ export type DashboardCardKey =
 export const dashboardCardsByIndustry: Record<IndustryType, DashboardCardKey[]> = {
   legal: [
     'expedientes_activos',
-    'documentos_cargados',
-    'analisis_pendientes',
-    'documentos_sensibles',
+    'proximos_plazos',
     'documentos_por_vencer',
+    'documentos_sensibles',
+    'analisis_pendientes',
+    'documentos_cargados',
     'actividad_reciente',
   ],
   general: ['documentos_cargados', 'analisis_pendientes', 'documentos_por_vencer', 'actividad_reciente'],
@@ -242,6 +244,21 @@ export const legacyCaseStatusLabels: Record<string, string> = {
   'En tramite': 'En trámite',
   'En trámite': 'En trámite',
 };
+
+export function caseTypeLabel(type?: string | null) {
+  const labels: Record<string, string> = {
+    general: 'General',
+    rental: 'Contrato de alquiler',
+    real_estate_purchase: 'Compraventa inmobiliaria',
+    labor: 'Laboral',
+    administrative: 'Administrativo',
+    judicial: 'Judicial',
+    corporate: 'Societario',
+    legal_case: 'Caso jurídico',
+  };
+
+  return labels[type ?? ''] ?? type ?? 'General';
+}
 
 export function getCaseFields(industry: IndustryType): CaseFieldDef[] {
   return caseFieldsByIndustry[industry] ?? [];

@@ -3,27 +3,11 @@ import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
-import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
+import { getCaseStatusLabel, caseTypeLabel } from '@/lib/industries/caseConfig';
 import { normalizeIndustryType } from '@/lib/industries/documentTypes';
 import { summarizeChecklistStatuses } from '@/lib/checklist/progress';
 import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles } from '@/lib/documents/expiry';
 import type { CaseRecord } from '@/types/case';
-
-function caseTypeLabel(type?: string | null) {
-  const labels: Record<string, string> = {
-    general: 'General',
-    rental: 'Contrato de alquiler',
-    real_estate_purchase: 'Compraventa inmobiliaria',
-    labor: 'Laboral',
-    administrative: 'Administrativo',
-    judicial: 'Judicial',
-    corporate: 'Societario',
-    legal_case: 'Caso juridico',
-    accounting_monthly: 'Carpeta contable mensual',
-  };
-
-  return labels[type ?? ''] ?? type ?? 'General';
-}
 
 function displayText(value?: string | null, fallback = 'Sin definir') {
   const cleanValue = value?.trim();

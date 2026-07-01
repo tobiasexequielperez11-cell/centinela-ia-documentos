@@ -91,6 +91,7 @@ function buildMetricCard(
     pendingAnalysis: number;
     sensitiveDocuments: number;
     expiringDocuments: number;
+    proximosPlazos?: number;
   }
 ) {
   switch (card) {
@@ -99,6 +100,13 @@ function buildMetricCard(
         label: 'Expedientes activos',
         value: String(values.activeCases),
         helper: 'Estado Activo',
+      };
+    case 'proximos_plazos':
+      return {
+        label: 'Próximos plazos',
+        value: String(values.proximosPlazos ?? 0),
+        helper: 'Audiencias / plazos próximos o vencidos',
+        href: '/observaciones',
       };
     case 'documentos_cargados':
       return {
@@ -144,7 +152,7 @@ export default async function DashboardPage() {
 
   const [
     organizationResult,
-    casesCount,
+    casesResult,
     documentsCount,
     documentsResult,
     aiOutputsResult,
@@ -158,9 +166,10 @@ export default async function DashboardPage() {
 
     supabase
       .from('cases')
-      .select('*', { count: 'exact', head: true })
+      .select('id, status, metadata')
       .eq('organization_id', profile.organization_id)
-      .eq('status', 'active'),
+      .neq('status', 'archived')
+      .neq('status', 'Archivado'),
 
     supabase
       .from('documents')
@@ -191,10 +200,19 @@ export default async function DashboardPage() {
 
   const industry = normalizeIndustryType(organizationResult.data?.industry_type);
   const dashboardCards = getDashboardCards(industry);
+  const cases = (casesResult.data ?? []) as any[];
   const documents = (documentsResult.data ?? []) as DashboardDocument[];
   const aiOutputs = aiOutputsResult.data ?? [];
   const recentActivity =
     (activityLogsResult.data ?? []) as DashboardActivityLog[];
+
+  const activeCasesCount = cases.filter((c) => c.status === 'active' || c.status === 'Activo').length;
+  const proximosPlazos = cases.filter((c) => {
+    const fecha = ((c.metadata as Record<string, unknown> | null)?.fecha_relevante as string | undefined)?.trim();
+    if (!fecha) return false;
+    const status = getDocumentExpiryStatus(fecha);
+    return status === 'por_vencer' || status === 'vencido';
+  }).length;
 
   const analysisCountByDocument = new Map<string, number>();
 
@@ -239,11 +257,12 @@ export default async function DashboardPage() {
   const metricCards = dashboardCards
     .map((card) =>
       buildMetricCard(card, {
-        activeCases: casesCount.count ?? 0,
+        activeCases: activeCasesCount,
         loadedDocuments: documentsCount.count ?? 0,
         pendingAnalysis: pendingDocuments.length,
         sensitiveDocuments: sensitiveDocuments.length,
         expiringDocuments,
+        proximosPlazos,
       })
     )
     .filter((card): card is NonNullable<typeof card> => Boolean(card));

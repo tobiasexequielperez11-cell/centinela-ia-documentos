@@ -7,6 +7,7 @@ import {
   getCaseFields,
   getCaseStatuses,
   getCaseStatusLabel,
+  caseTypeLabel,
 } from '@/lib/industries/caseConfig';
 import {
   getDocumentTypeLabel,
@@ -94,22 +95,6 @@ function getEventTypeBadgeColor(type: string) {
 }
 
 const darkOptionStyle = { backgroundColor: '#0C2340', color: '#FFFFFF' };
-
-function caseTypeLabel(type?: string | null) {
-  const labels: Record<string, string> = {
-    general: 'General',
-    rental: 'Contrato de alquiler',
-    real_estate_purchase: 'Compraventa inmobiliaria',
-    labor: 'Laboral',
-    administrative: 'Administrativo',
-    judicial: 'Judicial',
-    corporate: 'Societario',
-    legal_case: 'Caso juridico',
-    accounting_monthly: 'Carpeta contable mensual',
-  };
-
-  return labels[type ?? ''] ?? type ?? 'General';
-}
 
 function displayText(value?: string | null, fallback = 'Sin definir') {
   const cleanValue = value?.trim();
