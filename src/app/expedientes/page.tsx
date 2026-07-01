@@ -89,15 +89,15 @@ export default async function CasesPage() {
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
-            Expedientes
+            Gestión de expedientes
           </p>
 
           <h2 className="mt-2 text-3xl font-bold text-slate-950">
-            Carpetas de trabajo
+            Expedientes
           </h2>
 
           <p className="mt-2 text-sm text-slate-600">
-            Gestiona casos, clientes, estados y documentacion asociada desde un unico panel.
+            Todos tus casos, clientes, estados y documentación asociada en un único panel.
           </p>
         </div>
 

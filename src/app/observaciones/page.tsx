@@ -130,7 +130,7 @@ export default async function ObservacionesPage() {
             Centro de atención operativa
           </h2>
           <p className="mt-2 text-sm text-slate-600">
-            Documentos y expedientes que requieren revisión en entorno controlado.
+            Lo que requiere tu acción ahora: pendientes operativos del día a día — documentos sensibles, vencimientos, checklist incompleto y plazos.
           </p>
         </div>
       </div>

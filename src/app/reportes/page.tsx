@@ -853,8 +853,7 @@ if (
           </h2>
 
           <p className="mt-2 text-sm text-slate-600">
-            Vista general de expedientes, documentos, análisis IA, invitaciones y
-            actividad auditada.
+            Análisis y visión de conjunto: métricas, cartera y auditoría para leer el panorama completo del estudio.
           </p>
         </div>
 
