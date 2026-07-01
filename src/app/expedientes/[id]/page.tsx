@@ -265,7 +265,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
         <div className="space-y-6">
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <h3 className="text-lg font-bold text-slate-950">
-            Informacion general
+            Datos del expediente
           </h3>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -326,80 +326,86 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
             })}
           </div>
 
-          <form action={updateCaseStatus} className="mt-6 grid gap-4">
-            <input type="hidden" name="case_id" value={caseRecord.id} />
+          <details open={visibleMetadataFields.length === 0} className="mt-6 group">
+            <summary className="list-none cursor-pointer text-sm font-bold text-sky-600 hover:text-sky-700 flex items-center gap-2 select-none outline-none">
+              <span>✏️ Editar datos del expediente</span>
+              <span className="transition-transform group-open:rotate-90">▸</span>
+            </summary>
+            <form action={updateCaseStatus} className="mt-4 grid gap-4">
+              <input type="hidden" name="case_id" value={caseRecord.id} />
 
-            <div>
-              <label className="text-sm font-semibold text-slate-700">
-                Estado
-              </label>
-              <select
-                name="status"
-                defaultValue={caseRecord.status}
-                className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#0C2340] px-4 py-3 text-white outline-none focus:ring-2 focus:ring-sky-400"
-              >
-                {statusOptions.map((status) => (
-                  <option
-                    key={status.value}
-                    value={status.value}
-                    className="bg-[#0C2340] text-white"
-                    style={darkOptionStyle}
-                  >
-                    {status.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+              <div>
+                <label className="text-sm font-semibold text-slate-700">
+                  Estado
+                </label>
+                <select
+                  name="status"
+                  defaultValue={caseRecord.status}
+                  className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#0C2340] px-4 py-3 text-white outline-none focus:ring-2 focus:ring-sky-400"
+                >
+                  {statusOptions.map((status) => (
+                    <option
+                      key={status.value}
+                      value={status.value}
+                      className="bg-[#0C2340] text-white"
+                      style={darkOptionStyle}
+                    >
+                      {status.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            {caseFields.length > 0 ? (
-              <div className="grid gap-4 sm:grid-cols-2">
-                {caseFields.map((field) => (
-                  <div key={field.key}>
-                    <label className="text-sm font-semibold text-slate-700">
-                      {field.label}
-                    </label>
+              {caseFields.length > 0 ? (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {caseFields.map((field) => (
+                    <div key={field.key}>
+                      <label className="text-sm font-semibold text-slate-700">
+                        {field.label}
+                      </label>
 
-                    {field.type === 'select' ? (
-                      <select
-                        name={`case_metadata.${field.key}`}
-                        defaultValue={getMetadataValue(caseRecord.metadata, field.key)}
-                        className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#0C2340] px-4 py-3 text-white outline-none focus:ring-2 focus:ring-sky-400"
-                      >
-                        <option
-                          value=""
-                          className="bg-[#0C2340] text-white"
-                          style={darkOptionStyle}
+                      {field.type === 'select' ? (
+                        <select
+                          name={`case_metadata.${field.key}`}
+                          defaultValue={getMetadataValue(caseRecord.metadata, field.key)}
+                          className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#0C2340] px-4 py-3 text-white outline-none focus:ring-2 focus:ring-sky-400"
                         >
-                          Sin definir
-                        </option>
-                        {(field.options ?? []).map((option) => (
                           <option
-                            key={option}
-                            value={option}
+                            value=""
                             className="bg-[#0C2340] text-white"
                             style={darkOptionStyle}
                           >
-                            {option}
+                            Sin definir
                           </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <input
-                        name={`case_metadata.${field.key}`}
-                        type={field.type}
-                        defaultValue={getMetadataValue(caseRecord.metadata, field.key)}
-                        className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-sky-400"
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : null}
+                          {(field.options ?? []).map((option) => (
+                            <option
+                              key={option}
+                              value={option}
+                              className="bg-[#0C2340] text-white"
+                              style={darkOptionStyle}
+                            >
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          name={`case_metadata.${field.key}`}
+                          type={field.type}
+                          defaultValue={getMetadataValue(caseRecord.metadata, field.key)}
+                          className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-sky-400"
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : null}
 
-          <button className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800">
-              Actualizar expediente
-            </button>
-          </form>
+              <button className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800">
+                Actualizar expediente
+              </button>
+            </form>
+          </details>
         </section>
 
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -668,46 +674,48 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                     ) : null}
 
                     {!isNotRequired && (
-                      <form
-                        action={linkChecklistItemDocument}
-                      className="rounded-2xl border border-slate-200 bg-white p-3"
-                    >
-                      <input type="hidden" name="case_id" value={caseRecord.id} />
-                      <input type="hidden" name="item_id" value={item.id} />
-
-                      <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        Vincular documento
-                      </label>
-                      <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_auto]">
-                        <select
-                          name="document_id"
-                          defaultValue={item.document_id ?? ''}
-                          className="w-full rounded-xl border border-slate-200 bg-[#0C2340] px-3 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-sky-400"
+                      <details className="group">
+                        <summary className="list-none cursor-pointer text-xs font-semibold uppercase tracking-wide text-slate-400 hover:text-slate-600 select-none outline-none">
+                          Vincular documento
+                        </summary>
+                        <form
+                          action={linkChecklistItemDocument}
+                          className="mt-2 rounded-2xl border border-slate-200 bg-white p-3"
                         >
-                          <option
-                            value=""
-                            className="bg-[#0C2340] text-white"
-                            style={darkOptionStyle}
-                          >
-                            -- sin vincular --
-                          </option>
-                          {availableDocuments.map((document) => (
-                            <option
-                              key={document.id}
-                              value={document.id}
-                              className="bg-[#0C2340] text-white"
-                              style={darkOptionStyle}
-                            >
-                              {document.file_name}
-                            </option>
-                          ))}
-                        </select>
+                          <input type="hidden" name="case_id" value={caseRecord.id} />
+                          <input type="hidden" name="item_id" value={item.id} />
 
-                        <button className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold text-slate-700 hover:border-sky-400 hover:text-sky-600">
-                          Guardar
-                        </button>
-                      </div>
-                    </form>
+                          <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+                            <select
+                              name="document_id"
+                              defaultValue={item.document_id ?? ''}
+                              className="w-full rounded-xl border border-slate-200 bg-[#0C2340] px-3 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-sky-400"
+                            >
+                              <option
+                                value=""
+                                className="bg-[#0C2340] text-white"
+                                style={darkOptionStyle}
+                              >
+                                -- sin vincular --
+                              </option>
+                              {availableDocuments.map((document) => (
+                                <option
+                                  key={document.id}
+                                  value={document.id}
+                                  className="bg-[#0C2340] text-white"
+                                  style={darkOptionStyle}
+                                >
+                                  {document.file_name}
+                                </option>
+                              ))}
+                            </select>
+
+                            <button className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold text-slate-700 hover:border-sky-400 hover:text-sky-600">
+                              Guardar
+                            </button>
+                          </div>
+                        </form>
+                      </details>
                     )}
                     </div>
                   );
