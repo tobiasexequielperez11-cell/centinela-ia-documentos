@@ -551,3 +551,82 @@ export async function removeChecklistItem(formData: FormData) {
   }
   revalidatePath(`/expedientes/${caseId}`);
 }
+
+export async function createCaseEvent(input: { caseId: string; eventDate: string; eventType: string; title: string; description?: string; }) {
+  const { user, profile } = await getUserProfile();
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+  if (!isUserRole(profile.role) || !canUpdateCase(profile.role)) denyCaseAction();
+
+  const title = input.title.trim();
+  if (!title) {
+    throw new Error('Title is required');
+  }
+
+  const supabase = await createClient();
+
+  const { data: caseRecord, error: caseError } = await supabase
+    .from('cases')
+    .select('id')
+    .eq('id', input.caseId)
+    .eq('organization_id', profile.organization_id)
+    .maybeSingle();
+
+  if (caseError || !caseRecord) {
+    revalidatePath(`/expedientes/${input.caseId}`);
+    return;
+  }
+
+  const { error } = await supabase
+    .from('case_events')
+    .insert({
+      organization_id: profile.organization_id,
+      case_id: input.caseId,
+      event_date: input.eventDate,
+      event_type: input.eventType || 'otro',
+      title,
+      description: input.description?.trim() || null,
+      created_by: user.id
+    });
+
+  if (!error) {
+    await createAuditLog({
+      organizationId: profile.organization_id,
+      userId: user.id,
+      action: 'case_event_added',
+      resourceType: 'case',
+      resourceId: input.caseId,
+      metadata: { title, event_type: input.eventType },
+    });
+  }
+
+  revalidatePath(`/expedientes/${input.caseId}`);
+}
+
+export async function deleteCaseEvent(input: { eventId: string; caseId: string }) {
+  const { user, profile } = await getUserProfile();
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+  if (!isUserRole(profile.role) || !canUpdateCase(profile.role)) denyCaseAction();
+
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('case_events')
+    .delete()
+    .eq('id', input.eventId)
+    .eq('organization_id', profile.organization_id);
+
+  if (!error) {
+    await createAuditLog({
+      organizationId: profile.organization_id,
+      userId: user.id,
+      action: 'case_event_removed',
+      resourceType: 'case',
+      resourceId: input.caseId,
+      metadata: { event_id: input.eventId },
+    });
+  }
+  
+  revalidatePath(`/expedientes/${input.caseId}`);
+}

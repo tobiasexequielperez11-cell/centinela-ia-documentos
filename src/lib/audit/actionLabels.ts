@@ -21,6 +21,8 @@ const auditActionLabels: Record<string, string> = {
   invitation_cancelled: 'Invitación cancelada',
   invitation_accepted: 'Invitación aceptada',
   user_role_updated: 'Rol actualizado',
+  case_event_added: 'Actuación registrada',
+  case_event_removed: 'Actuación eliminada',
 };
 
 export function formatAuditActionLabel(action?: string | null): string {

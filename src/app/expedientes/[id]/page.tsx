@@ -21,6 +21,8 @@ import {
   toggleChecklistItemNotRequired,
   addChecklistItem,
   removeChecklistItem,
+  createCaseEvent,
+  deleteCaseEvent,
 } from '../actions';
 import type { CaseRecord } from '@/types/case';
 
@@ -60,6 +62,36 @@ type ChecklistDocumentOptionRecord = {
   case_id: string | null;
   created_at: string;
 };
+
+type CaseEventRecord = {
+  id: string;
+  event_date: string;
+  event_type: string;
+  title: string;
+  description: string | null;
+  created_by: string | null;
+};
+
+const CASE_EVENT_TYPE_LABELS: Record<string,string> = {
+  escrito: 'Escrito / Presentación',
+  audiencia: 'Audiencia',
+  notificacion: 'Notificación / Cédula',
+  resolucion: 'Resolución / Sentencia',
+  prueba: 'Prueba / Pericia',
+  otro: 'Otro movimiento',
+};
+
+function getEventTypeBadgeColor(type: string) {
+  const colors: Record<string, string> = {
+    escrito: 'bg-slate-100 text-slate-700',
+    audiencia: 'bg-amber-100 text-amber-700',
+    notificacion: 'bg-sky-100 text-sky-700',
+    resolucion: 'bg-emerald-100 text-emerald-700',
+    prueba: 'bg-purple-100 text-purple-700',
+    otro: 'bg-slate-100 text-slate-700',
+  };
+  return colors[type] || colors.otro;
+}
 
 const darkOptionStyle = { backgroundColor: '#0C2340', color: '#FFFFFF' };
 
@@ -191,10 +223,18 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
     .eq('organization_id', profile.organization_id)
     .order('created_at', { ascending: false });
 
+  const { data: caseEventsData } = await supabase
+    .from('case_events')
+    .select('id, event_date, event_type, title, description, created_by')
+    .eq('case_id', caseRecord.id)
+    .order('event_date', { ascending: false })
+    .order('created_at', { ascending: false });
+
   const checklistItems = (checklistItemsData ?? []) as unknown as ChecklistItemRecord[];
   const caseDocuments = (caseDocumentsData ?? []) as CaseDocumentRecord[];
   const availableDocuments = (availableDocumentsData ??
     []) as ChecklistDocumentOptionRecord[];
+  const eventos = (caseEventsData ?? []) as CaseEventRecord[];
     
   const checklistStatuses = checklistItems.map((item) => item.status);
   const checklistProgress = summarizeChecklistStatuses(checklistStatuses);
@@ -417,6 +457,80 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                 Aun no hay documentos en este expediente.
               </div>
             )}
+          </section>
+
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 className="text-lg font-bold text-slate-950">Línea de tiempo del expediente</h3>
+            <p className="mt-1 text-sm text-slate-500">Registro cronológico de actuaciones, audiencias y movimientos.</p>
+            
+            <form action={async (formData: FormData) => {
+              'use server';
+              await createCaseEvent({
+                caseId: caseRecord.id,
+                eventDate: String(formData.get('eventDate')),
+                eventType: String(formData.get('eventType')),
+                title: String(formData.get('title')),
+                description: String(formData.get('description') || '')
+              });
+            }} className="mt-5 grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Fecha</label>
+                  <input type="date" name="eventDate" required className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-400" />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Tipo</label>
+                  <select name="eventType" defaultValue="otro" className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-sky-400">
+                    {Object.entries(CASE_EVENT_TYPE_LABELS).map(([val, label]) => (
+                      <option key={val} value={val}>{label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Título</label>
+                <input type="text" name="title" required placeholder="Ej: Se presentó la demanda" className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-400" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Descripción (opcional)</label>
+                <textarea name="description" rows={2} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-400" />
+              </div>
+              <button type="submit" className="justify-self-start rounded-xl bg-[#1E9BF0] px-4 py-2 text-sm font-bold text-white hover:bg-[#1485D6]">
+                Agregar actuación
+              </button>
+            </form>
+
+            <div className="mt-6 space-y-4 border-l-2 border-slate-200 pl-4">
+              {eventos.length === 0 ? (
+                <div className="text-sm text-slate-500">Todavía no hay actuaciones registradas en este expediente.</div>
+              ) : (
+                eventos.map((item) => (
+                  <div key={item.id} className="relative mb-6 last:mb-0">
+                    <span className="absolute -left-[23px] top-1 flex h-3 w-3 items-center justify-center rounded-full bg-slate-300 ring-4 ring-white" />
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-bold text-slate-500">{formatPlazoDate(item.event_date)}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${getEventTypeBadgeColor(item.event_type)}`}>
+                        {CASE_EVENT_TYPE_LABELS[item.event_type] || CASE_EVENT_TYPE_LABELS.otro}
+                      </span>
+                    </div>
+                    <div className="mt-2 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="font-bold text-slate-950">{item.title}</p>
+                          {item.description && <p className="mt-1 text-sm text-slate-600">{item.description}</p>}
+                        </div>
+                        <form action={async () => {
+                          'use server';
+                          await deleteCaseEvent({ eventId: item.id, caseId: caseRecord.id });
+                        }}>
+                          <button type="submit" className="text-xs font-bold text-rose-500 hover:text-rose-600">Eliminar</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </section>
         </div>
 
