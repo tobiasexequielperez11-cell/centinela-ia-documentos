@@ -17,6 +17,7 @@ import { analyzeDocument } from '../documentos/actions';
 import { canViewAudit, isUserRole } from '@/lib/permissions/roles';
 import { getDocumentExpiryStatus } from '@/lib/documents/expiry';
 import { sensitivityLabel, isSensitiveDocument } from '@/lib/documents/sensitivity';
+import { PrimerosPasos } from '@/components/dashboard/PrimerosPasos';
 
 interface DashboardDocument {
   id: string;
@@ -244,6 +245,18 @@ export default async function DashboardPage() {
 
   const showRecentActivity = dashboardCards.includes('actividad_reciente');
 
+  // Primeros pasos (home guiado)
+  const { count: memberCount } = await supabase
+    .from('profiles')
+    .select('id', { count: 'exact', head: true })
+    .eq('organization_id', profile.organization_id);
+
+  const hasCase = cases.length > 0;
+  const hasDocument = documents.length > 0;
+  const hasTeam = (memberCount ?? 0) > 1;
+  const isAdmin = role === 'admin';
+  const showGettingStarted = !hasCase || !hasDocument;
+
   return (
     <AppShell>
       <div className="mb-8">
@@ -259,6 +272,16 @@ export default async function DashboardPage() {
           Resumen operativo de expedientes, documentos, análisis IA y actividad auditada.
         </p>
       </div>
+
+      {showGettingStarted && (
+        <PrimerosPasos
+          hasCase={hasCase}
+          hasDocument={hasDocument}
+          hasTeam={hasTeam}
+          isAdmin={isAdmin}
+          userName={profile.full_name}
+        />
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metricCards.map((metric) => (

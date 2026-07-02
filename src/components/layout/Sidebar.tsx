@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BarChart3, FileText, FolderKanban, Users, AlertCircle } from 'lucide-react';
+import { BarChart3, FileText, FolderKanban, Users, AlertCircle, Calculator } from 'lucide-react';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { isUserRole } from '@/lib/permissions/roles';
 
@@ -8,6 +8,7 @@ const navigation = [
   { name: 'Expedientes', href: '/expedientes', icon: FolderKanban, roles: ['admin', 'employee', 'auditor', 'client'] },
   { name: 'Documentos', href: '/documentos', icon: FileText, roles: ['admin', 'employee', 'auditor', 'client'] },
   { name: 'Observaciones', href: '/observaciones', icon: AlertCircle, roles: ['admin', 'employee', 'auditor', 'client'] },
+  { name: 'Calculadoras', href: '/calculadoras', icon: Calculator, roles: ['admin', 'employee', 'auditor', 'client'] },
   { name: 'Usuarios', href: '/usuarios', icon: Users, roles: ['admin'] },
   { name: 'Reportes', href: '/reportes', icon: BarChart3, roles: ['admin', 'employee', 'auditor'] },
 ];

@@ -174,15 +174,16 @@ export default async function ObservacionesPage() {
             <p className="mt-1 text-sm text-slate-500">Archivos marcados con alta criticidad.</p>
             <div className="mt-4 space-y-3">
               {sensibles.length > 0 ? sensibles.map((doc) => (
-                <div key={doc.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                <Link key={doc.id} href={`/documentos/${doc.id}`} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3 cursor-pointer transition hover:bg-slate-50">
                   <div className="overflow-hidden">
-                    <Link href={`/documentos/${doc.id}`}>
-                      <p className="truncate font-bold text-slate-950 hover:text-sky-700">{doc.file_name}</p>
-                    </Link>
+                    <p className="truncate font-bold text-slate-950">{doc.file_name}</p>
                     <p className="truncate text-xs text-slate-500">{getDocumentTypeLabel(doc.document_type)}</p>
                   </div>
-                  <span className="ml-3 shrink-0 rounded-full bg-rose-100 px-2 py-1 text-xs font-bold text-rose-700">Sensible</span>
-                </div>
+                  <div className="ml-3 flex shrink-0 items-center gap-3">
+                    <span className="rounded-full bg-rose-100 px-2 py-1 text-xs font-bold text-rose-700">Sensible</span>
+                    <span className="text-xs font-semibold text-sky-600">Revisar ›</span>
+                  </div>
+                </Link>
               )) : (
                 <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800">Sin documentos sensibles.</div>
               )}
@@ -201,15 +202,16 @@ export default async function ObservacionesPage() {
                 const badgeStyles = getExpiryBadgeStyles(status);
                 const label = expiryStatusLabel(status);
                 return (
-                  <div key={doc.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                  <Link key={doc.id} href={`/documentos/${doc.id}`} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3 cursor-pointer transition hover:bg-slate-50">
                     <div className="overflow-hidden">
-                      <Link href={`/documentos/${doc.id}`}>
-                        <p className="truncate font-bold text-slate-950 hover:text-sky-700">{doc.file_name}</p>
-                      </Link>
+                      <p className="truncate font-bold text-slate-950">{doc.file_name}</p>
                       <p className="truncate text-xs text-slate-500">{formatPlazoDate(doc.expires_at)}</p>
                     </div>
-                    <span className={`ml-3 shrink-0 rounded-full px-2 py-1 text-xs font-bold ${badgeStyles}`}>{label}</span>
-                  </div>
+                    <div className="ml-3 flex shrink-0 items-center gap-3">
+                      <span className={`rounded-full px-2 py-1 text-xs font-bold ${badgeStyles}`}>{label}</span>
+                      <span className="text-xs font-semibold text-sky-600">Revisar ›</span>
+                    </div>
+                  </Link>
                 );
               }) : (
                 <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800">Sin vencimientos próximos.</div>
@@ -224,16 +226,17 @@ export default async function ObservacionesPage() {
             <p className="mt-1 text-sm text-slate-500">Checklist documental sugerido, aún sin completar.</p>
             <div className="mt-4 space-y-3">
               {incompletos.length > 0 ? incompletos.map((c) => (
-                <div key={c.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                <Link key={c.id} href={`/expedientes/${c.id}`} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3 cursor-pointer transition hover:bg-slate-50">
                   <div className="overflow-hidden">
-                    <Link href={`/expedientes/${c.id}`}>
-                      <p className="truncate font-bold text-slate-950 hover:text-sky-700">{c.title || 'Expediente sin título'}</p>
-                    </Link>
+                    <p className="truncate font-bold text-slate-950">{c.title || 'Expediente sin título'}</p>
                   </div>
-                  <span className="ml-3 shrink-0 rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">
-                    Sugeridos {c.summary.total - c.summary.missing}/{c.summary.total}
-                  </span>
-                </div>
+                  <div className="ml-3 flex shrink-0 items-center gap-3">
+                    <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">
+                      Sugeridos {c.summary.total - c.summary.missing}/{c.summary.total}
+                    </span>
+                    <span className="text-xs font-semibold text-sky-600">Completar ›</span>
+                  </div>
+                </Link>
               )) : (
                 <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800">Todos los expedientes están completos.</div>
               )}
@@ -249,18 +252,19 @@ export default async function ObservacionesPage() {
               {iaPendientes.length > 0 ? iaPendientes.map((doc) => {
                 const isPdf = doc.file_mime_type === 'application/pdf';
                 return (
-                  <div key={doc.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                  <Link key={doc.id} href={`/documentos/${doc.id}`} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3 cursor-pointer transition hover:bg-slate-50">
                     <div className="overflow-hidden">
-                      <Link href={`/documentos/${doc.id}`}>
-                        <p className="truncate font-bold text-slate-950 hover:text-sky-700">{doc.file_name}</p>
-                      </Link>
+                      <p className="truncate font-bold text-slate-950">{doc.file_name}</p>
                     </div>
-                    {isPdf ? (
-                      <span className="ml-3 shrink-0 rounded-full bg-sky-100 px-2 py-1 text-xs font-bold text-sky-700">IA pendiente</span>
-                    ) : (
-                      <span className="ml-3 shrink-0 rounded-full bg-slate-200 px-2 py-1 text-xs font-bold text-slate-600">Solo PDF</span>
-                    )}
-                  </div>
+                    <div className="ml-3 flex shrink-0 items-center gap-3">
+                      {isPdf ? (
+                        <span className="rounded-full bg-sky-100 px-2 py-1 text-xs font-bold text-sky-700">IA pendiente</span>
+                      ) : (
+                        <span className="rounded-full bg-slate-200 px-2 py-1 text-xs font-bold text-slate-600">Solo PDF</span>
+                      )}
+                      <span className="text-xs font-semibold text-sky-600">Revisar ›</span>
+                    </div>
+                  </Link>
                 );
               }) : (
                 <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800">Análisis IA al día.</div>
@@ -275,14 +279,15 @@ export default async function ObservacionesPage() {
             <p className="mt-1 text-sm text-slate-500">Documentos que no tienen un tipo asignado.</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {sinClasificar.length > 0 ? sinClasificar.map((doc) => (
-                <div key={doc.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                <Link key={doc.id} href={`/documentos/${doc.id}`} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3 cursor-pointer transition hover:bg-slate-50">
                   <div className="overflow-hidden">
-                    <Link href={`/documentos/${doc.id}`}>
-                      <p className="truncate font-bold text-slate-950 hover:text-sky-700">{doc.file_name}</p>
-                    </Link>
+                    <p className="truncate font-bold text-slate-950">{doc.file_name}</p>
                   </div>
-                  <span className="ml-3 shrink-0 rounded-full bg-slate-200 px-2 py-1 text-xs font-bold text-slate-600">Sin clasificar</span>
-                </div>
+                  <div className="ml-3 flex shrink-0 items-center gap-3">
+                    <span className="rounded-full bg-slate-200 px-2 py-1 text-xs font-bold text-slate-600">Sin clasificar</span>
+                    <span className="text-xs font-semibold text-sky-600">Clasificar ›</span>
+                  </div>
+                </Link>
               )) : (
                 <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800 sm:col-span-2">Todos los documentos están clasificados.</div>
               )}
@@ -300,15 +305,16 @@ export default async function ObservacionesPage() {
                 const badgeStyles = getExpiryBadgeStyles(status);
                 const label = expiryStatusLabel(status);
                 return (
-                  <div key={item.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                  <Link key={item.id} href={`/expedientes/${item.id}`} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3 cursor-pointer transition hover:bg-slate-50">
                     <div className="overflow-hidden">
-                      <Link href={`/expedientes/${item.id}`}>
-                        <p className="truncate font-bold text-slate-950 hover:text-sky-700">{item.title || 'Expediente sin título'}</p>
-                      </Link>
+                      <p className="truncate font-bold text-slate-950">{item.title || 'Expediente sin título'}</p>
                       <p className="truncate text-xs text-slate-500">{formatPlazoDate(item.fecha)}</p>
                     </div>
-                    <span className={`ml-3 shrink-0 rounded-full px-2 py-1 text-xs font-bold ${badgeStyles}`}>{label}</span>
-                  </div>
+                    <div className="ml-3 flex shrink-0 items-center gap-3">
+                      <span className={`rounded-full px-2 py-1 text-xs font-bold ${badgeStyles}`}>{label}</span>
+                      <span className="text-xs font-semibold text-sky-600">Revisar ›</span>
+                    </div>
+                  </Link>
                 );
               }) : (
                 <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800">Sin plazos próximos.</div>
