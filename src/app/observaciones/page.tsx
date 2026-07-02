@@ -111,7 +111,7 @@ export default async function ObservacionesPage() {
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
-            Observaciones IA
+            Observaciones
           </p>
           <h2 className="mt-2 text-3xl font-bold text-slate-950">
             Centro de atención operativa

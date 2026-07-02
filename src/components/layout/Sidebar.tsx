@@ -4,7 +4,7 @@ import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { isUserRole } from '@/lib/permissions/roles';
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: BarChart3, roles: ['admin', 'employee', 'auditor', 'client'] },
+  { name: 'Inicio', href: '/dashboard', icon: BarChart3, roles: ['admin', 'employee', 'auditor', 'client'] },
   { name: 'Expedientes', href: '/expedientes', icon: FolderKanban, roles: ['admin', 'employee', 'auditor', 'client'] },
   { name: 'Documentos', href: '/documentos', icon: FileText, roles: ['admin', 'employee', 'auditor', 'client'] },
   { name: 'Observaciones', href: '/observaciones', icon: AlertCircle, roles: ['admin', 'employee', 'auditor', 'client'] },

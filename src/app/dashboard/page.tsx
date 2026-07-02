@@ -248,7 +248,7 @@ export default async function DashboardPage() {
     <AppShell>
       <div className="mb-8">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
-          Panel principal
+          Inicio
         </p>
 
         <h2 className="mt-2 text-3xl font-bold text-slate-950">
@@ -331,7 +331,7 @@ export default async function DashboardPage() {
               </h3>
 
               <p className="mt-2 text-sm text-slate-600">
-                Seguimiento de documentos procesados, pendientes y reanalizados.
+                Seguimiento de documentos procesados y pendientes.
               </p>
             </div>
 

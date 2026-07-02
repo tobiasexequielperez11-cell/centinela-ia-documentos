@@ -907,7 +907,7 @@ if (
         ))}
       </div>
 
-      {activeView === 'general' || activeView === 'invitaciones' ? (
+      {activeView === 'invitaciones' ? (
         <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
             <div>
@@ -1087,17 +1087,6 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
               </div>
             ) : null}
           </div>
-
-          {activeView === 'general' && invitations.length > 5 ? (
-            <div className="mt-5 flex justify-end">
-              <Link
-                href="/reportes?vista=invitaciones"
-                className="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50"
-              >
-                Ver todas las invitaciones
-              </Link>
-            </div>
-          ) : null}
         </section>
       ) : null}
 
