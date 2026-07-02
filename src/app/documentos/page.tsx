@@ -14,16 +14,12 @@ interface DocumentsPageProps {
   searchParams: Promise<{ ia?: string; q?: string }>;
 }
 
-type IaFilter = 'todos' | 'pendientes' | 'analizados' | 'reanalizados';
+type IaFilter = 'todos' | 'pendientes' | 'analizados';
 
 
 
 function normalizeIaFilter(value?: string): IaFilter {
-  if (
-    value === 'pendientes' ||
-    value === 'analizados' ||
-    value === 'reanalizados'
-  ) {
+  if (value === 'pendientes' || value === 'analizados') {
     return value;
   }
 
@@ -39,18 +35,10 @@ function getAiStatus(count: number) {
     };
   }
 
-  if (count === 1) {
-    return {
-      label: 'Analizado IA',
-      countLabel: null,
-      className: 'bg-sky-50 text-sky-700',
-    };
-  }
-
   return {
-    label: 'Reanalizado',
-    countLabel: `x${count}`,
-    className: 'bg-emerald-50 text-emerald-700',
+    label: 'Analizado IA',
+    countLabel: null,
+    className: 'bg-sky-50 text-sky-700',
   };
 }
 
@@ -114,17 +102,13 @@ export default async function DocumentsPage({
     (item) => (analysisCountByDocument.get(item.id) ?? 0) > 0
   ).length;
 
-  const reanalyzedDocuments = records.filter(
-    (item) => (analysisCountByDocument.get(item.id) ?? 0) > 1
-  ).length;
 
   const filteredRecords = records.filter((item) => {
     const count = analysisCountByDocument.get(item.id) ?? 0;
 
     const matchesFilter =
       activeFilter === 'pendientes' ? count === 0 :
-      activeFilter === 'analizados' ? count === 1 :
-      activeFilter === 'reanalizados' ? count > 1 :
+      activeFilter === 'analizados' ? count > 0 :
       true;
 
     const matchesTerm =
@@ -161,12 +145,6 @@ export default async function DocumentsPage({
       count: analyzedDocuments,
       href: `/documentos?ia=analizados${qs}`,
     },
-    {
-      label: 'Reanalizados',
-      value: 'reanalizados',
-      count: reanalyzedDocuments,
-      href: `/documentos?ia=reanalizados${qs}`,
-    },
   ];
 
   return (
@@ -194,7 +172,7 @@ export default async function DocumentsPage({
         </Link>
       </div>
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
           <p className="text-sm font-semibold text-slate-500">
             Documentos totales
@@ -222,14 +200,6 @@ export default async function DocumentsPage({
           </p>
         </div>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-500">
-            Reanalizados
-          </p>
-          <p className="mt-2 text-3xl font-bold text-slate-950">
-            {reanalyzedDocuments}
-          </p>
-        </div>
       </div>
 
       <form method="get" className="mb-4 flex gap-2">

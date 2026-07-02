@@ -196,8 +196,8 @@ export default async function CasesPage({
                       );
                     }
                     return (
-                      <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-[#F59E0B] border border-amber-200">
-                        Faltan {progress.missing}
+                      <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 border border-slate-200">
+                        Sugeridos {progress.total - progress.missing}/{progress.total}
                       </span>
                     );
                   })()}

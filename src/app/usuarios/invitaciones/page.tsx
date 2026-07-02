@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
+import { roleOptions, roleLabel, roleTone } from '@/lib/permissions/roleDisplay';
 import { cancelUserInvitation, createUserInvitation } from '../actions';
 
 interface InvitationsPageProps {
@@ -35,11 +36,6 @@ interface ProfileRecord {
   status?: string | null;
 }
 
-const roleOptions = [
-  { value: 'employee', label: 'Operador' },
-  { value: 'auditor', label: 'Auditor' },
-  { value: 'client', label: 'Cliente' },
-];
 
 function formatDate(value?: string | null) {
   if (!value) return 'Sin fecha';
@@ -54,24 +50,6 @@ function formatDate(value?: string | null) {
   }).format(date);
 }
 
-function roleLabel(role?: string | null) {
-  const labels: Record<string, string> = {
-    admin: 'Administrador',
-    employee: 'Operador',
-    auditor: 'Auditor',
-    client: 'Cliente',
-  };
-
-  return labels[role ?? ''] ?? role ?? 'Sin rol';
-}
-
-function roleTone(role?: string | null) {
-  if (role === 'admin') return 'bg-slate-950 text-white';
-  if (role === 'auditor') return 'bg-violet-50 text-violet-700';
-  if (role === 'client') return 'bg-amber-50 text-amber-700';
-
-  return 'bg-sky-50 text-sky-700';
-}
 
 function statusLabel(status?: string | null) {
   const labels: Record<string, string> = {

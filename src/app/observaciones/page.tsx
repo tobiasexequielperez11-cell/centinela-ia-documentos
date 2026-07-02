@@ -221,7 +221,7 @@ export default async function ObservacionesPage() {
           {/* 3. Expedientes incompletos */}
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <h3 className="text-lg font-bold text-slate-950">Expedientes incompletos</h3>
-            <p className="mt-1 text-sm text-slate-500">Falta documentación requerida en checklist.</p>
+            <p className="mt-1 text-sm text-slate-500">Checklist documental sugerido, aún sin completar.</p>
             <div className="mt-4 space-y-3">
               {incompletos.length > 0 ? incompletos.map((c) => (
                 <div key={c.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3">
@@ -230,8 +230,8 @@ export default async function ObservacionesPage() {
                       <p className="truncate font-bold text-slate-950 hover:text-sky-700">{c.title || 'Expediente sin título'}</p>
                     </Link>
                   </div>
-                  <span className="ml-3 shrink-0 rounded-full bg-amber-100 px-2 py-1 text-xs font-bold text-amber-700">
-                    Faltan {c.summary.missing} de {c.summary.total}
+                  <span className="ml-3 shrink-0 rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">
+                    Sugeridos {c.summary.total - c.summary.missing}/{c.summary.total}
                   </span>
                 </div>
               )) : (

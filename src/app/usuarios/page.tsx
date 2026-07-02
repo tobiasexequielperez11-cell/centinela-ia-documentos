@@ -4,6 +4,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { formatAuditActionLabel } from '@/lib/audit/actionLabels';
+import { roleOptions, roleLabel, roleDescription, roleTone } from '@/lib/permissions/roleDisplay';
 import { updateUserAccess } from './actions';
 
 interface UsuariosPageProps {
@@ -35,20 +36,7 @@ interface AuditLogRecord {
   metadata?: Record<string, unknown> | null;
 }
 
-interface InvitationMetricsRecord {
-  total_invitations?: number | null;
-  pending_invitations?: number | null;
-  accepted_invitations?: number | null;
-  cancelled_invitations?: number | null;
-  expired_invitations?: number | null;
-  last_invitation_created_at?: string | null;
-}
 
-const roleOptions = [
-  { value: 'employee', label: 'Operador' },
-  { value: 'auditor', label: 'Auditor' },
-  { value: 'client', label: 'Cliente' },
-];
 
 const statusOptions = [
   { value: 'active', label: 'Activo' },
@@ -84,35 +72,6 @@ function getInitials(name?: string | null, email?: string | null) {
   return `${first}${second}`.toUpperCase();
 }
 
-function roleLabel(role?: string | null) {
-  const labels: Record<string, string> = {
-    admin: 'Administrador',
-    employee: 'Operador',
-    auditor: 'Auditor',
-    client: 'Cliente',
-  };
-
-  return labels[role ?? ''] ?? role ?? 'Sin rol';
-}
-
-function roleDescription(role?: string | null) {
-  const descriptions: Record<string, string> = {
-    admin: 'Puede administrar usuarios, accesos y operación general.',
-    employee: 'Puede operar expedientes, documentos y análisis.',
-    auditor: 'Puede revisar trazabilidad, actividad y documentación.',
-    client: 'Perfil pensado para acceso limitado del cliente.',
-  };
-
-  return descriptions[role ?? ''] ?? 'Rol pendiente de definición.';
-}
-
-function roleTone(role?: string | null) {
-  if (role === 'admin') return 'bg-slate-950 text-white';
-  if (role === 'auditor') return 'bg-violet-50 text-violet-700';
-  if (role === 'client') return 'bg-amber-50 text-amber-700';
-
-  return 'bg-sky-50 text-sky-700';
-}
 
 function statusLabel(status?: string | null) {
   const labels: Record<string, string> = {
@@ -157,9 +116,6 @@ function getUsersByRole(users: ProfileRecord[], role: string) {
   return users.filter((item) => item.role === role).length;
 }
 
-function getMetricValue(value?: number | null) {
-  return value ?? 0;
-}
 
 function getMessage(params: { success?: string; error?: string }) {
   if (params.success === 'access_updated') {
@@ -208,7 +164,7 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
 
   const supabase = await createClient();
 
-  const [profilesResult, auditLogsResult, invitationMetricsResult] = await Promise.all([
+  const [profilesResult, auditLogsResult] = await Promise.all([
     supabase
       .from('profiles')
       .select(
@@ -223,19 +179,10 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
       .eq('organization_id', profile.organization_id)
       .order('created_at', { ascending: false })
       .limit(80),
-
-    supabase
-      .from('invitation_operational_metrics')
-      .select(
-        'total_invitations, pending_invitations, accepted_invitations, cancelled_invitations, expired_invitations, last_invitation_created_at'
-      )
-      .maybeSingle(),
   ]);
 
   const users = (profilesResult.data ?? []) as ProfileRecord[];
   const auditLogs = (auditLogsResult.data ?? []) as AuditLogRecord[];
-  const invitationMetrics =
-    (invitationMetricsResult.data as InvitationMetricsRecord | null) ?? null;
 
   const sortedUsers = [...users].sort((a, b) => {
     if (a.id === user.id) return -1;
@@ -259,14 +206,6 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
 
   const canManageAccess = profile.role === 'admin';
 
-  const totalInvitations = getMetricValue(invitationMetrics?.total_invitations);
-  const pendingInvitations = getMetricValue(invitationMetrics?.pending_invitations);
-  const acceptedInvitations = getMetricValue(invitationMetrics?.accepted_invitations);
-  const cancelledInvitations = getMetricValue(invitationMetrics?.cancelled_invitations);
-  const expiredInvitations = getMetricValue(invitationMetrics?.expired_invitations);
-
-  const hasInvitationMetricsError = Boolean(invitationMetricsResult.error);
-  const hasPendingExpiredInvitations = expiredInvitations > 0;
 
   const metrics = [
     {
@@ -291,28 +230,6 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
     },
   ];
 
-  const invitationCards = [
-    {
-      label: 'Invitaciones totales',
-      value: totalInvitations,
-      helper: 'Registros operativos creados',
-    },
-    {
-      label: 'Pendientes',
-      value: pendingInvitations,
-      helper: 'Esperando activación manual',
-    },
-    {
-      label: 'Aceptadas',
-      value: acceptedInvitations,
-      helper: 'Invitaciones ya completadas',
-    },
-    {
-      label: 'Vencidas',
-      value: expiredInvitations,
-      helper: 'Pendientes fuera de plazo',
-    },
-  ];
 
   return (
     <AppShell>
@@ -363,12 +280,6 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
         </div>
       ) : null}
 
-      {hasInvitationMetricsError ? (
-        <div className="mb-6 rounded-2xl border border-amber-300/25 bg-amber-300/10 px-5 py-4 text-sm font-semibold text-amber-200">
-          No se pudieron leer las métricas operativas de invitaciones. Verificá que la vista
-          public.invitation_operational_metrics exista y tenga permisos de lectura.
-        </div>
-      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (
@@ -385,101 +296,6 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
         ))}
       </div>
 
-      <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-6">
-        <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-300">
-              Invitaciones operativas
-            </p>
-
-            <h3 className="mt-2 text-2xl font-bold text-white">
-              Estado general de invitaciones
-            </h3>
-          </div>
-
-          <Link
-            href="/usuarios/invitaciones"
-            className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 hover:border-sky-400/40 hover:text-sky-200"
-          >
-            Abrir bandeja de invitaciones
-          </Link>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {invitationCards.map((metric) => (
-            <div
-              key={metric.label}
-              className="rounded-2xl border border-white/10 bg-white/[0.04] p-5"
-            >
-              <p className="text-sm font-semibold text-slate-300">{metric.label}</p>
-
-              <p className="mt-2 text-3xl font-bold text-white">{metric.value}</p>
-
-              <p className="mt-3 text-xs text-slate-400">{metric.helper}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-5 grid gap-4 xl:grid-cols-[1fr_0.8fr]">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-            <p className="text-sm font-bold text-white">
-              Última invitación creada
-            </p>
-
-            <p className="mt-2 text-sm text-slate-300">
-              {formatDate(invitationMetrics?.last_invitation_created_at)}
-            </p>
-          </div>
-
-          <div
-            className={`rounded-2xl border p-5 ${
-              hasPendingExpiredInvitations
-                ? 'border-amber-300/25 bg-amber-300/10'
-                : 'border-emerald-400/25 bg-emerald-400/10'
-            }`}
-          >
-            <p
-              className={`text-sm font-bold ${
-                hasPendingExpiredInvitations ? 'text-amber-100' : 'text-emerald-100'
-              }`}
-            >
-              Estado operativo
-            </p>
-
-            <p
-              className={`mt-2 text-sm leading-6 ${
-                hasPendingExpiredInvitations ? 'text-amber-200' : 'text-emerald-200'
-              }`}
-            >
-              {hasPendingExpiredInvitations
-                ? 'Hay invitaciones vencidas o pendientes fuera de plazo. Conviene cancelarlas o recrearlas para mantener limpio el control de accesos.'
-                : 'No se detectan invitaciones vencidas. El control operativo de accesos se mantiene limpio.'}
-            </p>
-
-            <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
-              <span
-                className={`rounded-full px-3 py-1 ${
-                  pendingInvitations > 0
-                    ? 'bg-sky-400/15 text-sky-200'
-                    : 'bg-white/[0.06] text-slate-300'
-                }`}
-              >
-                {pendingInvitations} pendientes
-              </span>
-
-              <span
-                className={`rounded-full px-3 py-1 ${
-                  cancelledInvitations > 0
-                    ? 'bg-rose-400/15 text-rose-200'
-                    : 'bg-white/[0.06] text-slate-300'
-                }`}
-              >
-                {cancelledInvitations} canceladas
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
         <section className="min-w-0 rounded-3xl border border-white/10 bg-white/[0.04] p-6">

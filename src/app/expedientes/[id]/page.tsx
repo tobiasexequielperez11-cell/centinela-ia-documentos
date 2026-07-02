@@ -529,7 +529,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                         </span>
                       ) : (
                         <span>
-                          Faltan <span className="text-[#F59E0B]">{checklistProgress.missing}</span> de {checklistProgress.total} documentos
+                          <span className="text-slate-600">{checklistProgress.total - checklistProgress.missing}</span> de {checklistProgress.total} documentos sugeridos
                         </span>
                       )}
                     </p>
@@ -546,7 +546,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                   {!checklistProgress.isComplete && missingItems.length > 0 && (
                     <div className="mt-4 border-t border-slate-700/50 pt-4">
                       <p className="text-xs font-semibold uppercase tracking-wide text-[#C2CCD9]">
-                        Faltantes:
+                        Sugeridos sin cargar:
                       </p>
                       <ul className="mt-3 space-y-2">
                         {missingItems.map((item) => (
