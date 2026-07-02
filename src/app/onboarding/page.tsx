@@ -43,12 +43,14 @@ export default async function OnboardingPage({ searchParams }: OnboardingPagePro
               name="industry"
               className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-sky-400"
             >
+              <option value="legal">Estudio jurídico</option>
               <option value="escribania">Escribanía</option>
-              <option value="juridico">Estudio jurídico</option>
-              <option value="contable">Estudio contable</option>
               <option value="inmobiliaria">Inmobiliaria</option>
-              <option value="pyme">PYME</option>
+              <option value="empresa">Empresa/PyME</option>
             </select>
+            <p className="mt-2 text-xs font-semibold text-rose-600">
+              ⚠️ Elegí con cuidado: el rubro define tus plantillas y flujos, y no se puede cambiar después.
+            </p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">

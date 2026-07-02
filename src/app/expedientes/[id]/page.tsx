@@ -14,6 +14,8 @@ import {
 } from '@/lib/industries/documentTypes';
 import { summarizeChecklistStatuses } from '@/lib/checklist/progress';
 import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles, getDaysUntilExpiry } from '@/lib/documents/expiry';
+import { sensitivityLabel } from '@/lib/documents/sensitivity';
+import { formatPlazoDate } from '@/lib/format/date';
 import {
   linkChecklistItemDocument,
   toggleChecklistItem,
@@ -120,30 +122,7 @@ function checklistStatusLabel(status: string) {
   return labels[status] ?? status;
 }
 
-function sensitivityLabel(value?: string | null) {
-  const labels: Record<string, string> = {
-    low: 'Bajo',
-    medium: 'Medio',
-    high: 'Alto',
-    critical: 'Critico',
-    bajo: 'Bajo',
-    medio: 'Medio',
-    alto: 'Alto',
-    critico: 'Critico',
-    crítico: 'Critico',
-  };
 
-  return labels[String(value ?? '').toLowerCase()] ?? value ?? 'Sin clasificar';
-}
-
-function formatPlazoDate(value?: string | null) {
-  if (!value) return '—';
-  const parts = value.split('-');
-  if (parts.length === 3) {
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
-  }
-  return value;
-}
 
 export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
   const { id } = await params;
@@ -235,7 +214,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
           </p>
 
           <h2 className="mt-2 text-3xl font-bold text-slate-950">
-            {displayText(caseRecord.title, 'Expediente sin titulo')}
+            {displayText(caseRecord.title, 'Expediente sin título')}
           </h2>
 
           <p className="mt-2 text-sm text-slate-600">
@@ -400,7 +379,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                 </h3>
 
                 <p className="mt-1 text-sm text-slate-500">
-                  Documentos cargados en la boveda y asociados a este expediente.
+                  Documentos cargados en la bóveda y asociados a este expediente.
                 </p>
               </div>
 
@@ -444,7 +423,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
               </div>
             ) : (
               <div className="mt-5 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">
-                Aun no hay documentos en este expediente.
+                Aún no hay documentos en este expediente.
               </div>
             )}
           </section>

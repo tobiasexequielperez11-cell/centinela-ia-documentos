@@ -7,6 +7,7 @@ import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
 import { normalizeIndustryType } from '@/lib/industries/documentTypes';
 import { summarizeChecklistStatuses } from '@/lib/checklist/progress';
 import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles } from '@/lib/documents/expiry';
+import { formatPlazoDate } from '@/lib/format/date';
 import type { CaseRecord } from '@/types/case';
 
 function displayText(value?: string | null, fallback = 'Sin definir') {
@@ -17,16 +18,13 @@ function displayText(value?: string | null, fallback = 'Sin definir') {
   return cleanValue;
 }
 
-function formatPlazoDate(value?: string | null) {
-  if (!value) return '—';
-  const parts = value.split('-');
-  if (parts.length === 3) {
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
-  }
-  return value;
-}
 
-export default async function CasesPage() {
+export default async function CasesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
   const { user, profile } = await getUserProfile();
 
   if (!user) redirect('/login');
@@ -49,7 +47,15 @@ export default async function CasesPage() {
     .maybeSingle();
 
   const organizationIndustry = normalizeIndustryType(organization?.industry_type);
-  const records = (cases ?? []) as CaseRecord[];
+  let records = (cases ?? []) as CaseRecord[];
+
+  const query = (q ?? '').trim().toLowerCase();
+  if (query) {
+    records = records.filter((item) =>
+      [item.title, item.client_name, item.case_type]
+        .some((field) => (field ?? '').toLowerCase().includes(query))
+    );
+  }
 
   let statusesByCase: Record<string, string[]> = {};
   if (records.length > 0) {
@@ -92,6 +98,22 @@ export default async function CasesPage() {
           Crear expediente
         </Link>
       </div>
+
+      <form method="get" className="mb-4 flex gap-2">
+        <input
+          type="search"
+          name="q"
+          defaultValue={q ?? ''}
+          placeholder="Buscar por expediente, cliente o tipo…"
+          className="w-full max-w-md rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none"
+        />
+        <button
+          type="submit"
+          className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+        >
+          Buscar
+        </button>
+      </form>
 
       <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full text-left text-sm">
@@ -196,9 +218,15 @@ export default async function CasesPage() {
 
         {records.length === 0 ? (
           <div className="p-10 text-center">
-            <p className="font-bold text-slate-950">
-              Todavia no hay expedientes.
-            </p>
+            {query ? (
+              <p className="font-bold text-slate-950">
+                No se encontraron expedientes para «{q}».
+              </p>
+            ) : (
+              <p className="font-bold text-slate-950">
+                Todavía no hay expedientes.
+              </p>
+            )}
 
             <p className="mt-2 text-sm text-slate-500">
               Crea el primer expediente para comenzar la gestion documental.

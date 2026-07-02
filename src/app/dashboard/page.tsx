@@ -16,6 +16,7 @@ import {
 import { analyzeDocument } from '../documentos/actions';
 import { canViewAudit, isUserRole } from '@/lib/permissions/roles';
 import { getDocumentExpiryStatus } from '@/lib/documents/expiry';
+import { sensitivityLabel, isSensitiveDocument } from '@/lib/documents/sensitivity';
 
 interface DashboardDocument {
   id: string;
@@ -46,24 +47,6 @@ function formatDate(value?: string | null) {
     dateStyle: 'short',
     timeStyle: 'short',
   }).format(date);
-}
-
-function formatSensitivity(value: string) {
-  const labels: Record<string, string> = {
-    low: 'Baja',
-    medium: 'Media',
-    high: 'Alta',
-    critical: 'Critica',
-  };
-
-  return labels[value] ?? value;
-}
-
-function isSensitiveDocument(value?: string | null) {
-  const normalized = String(value ?? '').toLowerCase();
-  return ['high', 'critical', 'alto', 'alta', 'critica', 'crítica'].includes(
-    normalized
-  );
 }
 
 function getAuditDetail(log: DashboardActivityLog) {
@@ -112,19 +95,19 @@ function buildMetricCard(
       return {
         label: 'Documentos cargados',
         value: String(values.loadedDocuments),
-        helper: 'Boveda privada',
+        helper: 'Bóveda privada',
       };
     case 'analisis_pendientes':
       return {
-        label: 'Analisis pendientes',
+        label: 'Análisis pendientes',
         value: String(values.pendingAnalysis),
-        helper: 'Sin analisis IA',
+        helper: 'Sin análisis IA',
       };
     case 'documentos_sensibles':
       return {
         label: 'Documentos sensibles',
         value: String(values.sensitiveDocuments),
-        helper: 'Alta o critica',
+        helper: 'Alta o crítica',
       };
     case 'documentos_por_vencer':
       return {
@@ -228,9 +211,7 @@ export default async function DashboardPage() {
     (document) => (analysisCountByDocument.get(document.id) ?? 0) === 0
   );
 
-  const reanalyzedDocuments = documents.filter(
-    (document) => (analysisCountByDocument.get(document.id) ?? 0) > 1
-  );
+
 
   const coverage =
     documents.length > 0
@@ -275,7 +256,7 @@ export default async function DashboardPage() {
         </h2>
 
         <p className="mt-2 text-sm text-slate-600">
-          Resumen operativo de expedientes, documentos, analisis IA y actividad auditada.
+          Resumen operativo de expedientes, documentos, análisis IA y actividad auditada.
         </p>
       </div>
 
@@ -293,7 +274,7 @@ export default async function DashboardPage() {
                 Actividad reciente
               </p>
               <h3 className="mt-2 text-2xl font-bold text-white">
-                Ultimos eventos auditados
+                Últimos eventos auditados
               </h3>
             </div>
             <Link
@@ -307,7 +288,7 @@ export default async function DashboardPage() {
           <div className="mt-5 space-y-3">
             {!mayViewAudit ? (
               <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-slate-300">
-                Tu rol no tiene acceso a la auditoria.
+                Tu rol no tiene acceso a la auditoría.
               </div>
             ) : recentActivity.length > 0 ? (
               recentActivity.map((log) => (
@@ -330,7 +311,7 @@ export default async function DashboardPage() {
               ))
             ) : (
               <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-slate-300">
-                Todavia no hay actividad auditada para mostrar.
+                Todavía no hay actividad auditada para mostrar.
               </div>
             )}
           </div>
@@ -346,7 +327,7 @@ export default async function DashboardPage() {
               </p>
 
               <h3 className="mt-2 text-2xl font-bold text-slate-950">
-                Cobertura de analisis
+                Cobertura de análisis
               </h3>
 
               <p className="mt-2 text-sm text-slate-600">
@@ -396,15 +377,6 @@ export default async function DashboardPage() {
                 {pendingDocuments.length}
               </p>
             </div>
-
-            <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Reanalizados
-              </p>
-              <p className="mt-2 text-2xl font-bold text-slate-950">
-                {reanalyzedDocuments.length}
-              </p>
-            </div>
           </div>
         </section>
 
@@ -412,11 +384,11 @@ export default async function DashboardPage() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <h3 className="text-xl font-bold text-slate-950">
-                Documentos pendientes de analisis
+                Documentos pendientes de análisis
               </h3>
 
               <p className="mt-2 text-sm text-slate-500">
-                Primeros documentos que todavia requieren procesamiento IA.
+                Primeros documentos que todavía requieren procesamiento IA.
               </p>
             </div>
 
@@ -443,7 +415,7 @@ export default async function DashboardPage() {
 
                     <p className="mt-1 text-xs text-slate-500">
                       Tipo: {getDocumentTypeLabel(document.document_type)} - Sensibilidad:{' '}
-                      {formatSensitivity(document.sensitivity_level)}
+                      {sensitivityLabel(document.sensitivity_level)}
                     </p>
 
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -477,7 +449,7 @@ export default async function DashboardPage() {
               })
             ) : (
               <div className="rounded-2xl bg-sky-50 p-4 text-sm text-sky-800">
-                Todos los documentos cargados ya tienen al menos un analisis IA.
+                Todos los documentos cargados ya tienen al menos un análisis IA.
               </div>
             )}
           </div>

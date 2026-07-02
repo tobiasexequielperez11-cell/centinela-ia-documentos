@@ -6,30 +6,17 @@ import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
 import { formatFileSize } from '@/lib/format/fileSize';
 import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles, getDaysUntilExpiry } from '@/lib/documents/expiry';
+import { sensitivityLabel } from '@/lib/documents/sensitivity';
 import { analyzeDocument } from './actions';
 import type { DocumentRecord } from '@/types/document';
 
 interface DocumentsPageProps {
-  searchParams: Promise<{ ia?: string }>;
+  searchParams: Promise<{ ia?: string; q?: string }>;
 }
 
 type IaFilter = 'todos' | 'pendientes' | 'analizados' | 'reanalizados';
 
-function sensitivityLabel(value: string) {
-  const labels: Record<string, string> = {
-    low: 'Bajo',
-    medium: 'Medio',
-    high: 'Alto',
-    critical: 'Crítico',
-    bajo: 'Bajo',
-    medio: 'Medio',
-    alto: 'Alto',
-    critico: 'Crítico',
-    crítico: 'Crítico',
-  };
 
-  return labels[String(value ?? '').toLowerCase()] ?? value;
-}
 
 function normalizeIaFilter(value?: string): IaFilter {
   if (
@@ -72,6 +59,8 @@ export default async function DocumentsPage({
 }: DocumentsPageProps) {
   const query = await searchParams;
   const activeFilter = normalizeIaFilter(query.ia);
+  const searchTerm = (query.q ?? '').trim();
+  const normalizedTerm = searchTerm.toLowerCase();
 
   const { user, profile } = await getUserProfile();
 
@@ -132,12 +121,21 @@ export default async function DocumentsPage({
   const filteredRecords = records.filter((item) => {
     const count = analysisCountByDocument.get(item.id) ?? 0;
 
-    if (activeFilter === 'pendientes') return count === 0;
-    if (activeFilter === 'analizados') return count === 1;
-    if (activeFilter === 'reanalizados') return count > 1;
+    const matchesFilter =
+      activeFilter === 'pendientes' ? count === 0 :
+      activeFilter === 'analizados' ? count === 1 :
+      activeFilter === 'reanalizados' ? count > 1 :
+      true;
 
-    return true;
+    const matchesTerm =
+      !normalizedTerm ||
+      (item.file_name ?? '').toLowerCase().includes(normalizedTerm) ||
+      getDocumentTypeLabel(item.document_type).toLowerCase().includes(normalizedTerm);
+
+    return matchesFilter && matchesTerm;
   });
+
+  const qs = normalizedTerm ? `&q=${encodeURIComponent(searchTerm)}` : '';
 
   const filters: {
     label: string;
@@ -149,25 +147,25 @@ export default async function DocumentsPage({
       label: 'Todos',
       value: 'todos',
       count: totalDocuments,
-      href: '/documentos',
+      href: normalizedTerm ? `/documentos?q=${encodeURIComponent(searchTerm)}` : '/documentos',
     },
     {
       label: 'Pendientes IA',
       value: 'pendientes',
       count: pendingDocuments,
-      href: '/documentos?ia=pendientes',
+      href: `/documentos?ia=pendientes${qs}`,
     },
     {
       label: 'Analizados',
       value: 'analizados',
       count: analyzedDocuments,
-      href: '/documentos?ia=analizados',
+      href: `/documentos?ia=analizados${qs}`,
     },
     {
       label: 'Reanalizados',
       value: 'reanalizados',
       count: reanalyzedDocuments,
-      href: '/documentos?ia=reanalizados',
+      href: `/documentos?ia=reanalizados${qs}`,
     },
   ];
 
@@ -233,6 +231,22 @@ export default async function DocumentsPage({
           </p>
         </div>
       </div>
+
+      <form method="get" className="mb-4 flex gap-2">
+        {activeFilter !== 'todos' ? (
+          <input type="hidden" name="ia" value={activeFilter} />
+        ) : null}
+        <input
+          type="search"
+          name="q"
+          defaultValue={searchTerm}
+          placeholder="Buscar por nombre de archivo o tipo…"
+          className="w-full max-w-md rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none"
+        />
+        <button type="submit" className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+          Buscar
+        </button>
+      </form>
 
       <div className="mb-6 flex flex-wrap gap-3">
         {filters.map((filter) => {
@@ -409,7 +423,9 @@ export default async function DocumentsPage({
         {filteredRecords.length === 0 ? (
           <div className="p-10 text-center">
             <p className="font-bold text-slate-950">
-              No hay documentos para este filtro.
+              {searchTerm
+                ? `No se encontraron documentos para «${searchTerm}».`
+                : 'No hay documentos para este filtro.'}
             </p>
 
             <p className="mt-2 text-sm text-slate-500">

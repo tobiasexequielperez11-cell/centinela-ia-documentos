@@ -6,22 +6,9 @@ import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { summarizeChecklistStatuses } from '@/lib/checklist/progress';
 import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles, getDaysUntilExpiry } from '@/lib/documents/expiry';
 import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
+import { isSensitiveDocument } from '@/lib/documents/sensitivity';
+import { formatPlazoDate } from '@/lib/format/date';
 
-function isSensitiveDocument(value?: string | null) {
-  const normalized = String(value ?? '').toLowerCase();
-  return ['high', 'critical', 'alto', 'alta', 'critica', 'crítica', 'critico'].includes(
-    normalized
-  );
-}
-
-function formatExpiryDate(value?: string | null) {
-  if (!value) return '-';
-  const parts = value.split('-');
-  if (parts.length === 3) {
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
-  }
-  return value;
-}
 
 export default async function ObservacionesPage() {
   const { user, profile } = await getUserProfile();
@@ -219,7 +206,7 @@ export default async function ObservacionesPage() {
                       <Link href={`/documentos/${doc.id}`}>
                         <p className="truncate font-bold text-slate-950 hover:text-sky-700">{doc.file_name}</p>
                       </Link>
-                      <p className="truncate text-xs text-slate-500">{formatExpiryDate(doc.expires_at)}</p>
+                      <p className="truncate text-xs text-slate-500">{formatPlazoDate(doc.expires_at)}</p>
                     </div>
                     <span className={`ml-3 shrink-0 rounded-full px-2 py-1 text-xs font-bold ${badgeStyles}`}>{label}</span>
                   </div>
@@ -318,7 +305,7 @@ export default async function ObservacionesPage() {
                       <Link href={`/expedientes/${item.id}`}>
                         <p className="truncate font-bold text-slate-950 hover:text-sky-700">{item.title || 'Expediente sin título'}</p>
                       </Link>
-                      <p className="truncate text-xs text-slate-500">{formatExpiryDate(item.fecha)}</p>
+                      <p className="truncate text-xs text-slate-500">{formatPlazoDate(item.fecha)}</p>
                     </div>
                     <span className={`ml-3 shrink-0 rounded-full px-2 py-1 text-xs font-bold ${badgeStyles}`}>{label}</span>
                   </div>

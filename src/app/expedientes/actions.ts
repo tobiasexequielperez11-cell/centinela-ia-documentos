@@ -23,6 +23,23 @@ function denyCaseAction() {
   redirect('/acceso-denegado?motivo=rol&accion=expedientes');
 }
 
+async function requireCaseAccess(action: 'create' | 'update') {
+  const { user, profile } = await getUserProfile();
+
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+
+  const allowed =
+    isUserRole(profile.role) &&
+    (action === 'create'
+      ? canCreateCase(profile.role)
+      : canUpdateCase(profile.role));
+
+  if (!allowed) denyCaseAction();
+
+  return { user, profile };
+}
+
 function collectCaseMetadata(formData: FormData) {
   const metadata: Record<string, string> = {};
   let hasMetadataFields = false;
@@ -125,14 +142,7 @@ async function createCaseChecklist(input: {
 }
 
 export async function createCase(formData: FormData) {
-  const { user, profile } = await getUserProfile();
-
-  if (!user) redirect('/login');
-  if (!profile) redirect('/onboarding');
-
-  if (!isUserRole(profile.role) || !canCreateCase(profile.role)) {
-    denyCaseAction();
-  }
+  const { user, profile } = await requireCaseAccess('create');
 
   const title = String(formData.get('title') || '').trim();
   const clientName = String(formData.get('client_name') || '').trim();
@@ -196,14 +206,7 @@ export async function createCase(formData: FormData) {
 }
 
 export async function updateCaseStatus(formData: FormData) {
-  const { user, profile } = await getUserProfile();
-
-  if (!user) redirect('/login');
-  if (!profile) redirect('/onboarding');
-
-  if (!isUserRole(profile.role) || !canUpdateCase(profile.role)) {
-    denyCaseAction();
-  }
+  const { user, profile } = await requireCaseAccess('update');
 
   const caseId = String(formData.get('case_id') || '');
   const requestedStatus = String(formData.get('status') || '');
@@ -248,14 +251,7 @@ export async function updateCaseStatus(formData: FormData) {
 }
 
 export async function toggleChecklistItem(formData: FormData) {
-  const { user, profile } = await getUserProfile();
-
-  if (!user) redirect('/login');
-  if (!profile) redirect('/onboarding');
-
-  if (!isUserRole(profile.role) || !canUpdateCase(profile.role)) {
-    denyCaseAction();
-  }
+  const { user, profile } = await requireCaseAccess('update');
 
   const caseId = String(formData.get('case_id') || '');
   const itemId = String(formData.get('item_id') || '');
@@ -308,14 +304,7 @@ export async function toggleChecklistItem(formData: FormData) {
 }
 
 export async function linkChecklistItemDocument(formData: FormData) {
-  const { user, profile } = await getUserProfile();
-
-  if (!user) redirect('/login');
-  if (!profile) redirect('/onboarding');
-
-  if (!isUserRole(profile.role) || !canUpdateCase(profile.role)) {
-    denyCaseAction();
-  }
+  const { user, profile } = await requireCaseAccess('update');
 
   const caseId = String(formData.get('case_id') || '');
   const itemId = String(formData.get('item_id') || '');
@@ -403,10 +392,7 @@ export async function linkChecklistItemDocument(formData: FormData) {
 }
 
 export async function toggleChecklistItemNotRequired(formData: FormData) {
-  const { user, profile } = await getUserProfile();
-  if (!user) redirect('/login');
-  if (!profile) redirect('/onboarding');
-  if (!isUserRole(profile.role) || !canUpdateCase(profile.role)) denyCaseAction();
+  const { user, profile } = await requireCaseAccess('update');
 
   const caseId = String(formData.get('case_id') || '');
   const itemId = String(formData.get('item_id') || '');
@@ -448,10 +434,7 @@ export async function toggleChecklistItemNotRequired(formData: FormData) {
 }
 
 export async function addChecklistItem(formData: FormData) {
-  const { user, profile } = await getUserProfile();
-  if (!user) redirect('/login');
-  if (!profile) redirect('/onboarding');
-  if (!isUserRole(profile.role) || !canUpdateCase(profile.role)) denyCaseAction();
+  const { user, profile } = await requireCaseAccess('update');
 
   const caseId = String(formData.get('case_id') || '');
   const title = String(formData.get('title') || '').trim();
@@ -510,10 +493,7 @@ export async function addChecklistItem(formData: FormData) {
 }
 
 export async function removeChecklistItem(formData: FormData) {
-  const { user, profile } = await getUserProfile();
-  if (!user) redirect('/login');
-  if (!profile) redirect('/onboarding');
-  if (!isUserRole(profile.role) || !canUpdateCase(profile.role)) denyCaseAction();
+  const { user, profile } = await requireCaseAccess('update');
 
   const caseId = String(formData.get('case_id') || '');
   const itemId = String(formData.get('item_id') || '');
@@ -553,10 +533,7 @@ export async function removeChecklistItem(formData: FormData) {
 }
 
 export async function createCaseEvent(input: { caseId: string; eventDate: string; eventType: string; title: string; description?: string; }) {
-  const { user, profile } = await getUserProfile();
-  if (!user) redirect('/login');
-  if (!profile) redirect('/onboarding');
-  if (!isUserRole(profile.role) || !canUpdateCase(profile.role)) denyCaseAction();
+  const { user, profile } = await requireCaseAccess('update');
 
   const title = input.title.trim();
   if (!title) {
@@ -604,10 +581,7 @@ export async function createCaseEvent(input: { caseId: string; eventDate: string
 }
 
 export async function deleteCaseEvent(input: { eventId: string; caseId: string }) {
-  const { user, profile } = await getUserProfile();
-  if (!user) redirect('/login');
-  if (!profile) redirect('/onboarding');
-  if (!isUserRole(profile.role) || !canUpdateCase(profile.role)) denyCaseAction();
+  const { user, profile } = await requireCaseAccess('update');
 
   const supabase = await createClient();
 
