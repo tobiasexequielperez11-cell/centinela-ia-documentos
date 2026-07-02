@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
-import { getCaseStatusLabel, caseTypeLabel } from '@/lib/industries/caseConfig';
+import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
 import { normalizeIndustryType } from '@/lib/industries/documentTypes';
 import { summarizeChecklistStatuses } from '@/lib/checklist/progress';
 import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles } from '@/lib/documents/expiry';
@@ -119,7 +119,7 @@ export default async function CasesPage() {
                 </td>
 
                 <td className="px-5 py-4 text-slate-600">
-                  {caseTypeLabel(item.case_type)}
+                  {item.case_type ?? 'General'}
                 </td>
 
                 <td className="px-5 py-4 text-slate-600">

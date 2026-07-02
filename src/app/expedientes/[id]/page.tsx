@@ -7,7 +7,6 @@ import {
   getCaseFields,
   getCaseStatuses,
   getCaseStatusLabel,
-  caseTypeLabel,
 } from '@/lib/industries/caseConfig';
 import {
   getDocumentTypeLabel,
@@ -260,7 +259,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
               </p>
 
               <p className="mt-2 font-bold text-slate-950">
-                {caseTypeLabel(caseRecord.case_type)}
+                {caseRecord.case_type ?? 'General'}
               </p>
             </div>
 

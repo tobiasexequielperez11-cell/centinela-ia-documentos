@@ -153,7 +153,6 @@ export default async function DashboardPage() {
   const [
     organizationResult,
     casesResult,
-    documentsCount,
     documentsResult,
     aiOutputsResult,
     activityLogsResult,
@@ -170,11 +169,6 @@ export default async function DashboardPage() {
       .eq('organization_id', profile.organization_id)
       .neq('status', 'archived')
       .neq('status', 'Archivado'),
-
-    supabase
-      .from('documents')
-      .select('*', { count: 'exact', head: true })
-      .eq('organization_id', profile.organization_id),
 
     supabase
       .from('documents')
@@ -258,7 +252,7 @@ export default async function DashboardPage() {
     .map((card) =>
       buildMetricCard(card, {
         activeCases: activeCasesCount,
-        loadedDocuments: documentsCount.count ?? 0,
+        loadedDocuments: documents.length,
         pendingAnalysis: pendingDocuments.length,
         sensitiveDocuments: sensitiveDocuments.length,
         expiringDocuments,

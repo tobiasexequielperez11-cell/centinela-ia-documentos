@@ -138,9 +138,7 @@ export default async function UploadDocumentPage({
               </select>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-              Para pruebas usá documentos ficticios o archivos sin información sensible real.
-            </div>
+
 
             <div>
               <label className="text-sm font-semibold text-slate-700">

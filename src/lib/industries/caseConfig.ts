@@ -244,22 +244,6 @@ export const legacyCaseStatusLabels: Record<string, string> = {
   'En tramite': 'En trámite',
   'En trámite': 'En trámite',
 };
-
-export function caseTypeLabel(type?: string | null) {
-  const labels: Record<string, string> = {
-    general: 'General',
-    rental: 'Contrato de alquiler',
-    real_estate_purchase: 'Compraventa inmobiliaria',
-    labor: 'Laboral',
-    administrative: 'Administrativo',
-    judicial: 'Judicial',
-    corporate: 'Societario',
-    legal_case: 'Caso jurídico',
-  };
-
-  return labels[type ?? ''] ?? type ?? 'General';
-}
-
 export function getCaseFields(industry: IndustryType): CaseFieldDef[] {
   return caseFieldsByIndustry[industry] ?? [];
 }
