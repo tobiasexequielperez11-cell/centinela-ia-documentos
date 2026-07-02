@@ -241,14 +241,12 @@ function getAnalysisCountByDocument(aiOutputs: AiOutputRecordForReport[]) {
 
 function getDocumentAiLabel(count: number) {
   if (count <= 0) return 'Pendiente';
-  if (count === 1) return 'Analizado IA';
-  return `Reanalizado x${count}`;
+  return 'Analizado IA';
 }
 
 function getDocumentAiClass(count: number) {
   if (count <= 0) return 'bg-slate-100 text-slate-600';
-  if (count === 1) return 'bg-sky-50 text-sky-700';
-  return 'bg-emerald-50 text-emerald-700';
+  return 'bg-sky-50 text-sky-700';
 }
 
 function isValidView(value?: string): value is ReportView {
@@ -568,10 +566,6 @@ if (
     (item) => (analysisCountByDocument.get(item.id) ?? 0) === 0
   );
 
-  const reanalyzedDocumentsList = documents.filter(
-    (item) => (analysisCountByDocument.get(item.id) ?? 0) > 1
-  );
-
   const sensitiveDocumentsList = documents
     .filter((item) => sensitivityRank(item.sensitivity_level) >= 3)
     .sort(
@@ -580,13 +574,11 @@ if (
 
   const analyzedDocuments = analyzedDocumentsList.length;
   const pendingDocuments = pendingDocumentsList.length;
-  const reanalyzedDocuments = reanalyzedDocumentsList.length;
 
   const coverage = getPercentage(analyzedDocuments, totalDocuments);
 
   const iaFocusDocuments = uniqueDocuments([
     ...pendingDocumentsList,
-    ...reanalyzedDocumentsList,
     ...analyzedDocumentsList,
   ]);
 
@@ -728,15 +720,10 @@ if (
       value: `${coverage}%`,
       helper: `${analyzedDocuments}/${totalDocuments} documentos`,
     },
-{
-  label: 'Pendientes de revisión',
-  value: pendingDocuments,
-  helper: 'Requieren análisis IA',
-},
     {
-      label: 'Reanalizados',
-      value: reanalyzedDocuments,
-      helper: 'Con más de una versión',
+      label: 'Pendientes de revisión',
+      value: pendingDocuments,
+      helper: 'Requieren análisis IA',
     },
   ];
 
@@ -1128,7 +1115,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                 </h3>
 
                 <p className="mt-2 text-sm text-slate-600">
-                  Medición de documentos analizados, pendientes y reanalizados.
+                  Medición de documentos analizados y pendientes.
                 </p>
               </div>
 
@@ -1155,7 +1142,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
               </div>
             </div>
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <div className="rounded-2xl bg-slate-50 p-4">
                 <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
                   Analizados
@@ -1171,15 +1158,6 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                 </p>
                 <p className="mt-2 text-2xl font-bold text-slate-950">
                   {pendingDocuments}
-                </p>
-              </div>
-
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-                  Reanalizados
-                </p>
-                <p className="mt-2 text-2xl font-bold text-slate-950">
-                  {reanalyzedDocuments}
                 </p>
               </div>
             </div>
@@ -1341,7 +1319,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
 
               <p className="mt-2 text-sm text-slate-500">
                 {activeView === 'ia'
-                  ? 'Listado operativo para revisar documentos pendientes, analizados y reanalizados.'
+                  ? 'Listado operativo para revisar documentos pendientes y analizados.'
                   : activeView === 'sensibilidad'
                     ? 'Documentos con sensibilidad alta o crítica.'
                     : 'Listado general de documentos cargados en la bóveda.'}
