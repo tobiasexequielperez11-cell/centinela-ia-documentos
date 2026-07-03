@@ -1,15 +1,26 @@
 import Link from 'next/link';
+import type { LucideIcon } from 'lucide-react';
 import { BarChart3, FileText, FolderKanban, Users, AlertCircle, Calculator, FileSignature } from 'lucide-react';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { isUserRole } from '@/lib/permissions/roles';
+import { createClient } from '@/lib/supabase/server';
+import { normalizeIndustryType, type IndustryType } from '@/lib/industries/documentTypes';
 
-const navigation = [
+type NavItem = {
+  name: string;
+  href: string;
+  icon: LucideIcon;
+  roles: string[];
+  industries?: IndustryType[];
+};
+
+const navigation: NavItem[] = [
   { name: 'Inicio', href: '/dashboard', icon: BarChart3, roles: ['admin', 'employee', 'auditor', 'client'] },
   { name: 'Expedientes', href: '/expedientes', icon: FolderKanban, roles: ['admin', 'employee', 'auditor', 'client'] },
   { name: 'Documentos', href: '/documentos', icon: FileText, roles: ['admin', 'employee', 'auditor', 'client'] },
   { name: 'Observaciones', href: '/observaciones', icon: AlertCircle, roles: ['admin', 'employee', 'auditor', 'client'] },
-  { name: 'Calculadoras', href: '/calculadoras', icon: Calculator, roles: ['admin', 'employee', 'auditor', 'client'] },
-  { name: 'Modelos', href: '/modelos', icon: FileSignature, roles: ['admin', 'employee', 'auditor', 'client'] },
+  { name: 'Calculadoras', href: '/calculadoras', icon: Calculator, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['legal', 'escribania'] },
+  { name: 'Modelos', href: '/modelos', icon: FileSignature, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['legal', 'escribania'] },
   { name: 'Usuarios', href: '/usuarios', icon: Users, roles: ['admin'] },
   { name: 'Reportes', href: '/reportes', icon: BarChart3, roles: ['admin', 'employee', 'auditor'] },
 ];
@@ -17,8 +28,24 @@ const navigation = [
 export async function Sidebar() {
   const { profile } = await getUserProfile();
   const role = isUserRole(profile?.role) ? profile.role : null;
+
+  let industry: IndustryType = 'general';
+  if (profile?.organization_id) {
+    const supabase = await createClient();
+    const { data: org } = await supabase
+      .from('organizations')
+      .select('industry_type')
+      .eq('id', profile.organization_id)
+      .maybeSingle();
+    industry = normalizeIndustryType(org?.industry_type);
+  }
+
   const visibleNavigation = role
-    ? navigation.filter((item) => item.roles.includes(role))
+    ? navigation.filter(
+        (item) =>
+          item.roles.includes(role) &&
+          (!item.industries || item.industries.includes(industry))
+      )
     : [];
 
   return (
