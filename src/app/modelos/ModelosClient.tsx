@@ -1,8 +1,32 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ArrowLeft, Copy, Check, Download, FileSignature, Search } from 'lucide-react';
+import { ArrowLeft, Copy, Check, Download, FileSignature, Search, FolderKanban } from 'lucide-react';
 import { MODELOS, type ModeloEscrito } from '@/lib/legal/modelos';
+
+export type ExpedienteLite = {
+  id: string;
+  title: string;
+  client_name: string | null;
+  case_type: string | null;
+  metadata: Record<string, string> | null;
+};
+
+function datosDeExpediente(exp: ExpedienteLite): Record<string, string> {
+  const meta = exp.metadata ?? {};
+  const posibles: Record<string, string | null | undefined> = {
+    caratula: exp.title,
+    nombre_parte: exp.client_name,
+    parte: exp.client_name,
+    destinatario: exp.client_name,
+    numero_expediente: meta.numero_expediente ?? meta.expediente,
+    domicilio_destinatario: meta.domicilio,
+    domicilio_fisico: meta.domicilio,
+  };
+  return Object.fromEntries(
+    Object.entries(posibles).filter(([, v]) => typeof v === 'string' && v.trim() !== '')
+  ) as Record<string, string>;
+}
 
 function humanize(key: string): string {
   const s = key.replace(/[_-]+/g, ' ').trim();
@@ -24,11 +48,12 @@ function fillTemplate(cuerpo: string, values: Record<string, string>): string {
   });
 }
 
-export function ModelosClient() {
+export function ModelosClient({ expedientes }: { expedientes: ExpedienteLite[] }) {
   const [seleccionadoId, setSeleccionadoId] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState('');
   const [valores, setValores] = useState<Record<string, string>>({});
   const [copiado, setCopiado] = useState(false);
+  const [expedienteId, setExpedienteId] = useState('');
 
   const seleccionado = MODELOS.find((m) => m.id === seleccionadoId) ?? null;
 
@@ -55,8 +80,15 @@ export function ModelosClient() {
 
   const abrir = (m: ModeloEscrito) => {
     setSeleccionadoId(m.id);
-    setValores({});
+    const exp = expedientes.find((e) => e.id === expedienteId);
+    setValores(exp ? datosDeExpediente(exp) : {});
     setCopiado(false);
+  };
+
+  const aplicarExpediente = (id: string) => {
+    setExpedienteId(id);
+    const exp = expedientes.find((e) => e.id === id);
+    setValores((prev) => (exp ? { ...prev, ...datosDeExpediente(exp) } : prev));
   };
 
   const volver = () => {
@@ -151,6 +183,29 @@ export function ModelosClient() {
               <h2 className="text-base font-semibold text-slate-950">{seleccionado.titulo}</h2>
               <p className="mt-1 text-sm text-slate-600">{seleccionado.descripcion}</p>
               <div className="mt-4 space-y-3">
+                {expedientes.length > 0 && (
+                  <div className="mb-4 rounded-xl border border-sky-100 bg-sky-50/60 p-3">
+                    <label className="flex items-center gap-2 text-xs font-semibold text-sky-700">
+                      <FolderKanban className="h-3.5 w-3.5" />
+                      Prellenar desde un expediente
+                    </label>
+                    <select
+                      value={expedienteId}
+                      onChange={(e) => aplicarExpediente(e.target.value)}
+                      className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                    >
+                      <option value="">— Sin expediente (completar a mano) —</option>
+                      {expedientes.map((exp) => (
+                        <option key={exp.id} value={exp.id}>
+                          {exp.title || 'Expediente sin título'}{exp.client_name ? ` — ${exp.client_name}` : ''}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1.5 text-[11px] text-slate-500">
+                      Completa carátula, parte y datos disponibles automáticamente. Podés editar todo abajo.
+                    </p>
+                  </div>
+                )}
                 {variables.length === 0 && <p className="text-sm text-slate-500">Este modelo no tiene campos para completar.</p>}
                 {variables.map((key) => (
                   <label key={key} className="block">
