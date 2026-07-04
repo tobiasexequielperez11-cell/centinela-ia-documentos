@@ -11,7 +11,7 @@ export default async function AgendaPage() {
 
   const supabase = await createClient();
 
-  const [documentsResult, casesResult] = await Promise.all([
+  const [documentsResult, casesResult, plazosResult] = await Promise.all([
     supabase
       .from('documents')
       .select('id, file_name, expires_at')
@@ -23,10 +23,15 @@ export default async function AgendaPage() {
       .eq('organization_id', profile.organization_id)
       .neq('status', 'archived')
       .neq('status', 'Archivado'),
+    supabase
+      .from('agenda_plazos')
+      .select('id, titulo, fecha, detalle')
+      .eq('organization_id', profile.organization_id),
   ]);
 
   const documents = documentsResult.data ?? [];
   const cases = casesResult.data ?? [];
+  const plazos = plazosResult.data ?? [];
 
   const eventos: AgendaEvento[] = [];
 
@@ -50,6 +55,17 @@ export default async function AgendaPage() {
       titulo: c.title || 'Expediente sin título',
       tipo: 'expediente',
       href: `/expedientes/${c.id}`,
+    });
+  }
+
+  for (const p of plazos) {
+    if (!p.fecha) continue;
+    eventos.push({
+      id: `plazo-${p.id}`,
+      fecha: String(p.fecha).slice(0, 10),
+      titulo: p.titulo ?? 'Plazo procesal',
+      tipo: 'plazo',
+      href: '/agenda',
     });
   }
 

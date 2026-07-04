@@ -2,14 +2,14 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, FileText, FolderKanban } from 'lucide-react';
+import { ChevronLeft, ChevronRight, FileText, FolderKanban, CalendarClock } from 'lucide-react';
 import { FERIADOS, FERIAS_JUDICIALES } from '@/lib/legal/config';
 
 export type AgendaEvento = {
   id: string;
   fecha: string; // 'YYYY-MM-DD'
   titulo: string;
-  tipo: 'documento' | 'expediente';
+  tipo: 'documento' | 'expediente' | 'plazo';
   href: string;
 };
 
@@ -79,6 +79,7 @@ export function AgendaClient({ eventos }: { eventos: AgendaEvento[] }) {
         <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-slate-400" /> Feria judicial</span>
         <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-sky-500" /> Vencimiento documento</span>
         <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-violet-500" /> Fecha de expediente</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-violet-500" /> Plazo procesal</span>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -112,11 +113,19 @@ export function AgendaClient({ eventos }: { eventos: AgendaEvento[] }) {
                   {esFeriado && <p className="mt-0.5 truncate text-[10px] font-medium text-amber-700">Feriado</p>}
                   {!esFeriado && feria && <p className="mt-0.5 truncate text-[10px] font-medium text-slate-500">Feria</p>}
                   <div className="mt-0.5 space-y-0.5">
-                    {evs.slice(0, 3).map((ev) => (
-                      <Link key={ev.id} href={ev.href} title={ev.titulo} className={`block truncate rounded px-1 py-0.5 text-[10px] font-medium text-white ${ev.tipo === 'documento' ? 'bg-sky-500' : 'bg-violet-500'}`}>
-                        {ev.titulo}
-                      </Link>
-                    ))}
+                    {evs.slice(0, 3).map((ev) => {
+                      const bgColor = ev.tipo === 'documento' ? 'bg-sky-500' : 'bg-violet-500';
+                      const content = ev.titulo;
+                      const className = `block truncate rounded px-1 py-0.5 text-[10px] font-medium text-white ${bgColor}`;
+                      if (ev.tipo === 'plazo') {
+                        return <div key={ev.id} title={ev.titulo} className={className}>{content}</div>;
+                      }
+                      return (
+                        <Link key={ev.id} href={ev.href} title={ev.titulo} className={className}>
+                          {content}
+                        </Link>
+                      );
+                    })}
                     {evs.length > 3 && <span className="block text-[10px] text-slate-400">+{evs.length - 3} más</span>}
                   </div>
                 </div>
@@ -129,17 +138,31 @@ export function AgendaClient({ eventos }: { eventos: AgendaEvento[] }) {
           <h2 className="text-base font-semibold capitalize text-slate-950">Eventos de {MESES[month]}</h2>
           <div className="mt-3 space-y-2">
             {eventosMes.length === 0 && <p className="text-sm text-slate-500">No hay vencimientos ni fechas cargadas este mes.</p>}
-            {eventosMes.map((ev) => (
-              <Link key={ev.id} href={ev.href} className="flex items-start gap-2 rounded-lg border border-slate-100 p-2.5 transition hover:bg-slate-50">
-                <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${ev.tipo === 'documento' ? 'bg-sky-50 text-sky-600' : 'bg-violet-50 text-violet-600'}`}>
-                  {ev.tipo === 'documento' ? <FileText className="h-3.5 w-3.5" /> : <FolderKanban className="h-3.5 w-3.5" />}
-                </span>
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-medium text-slate-900">{ev.titulo}</span>
-                  <span className="block text-xs text-slate-500">{ev.fecha.split('-').reverse().join('/')} · {ev.tipo === 'documento' ? 'Vence documento' : 'Expediente'}</span>
-                </span>
-              </Link>
-            ))}
+            {eventosMes.map((ev) => {
+              const iconBg = ev.tipo === 'documento' ? 'bg-sky-50 text-sky-600' : 'bg-violet-50 text-violet-600';
+              const Icon = ev.tipo === 'documento' ? FileText : ev.tipo === 'plazo' ? CalendarClock : FolderKanban;
+              const typeLabel = ev.tipo === 'documento' ? 'Vence documento' : ev.tipo === 'plazo' ? 'Plazo procesal' : 'Expediente';
+              const content = (
+                <>
+                  <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${iconBg}`}>
+                    <Icon className="h-3.5 w-3.5" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-medium text-slate-900">{ev.titulo}</span>
+                    <span className="block text-xs text-slate-500">{ev.fecha.split('-').reverse().join('/')} · {typeLabel}</span>
+                  </span>
+                </>
+              );
+              const className = "flex items-start gap-2 rounded-lg border border-slate-100 p-2.5 transition hover:bg-slate-50";
+              if (ev.tipo === 'plazo') {
+                return <div key={ev.id} className={className}>{content}</div>;
+              }
+              return (
+                <Link key={ev.id} href={ev.href} className={className}>
+                  {content}
+                </Link>
+              );
+            })}
           </div>
         </section>
       </div>

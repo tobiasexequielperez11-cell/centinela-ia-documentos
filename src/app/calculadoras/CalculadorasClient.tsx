@@ -2,7 +2,8 @@
 
 import { useState, type ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import { CalendarClock, Coins, Scale, AlertTriangle } from 'lucide-react';
+import { CalendarClock, Coins, Scale, AlertTriangle, CalendarPlus, Check, Loader2 } from 'lucide-react';
+import { guardarPlazoEnAgenda } from './actions';
 import { UMA_VALOR, UMA_VIGENCIA, TASA_JUSTICIA_PORCENTAJE } from '@/lib/legal/config';
 import { parseISODate, sumarDiasCorridos, sumarDiasHabiles } from '@/lib/legal/plazos';
 
@@ -12,6 +13,9 @@ const currency = (n: number) =>
   new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 2 }).format(
     Number.isFinite(n) ? n : 0
   );
+
+const toISODate = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
 const formatDateLarga = (d: Date) =>
   new Intl.DateTimeFormat('es-AR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).format(d);
@@ -80,10 +84,14 @@ function PlazosCalc() {
   const [tipo, setTipo] = useState<'habiles' | 'corridos'>('habiles');
   const [resultado, setResultado] = useState<{ vencimiento: Date; texto: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [referencia, setReferencia] = useState('');
+  const [guardando, setGuardando] = useState(false);
+  const [guardado, setGuardado] = useState<string | null>(null);
 
   const calcular = () => {
     setError(null);
     setResultado(null);
+    setGuardado(null);
     const inicio = parseISODate(fecha);
     const n = parseInt(dias, 10);
     if (!inicio) return setError('Ingresá una fecha de inicio válida.');
@@ -93,6 +101,26 @@ function PlazosCalc() {
       vencimiento,
       texto: `${n} día${n > 1 ? 's' : ''} ${tipo === 'habiles' ? 'hábiles judiciales' : 'corridos'}`,
     });
+  };
+
+  const cargarAgenda = async () => {
+    if (!resultado) return;
+    setGuardando(true);
+    setGuardado(null);
+    const res = await guardarPlazoEnAgenda({
+      titulo: referencia.trim() || 'Vencimiento de plazo procesal',
+      fecha: toISODate(resultado.vencimiento),
+      detalle: resultado.texto,
+    });
+    setGuardando(false);
+    setGuardado(
+      res.ok
+        ? '✓ Cargado a la agenda'
+        : res.motivo === 'no_auth'
+          ? 'Iniciá sesión para guardar.'
+          : 'No se pudo guardar, intentá de nuevo.'
+    );
+    if (res.ok) setReferencia('');
   };
 
   return (
@@ -123,6 +151,30 @@ function PlazosCalc() {
             Contados {resultado.texto}
             {tipo === 'habiles' ? ' (sin fines de semana, feriados ni feria judicial).' : '.'}
           </p>
+          
+          <div className="mt-4 border-t border-emerald-100 pt-4">
+            <input
+              type="text"
+              value={referencia}
+              onChange={(e) => setReferencia(e.target.value)}
+              placeholder="Referencia (ej. carátula o trámite)"
+              className={inputClass}
+            />
+            <button
+              type="button"
+              onClick={cargarAgenda}
+              disabled={guardando}
+              className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+            >
+              {guardando ? <Loader2 className="h-4 w-4 animate-spin" /> : <CalendarPlus className="h-4 w-4" />}
+              Cargar a la agenda
+            </button>
+            {guardado && (
+              <p className={`mt-2 text-center text-[11px] font-medium ${guardado.startsWith('✓') ? 'text-emerald-700' : 'text-amber-700'}`}>
+                {guardado}
+              </p>
+            )}
+          </div>
         </div>
       )}
     </Card>
