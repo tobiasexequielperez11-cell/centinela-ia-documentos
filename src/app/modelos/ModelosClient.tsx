@@ -1,8 +1,10 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ArrowLeft, Copy, Check, Download, FileSignature, Search, FolderKanban } from 'lucide-react';
+import { Document, Packer, Paragraph, TextRun } from 'docx';
+import { ArrowLeft, Copy, Check, Download, FileSignature, Search, FolderKanban, FileDown, Sparkles, Loader2 } from 'lucide-react';
 import { MODELOS, type ModeloEscrito } from '@/lib/legal/modelos';
+import { redactarEscritoIA } from './actions';
 
 export type ExpedienteLite = {
   id: string;
@@ -54,6 +56,10 @@ export function ModelosClient({ expedientes }: { expedientes: ExpedienteLite[] }
   const [valores, setValores] = useState<Record<string, string>>({});
   const [copiado, setCopiado] = useState(false);
   const [expedienteId, setExpedienteId] = useState('');
+  const [instruccion, setInstruccion] = useState('');
+  const [textoIA, setTextoIA] = useState<string | null>(null);
+  const [redactando, setRedactando] = useState(false);
+  const [avisoIA, setAvisoIA] = useState<string | null>(null);
 
   const seleccionado = MODELOS.find((m) => m.id === seleccionadoId) ?? null;
 
@@ -77,12 +83,43 @@ export function ModelosClient({ expedientes }: { expedientes: ExpedienteLite[] }
 
   const variables = seleccionado ? extractVars(seleccionado.cuerpo) : [];
   const textoFinal = seleccionado ? fillTemplate(seleccionado.cuerpo, valores) : '';
+  const textoParaMostrar = textoIA ?? textoFinal;
+
+  const redactarIA = async () => {
+    if (!seleccionado) return;
+    setRedactando(true);
+    setAvisoIA(null);
+    try {
+      const r = await redactarEscritoIA({
+        titulo: seleccionado.titulo,
+        cuerpo: seleccionado.cuerpo,
+        valores,
+        instruccion,
+      });
+      if (r.ok) {
+        setTextoIA(r.texto);
+      } else if (r.motivo === 'sin_key') {
+        setAvisoIA('La redacción con IA todavía no está activada en este entorno. Podés seguir usando el relleno manual; se activa cargando la clave cuando quieras.');
+      } else if (r.motivo === 'sin_permiso') {
+        setAvisoIA('Tu rol no tiene acceso a la redacción con IA.');
+      } else {
+        setAvisoIA('No se pudo generar el borrador. Probá de nuevo en unos segundos.');
+      }
+    } catch {
+      setAvisoIA('No se pudo generar el borrador. Probá de nuevo en unos segundos.');
+    } finally {
+      setRedactando(false);
+    }
+  };
 
   const abrir = (m: ModeloEscrito) => {
     setSeleccionadoId(m.id);
     const exp = expedientes.find((e) => e.id === expedienteId);
     setValores(exp ? datosDeExpediente(exp) : {});
     setCopiado(false);
+    setTextoIA(null);
+    setInstruccion('');
+    setAvisoIA(null);
   };
 
   const aplicarExpediente = (id: string) => {
@@ -95,11 +132,14 @@ export function ModelosClient({ expedientes }: { expedientes: ExpedienteLite[] }
     setSeleccionadoId(null);
     setValores({});
     setCopiado(false);
+    setTextoIA(null);
+    setInstruccion('');
+    setAvisoIA(null);
   };
 
   const copiar = async () => {
     try {
-      await navigator.clipboard.writeText(textoFinal);
+      await navigator.clipboard.writeText(textoParaMostrar);
       setCopiado(true);
       setTimeout(() => setCopiado(false), 2000);
     } catch {
@@ -109,11 +149,31 @@ export function ModelosClient({ expedientes }: { expedientes: ExpedienteLite[] }
 
   const descargar = () => {
     if (!seleccionado) return;
-    const blob = new Blob([textoFinal], { type: 'text/plain;charset=utf-8' });
+    const blob = new Blob([textoParaMostrar], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `${seleccionado.titulo}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const descargarDocx = async () => {
+    if (!seleccionado) return;
+    const parrafos = textoParaMostrar.split('\n').map(
+      (linea) =>
+        new Paragraph({
+          children: [new TextRun({ text: linea, font: 'Times New Roman', size: 24 })],
+        })
+    );
+    const doc = new Document({ sections: [{ children: parrafos }] });
+    const blob = await Packer.toBlob(doc);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${seleccionado.titulo}.docx`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -218,6 +278,38 @@ export function ModelosClient({ expedientes }: { expedientes: ExpedienteLite[] }
                     />
                   </label>
                 ))}
+
+                <div className="mt-4 rounded-xl border border-violet-100 bg-violet-50/60 p-3">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-violet-700">
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Redactar con IA (opcional)
+                  </label>
+                  <textarea
+                    value={instruccion}
+                    onChange={(e) => setInstruccion(e.target.value)}
+                    rows={3}
+                    placeholder="Contale a la IA qué necesitás. Ej: demanda por despido sin causa, reclama indemnización art. 245 LCT; ingresó el 01/2020, categoría vendedor…"
+                    className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-950 outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
+                  />
+                  <button
+                    type="button"
+                    onClick={redactarIA}
+                    disabled={redactando}
+                    className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-violet-700 disabled:opacity-60"
+                  >
+                    {redactando ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                    {redactando ? 'Redactando…' : 'Redactar con IA'}
+                  </button>
+                  {avisoIA && <p className="mt-2 text-[11px] text-amber-700">{avisoIA}</p>}
+                  {textoIA && (
+                    <div className="mt-2 flex items-center justify-between gap-2">
+                      <span className="text-[11px] font-medium text-violet-700">✨ Borrador generado con IA — revisalo antes de presentar.</span>
+                      <button type="button" onClick={() => setTextoIA(null)} className="shrink-0 text-[11px] font-semibold text-slate-500 underline">
+                        Volver al relleno manual
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </section>
 
@@ -238,11 +330,19 @@ export function ModelosClient({ expedientes }: { expedientes: ExpedienteLite[] }
                     onClick={descargar}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
                   >
-                    <Download className="h-3.5 w-3.5" /> Descargar
+                    <Download className="h-3.5 w-3.5" /> Descargar .txt
+                  </button>
+                  <button
+                    type="button"
+                    onClick={descargarDocx}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-sky-700"
+                  >
+                    <FileDown className="h-3.5 w-3.5" />
+                    Word (.docx)
                   </button>
                 </div>
               </div>
-              <pre className="mt-4 max-h-[520px] overflow-auto whitespace-pre-wrap rounded-xl border border-slate-100 bg-slate-50 p-4 font-sans text-sm leading-relaxed text-slate-800">{textoFinal}</pre>
+              <pre className="mt-4 max-h-[520px] overflow-auto whitespace-pre-wrap rounded-xl border border-slate-100 bg-slate-50 p-4 font-sans text-sm leading-relaxed text-slate-800">{textoParaMostrar}</pre>
             </section>
           </div>
 
