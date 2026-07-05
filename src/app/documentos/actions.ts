@@ -463,6 +463,91 @@ function buildNextActions(documentType: string) {
   ];
 }
 
+async function analizarConIA(texto: string): Promise<{
+  model: string;
+  resumen: string;
+  tipo_documental_detectado: string;
+  sensibilidad_detectada: string;
+  partes: string[];
+  datos_clave: string[];
+  clausulas_riesgos: string[];
+  alertas: string[];
+  proximas_acciones: string[];
+} | null> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return null;
+
+  const modelo = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+
+  const prompt = [
+    'Sos un asistente jurídico argentino experto en análisis documental.',
+    'Analizá el DOCUMENTO y devolvé SOLO un objeto JSON válido (sin texto adicional) con esta forma exacta:',
+    '{',
+    '  "resumen": "3 a 4 líneas explicando qué es y qué dice el documento",',
+    '  "tipo_documental_detectado": "tipo en una o dos palabras (ej: demanda, contrato de locación, poder, boleto de compraventa)",',
+    '  "sensibilidad_detectada": "uno de: low, medium, high, critical",',
+    '  "partes": ["cada parte interviniente y su rol"],',
+    '  "datos_clave": ["montos, fechas, plazos, vencimientos, DNI/CUIT, domicilios relevantes"],',
+    '  "clausulas_riesgos": ["cláusulas u obligaciones importantes y riesgos detectados"],',
+    '  "alertas": ["alertas jurídicas o de sensibilidad"],',
+    '  "proximas_acciones": ["acciones concretas sugeridas para el abogado"]',
+    '}',
+    'REGLAS:',
+    '- Basáte SOLO en el contenido del documento. NO inventes datos, montos, fechas ni artículos.',
+    '- Si algún dato no aparece, devolvé un array vacío para esa clave.',
+    '- sensibilidad_detectada: "critical" si hay datos personales/financieros fuertes (DNI, CUIT, cuentas, historia clínica); "high" si hay nombres/contratos; "medium" o "low" si es genérico.',
+    '',
+    'DOCUMENTO:',
+    texto,
+  ].join('\n');
+
+  try {
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.2, responseMimeType: 'application/json' },
+        }),
+      }
+    );
+
+    if (!resp.ok) {
+      console.error('Gemini análisis error:', resp.status, await resp.text());
+      return null;
+    }
+
+    const data = await resp.json();
+    const raw: string =
+      data?.candidates?.[0]?.content?.parts
+        ?.map((p: { text?: string }) => p.text ?? '')
+        .join('') ?? '';
+
+    if (!raw.trim()) return null;
+
+    const parsed = JSON.parse(raw);
+    const arr = (v: unknown): string[] =>
+      Array.isArray(v) ? v.map((x) => String(x)) : [];
+
+    return {
+      model: `analisis-ia-${modelo}`,
+      resumen: String(parsed.resumen ?? ''),
+      tipo_documental_detectado: String(parsed.tipo_documental_detectado ?? ''),
+      sensibilidad_detectada: String(parsed.sensibilidad_detectada ?? '').toLowerCase(),
+      partes: arr(parsed.partes),
+      datos_clave: arr(parsed.datos_clave),
+      clausulas_riesgos: arr(parsed.clausulas_riesgos),
+      alertas: arr(parsed.alertas),
+      proximas_acciones: arr(parsed.proximas_acciones),
+    };
+  } catch (e) {
+    console.error('Gemini análisis fetch error:', e);
+    return null;
+  }
+}
+
 export async function analyzeDocument(formData: FormData) {
   const { user, profile } = await getUserProfile();
 
@@ -525,18 +610,58 @@ export async function analyzeDocument(formData: FormData) {
 
   const detectedSensitivity = detectSensitivity(extractedText);
 
-  const analysis = {
-modo: 'beta_controlada',
-    resumen:
-'Análisis documental generado en modo controlado. El sistema extrajo texto del PDF y aplicó reglas básicas para clasificarlo sin enviar información a proveedores externos.',
-    tipo_documental_detectado: detectedType,
-    sensibilidad_detectada: detectedSensitivity,
-datos_relevantes: buildRelevantData(extractedText, detectedType),
-    alertas: buildAlerts(extractedText, detectedSensitivity),
-    proximas_acciones: buildNextActions(detectedType),
-    texto_extraido_preview: extractedText.slice(0, 1200),
-    caracteres_extraidos: extractedText.length,
-  };
+  // Interruptor: si hay GEMINI_API_KEY analiza con IA; si no, cae al modo por reglas.
+  const ia = await analizarConIA(extractedText);
+
+  let modelName = 'analisis-documental-beta-v1';
+  let sensitivityToSave = detectedSensitivity;
+  let analysis;
+
+  if (ia) {
+    const sensValida = ['low', 'medium', 'high', 'critical'].includes(
+      ia.sensibilidad_detectada
+    )
+      ? ia.sensibilidad_detectada
+      : detectedSensitivity;
+
+    modelName = ia.model;
+    sensitivityToSave = sensValida;
+
+    const datosRelevantes = [
+      ...ia.partes.map((p) => `Parte: ${p}`),
+      ...ia.datos_clave,
+      ...ia.clausulas_riesgos.map((r) => `Cláusula/riesgo: ${r}`),
+    ];
+
+    analysis = {
+      modo: 'ia',
+      resumen: ia.resumen || 'Análisis generado con IA.',
+      tipo_documental_detectado: ia.tipo_documental_detectado || detectedType,
+      sensibilidad_detectada: sensValida,
+      datos_relevantes: datosRelevantes.length
+        ? datosRelevantes
+        : ['La IA no identificó datos estructurados.'],
+      alertas: ia.alertas.length
+        ? ia.alertas
+        : ['Sin alertas detectadas por la IA.'],
+      proximas_acciones: ia.proximas_acciones,
+      texto_extraido_preview: extractedText.slice(0, 1200),
+      caracteres_extraidos: extractedText.length,
+    };
+  } else {
+    analysis = {
+      modo: 'beta_controlada',
+      resumen:
+        'Análisis documental generado en modo controlado. El sistema extrajo texto del PDF y aplicó reglas básicas para clasificarlo sin enviar información a proveedores externos.',
+      tipo_documental_detectado: detectedType,
+      sensibilidad_detectada: detectedSensitivity,
+      datos_relevantes: buildRelevantData(extractedText, detectedType),
+      alertas: buildAlerts(extractedText, detectedSensitivity),
+      proximas_acciones: buildNextActions(detectedType),
+      texto_extraido_preview: extractedText.slice(0, 1200),
+      caracteres_extraidos: extractedText.length,
+    };
+  }
 
   const { error: aiInsertError } = await supabase.from('ai_outputs').insert({
     organization_id: profile.organization_id,
@@ -544,7 +669,7 @@ datos_relevantes: buildRelevantData(extractedText, detectedType),
     case_id: documentRecord.case_id,
     output_type: 'document_analysis',
     content: analysis.resumen,
-model_name: 'analisis-documental-beta-v1',
+    model_name: modelName,
     result_json: analysis,
     created_by: user.id,
   });
@@ -558,7 +683,7 @@ const { error: documentUpdateError } = await supabase
   .from('documents')
   .update({
     document_type: detectedType,
-    sensitivity_level: detectedSensitivity,
+    sensitivity_level: sensitivityToSave,
   })
   .eq('id', documentRecord.id)
   .eq('organization_id', profile.organization_id);
