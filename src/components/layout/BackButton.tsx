@@ -1,10 +1,17 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
+
+// Rutas de nivel principal donde NO se muestra el botón "Volver"
+const HOME_ROUTES = ['/dashboard'];
 
 export function BackButton() {
   const router = useRouter();
+  const pathname = usePathname();
+
+  // En la pantalla principal (Inicio) no se muestra
+  if (HOME_ROUTES.includes(pathname)) return null;
 
   return (
     <button
