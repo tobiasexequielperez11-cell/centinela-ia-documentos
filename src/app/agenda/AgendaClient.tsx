@@ -2,14 +2,16 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, FileText, FolderKanban, CalendarClock } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ChevronLeft, ChevronRight, FileText, FolderKanban, CalendarClock, CalendarPlus, Plus, X } from 'lucide-react';
+import { guardarEventoManual } from './actions';
 import { FERIADOS, FERIAS_JUDICIALES } from '@/lib/legal/config';
 
 export type AgendaEvento = {
   id: string;
   fecha: string; // 'YYYY-MM-DD'
   titulo: string;
-  tipo: 'documento' | 'expediente' | 'plazo';
+  tipo: 'documento' | 'expediente' | 'plazo' | 'evento';
   href: string;
 };
 
@@ -28,6 +30,32 @@ function feriaDe(fecha: string): string | null {
 }
 
 export function AgendaClient({ eventos }: { eventos: AgendaEvento[] }) {
+  const router = useRouter();
+  const [showForm, setShowForm] = useState(false);
+  const [nuevoTitulo, setNuevoTitulo] = useState('');
+  const [nuevaFecha, setNuevaFecha] = useState('');
+  const [nuevoDetalle, setNuevoDetalle] = useState('');
+  const [guardando, setGuardando] = useState(false);
+  const [aviso, setAviso] = useState('');
+
+  const crearEvento = async () => {
+    if (!nuevoTitulo.trim() || !nuevaFecha) {
+      setAviso('Completá título y fecha.');
+      return;
+    }
+    setGuardando(true);
+    setAviso('');
+    const res = await guardarEventoManual({ titulo: nuevoTitulo, fecha: nuevaFecha, detalle: nuevoDetalle });
+    setGuardando(false);
+    if (res.ok) {
+      setNuevoTitulo(''); setNuevaFecha(''); setNuevoDetalle('');
+      setShowForm(false);
+      router.refresh();
+    } else {
+      setAviso(res.motivo === 'no_auth' ? 'Iniciá sesión para guardar.' : (res.mensaje || 'No se pudo guardar.'));
+    }
+  };
+
   const hoy = new Date();
   const [year, setYear] = useState(hoy.getFullYear());
   const [month, setMonth] = useState(hoy.getMonth());
@@ -68,11 +96,55 @@ export function AgendaClient({ eventos }: { eventos: AgendaEvento[] }) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-sky-600">Herramientas jurídicas</p>
-        <h1 className="mt-1 text-2xl font-semibold text-slate-950">Agenda</h1>
-        <p className="mt-1 text-sm text-slate-600">Feriados, feria judicial y vencimientos de tus documentos y expedientes.</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-sky-600">Herramientas jurídicas</p>
+          <h1 className="mt-1 text-2xl font-semibold text-slate-950">Agenda</h1>
+          <p className="mt-1 text-sm text-slate-600">Feriados, feria judicial y vencimientos de tus documentos y expedientes.</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowForm(!showForm)}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-700"
+        >
+          {showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+          Nuevo evento
+        </button>
       </div>
+
+      {showForm && (
+        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm max-w-lg">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-slate-950">Cargar evento manual</h2>
+            <button type="button" onClick={() => setShowForm(false)} className="text-slate-400 hover:text-slate-600">
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="space-y-4">
+            <label className="block">
+              <span className="mb-1 block text-xs font-semibold text-slate-600">Fecha</span>
+              <input type="date" value={nuevaFecha} onChange={(e) => setNuevaFecha(e.target.value)} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-950 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100" />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-xs font-semibold text-slate-600">Título</span>
+              <input type="text" value={nuevoTitulo} onChange={(e) => setNuevoTitulo(e.target.value)} placeholder="Ej: Presentar escrito - Pérez c/ García" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-950 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100" />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-xs font-semibold text-slate-600">Detalle (opcional)</span>
+              <input type="text" value={nuevoDetalle} onChange={(e) => setNuevoDetalle(e.target.value)} placeholder="Descripción adicional" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-950 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100" />
+            </label>
+            <button
+              type="button"
+              onClick={crearEvento}
+              disabled={guardando}
+              className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+            >
+              {guardando ? 'Guardando…' : 'Guardar'}
+            </button>
+            {aviso && <p className="text-center text-[11px] font-medium text-amber-700">{aviso}</p>}
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600">
         <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-amber-400" /> Feriado</span>
@@ -80,6 +152,7 @@ export function AgendaClient({ eventos }: { eventos: AgendaEvento[] }) {
         <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-sky-500" /> Vencimiento documento</span>
         <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-violet-500" /> Fecha de expediente</span>
         <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-violet-500" /> Plazo procesal</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-emerald-500" /> Recordatorio</span>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -114,10 +187,10 @@ export function AgendaClient({ eventos }: { eventos: AgendaEvento[] }) {
                   {!esFeriado && feria && <p className="mt-0.5 truncate text-[10px] font-medium text-slate-500">Feria</p>}
                   <div className="mt-0.5 space-y-0.5">
                     {evs.slice(0, 3).map((ev) => {
-                      const bgColor = ev.tipo === 'documento' ? 'bg-sky-500' : 'bg-violet-500';
+                      const bgColor = ev.tipo === 'documento' ? 'bg-sky-500' : ev.tipo === 'evento' ? 'bg-emerald-500' : 'bg-violet-500';
                       const content = ev.titulo;
                       const className = `block truncate rounded px-1 py-0.5 text-[10px] font-medium text-white ${bgColor}`;
-                      if (ev.tipo === 'plazo') {
+                      if (ev.tipo === 'plazo' || ev.tipo === 'evento') {
                         return <div key={ev.id} title={ev.titulo} className={className}>{content}</div>;
                       }
                       return (
@@ -139,9 +212,9 @@ export function AgendaClient({ eventos }: { eventos: AgendaEvento[] }) {
           <div className="mt-3 space-y-2">
             {eventosMes.length === 0 && <p className="text-sm text-slate-500">No hay vencimientos ni fechas cargadas este mes.</p>}
             {eventosMes.map((ev) => {
-              const iconBg = ev.tipo === 'documento' ? 'bg-sky-50 text-sky-600' : 'bg-violet-50 text-violet-600';
-              const Icon = ev.tipo === 'documento' ? FileText : ev.tipo === 'plazo' ? CalendarClock : FolderKanban;
-              const typeLabel = ev.tipo === 'documento' ? 'Vence documento' : ev.tipo === 'plazo' ? 'Plazo procesal' : 'Expediente';
+              const iconBg = ev.tipo === 'documento' ? 'bg-sky-50 text-sky-600' : ev.tipo === 'evento' ? 'bg-emerald-50 text-emerald-600' : 'bg-violet-50 text-violet-600';
+              const Icon = ev.tipo === 'documento' ? FileText : ev.tipo === 'plazo' ? CalendarClock : ev.tipo === 'evento' ? CalendarPlus : FolderKanban;
+              const typeLabel = ev.tipo === 'documento' ? 'Vence documento' : ev.tipo === 'plazo' ? 'Plazo procesal' : ev.tipo === 'evento' ? 'Recordatorio' : 'Expediente';
               const content = (
                 <>
                   <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${iconBg}`}>
@@ -154,7 +227,7 @@ export function AgendaClient({ eventos }: { eventos: AgendaEvento[] }) {
                 </>
               );
               const className = "flex items-start gap-2 rounded-lg border border-slate-100 p-2.5 transition hover:bg-slate-50";
-              if (ev.tipo === 'plazo') {
+              if (ev.tipo === 'plazo' || ev.tipo === 'evento') {
                 return <div key={ev.id} className={className}>{content}</div>;
               }
               return (

@@ -25,7 +25,7 @@ export default async function AgendaPage() {
       .neq('status', 'Archivado'),
     supabase
       .from('agenda_plazos')
-      .select('id, titulo, fecha, detalle')
+      .select('id, titulo, fecha, detalle, categoria')
       .eq('organization_id', profile.organization_id),
   ]);
 
@@ -60,11 +60,12 @@ export default async function AgendaPage() {
 
   for (const p of plazos) {
     if (!p.fecha) continue;
+    const esManual = (p as { categoria?: string }).categoria === 'manual';
     eventos.push({
-      id: `plazo-${p.id}`,
+      id: `${esManual ? 'evento' : 'plazo'}-${p.id}`,
       fecha: String(p.fecha).slice(0, 10),
-      titulo: p.titulo ?? 'Plazo procesal',
-      tipo: 'plazo',
+      titulo: p.titulo ?? (esManual ? 'Evento' : 'Plazo procesal'),
+      tipo: esManual ? 'evento' : 'plazo',
       href: '/agenda',
     });
   }
