@@ -548,6 +548,103 @@ async function analizarConIA(texto: string): Promise<{
   }
 }
 
+async function analizarConIAMultimodal(
+  base64Data: string,
+  mimeType: string
+): Promise<{
+  model: string;
+  resumen: string;
+  tipo_documental_detectado: string;
+  sensibilidad_detectada: string;
+  partes: string[];
+  datos_clave: string[];
+  clausulas_riesgos: string[];
+  alertas: string[];
+  proximas_acciones: string[];
+} | null> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return null;
+
+  const modelo = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+
+  const prompt = [
+    'Sos un asistente jurídico argentino experto en análisis documental.',
+    'Vas a recibir un documento adjunto que puede ser un PDF escaneado, una foto o una imagen (JPG/PNG).',
+    'Leé su contenido aplicando OCR si hace falta y devolvé SOLO un objeto JSON válido (sin texto adicional) con esta forma exacta:',
+    '{',
+    '  "resumen": "3 a 4 líneas explicando qué es y qué dice el documento",',
+    '  "tipo_documental_detectado": "tipo en una o dos palabras (ej: demanda, contrato de locación, poder, boleto de compraventa)",',
+    '  "sensibilidad_detectada": "uno de: low, medium, high, critical",',
+    '  "partes": ["cada parte interviniente y su rol"],',
+    '  "datos_clave": ["montos, fechas, plazos, vencimientos, DNI/CUIT, domicilios relevantes"],',
+    '  "clausulas_riesgos": ["cláusulas u obligaciones importantes y riesgos detectados"],',
+    '  "alertas": ["alertas jurídicas o de sensibilidad"],',
+    '  "proximas_acciones": ["acciones concretas sugeridas para el abogado"]',
+    '}',
+    'REGLAS:',
+    '- Basáte SOLO en el contenido del documento. NO inventes datos, montos, fechas ni artículos.',
+    '- Si algún dato no aparece, devolvé un array vacío para esa clave.',
+    '- Si el documento está borroso o ilegible, aclaralo en "alertas".',
+    '- sensibilidad_detectada: "critical" si hay datos personales/financieros fuertes (DNI, CUIT, cuentas, historia clínica); "high" si hay nombres/contratos; "medium" o "low" si es genérico.',
+  ].join('\n');
+
+  try {
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: prompt },
+                { inline_data: { mime_type: mimeType, data: base64Data } },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: 'application/json',
+          },
+        }),
+      }
+    );
+
+    if (!resp.ok) {
+      console.error('Gemini multimodal error:', resp.status, await resp.text());
+      return null;
+    }
+
+    const data = await resp.json();
+    const raw: string =
+      data?.candidates?.[0]?.content?.parts
+        ?.map((p: { text?: string }) => p.text ?? '')
+        .join('') ?? '';
+
+    if (!raw.trim()) return null;
+
+    const parsed = JSON.parse(raw);
+    const arr = (v: unknown): string[] =>
+      Array.isArray(v) ? v.map((x) => String(x)) : [];
+
+    return {
+      model: `analisis-ia-mm-${modelo}`,
+      resumen: String(parsed.resumen ?? ''),
+      tipo_documental_detectado: String(parsed.tipo_documental_detectado ?? ''),
+      sensibilidad_detectada: String(parsed.sensibilidad_detectada ?? '').toLowerCase(),
+      partes: arr(parsed.partes),
+      datos_clave: arr(parsed.datos_clave),
+      clausulas_riesgos: arr(parsed.clausulas_riesgos),
+      alertas: arr(parsed.alertas),
+      proximas_acciones: arr(parsed.proximas_acciones),
+    };
+  } catch (e) {
+    console.error('Gemini multimodal fetch error:', e);
+    return null;
+  }
+}
+
 export async function analyzeDocument(formData: FormData) {
   const { user, profile } = await getUserProfile();
 
@@ -577,8 +674,11 @@ export async function analyzeDocument(formData: FormData) {
     redirect('/documentos?error=document_not_found');
   }
 
-  if (documentRecord.file_mime_type !== 'application/pdf') {
-    redirect(`/documentos/${documentId}?error=only_pdf_supported`);
+  const AI_INLINE_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
+  const MAX_INLINE_SIZE = 15 * 1024 * 1024; // límite seguro para enviar inline a Gemini
+
+  if (!AI_INLINE_MIME_TYPES.includes(documentRecord.file_mime_type)) {
+    redirect(`/documentos/${documentId}?error=formato_no_soportado`);
   }
 
   const { data: fileBlob, error: downloadError } = await supabase.storage
@@ -592,26 +692,45 @@ export async function analyzeDocument(formData: FormData) {
 
   const arrayBuffer = await fileBlob.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
+  const mimeType = documentRecord.file_mime_type;
+  const isPdf = mimeType === 'application/pdf';
 
-  const pdfParseModule = await import('pdf-parse/lib/pdf-parse.js');
-  const pdfParse = pdfParseModule.default;
+  let extractedText = '';
 
-  const parsedPdf = await pdfParse(buffer);
-  const extractedText = cleanExtractedText(parsedPdf.text || '');
-
-  if (!extractedText) {
-    redirect(`/documentos/${documentId}?error=empty_pdf_text`);
+  // 1) Si es PDF, intentamos extraer texto (rápido y barato).
+  if (isPdf) {
+    const pdfParseModule = await import('pdf-parse/lib/pdf-parse.js');
+    const pdfParse = pdfParseModule.default;
+    const parsedPdf = await pdfParse(buffer);
+    extractedText = cleanExtractedText(parsedPdf.text || '');
   }
 
+  // La detección por reglas necesita texto; si no hay (imagen o PDF escaneado), queda fallback genérico.
   const detectedType = detectDocumentType(
     extractedText,
     documentRecord.document_type
   );
-
   const detectedSensitivity = detectSensitivity(extractedText);
 
-  // Interruptor: si hay GEMINI_API_KEY analiza con IA; si no, cae al modo por reglas.
-  const ia = await analizarConIA(extractedText);
+  // 2) Estrategia + interruptor:
+  //    - PDF con texto suficiente -> IA por texto (barato).
+  //    - Imagen o PDF escaneado (poco/nada de texto) -> IA multimodal (OCR + visión).
+  const tieneTextoUtil = extractedText.length >= 200;
+  const puedeMultimodal = buffer.length <= MAX_INLINE_SIZE;
+
+  let ia: Awaited<ReturnType<typeof analizarConIA>> = null;
+
+  if (isPdf && tieneTextoUtil) {
+    ia = await analizarConIA(extractedText);
+  } else if (puedeMultimodal) {
+    const base64 = buffer.toString('base64');
+    ia = await analizarConIAMultimodal(base64, mimeType);
+  }
+
+  // Si no hay texto NI resultado de IA, no podemos analizar (ej: imagen sin API key o archivo muy grande).
+  if (!ia && !extractedText) {
+    redirect(`/documentos/${documentId}?error=analisis_no_disponible`);
+  }
 
   let modelName = 'analisis-documental-beta-v1';
   let sensitivityToSave = detectedSensitivity;

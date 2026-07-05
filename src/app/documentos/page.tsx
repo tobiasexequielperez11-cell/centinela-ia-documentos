@@ -302,7 +302,7 @@ export default async function DocumentsPage({
               const analysisCount = analysisCountByDocument.get(item.id) ?? 0;
               const aiStatus = getAiStatus(analysisCount);
               const isPending = analysisCount === 0;
-              const isPdf = item.file_mime_type === 'application/pdf';
+              const isAnalyzable = ['application/pdf', 'image/jpeg', 'image/png'].includes(item.file_mime_type ?? '');
 
               const expiryStatus = getDocumentExpiryStatus(item.expires_at);
               const expiryBadge = getExpiryBadgeStyles(expiryStatus);
@@ -364,7 +364,7 @@ export default async function DocumentsPage({
                         Ver documento
                       </Link>
 
-                      {isPending && isPdf ? (
+                      {isPending && isAnalyzable ? (
                         <form action={analyzeDocument}>
                           <input
                             type="hidden"
@@ -376,9 +376,9 @@ export default async function DocumentsPage({
                         </form>
                       ) : null}
 
-                      {isPending && !isPdf ? (
+                      {isPending && !isAnalyzable ? (
                         <span className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-bold text-slate-500">
-                          IA solo PDF
+                          IA no disponible
                         </span>
                       ) : null}
                     </div>
