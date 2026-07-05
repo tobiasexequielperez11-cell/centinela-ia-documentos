@@ -8,6 +8,7 @@ import { formatFileSize } from '@/lib/format/fileSize';
 import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles, getDaysUntilExpiry } from '@/lib/documents/expiry';
 import { sensitivityLabel } from '@/lib/documents/sensitivity';
 import { analyzeDocument } from './actions';
+import { AnalyzeButton } from './AnalyzeButton';
 import type { DocumentRecord } from '@/types/document';
 
 interface DocumentsPageProps {
@@ -371,9 +372,7 @@ export default async function DocumentsPage({
                             value={item.id}
                           />
 
-                          <button className="rounded-xl bg-slate-950 px-3 py-2 text-xs font-bold text-white hover:bg-slate-800">
-                            Analizar IA
-                          </button>
+                          <AnalyzeButton className="rounded-xl bg-slate-950 px-3 py-2 text-xs font-bold text-white hover:bg-slate-800" />
                         </form>
                       ) : null}
 

@@ -8,6 +8,7 @@ import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
 import { formatFileSize } from '@/lib/format/fileSize';
 import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles } from '@/lib/documents/expiry';
 import { analyzeDocument } from '../actions';
+import { AnalyzeButton } from '../AnalyzeButton';
 import type { DocumentRecord } from '@/types/document';
 
 interface DocumentDetailPageProps {
@@ -420,9 +421,7 @@ export default async function DocumentDetailPage({
           <form action={analyzeDocument}>
             <input type="hidden" name="document_id" value={document.id} />
 
-            <button className="rounded-2xl bg-sky-500 px-5 py-3 text-sm font-bold text-white hover:bg-sky-600">
-              {analyzeButtonLabel}
-            </button>
+            <AnalyzeButton label={analyzeButtonLabel} className="rounded-2xl bg-sky-500 px-5 py-3 text-sm font-bold text-white hover:bg-sky-600" />
           </form>
 
           <Link
@@ -533,9 +532,7 @@ export default async function DocumentDetailPage({
               <form action={analyzeDocument}>
                 <input type="hidden" name="document_id" value={document.id} />
 
-                <button className="w-full rounded-2xl bg-sky-500 px-5 py-3 text-sm font-bold text-white hover:bg-sky-600">
-                  {analyzeButtonLabel}
-                </button>
+                <AnalyzeButton label={analyzeButtonLabel} className="w-full rounded-2xl bg-sky-500 px-5 py-3 text-sm font-bold text-white hover:bg-sky-600" />
               </form>
             </div>
           </div>
