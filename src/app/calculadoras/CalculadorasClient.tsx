@@ -14,6 +14,13 @@ const currency = (n: number) =>
     Number.isFinite(n) ? n : 0
   );
 
+// Parsea un monto en formato argentino (admite puntos de mil y coma decimal): "1.000.000,50" -> 1000000.5
+const parseMonto = (str: string): number => {
+  if (!str) return NaN;
+  const limpio = str.trim().replace(/\./g, '').replace(',', '.');
+  return parseFloat(limpio);
+};
+
 const toISODate = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
@@ -191,7 +198,7 @@ function HonorariosCalc() {
   const calcular = () => {
     setError(null);
     setRes(null);
-    const m = parseFloat(monto);
+    const m = parseMonto(monto);
     const p = parseFloat(porcentaje);
     const e = parseInt(etapas, 10);
     if (!Number.isFinite(m) || m <= 0) return setError('Ingresá un monto del proceso válido.');
@@ -207,7 +214,7 @@ function HonorariosCalc() {
     <Card title="Honorarios (Ley 27.423)" subtitle="Estimación por porcentaje del monto, prorrateado en 3 etapas de primera instancia.">
       <div className="grid gap-4 sm:grid-cols-3">
         <Field label="Monto del proceso ($)">
-          <input type="number" min={0} value={monto} onChange={(e) => setMonto(e.target.value)} placeholder="Ej: 5000000" className={inputClass} />
+          <input type="text" inputMode="decimal" value={monto} onChange={(e) => setMonto(e.target.value)} placeholder="Ej: 1.000.000" className={inputClass} />
         </Field>
         <Field label="Porcentaje (%)">
           <input type="number" min={0} step="0.5" value={porcentaje} onChange={(e) => setPorcentaje(e.target.value)} className={inputClass} />
@@ -251,7 +258,7 @@ function TasaCalc() {
   const calcularTasa = () => {
     setError(null);
     setTasaRes(null);
-    const m = parseFloat(montoTasa);
+    const m = parseMonto(montoTasa);
     if (!Number.isFinite(m) || m <= 0) return setError('Ingresá un monto válido para la tasa de justicia.');
     setTasaRes(m * (TASA_JUSTICIA_PORCENTAJE / 100));
   };
@@ -259,7 +266,7 @@ function TasaCalc() {
   const calcularInteres = () => {
     setError(null);
     setIntRes(null);
-    const c = parseFloat(capital);
+    const c = parseMonto(capital);
     const t = parseFloat(tasaAnual);
     const d = parseInt(diasInteres, 10);
     if (!Number.isFinite(c) || c <= 0 || !Number.isFinite(t) || t <= 0 || !Number.isFinite(d) || d <= 0)
@@ -272,7 +279,7 @@ function TasaCalc() {
     <div className="space-y-6">
       <Card title="Tasa de justicia" subtitle={`Ley 23.898 — ${TASA_JUSTICIA_PORCENTAJE}% del monto del proceso (Nación).`}>
         <Field label="Monto del proceso ($)">
-          <input type="number" min={0} value={montoTasa} onChange={(e) => setMontoTasa(e.target.value)} placeholder="Ej: 5000000" className={inputClass} />
+          <input type="text" inputMode="decimal" value={montoTasa} onChange={(e) => setMontoTasa(e.target.value)} placeholder="Ej: 1.000.000" className={inputClass} />
         </Field>
         <button type="button" onClick={calcularTasa} className={btnClass}>Calcular tasa</button>
         {tasaRes !== null && (
@@ -285,7 +292,7 @@ function TasaCalc() {
       <Card title="Intereses" subtitle="Interés simple: capital × tasa anual × (días / 365).">
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="Capital ($)">
-            <input type="number" min={0} value={capital} onChange={(e) => setCapital(e.target.value)} className={inputClass} />
+            <input type="text" inputMode="decimal" value={capital} onChange={(e) => setCapital(e.target.value)} placeholder="Ej: 1.000.000" className={inputClass} />
           </Field>
           <Field label="Tasa anual (%)">
             <input type="number" min={0} step="0.1" value={tasaAnual} onChange={(e) => setTasaAnual(e.target.value)} className={inputClass} />
