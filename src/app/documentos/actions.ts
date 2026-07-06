@@ -473,6 +473,7 @@ async function analizarConIA(texto: string): Promise<{
   clausulas_riesgos: string[];
   alertas: string[];
   proximas_acciones: string[];
+  fechas_plazos: { descripcion: string; fecha: string }[];
 } | null> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
@@ -490,11 +491,13 @@ async function analizarConIA(texto: string): Promise<{
     '  "datos_clave": ["montos, fechas, plazos, vencimientos, DNI/CUIT, domicilios relevantes"],',
     '  "clausulas_riesgos": ["cláusulas u obligaciones importantes y riesgos detectados"],',
     '  "alertas": ["alertas jurídicas o de sensibilidad"],',
-    '  "proximas_acciones": ["acciones concretas sugeridas para el abogado"]',
+    '  "proximas_acciones": ["acciones concretas sugeridas para el abogado"],',
+    '  "fechas_plazos": [{"descripcion": "...", "fecha": "YYYY-MM-DD"}]',
     '}',
     'REGLAS:',
     '- Basáte SOLO en el contenido del documento. NO inventes datos, montos, fechas ni artículos.',
     '- Si algún dato no aparece, devolvé un array vacío para esa clave.',
+    '- fechas_plazos: Incluí SOLO fechas concretas y relevantes del documento (vencimientos, audiencias, plazos, fechas de pago, fechas límite). La fecha debe estar en formato ISO YYYY-MM-DD; si el documento da una fecha relativa o ambigua (ej: "dentro de 15 días"), omitila.',
     '- sensibilidad_detectada: "critical" si hay datos personales/financieros fuertes (DNI, CUIT, cuentas, historia clínica); "high" si hay nombres/contratos; "medium" o "low" si es genérico.',
     '',
     'DOCUMENTO:',
@@ -531,6 +534,11 @@ async function analizarConIA(texto: string): Promise<{
     const arr = (v: unknown): string[] =>
       Array.isArray(v) ? v.map((x) => String(x)) : [];
 
+    const rawFechas = Array.isArray(parsed.fechas_plazos) ? parsed.fechas_plazos : [];
+    const fechas_plazos = rawFechas.filter((f: any) => 
+      f && typeof f.descripcion === 'string' && typeof f.fecha === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(f.fecha)
+    ).map((f: any) => ({ descripcion: f.descripcion, fecha: f.fecha }));
+
     return {
       model: `analisis-ia-${modelo}`,
       resumen: String(parsed.resumen ?? ''),
@@ -541,6 +549,7 @@ async function analizarConIA(texto: string): Promise<{
       clausulas_riesgos: arr(parsed.clausulas_riesgos),
       alertas: arr(parsed.alertas),
       proximas_acciones: arr(parsed.proximas_acciones),
+      fechas_plazos,
     };
   } catch (e) {
     console.error('Gemini análisis fetch error:', e);
@@ -561,6 +570,7 @@ async function analizarConIAMultimodal(
   clausulas_riesgos: string[];
   alertas: string[];
   proximas_acciones: string[];
+  fechas_plazos: { descripcion: string; fecha: string }[];
 } | null> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
@@ -579,11 +589,13 @@ async function analizarConIAMultimodal(
     '  "datos_clave": ["montos, fechas, plazos, vencimientos, DNI/CUIT, domicilios relevantes"],',
     '  "clausulas_riesgos": ["cláusulas u obligaciones importantes y riesgos detectados"],',
     '  "alertas": ["alertas jurídicas o de sensibilidad"],',
-    '  "proximas_acciones": ["acciones concretas sugeridas para el abogado"]',
+    '  "proximas_acciones": ["acciones concretas sugeridas para el abogado"],',
+    '  "fechas_plazos": [{"descripcion": "...", "fecha": "YYYY-MM-DD"}]',
     '}',
     'REGLAS:',
     '- Basáte SOLO en el contenido del documento. NO inventes datos, montos, fechas ni artículos.',
     '- Si algún dato no aparece, devolvé un array vacío para esa clave.',
+    '- fechas_plazos: Incluí SOLO fechas concretas y relevantes del documento (vencimientos, audiencias, plazos, fechas de pago, fechas límite). La fecha debe estar en formato ISO YYYY-MM-DD; si el documento da una fecha relativa o ambigua (ej: "dentro de 15 días"), omitila.',
     '- Si el documento está borroso o ilegible, aclaralo en "alertas".',
     '- sensibilidad_detectada: "critical" si hay datos personales/financieros fuertes (DNI, CUIT, cuentas, historia clínica); "high" si hay nombres/contratos; "medium" o "low" si es genérico.',
   ].join('\n');
@@ -628,6 +640,11 @@ async function analizarConIAMultimodal(
     const arr = (v: unknown): string[] =>
       Array.isArray(v) ? v.map((x) => String(x)) : [];
 
+    const rawFechas = Array.isArray(parsed.fechas_plazos) ? parsed.fechas_plazos : [];
+    const fechas_plazos = rawFechas.filter((f: any) => 
+      f && typeof f.descripcion === 'string' && typeof f.fecha === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(f.fecha)
+    ).map((f: any) => ({ descripcion: f.descripcion, fecha: f.fecha }));
+
     return {
       model: `analisis-ia-mm-${modelo}`,
       resumen: String(parsed.resumen ?? ''),
@@ -638,6 +655,7 @@ async function analizarConIAMultimodal(
       clausulas_riesgos: arr(parsed.clausulas_riesgos),
       alertas: arr(parsed.alertas),
       proximas_acciones: arr(parsed.proximas_acciones),
+      fechas_plazos,
     };
   } catch (e) {
     console.error('Gemini multimodal fetch error:', e);
@@ -764,6 +782,7 @@ export async function analyzeDocument(formData: FormData) {
         ? ia.alertas
         : ['Sin alertas detectadas por la IA.'],
       proximas_acciones: ia.proximas_acciones,
+      fechas_plazos: ia.fechas_plazos ?? [],
       texto_extraido_preview: extractedText.slice(0, 1200),
       caracteres_extraidos: extractedText.length,
     };
@@ -777,6 +796,7 @@ export async function analyzeDocument(formData: FormData) {
       datos_relevantes: buildRelevantData(extractedText, detectedType),
       alertas: buildAlerts(extractedText, detectedSensitivity),
       proximas_acciones: buildNextActions(detectedType),
+      fechas_plazos: [],
       texto_extraido_preview: extractedText.slice(0, 1200),
       caracteres_extraidos: extractedText.length,
     };

@@ -9,6 +9,7 @@ import { formatFileSize } from '@/lib/format/fileSize';
 import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles } from '@/lib/documents/expiry';
 import { analyzeDocument } from '../actions';
 import { AnalyzeButton } from '../AnalyzeButton';
+import { PlazosDetectados } from './PlazosDetectados';
 import type { DocumentRecord } from '@/types/document';
 
 interface DocumentDetailPageProps {
@@ -24,6 +25,7 @@ interface AiAnalysisResult {
   datos_relevantes?: string[];
   alertas?: string[];
   proximas_acciones?: string[];
+  fechas_plazos?: { descripcion: string; fecha: string }[];
   texto_extraido_preview?: string;
   caracteres_extraidos?: number;
 }
@@ -711,6 +713,13 @@ Dictamen IA documental
                       ))}
                     </ul>
                   </div>
+                ) : null}
+
+                {aiResult.fechas_plazos?.length ? (
+                  <PlazosDetectados
+                    plazos={aiResult.fechas_plazos}
+                    docNombre={document.file_name}
+                  />
                 ) : null}
 
                 {aiResult.texto_extraido_preview ? (
