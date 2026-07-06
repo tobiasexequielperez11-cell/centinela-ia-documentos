@@ -12,6 +12,7 @@
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
     "docx": "^9.7.1",
+    "jspdf": "^4.2.1",
     "lucide-react": "latest",
     "mammoth": "latest",
     "next": "latest",
