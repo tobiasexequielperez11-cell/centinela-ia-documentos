@@ -93,3 +93,49 @@ SERÁ JUSTICIA.
 {{nombre_autorizante}}`,
   },
 ];
+
+// 🔗 Sugiere el modelo de escrito más adecuado según el tipo de documento
+// detectado por la IA. Devuelve null si no hay una sugerencia clara.
+export function sugerirModeloPorTipo(
+  tipo: string | null | undefined
+): ModeloEscrito | null {
+  if (!tipo) return null;
+  const t = tipo.toLowerCase();
+
+  // Cartas / intimaciones / reclamos de pago
+  if (
+    t.includes('carta') ||
+    t.includes('intimaci') ||
+    t.includes('reclamo') ||
+    t.includes('mora') ||
+    t.includes('deuda')
+  ) {
+    return MODELOS.find((m) => m.id === 'carta-documento-intimacion') ?? null;
+  }
+
+  // Poderes / autorizaciones
+  if (
+    t.includes('autorizaci') ||
+    t.includes('poder') ||
+    t.includes('compuls')
+  ) {
+    return MODELOS.find((m) => m.id === 'autorizacion-compulsar') ?? null;
+  }
+
+  // Actos procesales que suelen requerir una presentación/contestación
+  if (
+    t.includes('demanda') ||
+    t.includes('notificaci') ||
+    t.includes('cedula') ||
+    t.includes('cédula') ||
+    t.includes('traslado') ||
+    t.includes('oficio') ||
+    t.includes('resoluci') ||
+    t.includes('sentencia') ||
+    t.includes('providencia')
+  ) {
+    return MODELOS.find((m) => m.id === 'presentacion-generica') ?? null;
+  }
+
+  return null;
+}

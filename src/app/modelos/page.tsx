@@ -4,7 +4,11 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { ModelosClient, type ExpedienteLite } from './ModelosClient';
 
-export default async function ModelosPage() {
+export default async function ModelosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ modelo?: string }>;
+}) {
   const { user, profile } = await getUserProfile();
   if (!user) redirect('/login');
   if (!profile) redirect('/onboarding');
@@ -20,9 +24,12 @@ export default async function ModelosPage() {
 
   const expedientes = (cases ?? []) as ExpedienteLite[];
 
+  const sp = await searchParams;
+  const modeloInicialId = typeof sp.modelo === 'string' ? sp.modelo : null;
+
   return (
     <AppShell>
-      <ModelosClient expedientes={expedientes} />
+      <ModelosClient expedientes={expedientes} modeloInicialId={modeloInicialId} />
     </AppShell>
   );
 }

@@ -10,6 +10,8 @@ import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles } from
 import { analyzeDocument } from '../actions';
 import { AnalyzeButton } from '../AnalyzeButton';
 import { PlazosDetectados } from './PlazosDetectados';
+import { FileSignature } from 'lucide-react';
+import { sugerirModeloPorTipo } from '@/lib/legal/modelos';
 import type { DocumentRecord } from '@/types/document';
 
 interface DocumentDetailPageProps {
@@ -721,6 +723,35 @@ Dictamen IA documental
                     docNombre={document.file_name}
                   />
                 ) : null}
+
+                {(() => {
+                  const modeloSugerido = sugerirModeloPorTipo(
+                    aiResult?.tipo_documental_detectado
+                  );
+                  if (!modeloSugerido) return null;
+                  return (
+                    <div className="mt-4 rounded-2xl border border-violet-100 bg-violet-50/60 p-4">
+                      <div className="flex items-center gap-2 text-sm font-semibold text-violet-900">
+                        <FileSignature className="h-4 w-4" />
+                        Escrito sugerido
+                      </div>
+                      <p className="mt-1 text-sm text-violet-800">
+                        Según el tipo detectado
+                        {aiResult?.tipo_documental_detectado
+                          ? ` (${aiResult.tipo_documental_detectado})`
+                          : ''}
+                        , podés redactar: <strong>{modeloSugerido.titulo}</strong>.
+                      </p>
+                      <Link
+                        href={`/modelos?modelo=${modeloSugerido.id}`}
+                        className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-violet-700"
+                      >
+                        <FileSignature className="h-4 w-4" />
+                        Redactar este escrito
+                      </Link>
+                    </div>
+                  );
+                })()}
 
                 {aiResult.texto_extraido_preview ? (
                   <details className="rounded-2xl bg-white p-4">

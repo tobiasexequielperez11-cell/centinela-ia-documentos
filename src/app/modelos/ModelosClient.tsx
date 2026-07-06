@@ -50,8 +50,18 @@ function fillTemplate(cuerpo: string, values: Record<string, string>): string {
   });
 }
 
-export function ModelosClient({ expedientes }: { expedientes: ExpedienteLite[] }) {
-  const [seleccionadoId, setSeleccionadoId] = useState<string | null>(null);
+export function ModelosClient({
+  expedientes,
+  modeloInicialId = null,
+}: {
+  expedientes: ExpedienteLite[];
+  modeloInicialId?: string | null;
+}) {
+  const idInicial =
+    modeloInicialId && MODELOS.some((m) => m.id === modeloInicialId)
+      ? modeloInicialId
+      : null;
+  const [seleccionadoId, setSeleccionadoId] = useState<string | null>(idInicial);
   const [busqueda, setBusqueda] = useState('');
   const [valores, setValores] = useState<Record<string, string>>({});
   const [copiado, setCopiado] = useState(false);
