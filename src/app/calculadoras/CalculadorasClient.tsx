@@ -188,58 +188,123 @@ function PlazosCalc() {
   );
 }
 
+// 📊 Escala del art. 21 Ley 27.423 (acumulativa por tramos de UMA)
+const ESCALA_ART21: Array<{ hastaUMA: number; min: number; max: number }> = [
+  { hastaUMA: 15, min: 22, max: 33 },
+  { hastaUMA: 45, min: 20, max: 26 },
+  { hastaUMA: 90, min: 18, max: 24 },
+  { hastaUMA: 150, min: 17, max: 22 },
+  { hastaUMA: 450, min: 15, max: 20 },
+  { hastaUMA: 750, min: 13, max: 17 },
+  { hastaUMA: Infinity, min: 12, max: 15 },
+];
+
+function calcularEscalaArt21(monto: number) {
+  const montoUMA = Math.floor(monto / UMA_VALOR); // las fracciones decimales se eliminan
+  let hMin = 0;
+  let hMax = 0;
+  let prevUMA = 0;
+  for (const tramo of ESCALA_ART21) {
+    if (montoUMA <= prevUMA) break;
+    const topeUMA = Math.min(montoUMA, tramo.hastaUMA);
+    const porcionPesos = (topeUMA - prevUMA) * UMA_VALOR;
+    hMin += porcionPesos * (tramo.min / 100);
+    hMax += porcionPesos * (tramo.max / 100);
+    prevUMA = tramo.hastaUMA;
+    if (montoUMA <= tramo.hastaUMA) break;
+  }
+  const tramo =
+    ESCALA_ART21.find((t) => montoUMA <= t.hastaUMA) ??
+    ESCALA_ART21[ESCALA_ART21.length - 1];
+  return { montoUMA, hMin, hMax, tramoMin: tramo.min, tramoMax: tramo.max };
+}
+
+type Instancia = 'primera' | 'segunda_conf' | 'segunda_rev';
+type Caracter = 'patrocinante' | 'apoderado' | 'procurador';
+
 function HonorariosCalc() {
   const [monto, setMonto] = useState('');
-  const [porcentaje, setPorcentaje] = useState('20');
-  const [etapas, setEtapas] = useState('3');
-  const [res, setRes] = useState<null | { total: number; porEtapa: number; devengado: number; uma: number }>(null);
+  const [instancia, setInstancia] = useState<Instancia>('primera');
+  const [caracter, setCaracter] = useState<Caracter>('patrocinante');
+  const [res, setRes] = useState<{
+    montoUMA: number;
+    tramoMin: number;
+    tramoMax: number;
+    hMin: number;
+    hMax: number;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const calcular = () => {
     setError(null);
     setRes(null);
     const m = parseMonto(monto);
-    const p = parseFloat(porcentaje);
-    const e = parseInt(etapas, 10);
-    if (!Number.isFinite(m) || m <= 0) return setError('Ingresá un monto del proceso válido.');
-    if (!Number.isFinite(p) || p <= 0) return setError('Ingresá un porcentaje válido.');
-    if (![1, 2, 3].includes(e)) return setError('Seleccioná las etapas cumplidas (1 a 3).');
-    const total = m * (p / 100);
-    const porEtapa = total / 3;
-    const devengado = porEtapa * e;
-    setRes({ total, porEtapa, devengado, uma: devengado / UMA_VALOR });
+    if (!Number.isFinite(m) || m <= 0)
+      return setError('Ingresá un monto del proceso (base regulatoria) válido.');
+
+    const base = calcularEscalaArt21(m);
+    let hMin = base.hMin;
+    let hMax = base.hMax;
+
+    // Ajuste por instancia (art. 30)
+    if (instancia === 'segunda_conf') {
+      hMin = base.hMin * 0.3;
+      hMax = base.hMax * 0.35;
+    } else if (instancia === 'segunda_rev') {
+      hMin = base.hMin * 0.3;
+      hMax = base.hMax * 0.4;
+    }
+
+    // Ajuste por carácter (art. 20)
+    const factor = caracter === 'apoderado' ? 1.4 : caracter === 'procurador' ? 0.4 : 1;
+    hMin *= factor;
+    hMax *= factor;
+
+    setRes({ montoUMA: base.montoUMA, tramoMin: base.tramoMin, tramoMax: base.tramoMax, hMin, hMax });
   };
 
   return (
-    <Card title="Honorarios (Ley 27.423)" subtitle="Estimación por porcentaje del monto, prorrateado en 3 etapas de primera instancia.">
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Field label="Monto del proceso ($)">
-          <input type="text" inputMode="decimal" value={monto} onChange={(e) => setMonto(e.target.value)} placeholder="Ej: 1.000.000" className={inputClass} />
-        </Field>
-        <Field label="Porcentaje (%)">
-          <input type="number" min={0} step="0.5" value={porcentaje} onChange={(e) => setPorcentaje(e.target.value)} className={inputClass} />
-        </Field>
-        <Field label="Etapas cumplidas">
-          <select value={etapas} onChange={(e) => setEtapas(e.target.value)} className={inputClass}>
-            <option value="1">1 etapa</option>
-            <option value="2">2 etapas</option>
-            <option value="3">3 etapas (completo)</option>
-          </select>
-        </Field>
-      </div>
+    <Card
+      title="Honorarios (Ley 27.423)"
+      subtitle="Escala acumulativa del art. 21 sobre la base regulatoria. Orientativo."
+    >
+      <Field label="Monto del proceso / base regulatoria">
+        <input value={monto} onChange={(e) => setMonto(e.target.value)} placeholder="Ej: 10.000.000" className={inputClass} />
+      </Field>
 
-      <p className="mt-2 text-xs text-slate-500">Referencia Ley 27.423: en primera instancia el rango habitual va del 20% al 30% del monto.</p>
+      <Field label="Instancia">
+        <div className="flex flex-wrap gap-2">
+          <RadioPill active={instancia === 'primera'} onClick={() => setInstancia('primera')} label="Primera instancia" />
+          <RadioPill active={instancia === 'segunda_conf'} onClick={() => setInstancia('segunda_conf')} label="2ª inst. (confirmada)" />
+          <RadioPill active={instancia === 'segunda_rev'} onClick={() => setInstancia('segunda_rev')} label="2ª inst. (revocada)" />
+        </div>
+      </Field>
 
-      <button type="button" onClick={calcular} className={btnClass}>Calcular honorarios</button>
+      <Field label="Carácter del profesional">
+        <div className="flex flex-wrap gap-2">
+          <RadioPill active={caracter === 'patrocinante'} onClick={() => setCaracter('patrocinante')} label="Abogado/a patrocinante" />
+          <RadioPill active={caracter === 'apoderado'} onClick={() => setCaracter('apoderado')} label="Apoderado/a sin patrocinio" />
+          <RadioPill active={caracter === 'procurador'} onClick={() => setCaracter('procurador')} label="Procurador/a" />
+        </div>
+      </Field>
 
-      {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
+      <p className="mt-4 text-xs text-slate-500">
+        UMA vigente: {currency(UMA_VALOR)} ({UMA_VIGENCIA}). La escala del art. 21 es acumulativa
+        (cada tramo de UMA se calcula con su alícuota). 2ª instancia = 30–35% de lo de 1ª si se
+        confirma; 30–40% si se revoca. Apoderado sin patrocinio = 140%; procurador = 40% (art. 20).
+      </p>
+
+      <button onClick={calcular} className={btnClass}>Calcular honorarios</button>
+
+      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
 
       {res && (
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <ResultBox label="Honorario total (3 etapas)" value={currency(res.total)} />
-          <ResultBox label="Por etapa" value={currency(res.porEtapa)} />
-          <ResultBox label="Devengado (según etapas)" value={currency(res.devengado)} highlight />
-          <ResultBox label="Equivalente en UMA" value={`${res.uma.toFixed(2)} UMA`} subtitle={`1 UMA = ${currency(UMA_VALOR)} (${UMA_VIGENCIA})`} />
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <ResultBox label="Base en UMA" value={`${res.montoUMA} UMA`} subtitle={`Tramo art. 21: ${res.tramoMin}% – ${res.tramoMax}%`} />
+          <ResultBox label="Equivalente en UMA (honorario)" value={`${Math.floor(res.hMin / UMA_VALOR)} – ${Math.floor(res.hMax / UMA_VALOR)} UMA`} />
+          <div className="sm:col-span-2">
+            <ResultBox label="Honorarios estimados" value={`${currency(res.hMin)} — ${currency(res.hMax)}`} subtitle="Rango mínimo–máximo de la escala legal" highlight />
+          </div>
         </div>
       )}
     </Card>

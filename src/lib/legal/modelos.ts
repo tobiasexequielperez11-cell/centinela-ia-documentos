@@ -376,6 +376,203 @@ Bajo apercibimiento, en caso de incumplimiento, de iniciar las acciones judicial
 
 {{remitente}}`,
   },
+  // ⚖️ EJECUCIONES
+  {
+    id: 'demanda-ejecutiva-pagare',
+    titulo: 'Demanda ejecutiva (pagaré / cheque)',
+    categoria: 'Ejecuciones',
+    descripcion: 'Inicia juicio ejecutivo por un título de crédito vencido.',
+    cuerpo: `Señor Juez:
+
+{{abogado}}, abogado/a, T° {{tomo}} F° {{folio}}, en representación de {{parte}}, con domicilio en {{domicilio_fisico}}, ante V.S. digo:
+
+I. OBJETO
+Promuevo juicio ejecutivo contra {{destinatario}}, domiciliado/a en {{domicilio_destinatario}}, por el cobro de la suma de $ {{monto_reclamado}}, con más intereses y costas, con fundamento en el título ejecutivo que acompaño ({{titulo}}).
+
+II. HECHOS
+El/la demandado/a suscribió el título de fecha {{fecha_titulo}}, con vencimiento el {{fecha_vencimiento}}, que se encuentra vencido, líquido y exigible, sin que se haya obtenido el pago.
+
+III. DERECHO
+Arts. 520 y siguientes del Código Procesal Civil y Comercial de la Nación.
+
+IV. PETITORIO
+Solicito: 1) Se libre mandamiento de intimación de pago y embargo por la suma reclamada con más lo presupuestado para intereses y costas; 2) Se cite de remate al/a la demandado/a para oponer excepciones; 3) Oportunamente, se dicte sentencia de trance y remate, con costas.
+
+SERÁ JUSTICIA.
+
+{{abogado}}`,
+  },
+  {
+    id: 'prepara-via-ejecutiva',
+    titulo: 'Prepara la vía ejecutiva',
+    categoria: 'Ejecuciones',
+    descripcion: 'Cita a reconocer firma para dejar expedita la ejecución.',
+    cuerpo: `Señor Juez:
+
+{{abogado}}, en representación de {{parte}}, ante V.S. digo:
+
+I. OBJETO
+Vengo a preparar la vía ejecutiva contra {{destinatario}}, domiciliado/a en {{domicilio_destinatario}}, a fin de que reconozca la firma y la deuda instrumentada en {{documento}}, por la suma de $ {{monto_reclamado}}.
+
+II. DILIGENCIA
+Solicito se cite al/a la requerido/a a reconocer firma bajo apercibimiento de tenerla por reconocida (art. 526 CPCCN) en caso de incomparecencia injustificada.
+
+III. PETITORIO
+Solicito se ordene la citación y, reconocida o tenida por reconocida la firma, quede expedita la vía ejecutiva.
+
+SERÁ JUSTICIA.
+
+{{abogado}}`,
+  },
+  // 📮 OFICIOS Y CÉDULAS
+  {
+    id: 'oficio-ley-22172',
+    titulo: 'Oficio Ley 22.172',
+    categoria: 'Oficios y cédulas',
+    descripcion: 'Oficio a un organismo público con datos del expediente.',
+    cuerpo: `OFICIO LEY 22.172
+
+{{lugar_fecha}}
+
+A: {{organismo_destinatario}}
+Domicilio: {{domicilio_organismo}}
+
+En los autos caratulados "{{caratula}}" (Expte. N° {{numero_expediente}}), en trámite ante {{juzgado}}, y conforme lo dispuesto por V.S., me dirijo a Ud. a fin de solicitar {{objeto_oficio}}.
+
+Se encuentra autorizado/a para el diligenciamiento del presente {{persona_autorizada}}.
+
+Sirva el presente de atenta nota de estilo.
+
+{{abogado}}`,
+  },
+  {
+    id: 'cedula-notificacion',
+    titulo: 'Cédula de notificación',
+    categoria: 'Oficios y cédulas',
+    descripcion: 'Notifica una resolución al domicilio de la contraparte.',
+    cuerpo: `CÉDULA DE NOTIFICACIÓN
+
+Señor/a: {{destinatario}}
+Domicilio: {{domicilio_destinatario}}
+Carácter del domicilio: {{caracter_domicilio}}
+
+Se hace saber a Ud. que en los autos "{{caratula}}" (Expte. N° {{numero_expediente}}), en trámite ante {{juzgado}}, se ha dictado la siguiente resolución que se transcribe: "{{resolucion}}".
+
+Queda Ud. debidamente notificado/a.
+
+{{lugar_fecha}}
+{{abogado}}`,
+  },
+  // 🏥 AMPARO
+  {
+    id: 'accion-amparo-salud',
+    titulo: 'Acción de amparo (salud)',
+    categoria: 'Amparo',
+    descripcion: 'Reclama cobertura de salud a una obra social o prepaga.',
+    cuerpo: `Señor Juez:
+
+{{abogado}}, en representación de {{parte}}, con domicilio en {{domicilio_fisico}}, ante V.S. digo:
+
+I. OBJETO
+Promuevo acción de amparo (art. 43 CN y Ley 16.986) contra {{obra_social_empresa}}, domiciliado/a en {{domicilio_destinatario}}, a fin de que se ordene la cobertura integral e inmediata de {{prestacion_solicitada}}.
+
+II. HECHOS
+Mi representado/a padece {{patologia}}, conforme prescripción médica que se acompaña. La demandada ha {{conducta_lesiva}}, lo que pone en riesgo la salud y afecta derechos de raigambre constitucional.
+
+III. DERECHO
+Art. 43 de la Constitución Nacional, Ley 16.986, Ley 24.240 y normativa de cobertura obligatoria (PMO).
+
+IV. MEDIDA CAUTELAR
+Solicito se ordene cautelarmente la cobertura mientras dure el proceso, dada la urgencia y el peligro en la demora.
+
+V. PETITORIO
+Solicito se haga lugar al amparo y se condene a la demandada a otorgar la cobertura, con costas.
+
+SERÁ JUSTICIA.
+
+{{abogado}}`,
+  },
+  // 👴 PREVISIONAL
+  {
+    id: 'demanda-reajuste-jubilatorio',
+    titulo: 'Demanda de reajuste jubilatorio (ANSES)',
+    categoria: 'Previsional',
+    descripcion: 'Reclama el reajuste del haber previsional y retroactivos.',
+    cuerpo: `Señor Juez:
+
+{{abogado}}, en representación de {{parte}}, con domicilio en {{domicilio_fisico}}, ante V.S. digo:
+
+I. OBJETO
+Promuevo demanda contra la ANSES (Administración Nacional de la Seguridad Social) a fin de obtener el reajuste del haber jubilatorio de mi representado/a, beneficio N° {{numero_beneficio}}, con más las diferencias retroactivas e intereses.
+
+II. HECHOS
+El haber se encuentra mal liquidado / desactualizado por {{motivo_reajuste}}. Se agotó la vía administrativa mediante {{reclamo_administrativo}}.
+
+III. DERECHO
+Ley 24.241, Ley 26.417 (movilidad) y doctrina de la CSJN ("Badaro", "Elliff" y concordantes).
+
+IV. PRUEBA
+{{prueba}}
+
+V. PETITORIO
+Solicito se ordene el reajuste del haber, el pago de las diferencias retroactivas con intereses y las costas.
+
+SERÁ JUSTICIA.
+
+{{abogado}}`,
+  },
+  // 🔒 PENAL
+  {
+    id: 'denuncia-penal',
+    titulo: 'Denuncia penal',
+    categoria: 'Penal',
+    descripcion: 'Pone en conocimiento de la justicia un hecho delictivo.',
+    cuerpo: `Señor/a Fiscal / Señor Juez:
+
+{{denunciante}}, DNI {{dni_denunciante}}, con domicilio en {{domicilio_fisico}}, ante Ud. me presento y formulo DENUNCIA PENAL contra {{denunciado}} (o N.N.), por los siguientes hechos:
+
+I. HECHOS
+El día {{fecha_hecho}}, en {{lugar_hecho}}, ocurrió lo siguiente: {{relato_hecho}}.
+
+II. CALIFICACIÓN PROVISORIA
+Los hechos podrían encuadrar en el delito de {{delito}}, sin perjuicio de la calificación que corresponda.
+
+III. PRUEBA
+Ofrezco: {{prueba}}. Testigos: {{testigos}}.
+
+IV. PETITORIO
+Solicito se reciba la presente denuncia, se investiguen los hechos y se adopten las medidas que correspondan. Constituyo domicilio en el indicado.
+
+{{denunciante}}`,
+  },
+  {
+    id: 'querella',
+    titulo: 'Se constituye en parte querellante',
+    categoria: 'Penal',
+    descripcion: 'Solicita ser tenido por querellante en una causa penal.',
+    cuerpo: `Señor Juez:
+
+{{abogado}}, en representación de {{parte}}, con domicilio en {{domicilio_fisico}}, ante V.S. me presento y digo:
+
+I. OBJETO
+Vengo a constituir a mi representado/a en parte QUERELLANTE en la causa "{{caratula}}" (Expte. N° {{numero_expediente}}), contra {{denunciado}}, por el delito de {{delito}}.
+
+II. LEGITIMACIÓN
+Mi representado/a resulta damnificado/a directo/a por el hecho, conforme los arts. 82 y siguientes del Código Procesal Penal.
+
+III. HECHOS
+{{relato_hecho}}
+
+IV. PRUEBA
+{{prueba}}
+
+V. PETITORIO
+Solicito: 1) Se lo/la tenga por parte querellante; 2) Se disponga la producción de la prueba ofrecida; 3) Oportunamente, se eleve la causa a juicio.
+
+SERÁ JUSTICIA.
+
+{{abogado}}`,
+  },
 ];
 
 // 🔗 Sugiere el modelo de escrito más adecuado según el tipo de documento
@@ -409,6 +606,27 @@ export function sugerirModeloPorTipo(
   // Automotor
   if (t.includes('automotor') || t.includes('vehic') || t.includes('transferencia') || t.includes('dominio')) {
     return MODELOS.find((m) => m.id === 'autoriza-transferencia-automotor') ?? null;
+  }
+
+  // Ejecuciones / títulos de crédito
+  if (t.includes('ejecut') || t.includes('pagar') || t.includes('cheque') || t.includes('pagaré') || t.includes('título') || t.includes('titulo ejecutivo')) {
+    return MODELOS.find((m) => m.id === 'demanda-ejecutiva-pagare') ?? null;
+  }
+  // Amparo / salud
+  if (t.includes('amparo') || t.includes('salud') || t.includes('obra social') || t.includes('prepaga') || t.includes('cobertura')) {
+    return MODELOS.find((m) => m.id === 'accion-amparo-salud') ?? null;
+  }
+  // Previsional / ANSES
+  if (t.includes('jubilaci') || t.includes('previsional') || t.includes('anses') || t.includes('reajuste') || t.includes('haber') || t.includes('pension')) {
+    return MODELOS.find((m) => m.id === 'demanda-reajuste-jubilatorio') ?? null;
+  }
+  // Penal
+  if (t.includes('penal') || t.includes('denuncia') || t.includes('delito') || t.includes('querella') || t.includes('robo') || t.includes('hurto') || t.includes('estafa')) {
+    return MODELOS.find((m) => m.id === 'denuncia-penal') ?? null;
+  }
+  // Oficios
+  if (t.includes('oficio')) {
+    return MODELOS.find((m) => m.id === 'oficio-ley-22172') ?? null;
   }
 
   // Cartas / intimaciones / reclamos de pago
