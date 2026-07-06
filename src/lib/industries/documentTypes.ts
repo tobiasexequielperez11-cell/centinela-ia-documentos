@@ -148,5 +148,9 @@ export function getDocumentTypeLabel(value?: string | null) {
     otro: 'Otro',
   };
 
-  return labels[value] ?? value;
+  const key = value.trim().toLowerCase();
+  if (labels[key]) return labels[key];
+  // Tipo libre (ej: el detectado por la IA): capitalizamos la primera letra.
+  const limpio = value.trim();
+  return limpio.charAt(0).toUpperCase() + limpio.slice(1);
 }

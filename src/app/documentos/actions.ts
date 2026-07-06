@@ -752,6 +752,7 @@ export async function analyzeDocument(formData: FormData) {
 
   let modelName = 'analisis-documental-beta-v1';
   let sensitivityToSave = detectedSensitivity;
+  let typeToSave = detectedType;
   let analysis;
 
   if (ia) {
@@ -763,6 +764,7 @@ export async function analyzeDocument(formData: FormData) {
 
     modelName = ia.model;
     sensitivityToSave = sensValida;
+    typeToSave = ia.tipo_documental_detectado?.trim() || detectedType;
 
     const datosRelevantes = [
       ...ia.partes.map((p) => `Parte: ${p}`),
@@ -821,7 +823,7 @@ if (aiInsertError) {
 const { error: documentUpdateError } = await supabase
   .from('documents')
   .update({
-    document_type: detectedType,
+    document_type: typeToSave,
     sensitivity_level: sensitivityToSave,
   })
   .eq('id', documentRecord.id)
