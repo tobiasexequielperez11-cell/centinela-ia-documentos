@@ -3,6 +3,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { ImagenAPdf } from './ImagenAPdf';
 import { ConversorImagenes } from './ConversorImagenes';
+import { UtilidadesTexto } from './UtilidadesTexto';
 
 export default async function HerramientasPage() {
   const { user, profile } = await getUserProfile();
@@ -42,6 +43,10 @@ export default async function HerramientasPage() {
           <div className="mt-4">
             <ConversorImagenes />
           </div>
+        </section>
+
+        <section className="mt-12 border-t border-slate-100 pt-8">
+          <UtilidadesTexto />
         </section>
       </div>
     </AppShell>
