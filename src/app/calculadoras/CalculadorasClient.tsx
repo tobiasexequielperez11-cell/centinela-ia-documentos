@@ -2,12 +2,12 @@
 
 import { useState, type ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import { CalendarClock, Coins, Scale, AlertTriangle, CalendarPlus, Check, Loader2, Briefcase, TrendingUp, Users, Gavel, Hourglass } from 'lucide-react';
+import { CalendarClock, Coins, Scale, AlertTriangle, CalendarPlus, Check, Loader2, Briefcase, TrendingUp, Users, Gavel, Hourglass, Siren, HeartPulse, MapPin, Percent } from 'lucide-react';
 import { guardarPlazoEnAgenda } from './actions';
 import { UMA_VALOR, UMA_VIGENCIA, TASA_JUSTICIA_PORCENTAJE } from '@/lib/legal/config';
 import { parseISODate, sumarDiasCorridos, sumarDiasHabiles } from '@/lib/legal/plazos';
 
-type Tab = 'plazos' | 'honorarios' | 'tasa' | 'laboral' | 'intereses' | 'alimentos' | 'danos' | 'caducidad';
+type Tab = 'plazos' | 'honorarios' | 'tasa' | 'laboral' | 'intereses' | 'alimentos' | 'danos' | 'caducidad' | 'punitivos' | 'incapacidad' | 'distancia' | 'prorrateo';
 
 const currency = (n: number) =>
   new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 2 }).format(
@@ -681,6 +681,170 @@ function CaducidadInstanciaCalc() {
   );
 }
 
+function DanosPunitivosCalc() {
+	const [comp, setComp] = useState('')
+	const [prob, setProb] = useState('')
+	const [res, setRes] = useState<null | { punitivo: number; total: number; compensatoria: number }>(null)
+
+	const calcular = () => {
+		const C = parseMonto(comp)
+		const p = parseFloat(prob.replace(',', '.')) / 100
+		if (!C || !p || p <= 0 || p > 1) { setRes(null); return }
+		const punitivo = C * (1 - p) / p
+		setRes({ punitivo, total: C + punitivo, compensatoria: C })
+	}
+
+	return (
+		<Card title="Daños punitivos (Fórmula Irigoyen Testa)" subtitle="Art. 52 bis, Ley 24.240. Multa civil: D = C × (1 − Pc) / Pc.">
+			<Field label="Indemnización compensatoria (C)">
+				<input className={inputClass} inputMode="decimal" placeholder="Ej: 1.000.000" value={comp} onChange={(e) => setComp(e.target.value)} />
+			</Field>
+			<Field label="Probabilidad de condena Pc (%)">
+				<input className={inputClass} inputMode="decimal" placeholder="Ej: 80" value={prob} onChange={(e) => setProb(e.target.value)} />
+			</Field>
+			<button className={btnClass} onClick={calcular}>Calcular daño punitivo</button>
+			{res && (
+				<div className="mt-4 space-y-2">
+					<ResultBox label="Daño punitivo estimado" value={currency(res.punitivo)} highlight />
+					<ResultBox label="Indemnización compensatoria" value={currency(res.compensatoria)} />
+					<ResultBox label="Total (compensatoria + punitivo)" value={currency(res.total)} subtitle="Orientativo. Pc = probabilidad de que el proveedor sea condenado a la indemnización compensatoria; a menor Pc, mayor multa (efecto disuasivo)." />
+				</div>
+			)}
+		</Card>
+	)
+}
+
+function IncapacidadCalc() {
+	const [metodo, setMetodo] = useState<'vuoto' | 'mendez'>('mendez')
+	const [ingreso, setIngreso] = useState('')
+	const [edad, setEdad] = useState('')
+	const [incap, setIncap] = useState('')
+	const [res, setRes] = useState<null | { capital: number; a: number; n: number; i: number }>(null)
+
+	const calcular = () => {
+		const ing = parseMonto(ingreso)
+		const ed = parseInt(edad, 10)
+		const inc = parseFloat(incap.replace(',', '.')) / 100
+		if (!ing || !ed || !inc || inc <= 0) { setRes(null); return }
+		const i = metodo === 'mendez' ? 0.04 : 0.06
+		const tope = metodo === 'mendez' ? 75 : 65
+		const n = tope - ed
+		if (n <= 0) { setRes(null); return }
+		let a = ing * 13 * inc
+		if (metodo === 'mendez') a = a * (60 / ed)
+		const Vn = 1 / Math.pow(1 + i, n)
+		const capital = a * (1 - Vn) / i
+		setRes({ capital, a, n, i })
+	}
+
+	return (
+		<Card title="Indemnización por incapacidad" subtitle="Fórmulas Vuoto (i 6%, tope 65) y Méndez (i 4%, tope 75). C = a × (1 − Vⁿ)/i.">
+			<Field label="Método">
+				<div className="flex flex-wrap gap-2">
+					<RadioPill active={metodo === 'mendez'} onClick={() => setMetodo('mendez')} label="Méndez (2008)" />
+					<RadioPill active={metodo === 'vuoto'} onClick={() => setMetodo('vuoto')} label="Vuoto (1978)" />
+				</div>
+			</Field>
+			<Field label="Ingreso mensual">
+				<input className={inputClass} inputMode="decimal" placeholder="Ej: 800.000" value={ingreso} onChange={(e) => setIngreso(e.target.value)} />
+			</Field>
+			<Field label="Edad al momento del hecho">
+				<input className={inputClass} inputMode="numeric" placeholder="Ej: 35" value={edad} onChange={(e) => setEdad(e.target.value)} />
+			</Field>
+			<Field label="% de incapacidad">
+				<input className={inputClass} inputMode="decimal" placeholder="Ej: 30" value={incap} onChange={(e) => setIncap(e.target.value)} />
+			</Field>
+			<button className={btnClass} onClick={calcular}>Calcular indemnización</button>
+			{res && (
+				<div className="mt-4 space-y-2">
+					<ResultBox label="Capital indemnizatorio" value={currency(res.capital)} highlight />
+					<ResultBox label="Renta anual base (a)" value={currency(res.a)} />
+					<ResultBox label="Años computados (n)" value={`${res.n} años · tasa ${(res.i * 100).toFixed(0)}%`} subtitle="Orientativo. La CSJN (‘Aróstegui’, 2008) exige valoración integral: la fórmula es un piso de referencia, el daño moral se fija aparte." />
+				</div>
+			)}
+		</Card>
+	)
+}
+
+function AmpliacionDistanciaCalc() {
+	const [base, setBase] = useState('')
+	const [km, setKm] = useState('')
+	const [res, setRes] = useState<null | { adicionales: number; total: number }>(null)
+
+	const calcular = () => {
+		const b = parseInt(base, 10)
+		const d = parseFloat(km.replace(/\./g, '').replace(',', '.'))
+		if (isNaN(b) || isNaN(d) || d < 0) { setRes(null); return }
+		const full = Math.floor(d / 200)
+		const resto = d - full * 200
+		const extra = resto >= 100 ? 1 : 0
+		const adicionales = full + extra
+		setRes({ adicionales, total: b + adicionales })
+	}
+
+	return (
+		<Card title="Ampliación de plazo por distancia" subtitle="Art. 158 CPCCN: 1 día cada 200 km (o fracción ≥ 100 km). Tabla: Acordada CSJN 5/2010.">
+			<Field label="Plazo base (días)">
+				<input className={inputClass} inputMode="numeric" placeholder="Ej: 5" value={base} onChange={(e) => setBase(e.target.value)} />
+			</Field>
+			<Field label="Distancia (km)">
+				<input className={inputClass} inputMode="decimal" placeholder="Ej: 650" value={km} onChange={(e) => setKm(e.target.value)} />
+			</Field>
+			<button className={btnClass} onClick={calcular}>Calcular ampliación</button>
+			{res && (
+				<div className="mt-4 space-y-2">
+					<ResultBox label="Días adicionales por distancia" value={`${res.adicionales} días`} />
+					<ResultBox label="Plazo total ampliado" value={`${res.total} días`} highlight subtitle="Orientativo. Ojo: varias jurisdicciones con gestión electrónica (ej. Corrientes) ya no aplican la ampliación por distancia." />
+				</div>
+			)}
+		</Card>
+	)
+}
+
+function ProrrateoCalc() {
+	const [monto, setMonto] = useState('')
+	const [honorarios, setHonorarios] = useState('')
+	const [res, setRes] = useState<null | { tope: number; suma: number; excede: boolean; factor: number; aCargoCondenado: number; excedente: number }>(null)
+
+	const calcular = () => {
+		const m = parseMonto(monto)
+		const h = parseMonto(honorarios)
+		if (!m || !h) { setRes(null); return }
+		const tope = m * 0.25
+		const excede = h > tope
+		const factor = excede ? tope / h : 1
+		const aCargoCondenado = excede ? tope : h
+		const excedente = excede ? h - tope : 0
+		setRes({ tope, suma: h, excede, factor, aCargoCondenado, excedente })
+	}
+
+	return (
+		<Card title="Prorrateo de honorarios (tope 25%)" subtitle="Art. 730 CCyCN: las costas a cargo del condenado no superan el 25% del monto de la sentencia.">
+			<Field label="Monto de la sentencia">
+				<input className={inputClass} inputMode="decimal" placeholder="Ej: 10.000.000" value={monto} onChange={(e) => setMonto(e.target.value)} />
+			</Field>
+			<Field label="Suma total de honorarios regulados">
+				<input className={inputClass} inputMode="decimal" placeholder="Ej: 3.500.000" value={honorarios} onChange={(e) => setHonorarios(e.target.value)} />
+			</Field>
+			<button className={btnClass} onClick={calcular}>Calcular prorrateo</button>
+			{res && (
+				<div className="mt-4 space-y-2">
+					<ResultBox label="Tope legal (25%)" value={currency(res.tope)} highlight />
+					{res.excede ? (
+						<>
+							<ResultBox label="Factor de prorrateo" value={`${(res.factor * 100).toFixed(2)}%`} />
+							<ResultBox label="A cargo del condenado" value={currency(res.aCargoCondenado)} />
+							<ResultBox label="Excedente (a cargo de quien contrató)" value={currency(res.excedente)} subtitle="Los honorarios superan el 25%: el condenado paga hasta el tope y el resto lo afronta la parte que contrató al profesional." />
+						</>
+					) : (
+						<ResultBox label="A cargo del condenado" value={currency(res.aCargoCondenado)} subtitle="Los honorarios no superan el 25%: se pagan completos, sin prorrateo." />
+					)}
+				</div>
+			)}
+		</Card>
+	)
+}
+
 export function CalculadorasClient() {
   const [tab, setTab] = useState<Tab>('plazos');
   const tabs: Array<{ id: Tab; label: string; icon: LucideIcon }> = [
@@ -692,6 +856,10 @@ export function CalculadorasClient() {
     { id: 'alimentos', label: 'Cuota alimentaria', icon: Users },
     { id: 'danos', label: 'Daños', icon: Gavel },
     { id: 'caducidad', label: 'Caducidad', icon: Hourglass },
+    { id: 'punitivos', label: 'Daños punitivos', icon: Siren },
+    { id: 'incapacidad', label: 'Incapacidad', icon: HeartPulse },
+    { id: 'distancia', label: 'Ampliación distancia', icon: MapPin },
+    { id: 'prorrateo', label: 'Prorrateo 25%', icon: Percent },
   ];
 
   return (
@@ -738,6 +906,10 @@ export function CalculadorasClient() {
       {tab === 'alimentos' && <CuotaAlimentariaCalc />}
       {tab === 'danos' && <DanosCalc />}
       {tab === 'caducidad' && <CaducidadInstanciaCalc />}
+      {tab === 'punitivos' && <DanosPunitivosCalc />}
+      {tab === 'incapacidad' && <IncapacidadCalc />}
+      {tab === 'distancia' && <AmpliacionDistanciaCalc />}
+      {tab === 'prorrateo' && <ProrrateoCalc />}
     </div>
   );
 }
