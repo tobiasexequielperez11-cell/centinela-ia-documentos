@@ -10,12 +10,14 @@ import {
   Loader2,
   ArrowUp,
   ArrowDown,
+  FolderPlus,
 } from 'lucide-react';
+import { uploadDocument } from '@/app/documentos/actions';
 
 type Imagen = { id: string; nombre: string; dataUrl: string };
 
-// Dibuja la imagen en un canvas; si "escaneado" está activo, la pasa a
-// blanco y negro con más contraste. Siempre devuelve un JPEG (formato seguro).
+// Dibuja la imagen en un canvas; si "escaneado" está activo, la pasa a efecto
+// fotocopia (blanquea el fondo del papel + contraste). Siempre devuelve JPEG.
 function procesarImagen(
   dataUrl: string,
   escaneado: boolean
@@ -46,8 +48,7 @@ function procesarImagen(
           hist[Math.round(g)]++;
         }
 
-        // 2) "Punto blanco": el tono del papel (percentil ~82). Hace que el
-        //    fondo se vuelva blanco real aunque la foto tenga sombra o luz amarilla.
+        // 2) "Punto blanco": tono del papel (percentil ~82) para blanquear el fondo
         let acum = 0;
         let blanco = 255;
         const objetivo = n * 0.82;
@@ -84,6 +85,7 @@ export function ImagenAPdf() {
   const [imagenes, setImagenes] = useState<Imagen[]>([]);
   const [escaneado, setEscaneado] = useState(false);
   const [generando, setGenerando] = useState(false);
+  const [guardando, setGuardando] = useState(false);
 
   const agregar = (files: FileList | null) => {
     if (!files) return;
@@ -115,30 +117,56 @@ export function ImagenAPdf() {
       return arr;
     });
 
+  // Arma el PDF (reutilizado para descargar y para guardar en la bóveda)
+  const construirPdf = async () => {
+    const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+    const anchoPag = pdf.internal.pageSize.getWidth();
+    const altoPag = pdf.internal.pageSize.getHeight();
+    const margen = 10;
+    const maxW = anchoPag - margen * 2;
+    const maxH = altoPag - margen * 2;
+
+    for (let i = 0; i < imagenes.length; i++) {
+      const { src, w, h } = await procesarImagen(imagenes[i].dataUrl, escaneado);
+      const ratio = Math.min(maxW / w, maxH / h);
+      const wmm = w * ratio;
+      const hmm = h * ratio;
+      const x = (anchoPag - wmm) / 2;
+      const y = (altoPag - hmm) / 2;
+      if (i > 0) pdf.addPage();
+      pdf.addImage(src, 'JPEG', x, y, wmm, hmm);
+    }
+    return pdf;
+  };
+
+  const nombrePdf = () =>
+    escaneado ? 'documento-escaneado.pdf' : 'documento.pdf';
+
   const generarPdf = async () => {
     if (imagenes.length === 0) return;
     setGenerando(true);
     try {
-      const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
-      const anchoPag = pdf.internal.pageSize.getWidth();
-      const altoPag = pdf.internal.pageSize.getHeight();
-      const margen = 10;
-      const maxW = anchoPag - margen * 2;
-      const maxH = altoPag - margen * 2;
-
-      for (let i = 0; i < imagenes.length; i++) {
-        const { src, w, h } = await procesarImagen(imagenes[i].dataUrl, escaneado);
-        const ratio = Math.min(maxW / w, maxH / h);
-        const wmm = w * ratio;
-        const hmm = h * ratio;
-        const x = (anchoPag - wmm) / 2;
-        const y = (altoPag - hmm) / 2;
-        if (i > 0) pdf.addPage();
-        pdf.addImage(src, 'JPEG', x, y, wmm, hmm);
-      }
-      pdf.save(escaneado ? 'documento-escaneado.pdf' : 'documento.pdf');
+      const pdf = await construirPdf();
+      pdf.save(nombrePdf());
     } finally {
       setGenerando(false);
+    }
+  };
+
+  const guardarEnDocumentos = async () => {
+    if (imagenes.length === 0) return;
+    setGuardando(true);
+    try {
+      const pdf = await construirPdf();
+      const blob = pdf.output('blob');
+      const file = new File([blob], nombrePdf(), { type: 'application/pdf' });
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('sensitivity_level', 'medium');
+      // Sube a la bóveda y redirige al documento nuevo
+      await uploadDocument(fd);
+    } finally {
+      setGuardando(false);
     }
   };
 
@@ -235,7 +263,7 @@ export function ImagenAPdf() {
             <button
               type="button"
               onClick={generarPdf}
-              disabled={generando}
+              disabled={generando || guardando}
               className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700 disabled:opacity-60"
             >
               {generando ? (
@@ -245,6 +273,21 @@ export function ImagenAPdf() {
               )}
               {generando ? 'Generando PDF…' : 'Descargar PDF'}
             </button>
+
+            <button
+              type="button"
+              onClick={guardarEnDocumentos}
+              disabled={generando || guardando}
+              className="inline-flex items-center gap-2 rounded-lg border border-sky-600 px-4 py-2.5 text-sm font-semibold text-sky-700 transition hover:bg-sky-50 disabled:opacity-60"
+            >
+              {guardando ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <FolderPlus className="h-4 w-4" />
+              )}
+              {guardando ? 'Guardando…' : 'Guardar en Documentos'}
+            </button>
+
             <button
               type="button"
               onClick={() => setImagenes([])}
