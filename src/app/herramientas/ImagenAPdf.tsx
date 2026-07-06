@@ -35,11 +35,35 @@ function procesarImagen(
       if (escaneado) {
         const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const d = data.data;
-        const contraste = 1.4;
-        const intercepto = 128 * (1 - contraste);
-        for (let i = 0; i < d.length; i += 4) {
-          const gris = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-          let v = contraste * gris + intercepto;
+        const n = d.length / 4;
+
+        // 1) Escala de grises + histograma de luminosidad
+        const gris = new Float32Array(n);
+        const hist = new Array(256).fill(0);
+        for (let i = 0, p = 0; i < d.length; i += 4, p++) {
+          const g = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+          gris[p] = g;
+          hist[Math.round(g)]++;
+        }
+
+        // 2) "Punto blanco": el tono del papel (percentil ~82). Hace que el
+        //    fondo se vuelva blanco real aunque la foto tenga sombra o luz amarilla.
+        let acum = 0;
+        let blanco = 255;
+        const objetivo = n * 0.82;
+        for (let v = 0; v < 256; v++) {
+          acum += hist[v];
+          if (acum >= objetivo) {
+            blanco = Math.max(v, 1);
+            break;
+          }
+        }
+
+        // 3) Normalizamos (fondo -> blanco) y subimos contraste (texto -> negro)
+        const contraste = 1.55;
+        for (let i = 0, p = 0; i < d.length; i += 4, p++) {
+          let v = (gris[p] / blanco) * 255;
+          v = (v - 128) * contraste + 128;
           v = Math.max(0, Math.min(255, v));
           d[i] = d[i + 1] = d[i + 2] = v;
         }
@@ -169,7 +193,7 @@ export function ImagenAPdf() {
                   src={img.dataUrl}
                   alt={img.nombre}
                   className={`h-40 w-full object-cover ${
-                    escaneado ? 'grayscale contrast-125' : ''
+                    escaneado ? 'grayscale brightness-110 contrast-150' : ''
                   }`}
                 />
                 <div className="absolute inset-x-0 top-0 flex items-center justify-between bg-gradient-to-b from-black/50 to-transparent p-1.5">
