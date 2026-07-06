@@ -2,12 +2,12 @@
 
 import { useState, type ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import { CalendarClock, Coins, Scale, AlertTriangle, CalendarPlus, Check, Loader2 } from 'lucide-react';
+import { CalendarClock, Coins, Scale, AlertTriangle, CalendarPlus, Check, Loader2, Briefcase, TrendingUp, Users, Gavel, Hourglass } from 'lucide-react';
 import { guardarPlazoEnAgenda } from './actions';
 import { UMA_VALOR, UMA_VIGENCIA, TASA_JUSTICIA_PORCENTAJE } from '@/lib/legal/config';
 import { parseISODate, sumarDiasCorridos, sumarDiasHabiles } from '@/lib/legal/plazos';
 
-type Tab = 'plazos' | 'honorarios' | 'tasa';
+type Tab = 'plazos' | 'honorarios' | 'tasa' | 'laboral' | 'intereses' | 'alimentos' | 'danos' | 'caducidad';
 
 const currency = (n: number) =>
   new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 2 }).format(
@@ -315,12 +315,318 @@ function TasaCalc() {
   );
 }
 
+// ── 💼 Liquidación laboral / despido ────────────────────────────
+function LiquidacionLaboralCalc() {
+  const [remun, setRemun] = useState('');
+  const [ingreso, setIngreso] = useState('');
+  const [egreso, setEgreso] = useState('');
+  const [res, setRes] = useState<null | {
+    anios: number; meses: number; aniosComputables: number;
+    antiguedad: number; preaviso: number; integracion: number;
+    sac: number; vacaciones: number; total: number;
+  }>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const calcular = () => {
+    setError(null);
+    setRes(null);
+    const base = parseMonto(remun);
+    const dIng = parseISODate(ingreso);
+    const dEg = parseISODate(egreso);
+    if (!Number.isFinite(base) || base <= 0) return setError('Ingresá la mejor remuneración mensual, normal y habitual.');
+    if (!dIng || !dEg) return setError('Ingresá fechas de ingreso y egreso válidas.');
+    if (dEg <= dIng) return setError('La fecha de egreso debe ser posterior a la de ingreso.');
+
+    let anios = dEg.getFullYear() - dIng.getFullYear();
+    let meses = dEg.getMonth() - dIng.getMonth();
+    if (dEg.getDate() < dIng.getDate()) meses -= 1;
+    if (meses < 0) { anios -= 1; meses += 12; }
+
+    const aniosComputables = Math.max(1, anios + (meses > 3 ? 1 : 0));
+    const antiguedad = base * aniosComputables;
+
+    const preavisoMeses = anios >= 5 ? 2 : 1;
+    const preavisoBase = base * preavisoMeses;
+    const preaviso = preavisoBase + preavisoBase / 12;
+
+    const diasMes = new Date(dEg.getFullYear(), dEg.getMonth() + 1, 0).getDate();
+    const integracionBase = (base / diasMes) * (diasMes - dEg.getDate());
+    const integracion = integracionBase + integracionBase / 12;
+
+    const mesSemestre = dEg.getMonth() % 6;
+    const inicioSemestre = new Date(dEg.getFullYear(), dEg.getMonth() - mesSemestre, 1);
+    const diasSemestre = (dEg.getTime() - inicioSemestre.getTime()) / 86400000;
+    const sac = (base / 2) * (diasSemestre / 182);
+
+    const diasVac = anios >= 20 ? 35 : anios >= 10 ? 28 : anios >= 5 ? 21 : 14;
+    const inicioAnio = new Date(dEg.getFullYear(), 0, 1);
+    const diasAnio = (dEg.getTime() - inicioAnio.getTime()) / 86400000;
+    const vacaciones = (base / 25) * (diasVac * (diasAnio / 365));
+
+    const total = antiguedad + preaviso + integracion + sac + vacaciones;
+    setRes({ anios, meses, aniosComputables, antiguedad, preaviso, integracion, sac, vacaciones, total });
+  };
+
+  return (
+    <Card title="Liquidación por despido sin causa" subtitle="Estimación de rubros indemnizatorios (LCT 20.744). Orientativo — no incluye topes ni multas.">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Field label="Mejor remuneración mensual">
+          <input value={remun} onChange={(e) => setRemun(e.target.value)} placeholder="Ej: 800.000" className={inputClass} />
+        </Field>
+        <Field label="Fecha de ingreso">
+          <input type="date" value={ingreso} onChange={(e) => setIngreso(e.target.value)} className={inputClass} />
+        </Field>
+        <Field label="Fecha de egreso">
+          <input type="date" value={egreso} onChange={(e) => setEgreso(e.target.value)} className={inputClass} />
+        </Field>
+      </div>
+
+      <button onClick={calcular} className={btnClass}>Calcular liquidación</button>
+
+      {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
+
+      {res && (
+        <div className="mt-5 space-y-3">
+          <p className="text-sm text-slate-600">
+            Antigüedad: <strong>{res.anios} año{res.anios !== 1 ? 's' : ''} y {res.meses} mes{res.meses !== 1 ? 'es' : ''}</strong>{' '}
+            (se computan {res.aniosComputables} para el art. 245).
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <ResultBox label="Indemnización por antigüedad (art. 245)" value={currency(res.antiguedad)} />
+            <ResultBox label="Preaviso + SAC" value={currency(res.preaviso)} />
+            <ResultBox label="Integración mes de despido + SAC" value={currency(res.integracion)} />
+            <ResultBox label="SAC proporcional" value={currency(res.sac)} />
+            <ResultBox label="Vacaciones no gozadas" value={currency(res.vacaciones)} />
+            <ResultBox label="TOTAL estimado" value={currency(res.total)} highlight />
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// ── 📈 Intereses judiciales ─────────────────────────────────────
+function InteresesJudicialesCalc() {
+  const [capital, setCapital] = useState('');
+  const [desde, setDesde] = useState('');
+  const [hasta, setHasta] = useState('');
+  const [tasaTipo, setTasaTipo] = useState<'activa' | 'pasiva' | 'otra'>('activa');
+  const [tasa, setTasa] = useState('');
+  const [res, setRes] = useState<null | { dias: number; interes: number; total: number }>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const calcular = () => {
+    setError(null);
+    setRes(null);
+    const c = parseMonto(capital);
+    const dDesde = parseISODate(desde);
+    const dHasta = parseISODate(hasta);
+    const t = parseFloat(tasa);
+    if (!Number.isFinite(c) || c <= 0) return setError('Ingresá un capital válido.');
+    if (!dDesde || !dHasta) return setError('Ingresá el período (desde / hasta).');
+    if (dHasta <= dDesde) return setError('La fecha "hasta" debe ser posterior a "desde".');
+    if (!Number.isFinite(t) || t <= 0) return setError('Ingresá la tasa anual (%) a aplicar.');
+    const dias = Math.round((dHasta.getTime() - dDesde.getTime()) / 86400000);
+    const interes = c * (t / 100) * (dias / 365);
+    setRes({ dias, interes, total: c + interes });
+  };
+
+  return (
+    <Card title="Intereses judiciales" subtitle="Interés simple sobre un capital, por período. La tasa se carga a mano (verificá BCRA / fuero).">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Field label="Capital"><input value={capital} onChange={(e) => setCapital(e.target.value)} placeholder="Ej: 1.000.000" className={inputClass} /></Field>
+        <Field label="Desde"><input type="date" value={desde} onChange={(e) => setDesde(e.target.value)} className={inputClass} /></Field>
+        <Field label="Hasta"><input type="date" value={hasta} onChange={(e) => setHasta(e.target.value)} className={inputClass} /></Field>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <RadioPill active={tasaTipo === 'activa'} onClick={() => setTasaTipo('activa')} label="Tasa activa" />
+        <RadioPill active={tasaTipo === 'pasiva'} onClick={() => setTasaTipo('pasiva')} label="Tasa pasiva" />
+        <RadioPill active={tasaTipo === 'otra'} onClick={() => setTasaTipo('otra')} label="Otra" />
+      </div>
+
+      <div className="mt-4">
+        <Field label="Tasa anual a aplicar (%)">
+          <input value={tasa} onChange={(e) => setTasa(e.target.value)} placeholder="Ej: 90" className={inputClass} />
+        </Field>
+        <p className="mt-1 text-xs text-slate-500">
+          Elegí el tipo de tasa según el fuero y cargá el valor anual vigente (BCRA). El cálculo usa interés simple.
+        </p>
+      </div>
+
+      <button onClick={calcular} className={btnClass}>Calcular intereses</button>
+
+      {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
+
+      {res && (
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <ResultBox label="Días" value={String(res.dias)} />
+          <ResultBox label="Intereses" value={currency(res.interes)} />
+          <ResultBox label="Capital + intereses" value={currency(res.total)} highlight />
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// ── 👨👩👧 Cuota alimentaria ─────────────────────────────────────
+function CuotaAlimentariaCalc() {
+  const [ingresos, setIngresos] = useState('');
+  const [porcentaje, setPorcentaje] = useState('20');
+  const [hijos, setHijos] = useState('1');
+  const [res, setRes] = useState<null | { cuota: number; porHijo: number }>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const calcular = () => {
+    setError(null);
+    setRes(null);
+    const i = parseMonto(ingresos);
+    const p = parseFloat(porcentaje);
+    const h = parseInt(hijos, 10);
+    if (!Number.isFinite(i) || i <= 0) return setError('Ingresá los ingresos netos del/de la alimentante.');
+    if (!Number.isFinite(p) || p <= 0) return setError('Ingresá un porcentaje válido.');
+    if (!Number.isFinite(h) || h <= 0) return setError('Ingresá la cantidad de hijos/as.');
+    const cuota = i * (p / 100);
+    setRes({ cuota, porHijo: cuota / h });
+  };
+
+  return (
+    <Card title="Cuota alimentaria" subtitle="Estimación por porcentaje de ingresos. No hay porcentaje legal fijo; lo determina el juez.">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Field label="Ingresos netos mensuales"><input value={ingresos} onChange={(e) => setIngresos(e.target.value)} placeholder="Ej: 900.000" className={inputClass} /></Field>
+        <Field label="Porcentaje (%)"><input value={porcentaje} onChange={(e) => setPorcentaje(e.target.value)} className={inputClass} /></Field>
+        <Field label="Cantidad de hijos/as"><input value={hijos} onChange={(e) => setHijos(e.target.value)} className={inputClass} /></Field>
+      </div>
+
+      <p className="mt-3 text-xs text-slate-500">
+        Referencia orientativa: la jurisprudencia suele ubicar la cuota entre el 20% y 30% para un hijo/a, aumentando con la cantidad de hijos/as y las necesidades acreditadas.
+      </p>
+
+      <button onClick={calcular} className={btnClass}>Calcular cuota</button>
+
+      {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
+
+      {res && (
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <ResultBox label="Cuota mensual estimada" value={currency(res.cuota)} highlight />
+          <ResultBox label="Equivalente por hijo/a" value={currency(res.porHijo)} />
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// ── ⚖️ Cuantificación de daños ──────────────────────────────────
+function DanosCalc() {
+  const [emergente, setEmergente] = useState('');
+  const [lucro, setLucro] = useState('');
+  const [moral, setMoral] = useState('');
+  const [otros, setOtros] = useState('');
+  const [interes, setInteres] = useState('');
+  const [res, setRes] = useState<null | { subtotal: number; interesMonto: number; total: number }>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const calcular = () => {
+    setError(null);
+    setRes(null);
+    const val = (s: string) => (Number.isFinite(parseMonto(s)) ? parseMonto(s) : 0);
+    const e = val(emergente);
+    const l = val(lucro);
+    const m = val(moral);
+    const o = val(otros);
+    const pInt = parseFloat(interes);
+    const subtotal = e + l + m + o;
+    if (subtotal <= 0) return setError('Cargá al menos un rubro de daño.');
+    const interesMonto = Number.isFinite(pInt) && pInt > 0 ? subtotal * (pInt / 100) : 0;
+    setRes({ subtotal, interesMonto, total: subtotal + interesMonto });
+  };
+
+  return (
+    <Card title="Cuantificación de daños" subtitle="Suma de rubros reclamados, con intereses opcionales sobre el subtotal.">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Daño emergente"><input value={emergente} onChange={(e) => setEmergente(e.target.value)} placeholder="0" className={inputClass} /></Field>
+        <Field label="Lucro cesante"><input value={lucro} onChange={(e) => setLucro(e.target.value)} placeholder="0" className={inputClass} /></Field>
+        <Field label="Daño moral"><input value={moral} onChange={(e) => setMoral(e.target.value)} placeholder="0" className={inputClass} /></Field>
+        <Field label="Otros rubros (gastos, etc.)"><input value={otros} onChange={(e) => setOtros(e.target.value)} placeholder="0" className={inputClass} /></Field>
+        <Field label="Interés sobre subtotal (%) — opcional"><input value={interes} onChange={(e) => setInteres(e.target.value)} placeholder="Ej: 15" className={inputClass} /></Field>
+      </div>
+
+      <button onClick={calcular} className={btnClass}>Calcular total</button>
+
+      {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
+
+      {res && (
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <ResultBox label="Subtotal rubros" value={currency(res.subtotal)} />
+          <ResultBox label="Intereses" value={currency(res.interesMonto)} />
+          <ResultBox label="TOTAL reclamado" value={currency(res.total)} highlight />
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// ── ⏳ Caducidad de instancia ───────────────────────────────────
+function CaducidadInstanciaCalc() {
+  const [fecha, setFecha] = useState('');
+  const [instancia, setInstancia] = useState<'primera' | 'segunda' | 'incidente'>('primera');
+  const [res, setRes] = useState<null | { fecha: Date; meses: number }>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const calcular = () => {
+    setError(null);
+    setRes(null);
+    const d = parseISODate(fecha);
+    if (!d) return setError('Ingresá la fecha del último acto de impulso.');
+    const meses = instancia === 'primera' ? 6 : instancia === 'segunda' ? 3 : 1;
+    const venc = new Date(d);
+    venc.setMonth(venc.getMonth() + meses);
+    setRes({ fecha: venc, meses });
+  };
+
+  return (
+    <Card title="Caducidad de instancia" subtitle="Plazos del art. 310 CPCCN, contados desde el último acto de impulso.">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Fecha del último acto de impulso">
+          <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className={inputClass} />
+        </Field>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <RadioPill active={instancia === 'primera'} onClick={() => setInstancia('primera')} label="1ª instancia (6 meses)" />
+        <RadioPill active={instancia === 'segunda'} onClick={() => setInstancia('segunda')} label="2ª/3ª instancia (3 meses)" />
+        <RadioPill active={instancia === 'incidente'} onClick={() => setInstancia('incidente')} label="Incidentes (1 mes)" />
+      </div>
+
+      <button onClick={calcular} className={btnClass}>Calcular fecha de caducidad</button>
+
+      {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
+
+      {res && (
+        <div className="mt-5">
+          <ResultBox
+            label="La caducidad operaría el"
+            value={formatDateLarga(res.fecha)}
+            subtitle={`${res.meses} mes${res.meses !== 1 ? 'es' : ''} de inactividad. Plazo corrido; se descuenta la feria judicial. Verificá suspensiones e interrupciones.`}
+            highlight
+          />
+        </div>
+      )}
+    </Card>
+  );
+}
+
 export function CalculadorasClient() {
   const [tab, setTab] = useState<Tab>('plazos');
   const tabs: Array<{ id: Tab; label: string; icon: LucideIcon }> = [
     { id: 'plazos', label: 'Plazos procesales', icon: CalendarClock },
     { id: 'honorarios', label: 'Honorarios', icon: Coins },
     { id: 'tasa', label: 'Tasa e intereses', icon: Scale },
+    { id: 'laboral', label: 'Liquidación laboral', icon: Briefcase },
+    { id: 'intereses', label: 'Intereses judiciales', icon: TrendingUp },
+    { id: 'alimentos', label: 'Cuota alimentaria', icon: Users },
+    { id: 'danos', label: 'Daños', icon: Gavel },
+    { id: 'caducidad', label: 'Caducidad', icon: Hourglass },
   ];
 
   return (
@@ -362,6 +668,11 @@ export function CalculadorasClient() {
       {tab === 'plazos' && <PlazosCalc />}
       {tab === 'honorarios' && <HonorariosCalc />}
       {tab === 'tasa' && <TasaCalc />}
+      {tab === 'laboral' && <LiquidacionLaboralCalc />}
+      {tab === 'intereses' && <InteresesJudicialesCalc />}
+      {tab === 'alimentos' && <CuotaAlimentariaCalc />}
+      {tab === 'danos' && <DanosCalc />}
+      {tab === 'caducidad' && <CaducidadInstanciaCalc />}
     </div>
   );
 }
