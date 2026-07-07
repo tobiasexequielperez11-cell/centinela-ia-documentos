@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { preguntarADocumentos, type FuenteBusqueda } from './actions';
+import { AvisoPrivacidadIA } from '@/components/AvisoPrivacidadIA';
 
 export function BuscarClient() {
   const [pregunta, setPregunta] = useState('');
@@ -34,6 +35,7 @@ export function BuscarClient() {
 
   return (
     <div>
+      <AvisoPrivacidadIA contexto="responder tu pregunta" />
       <form onSubmit={onSubmit} className="flex flex-col gap-3 sm:flex-row">
         <input
           type="text"

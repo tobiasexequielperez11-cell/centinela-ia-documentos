@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { canUseAi, isUserRole } from '@/lib/permissions/roles';
 import { generarEmbedding } from '@/lib/ai/embeddings';
+import { indexarDocumento } from '@/lib/ai/indexarDocumento';
 
 export type FuenteBusqueda = {
   documentId: string;
@@ -129,4 +130,91 @@ RESPUESTA:`;
   } catch (e) {
     return { ok: false, error: 'Error de red: ' + String(e).slice(0, 160) };
   }
+}
+
+export type BackfillResult = {
+  ok: boolean;
+  indexados?: number;
+  yaIndexados?: number;
+  sinTexto?: number;
+  errores?: number;
+  total?: number;
+  error?: string;
+};
+
+export async function indexarDocumentosExistentes(): Promise<BackfillResult> {
+  const { user, profile } = await getUserProfile();
+  if (!user || !profile) return { ok: false, error: 'Sesión no válida.' };
+  if (!isUserRole(profile.role) || !canUseAi(profile.role)) {
+    return { ok: false, error: 'Tu rol no tiene acceso.' };
+  }
+
+  const supabase = await createClient();
+
+  // Documentos que YA tienen fragmentos indexados (para saltarlos)
+  const { data: yaChunks } = await supabase
+    .from('document_chunks')
+    .select('document_id')
+    .eq('organization_id', profile.organization_id);
+  const indexadosSet = new Set((yaChunks ?? []).map((c: any) => c.document_id));
+
+  // Análisis existentes (el más reciente por documento)
+  const { data: outputs, error: outErr } = await supabase
+    .from('ai_outputs')
+    .select('document_id, result_json, created_at')
+    .eq('organization_id', profile.organization_id)
+    .eq('output_type', 'document_analysis')
+    .order('created_at', { ascending: false });
+
+  if (outErr) return { ok: false, error: 'No se pudieron leer los análisis: ' + outErr.message };
+
+  const vistos = new Set<string>();
+  let indexados = 0;
+  let yaIndexados = 0;
+  let sinTexto = 0;
+  let errores = 0;
+  let total = 0;
+
+  for (const row of outputs ?? []) {
+    const docId = row.document_id as string;
+    if (!docId || vistos.has(docId)) continue; // solo el análisis más reciente por doc
+    vistos.add(docId);
+    total++;
+
+    if (indexadosSet.has(docId)) {
+      yaIndexados++;
+      continue;
+    }
+
+    const a = (row.result_json ?? {}) as any;
+    const texto = [
+      a.resumen ?? '',
+      Array.isArray(a.datos_relevantes) ? a.datos_relevantes.join('. ') : '',
+      Array.isArray(a.alertas) ? a.alertas.join('. ') : '',
+      Array.isArray(a.proximas_acciones) ? a.proximas_acciones.join('. ') : '',
+      a.texto_extraido_preview ?? '',
+    ]
+      .filter(Boolean)
+      .join('\n')
+      .trim();
+
+    if (texto.length < 20) {
+      sinTexto++;
+      continue;
+    }
+
+    try {
+      const r = await indexarDocumento(supabase, {
+        documentId: docId,
+        organizationId: profile.organization_id,
+        texto,
+      });
+      if (r.ok) indexados++;
+      else errores++;
+    } catch {
+      errores++;
+    }
+  }
+
+  return { ok: true, indexados, yaIndexados, sinTexto, errores, total };
 }

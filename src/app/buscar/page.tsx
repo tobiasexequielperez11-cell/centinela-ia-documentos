@@ -3,6 +3,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { canUseAi, isUserRole } from '@/lib/permissions/roles';
 import { BuscarClient } from './BuscarClient';
+import { BackfillDocs } from './BackfillDocs';
 
 export default async function BuscarPage() {
   const { user, profile } = await getUserProfile();
@@ -30,7 +31,10 @@ export default async function BuscarPage() {
         </div>
 
         {puedeUsarIA ? (
-          <BuscarClient />
+          <>
+            <BuscarClient />
+            {profile.role === 'admin' && <BackfillDocs />}
+          </>
         ) : (
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
             Tu rol no tiene habilitada la búsqueda con IA. Consultá con un administrador.
