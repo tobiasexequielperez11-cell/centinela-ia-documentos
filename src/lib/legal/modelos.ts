@@ -1114,6 +1114,135 @@ Proveer de conformidad, SERÁ JUSTICIA.
 
 {{localidad}}, {{fecha}}.`,
 	},
+  // ─────────────────────────────────────────────
+  // 🗂️ MERO TRÁMITE (alta frecuencia)
+  // ─────────────────────────────────────────────
+  {
+    id: 'acompana-documentacion',
+    titulo: 'Acompaña documentación',
+    categoria: 'Escritos judiciales',
+    descripcion: 'Agrega documental a la causa y solicita su incorporación con traslado.',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, por la parte que represento, con el patrocinio letrado del Dr./Dra. {{abogado}}, en los autos caratulados «{{caratula}}» (Expte. N° {{numero_expediente}}), a V.S. digo:
+Que vengo por el presente a acompañar la siguiente documentación: {{documentacion}}.
+Se agrega en {{cantidad_copias}} juego(s) de copias para su traslado a la contraria.
+Por lo expuesto, a V.S. solicito:
+1) Se tenga por acompañada la documentación referida y por agregada a los autos.
+2) Se corra el traslado de ley.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
+  {
+    id: 'toma-vista',
+    titulo: 'Toma vista de las actuaciones',
+    categoria: 'Escritos judiciales',
+    descripcion: 'Solicita tomar vista del expediente y su remisión al domicilio electrónico.',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, con el patrocinio letrado del Dr./Dra. {{abogado}}, en los autos «{{caratula}}» (Expte. N° {{numero_expediente}}), a V.S. digo:
+Que vengo a tomar vista de las presentes actuaciones en su totalidad, solicitando —en su caso— la remisión digital de las mismas al domicilio electrónico constituido, a fin de tomar conocimiento del estado de la causa.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
+  {
+    id: 'solicita-copias-desarchivo',
+    titulo: 'Solicita copias / desarchivo',
+    categoria: 'Escritos judiciales',
+    descripcion: 'Pide copias de piezas del expediente y/o el desarchivo de la causa.',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, con el patrocinio letrado del Dr./Dra. {{abogado}}, en los autos «{{caratula}}» (Expte. N° {{numero_expediente}}), a V.S. digo:
+Que solicito se me expidan copias {{tipo_copias}} de las siguientes piezas: {{piezas_solicitadas}}.
+Asimismo, y para el caso de encontrarse archivadas las actuaciones, solicito su desarchivo a fin de proseguir con el trámite de la causa.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
+  {
+    id: 'denuncia-nuevo-domicilio',
+    titulo: 'Denuncia / constituye nuevo domicilio',
+    categoria: 'Escritos judiciales',
+    descripcion: 'Denuncia nuevo domicilio real y constituye nuevo domicilio procesal.',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, con el patrocinio letrado del Dr./Dra. {{abogado}}, en los autos «{{caratula}}» (Expte. N° {{numero_expediente}}), a V.S. digo:
+Que vengo a denunciar el nuevo domicilio real de mi parte, sito en {{domicilio_real}}, y a constituir nuevo domicilio procesal en {{domicilio_procesal}}, solicitando se tomen las constancias pertinentes y se dirijan a él las futuras notificaciones.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
+  {
+    id: 'urge-pronto-despacho',
+    titulo: 'Urge pronto despacho',
+    categoria: 'Escritos judiciales',
+    descripcion: 'Reitera un pedido pendiente de resolución y solicita despacho urgente.',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, con el patrocinio letrado del Dr./Dra. {{abogado}}, en los autos «{{caratula}}» (Expte. N° {{numero_expediente}}), a V.S. digo:
+Que atento al tiempo transcurrido desde la presentación de fecha {{fecha_presentacion}}, sin que haya recaído resolución respecto de lo allí peticionado, vengo a urgir el pronto despacho de las actuaciones, solicitando se provea con carácter urgente lo requerido, en resguardo del derecho de defensa y del principio de celeridad procesal.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
+  {
+    id: 'acusa-rebeldia',
+    titulo: 'Acusa rebeldía',
+    categoria: 'Escritos judiciales',
+    descripcion: 'Acusa la rebeldía de la contraria vencido el plazo para comparecer/contestar.',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, con el patrocinio letrado del Dr./Dra. {{abogado}}, en los autos «{{caratula}}» (Expte. N° {{numero_expediente}}), a V.S. digo:
+Que encontrándose vencido el plazo acordado a la parte demandada, {{demandado}}, para comparecer y/o contestar la demanda, sin que lo haya hecho, vengo a acusar su rebeldía en los términos de los arts. 59 y concordantes del CPCCN.
+En consecuencia, solicito:
+1) Se declare la rebeldía de la demandada.
+2) Se disponga la prosecución del trámite, con las presunciones que la rebeldía implica (art. 60 CPCCN).
+3) Se notifique la resolución en el domicilio denunciado.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
+  // ─────────────────────────────────────────────
+  // 🛡️ MEDIDAS CAUTELARES
+  // ─────────────────────────────────────────────
+  {
+    id: 'solicita-embargo-preventivo',
+    titulo: 'Solicita embargo preventivo',
+    categoria: 'Medidas cautelares',
+    descripcion: 'Pide embargo preventivo acreditando verosimilitud, peligro en la demora y contracautela.',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, con el patrocinio letrado del Dr./Dra. {{abogado}}, en los autos «{{caratula}}» (Expte. N° {{numero_expediente}}), a V.S. digo:
+I. OBJETO. Que vengo a solicitar se decrete EMBARGO PREVENTIVO sobre {{bienes_a_embargar}} de titularidad de {{demandado}}, hasta cubrir la suma de $ {{monto}}, con más lo que se presupueste para responder a intereses y costas.
+II. VEROSIMILITUD DEL DERECHO. {{verosimilitud_derecho}} (arts. 195 y 209 CPCCN).
+III. PELIGRO EN LA DEMORA. {{peligro_demora}}.
+IV. CONTRACAUTELA. Ofrezco caución {{tipo_caucion}}, en los términos del art. 199 CPCCN.
+V. PETITORIO. Por lo expuesto, solicito a V.S.:
+1) Tenga por promovido el pedido de medida cautelar.
+2) Decrete el embargo preventivo solicitado, librando los oficios y/o mandamientos pertinentes.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
+  {
+    id: 'solicita-prohibicion-innovar',
+    titulo: 'Solicita prohibición de innovar',
+    categoria: 'Medidas cautelares',
+    descripcion: 'Pide mantener el statu quo de una situación de hecho o de derecho (art. 230 CPCCN).',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, con el patrocinio letrado del Dr./Dra. {{abogado}}, en los autos «{{caratula}}» (Expte. N° {{numero_expediente}}), a V.S. digo:
+I. OBJETO. Que vengo a solicitar se decrete PROHIBICIÓN DE INNOVAR, ordenando a {{demandado}} abstenerse de modificar la situación de hecho o de derecho relativa a {{objeto_cautela}}, hasta tanto se resuelva la cuestión de fondo (art. 230 CPCCN).
+II. VEROSIMILITUD DEL DERECHO. {{verosimilitud_derecho}}.
+III. PELIGRO EN LA DEMORA. {{peligro_demora}}: de alterarse la situación actual se tornaría ineficaz o de imposible cumplimiento la eventual sentencia favorable.
+IV. INEXISTENCIA DE OTRA MEDIDA. La medida requerida es la vía idónea, no pudiendo obtenerse igual resultado por otra cautelar.
+V. CONTRACAUTELA. Ofrezco caución {{tipo_caucion}} (art. 199 CPCCN).
+VI. PETITORIO. Solicito se decrete la medida y se libren las comunicaciones que correspondan.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
+  {
+    id: 'solicita-anotacion-litis',
+    titulo: 'Solicita anotación de litis',
+    categoria: 'Medidas cautelares',
+    descripcion: 'Pide anotar la existencia del juicio sobre un bien registrable (art. 229 CPCCN).',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, con el patrocinio letrado del Dr./Dra. {{abogado}}, en los autos «{{caratula}}» (Expte. N° {{numero_expediente}}), a V.S. digo:
+I. OBJETO. Que vengo a solicitar se ordene la ANOTACIÓN DE LITIS sobre el bien {{bien_registrable}}, inscripto a nombre de {{demandado}}, a fin de dar publicidad de la existencia del presente juicio frente a terceros (art. 229 CPCCN).
+II. VEROSIMILITUD DEL DERECHO. {{verosimilitud_derecho}}, encontrándose el bien directamente vinculado al objeto del litigio.
+III. PROCEDENCIA. La medida no impide la disponibilidad del bien, sino que publicita la controversia, resguardando el derecho de mi parte.
+IV. CONTRACAUTELA. Ofrezco caución {{tipo_caucion}} (art. 199 CPCCN).
+V. PETITORIO. Solicito se decrete la anotación de litis y se libre el oficio pertinente al Registro correspondiente.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
 ];
 
 // 🔗 Sugiere el modelo de escrito más adecuado según el tipo de documento
