@@ -851,23 +851,26 @@ await createAuditLog({
   const textoParaIndexar =
     extractedText && extractedText.length >= 200
       ? extractedText
-      : [
-          ia?.resumen ?? '',
-          (ia?.partes ?? []).join('. '),
-          (ia?.datos_clave ?? []).join('. '),
-          (ia?.clausulas_riesgos ?? []).join('. '),
-          (ia?.proximas_acciones ?? []).join('. '),
-        ]
-          .filter(Boolean)
-          .join('\n');
+      : ia
+        ? [
+            ia.resumen ?? '',
+            (ia.partes ?? []).join('. '),
+            (ia.datos_clave ?? []).join('. '),
+            (ia.clausulas_riesgos ?? []).join('. '),
+            (ia.proximas_acciones ?? []).join('. '),
+          ]
+            .filter(Boolean)
+            .join('\n')
+        : '';
 
   if (textoParaIndexar.trim().length > 0) {
     try {
-      await indexarDocumento(supabase, {
-        documentId,
+      const resIndex = await indexarDocumento(supabase, {
+        documentId: documentRecord.id,
         organizationId: profile.organization_id,
         texto: textoParaIndexar,
       });
+      console.log('Indexación semántica:', resIndex);
     } catch (e) {
       console.error('Indexación semántica falló (no bloqueante):', e);
     }

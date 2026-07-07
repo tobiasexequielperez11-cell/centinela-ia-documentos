@@ -1,5 +1,3 @@
-
-
 const GEMINI_EMBED_MODEL = 'text-embedding-004'; // 768 dimensiones (gratis)
 
 /** Genera el vector de embedding de un texto usando Gemini. */
@@ -7,13 +5,13 @@ export async function generarEmbedding(texto: string): Promise<number[] | null> 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
 
-  try {
-    const url =
-      'https://generativelanguage.googleapis.com/v1beta/models/' +
-      GEMINI_EMBED_MODEL +
-      ':embedContent?key=' +
-      apiKey;
+  const url =
+    'https://generativelanguage.googleapis.com/v1beta/models/' +
+    GEMINI_EMBED_MODEL +
+    ':embedContent?key=' +
+    apiKey;
 
+  try {
     const resp = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

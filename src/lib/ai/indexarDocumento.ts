@@ -21,7 +21,7 @@ export async function indexarDocumento(
     organization_id: string;
     chunk_index: number;
     content: string;
-    embedding: number[];
+    embedding: string;
   }[] = [];
 
   for (let i = 0; i < fragmentos.length; i++) {
@@ -32,7 +32,7 @@ export async function indexarDocumento(
       organization_id: organizationId,
       chunk_index: i,
       content: fragmentos[i],
-      embedding: emb,
+      embedding: JSON.stringify(emb), // pgvector acepta "[...]" como texto
     });
   }
 
