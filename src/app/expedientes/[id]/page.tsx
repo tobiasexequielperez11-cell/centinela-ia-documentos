@@ -29,6 +29,7 @@ import {
 } from '../actions';
 import { canUseAi } from '@/lib/permissions/roles';
 import { CopilotoExpediente } from './CopilotoExpediente';
+import { CronologiaExpediente } from './CronologiaExpediente';
 import type { CaseRecord } from '@/types/case';
 
 interface CaseDetailPageProps {
@@ -220,13 +221,85 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
 
   const { data: analisisData } = await supabase
     .from('ai_outputs')
-    .select('document_id')
+    .select('document_id, result_json, created_at')
     .eq('case_id', caseRecord.id)
     .eq('organization_id', profile.organization_id)
-    .eq('output_type', 'document_analysis');
+    .eq('output_type', 'document_analysis')
+    .order('created_at', { ascending: false });
 
   const documentosAnalizados = new Set((analisisData ?? []).map((o) => o.document_id).filter(Boolean)).size;
   const puedeUsarIA = canUseAi(profile.role);
+
+  const nombrePorDoc = new Map<string, string>();
+  for (const d of caseDocuments) nombrePorDoc.set(d.id, d.file_name);
+
+  const hoyISO = new Date().toISOString().slice(0, 10);
+  const esFuturo = (f: string) => f > hoyISO;
+
+  const cronologia: {
+    fecha: string; titulo: string; detalle?: string | null;
+    origen: 'actuacion' | 'detectada' | 'documento'; etiquetaOrigen: string; esFuturo: boolean;
+  }[] = [];
+
+  // 1) Actuaciones (línea de tiempo manual)
+  const CASE_EVENT_TYPE_LABELS: Record<string, string> = {
+    presentation: 'Presentación',
+    notification: 'Notificación',
+    hearing: 'Audiencia',
+    resolution: 'Resolución',
+    other: 'Otro',
+  };
+
+  for (const ev of eventos) {
+    const f = String(ev.event_date).slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(f)) continue;
+    cronologia.push({
+      fecha: f,
+      titulo: ev.title,
+      detalle: ev.description,
+      origen: 'actuacion',
+      etiquetaOrigen: CASE_EVENT_TYPE_LABELS[ev.event_type] || 'Actuación',
+      esFuturo: esFuturo(f),
+    });
+  }
+
+  // 2) Fechas detectadas por la IA (último análisis por documento)
+  const analisisPorDoc = new Map<string, any>();
+  for (const o of analisisData ?? []) {
+    if (o.document_id && !analisisPorDoc.has(o.document_id)) analisisPorDoc.set(o.document_id, o.result_json);
+  }
+  for (const [docId, rj] of analisisPorDoc.entries()) {
+    const fechas = Array.isArray((rj as any)?.fechas_plazos) ? (rj as any).fechas_plazos : [];
+    for (const fp of fechas) {
+      const f = String(fp?.fecha || '').slice(0, 10);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(f)) continue;
+      cronologia.push({
+        fecha: f,
+        titulo: String(fp?.descripcion || 'Fecha detectada'),
+        detalle: null,
+        origen: 'detectada',
+        etiquetaOrigen: `Detectada · ${nombrePorDoc.get(docId) || 'documento'}`,
+        esFuturo: esFuturo(f),
+      });
+    }
+  }
+
+  // 3) Cargas de documentos
+  for (const d of caseDocuments) {
+    const f = String(d.created_at).slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(f)) continue;
+    cronologia.push({
+      fecha: f,
+      titulo: `Documento cargado: ${d.file_name}`,
+      detalle: null,
+      origen: 'documento',
+      etiquetaOrigen: 'Documento',
+      esFuturo: false,
+    });
+  }
+
+  // orden cronológico ascendente (más antiguo → más nuevo)
+  cronologia.sort((a, b) => (a.fecha < b.fecha ? -1 : a.fecha > b.fecha ? 1 : 0));
 
   return (
     <AppShell>
@@ -256,6 +329,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
             documentosAnalizados={documentosAnalizados}
             puedeUsarIA={puedeUsarIA}
           />
+          <CronologiaExpediente items={cronologia} />
 
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <h3 className="text-lg font-bold text-slate-950">
