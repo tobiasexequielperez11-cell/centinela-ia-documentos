@@ -8,17 +8,20 @@ export async function generarEmbedding(texto: string): Promise<number[] | null> 
   if (!apiKey) return null;
 
   try {
-    const resp = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_EMBED_MODEL}:embedContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: `models/${GEMINI_EMBED_MODEL}`,
-          content: { parts: [{ text: texto }] },
-        }),
-      }
-    );
+    const url =
+      'https://generativelanguage.googleapis.com/v1beta/models/' +
+      GEMINI_EMBED_MODEL +
+      ':embedContent?key=' +
+      apiKey;
+
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'models/' + GEMINI_EMBED_MODEL,
+        content: { parts: [{ text: texto }] },
+      }),
+    });
 
     if (!resp.ok) {
       console.error('Embedding error:', resp.status, await resp.text());
