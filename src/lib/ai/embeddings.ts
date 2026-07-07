@@ -1,4 +1,5 @@
-const GEMINI_EMBED_MODEL = 'text-embedding-004'; // 768 dimensiones
+const GEMINI_EMBED_MODEL = 'gemini-embedding-2'; // modelo vigente (sin fecha de baja)
+const EMBED_DIMS = 768; // coincide con la columna vector(768)
 
 export type EmbeddingResult = { values: number[] } | { error: string };
 
@@ -19,6 +20,7 @@ export async function generarEmbedding(texto: string): Promise<EmbeddingResult> 
       body: JSON.stringify({
         model: 'models/' + GEMINI_EMBED_MODEL,
         content: { parts: [{ text: texto }] },
+        outputDimensionality: EMBED_DIMS,
       }),
     });
 
@@ -30,6 +32,7 @@ export async function generarEmbedding(texto: string): Promise<EmbeddingResult> 
     const data = await resp.json();
     const values = data?.embedding?.values;
     if (!Array.isArray(values)) return { error: 'sin-values' };
+    if (values.length !== EMBED_DIMS) return { error: 'dim-' + values.length };
     return { values };
   } catch (e) {
     return { error: 'fetch:' + String(e).slice(0, 160) };
