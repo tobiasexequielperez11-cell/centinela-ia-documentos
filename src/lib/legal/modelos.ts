@@ -1243,6 +1243,77 @@ V. PETITORIO. Solicito se decrete la anotación de litis y se libre el oficio pe
 Proveer de conformidad,
 SERÁ JUSTICIA.`,
   },
+  // ─────────────────────────────────────────────
+  // 👨👩👧 FAMILIA
+  // ─────────────────────────────────────────────
+  {
+    id: 'divorcio-convenio-regulador',
+    titulo: 'Demanda de divorcio con convenio regulador',
+    categoria: 'Familia',
+    descripcion: 'Promueve el divorcio (art. 437/438 CCyCN) acompañando propuesta reguladora.',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, con el patrocinio letrado del Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}}, a V.S. digo:
+I. OBJETO. Que vengo a promover DEMANDA DE DIVORCIO respecto de mi cónyuge, {{conyuge_demandado}}, con domicilio en {{domicilio_demandado}}, en los términos de los arts. 437 y 438 del CCyCN.
+II. MATRIMONIO. Contraje matrimonio con el/la nombrado/a el día {{fecha_matrimonio}}, conforme acta de matrimonio que se acompaña.
+III. HIJOS. {{datos_hijos}}.
+IV. PROPUESTA REGULADORA (art. 438 CCyCN). Acompaño propuesta que regula los efectos del divorcio, contemplando: {{propuesta_reguladora}} (atribución de la vivienda, cuidado personal y régimen de comunicación de los hijos, alimentos, y liquidación de la comunidad de bienes, según corresponda).
+V. PRUEBA. Acta de matrimonio; actas de nacimiento de los hijos; DNI; y demás documentación acompañada.
+VI. DERECHO. Arts. 437, 438 y concordantes del CCyCN.
+VII. PETITORIO. Solicito a V.S.:
+1) Me tenga por presentado, por parte y por constituido el domicilio procesal.
+2) Corra traslado de la propuesta reguladora a la contraria.
+3) Oportunamente decrete el divorcio y homologue el convenio regulador.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
+  {
+    id: 'regimen-comunicacion-cuidado',
+    titulo: 'Régimen de comunicación / cuidado personal',
+    categoria: 'Familia',
+    descripcion: 'Solicita fijar régimen de comunicación y/o cuidado personal de hijos (arts. 652-655 CCyCN).',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, con el patrocinio letrado del Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}}, a V.S. digo:
+I. OBJETO. Que vengo a promover demanda a fin de que se establezca RÉGIMEN DE COMUNICACIÓN y/o CUIDADO PERSONAL respecto de mi hijo/a {{nombre_hijo}}, en relación con el otro progenitor, {{demandado}}, con domicilio en {{domicilio_demandado}}.
+II. HECHOS. {{hechos}}.
+III. INTERÉS SUPERIOR DEL NIÑO. La medida se funda en el interés superior del niño (art. 3 CDN; arts. 639, 706 CCyCN), garantizando el vínculo con ambos progenitores.
+IV. RÉGIMEN PROPUESTO. Propongo el siguiente régimen: {{regimen_propuesto}}.
+V. DERECHO. Arts. 641, 648, 652, 653, 655 y concordantes del CCyCN.
+VI. PETITORIO. Solicito se cite a audiencia, se dé intervención al Ministerio Público y, oportunamente, se homologue o fije el régimen solicitado.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
+  {
+    id: 'homologacion-convenio',
+    titulo: 'Solicita homologación de convenio',
+    categoria: 'Familia',
+    descripcion: 'Pide homologar un acuerdo (alimentos, comunicación, etc.) confiriéndole fuerza ejecutoria.',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, con el patrocinio letrado del Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}}, a V.S. digo:
+I. OBJETO. Que vengo a solicitar la HOMOLOGACIÓN del convenio celebrado con {{otra_parte}} en fecha {{fecha_convenio}}, cuyo texto se acompaña.
+II. CONTENIDO. El convenio regula: {{contenido_convenio}}.
+III. FUNDAMENTO. Las partes han arribado a un acuerdo que no afecta el orden público ni derechos indisponibles, resultando procedente su homologación a fin de dotarlo de fuerza ejecutoria.
+IV. PETITORIO. Solicito a V.S.:
+1) Tenga por acompañado el convenio.
+2) Dé intervención al Ministerio Público, si correspondiere.
+3) Homologue el acuerdo, confiriéndole fuerza de sentencia.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
+  {
+    id: 'medidas-proteccion-violencia',
+    titulo: 'Solicita medidas de protección (violencia familiar)',
+    categoria: 'Familia',
+    descripcion: 'Denuncia y pide medidas urgentes de protección (Ley 26.485 y Ley 24.417).',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, con el patrocinio letrado del Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}}, a V.S. digo:
+I. OBJETO. Que vengo a denunciar hechos de violencia y a solicitar MEDIDAS DE PROTECCIÓN URGENTES en el marco de la Ley 26.485 y de la Ley 24.417, respecto de {{denunciado}}, con domicilio en {{domicilio_denunciado}}.
+II. HECHOS. {{hechos}}.
+III. MEDIDAS SOLICITADAS. Solicito se dispongan, con carácter urgente y sin necesidad de audiencia previa: {{medidas_solicitadas}} (v.gr. prohibición de acercamiento y de contacto por cualquier medio; exclusión del hogar; cese de actos de perturbación o intimidación; prohibición de compra y tenencia de armas; y toda otra que V.S. estime pertinente).
+IV. DERECHO. Arts. 26 y ss. de la Ley 26.485; Ley 24.417; art. 3 CDN.
+V. PETITORIO. Solicito se adopten de inmediato las medidas requeridas, dada la urgencia y el riesgo, y se dé intervención al equipo interdisciplinario y al Ministerio Público.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
 ];
 
 // 🔗 Sugiere el modelo de escrito más adecuado según el tipo de documento
