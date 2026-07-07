@@ -1438,6 +1438,396 @@ IV. PETITORIO. Solicito a V.S.:
 Proveer de conformidad,
 SERÁ JUSTICIA.`,
   },
+  // ═══════════ VARIANTES PROVINCIALES — CAUTELARES / FAMILIA / LABORAL / EJECUCIONES ═══════════
+  // ── Corrientes (CPCC Ley 6.556 · plataforma FORUM/CUIF) ──
+  {
+    id: 'embargo-preventivo-corrientes',
+    titulo: 'Solicita embargo preventivo (Corrientes)',
+    categoria: 'Medidas cautelares',
+    descripcion: 'Embargo preventivo ante la Justicia de Corrientes (CPCC Ley 6.556, gestión FORUM).',
+    cuerpo: `SOLICITA EMBARGO PREVENTIVO
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con el patrocinio letrado del/de la Dr./Dra. {{abogado}}, Tomo {{tomo}} Folio {{folio}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico en la plataforma FORUM (CUIF {{cuif}}), en los autos «{{caratula}}» (Expte. N° {{numero_expediente}}), a V.S. digo:
+
+I. OBJETO
+Vengo a solicitar se decrete EMBARGO PREVENTIVO sobre {{bienes_a_embargar}} de titularidad de {{demandado}}, con domicilio en {{domicilio_demandado}}, hasta cubrir la suma de $ {{monto}}, con más lo que se presupueste para intereses y costas.
+
+II. VEROSIMILITUD DEL DERECHO
+{{verosimilitud_derecho}}.
+
+III. PELIGRO EN LA DEMORA
+{{peligro_demora}}.
+
+IV. CONTRACAUTELA
+Ofrezco caución {{tipo_caucion}}, conforme el régimen de medidas cautelares del Código Procesal Civil y Comercial de la Provincia de Corrientes (Ley N° 6.556, arts. 195, 199 y concordantes).
+
+V. PETITORIO
+Solicito a V.S.: a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Decrete el embargo preventivo solicitado, librando los oficios y/o mandamientos pertinentes.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+  },
+  {
+    id: 'prohibicion-innovar-corrientes',
+    titulo: 'Solicita prohibición de innovar (Corrientes)',
+    categoria: 'Medidas cautelares',
+    descripcion: 'Prohibición de innovar ante la Justicia de Corrientes (CPCC Ley 6.556, FORUM).',
+    cuerpo: `SOLICITA PROHIBICIÓN DE INNOVAR
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con el patrocinio letrado del/de la Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico en la plataforma FORUM (CUIF {{cuif}}), en los autos «{{caratula}}» (Expte. N° {{numero_expediente}}), a V.S. digo:
+
+I. OBJETO
+Vengo a solicitar se decrete PROHIBICIÓN DE INNOVAR, ordenando a {{demandado}}, con domicilio en {{domicilio_demandado}}, abstenerse de modificar la situación de hecho o de derecho relativa a {{objeto_cautela}} hasta tanto se resuelva la cuestión de fondo.
+
+II. VEROSIMILITUD DEL DERECHO
+{{verosimilitud_derecho}}.
+
+III. PELIGRO EN LA DEMORA
+{{peligro_demora}}: de alterarse la situación actual, la eventual sentencia favorable se tornaría ineficaz o de imposible cumplimiento.
+
+IV. CONTRACAUTELA
+Ofrezco caución {{tipo_caucion}}, conforme el régimen cautelar del Código Procesal Civil y Comercial de la Provincia de Corrientes (Ley N° 6.556, arts. 195, 199, 230 y concordantes).
+
+V. PETITORIO
+Solicito se decrete la medida y se libren las comunicaciones que correspondan.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+  },
+  {
+    id: 'divorcio-convenio-corrientes',
+    titulo: 'Demanda de divorcio con convenio regulador (Corrientes)',
+    categoria: 'Familia',
+    descripcion: 'Divorcio con propuesta reguladora ante la Justicia de Familia de Corrientes (arts. 437/438 CCyCN; CPCC Ley 6.556).',
+    cuerpo: `PROMUEVE DEMANDA DE DIVORCIO
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con el patrocinio letrado del/de la Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico en la plataforma FORUM (CUIF {{cuif}}), a V.S. digo:
+
+I. OBJETO
+Vengo a promover DEMANDA DE DIVORCIO respecto de mi cónyuge, {{conyuge_demandado}}, con domicilio en {{domicilio_demandado}}, en los términos de los arts. 437 y 438 del Código Civil y Comercial de la Nación.
+
+II. MATRIMONIO
+Contraje matrimonio con el/la nombrado/a el día {{fecha_matrimonio}}, conforme acta que se acompaña.
+
+III. HIJOS
+{{datos_hijos}}.
+
+IV. PROPUESTA REGULADORA (art. 438 CCyCN)
+Acompaño propuesta que regula los efectos del divorcio: {{propuesta_reguladora}} (atribución de la vivienda, cuidado personal y régimen de comunicación de los hijos, alimentos y liquidación de la comunidad de bienes, según corresponda).
+
+V. COMPETENCIA Y PROCEDIMIENTO
+Resulta competente la Justicia de Familia de la Provincia de Corrientes, tramitando conforme el Código Procesal Civil y Comercial de Corrientes (Ley N° 6.556).
+
+VI. PRUEBA
+Acta de matrimonio; actas de nacimiento de los hijos; DNI y demás documentación: {{prueba_documental}}.
+
+VII. PETITORIO
+Solicito a V.S.: a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Corra traslado de la propuesta reguladora; c) Oportunamente decrete el divorcio y homologue el convenio.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+  },
+  {
+    id: 'medidas-proteccion-corrientes',
+    titulo: 'Solicita medidas de protección — violencia familiar (Corrientes)',
+    categoria: 'Familia',
+    descripcion: 'Denuncia y medidas urgentes de protección en Corrientes (Ley 26.485 y Ley 24.417).',
+    cuerpo: `DENUNCIA Y SOLICITA MEDIDAS DE PROTECCIÓN
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}} (que se solicita mantener reservado), con el patrocinio letrado del/de la Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico en la plataforma FORUM (CUIF {{cuif}}), a V.S. digo:
+
+I. OBJETO
+Vengo a denunciar hechos de violencia y a solicitar MEDIDAS DE PROTECCIÓN URGENTES en el marco de la Ley 26.485 y la Ley 24.417, respecto de {{denunciado}}, con domicilio en {{domicilio_denunciado}}.
+
+II. HECHOS
+{{hechos}}.
+
+III. MEDIDAS SOLICITADAS
+Solicito se dispongan, con carácter urgente y sin audiencia previa: {{medidas_solicitadas}} (v.gr. prohibición de acercamiento y contacto por cualquier medio, exclusión del hogar, cese de actos de perturbación, prohibición de compra y tenencia de armas, y toda otra que V.S. estime pertinente).
+
+IV. DERECHO
+Arts. 26 y ss. de la Ley 26.485; Ley 24.417; normativa provincial de protección de Corrientes; art. 3 CDN.
+
+V. PETITORIO
+Solicito se adopten de inmediato las medidas requeridas, dada la urgencia y el riesgo, y se dé intervención al equipo interdisciplinario y al Ministerio Público.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+  },
+  {
+    id: 'accidente-art-corrientes',
+    titulo: 'Demanda por accidente de trabajo / ART (Corrientes)',
+    categoria: 'Laboral',
+    descripcion: 'Accidente o enfermedad profesional ante el fuero Laboral de Corrientes (Ley 24.557 y 27.348; CPCC Ley 6.556).',
+    cuerpo: `PROMUEVE DEMANDA POR ACCIDENTE DE TRABAJO
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con el patrocinio letrado del/de la Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico en la plataforma FORUM (CUIF {{cuif}}), a V.S. digo:
+
+I. OBJETO
+Promuevo demanda por ACCIDENTE DE TRABAJO / ENFERMEDAD PROFESIONAL contra {{aseguradora}} (Aseguradora de Riesgos del Trabajo) y/o {{empleador}}, con domicilio en {{domicilio_demandado}}, por la suma de $ {{monto}}, con más intereses y costas.
+
+II. RELACIÓN LABORAL
+Fecha de ingreso: {{fecha_ingreso}}. Categoría: {{categoria_laboral}}. Remuneración: $ {{remuneracion}}.
+
+III. HECHOS DEL SINIESTRO
+El día {{fecha_siniestro}}, {{hechos_siniestro}}.
+
+IV. INCAPACIDAD
+A raíz del hecho sufrí las siguientes lesiones: {{lesiones}}, con una incapacidad estimada del {{porcentaje_incapacidad}} % de la T.O.
+
+V. INSTANCIA ADMINISTRATIVA
+{{estado_comision_medica}} (trámite ante la Comisión Médica, conf. Ley 27.348).
+
+VI. DERECHO Y COMPETENCIA
+Ley 24.557 y modif., Ley 27.348; en su caso acción civil (arts. 1716, 1737, 1749 CCyCN). Tramita ante el fuero Laboral de la Provincia de Corrientes conforme su procedimiento vigente y el CPCC (Ley N° 6.556).
+
+VII. PRUEBA
+Pericial médica, documental, testimonial e informativa: {{prueba_documental}}.
+
+VIII. PETITORIO
+Solicito se tenga por promovida la demanda, se corra traslado y, oportunamente, se condene al pago de las prestaciones e indemnizaciones que correspondan, con costas.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+  },
+  {
+    id: 'ejecucion-sentencia-corrientes',
+    titulo: 'Promueve ejecución de sentencia (Corrientes)',
+    categoria: 'Ejecuciones',
+    descripcion: 'Ejecución de sentencia firme e incumplida ante la Justicia de Corrientes (CPCC Ley 6.556).',
+    cuerpo: `PROMUEVE EJECUCIÓN DE SENTENCIA
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con el patrocinio letrado del/de la Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico en la plataforma FORUM (CUIF {{cuif}}), en los autos «{{caratula}}» (Expte. N° {{numero_expediente}}), a V.S. digo:
+
+I. OBJETO
+Habiendo quedado firme y consentida la sentencia dictada en autos, e incumplida por {{demandado}}, con domicilio en {{domicilio_demandado}}, vengo a promover su EJECUCIÓN por la suma de $ {{monto}} en concepto de capital, con más intereses y costas.
+
+II. LIQUIDACIÓN
+Acompaño la siguiente liquidación: {{detalle_liquidacion}}.
+
+III. DERECHO
+Normas sobre ejecución de sentencia del Código Procesal Civil y Comercial de la Provincia de Corrientes (Ley N° 6.556).
+
+IV. PETITORIO
+Solicito a V.S.: 1) Apruebe la liquidación; 2) Intime al ejecutado al pago en el plazo legal, bajo apercibimiento de ejecución; 3) En su defecto, trabe embargo sobre bienes suficientes para cubrir el crédito, intereses y costas.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+  },
+  // ── Buenos Aires (CPCC Dec-Ley 7425/68 · SCBA/MEV · Departamento Judicial) ──
+  {
+    id: 'embargo-preventivo-baires',
+    titulo: 'Solicita embargo preventivo (Prov. Buenos Aires)',
+    categoria: 'Medidas cautelares',
+    descripcion: 'Embargo preventivo ante la Justicia de la Provincia de Buenos Aires (CPCC Dec-Ley 7425/68, notificación SCBA).',
+    cuerpo: `SOLICITA EMBARGO PREVENTIVO
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con el patrocinio letrado del/de la Dr./Dra. {{abogado}}, Tomo {{tomo}} Folio {{folio}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico registrado (SCBA), Departamento Judicial de {{departamento_judicial}}, en los autos «{{caratula}}» (Expte. N° {{numero_expediente}}), a V.S. digo:
+
+I. OBJETO
+Vengo a solicitar se decrete EMBARGO PREVENTIVO sobre {{bienes_a_embargar}} de titularidad de {{demandado}}, con domicilio en {{domicilio_demandado}}, hasta cubrir la suma de $ {{monto}}, con más lo presupuestado para intereses y costas.
+
+II. VEROSIMILITUD DEL DERECHO
+{{verosimilitud_derecho}} (art. 209 del CPCC, Decreto-Ley 7425/68).
+
+III. PELIGRO EN LA DEMORA
+{{peligro_demora}}.
+
+IV. CONTRACAUTELA
+Ofrezco caución {{tipo_caucion}} (art. 199 del CPCC, Decreto-Ley 7425/68).
+
+V. PETITORIO
+Solicito a V.S.: a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Decrete el embargo preventivo, librando los oficios y/o mandamientos pertinentes.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+  },
+  {
+    id: 'prohibicion-innovar-baires',
+    titulo: 'Solicita prohibición de innovar (Prov. Buenos Aires)',
+    categoria: 'Medidas cautelares',
+    descripcion: 'Prohibición de innovar ante la Justicia de la Provincia de Buenos Aires (art. 230 CPCC Dec-Ley 7425/68).',
+    cuerpo: `SOLICITA PROHIBICIÓN DE INNOVAR
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con el patrocinio letrado del/de la Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico registrado (SCBA), Departamento Judicial de {{departamento_judicial}}, en los autos «{{caratula}}» (Expte. N° {{numero_expediente}}), a V.S. digo:
+
+I. OBJETO
+Vengo a solicitar se decrete PROHIBICIÓN DE INNOVAR, ordenando a {{demandado}}, con domicilio en {{domicilio_demandado}}, abstenerse de modificar la situación de hecho o de derecho relativa a {{objeto_cautela}} hasta que se resuelva la cuestión de fondo (art. 230 del CPCC, Decreto-Ley 7425/68).
+
+II. VEROSIMILITUD DEL DERECHO
+{{verosimilitud_derecho}}.
+
+III. PELIGRO EN LA DEMORA
+{{peligro_demora}}.
+
+IV. CONTRACAUTELA
+Ofrezco caución {{tipo_caucion}} (art. 199 del CPCC, Decreto-Ley 7425/68).
+
+V. PETITORIO
+Solicito se decrete la medida y se libren las comunicaciones pertinentes.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+  },
+  {
+    id: 'divorcio-convenio-baires',
+    titulo: 'Demanda de divorcio con convenio regulador (Prov. Buenos Aires)',
+    categoria: 'Familia',
+    descripcion: 'Divorcio con propuesta reguladora ante el Juzgado de Familia de la Provincia de Buenos Aires (arts. 437/438 CCyCN; CPCC Dec-Ley 7425/68).',
+    cuerpo: `PROMUEVE DEMANDA DE DIVORCIO
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con el patrocinio letrado del/de la Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico registrado (SCBA), Departamento Judicial de {{departamento_judicial}}, a V.S. digo:
+
+I. OBJETO
+Vengo a promover DEMANDA DE DIVORCIO respecto de mi cónyuge, {{conyuge_demandado}}, con domicilio en {{domicilio_demandado}}, conforme los arts. 437 y 438 del Código Civil y Comercial de la Nación.
+
+II. MATRIMONIO
+Contraje matrimonio el día {{fecha_matrimonio}}, según acta que se acompaña.
+
+III. HIJOS
+{{datos_hijos}}.
+
+IV. PROPUESTA REGULADORA (art. 438 CCyCN)
+Acompaño propuesta reguladora: {{propuesta_reguladora}} (atribución de la vivienda, cuidado personal y comunicación de los hijos, alimentos y liquidación de la comunidad, según corresponda).
+
+V. COMPETENCIA Y PROCEDIMIENTO
+Resulta competente el Juzgado de Familia del Departamento Judicial de {{departamento_judicial}}, tramitando conforme el CPCC de la Provincia de Buenos Aires (Decreto-Ley 7425/68) y la Ley 11.453.
+
+VI. PRUEBA
+Acta de matrimonio, actas de nacimiento, DNI y demás documentación: {{prueba_documental}}.
+
+VII. PETITORIO
+Solicito: a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Corra traslado de la propuesta; c) Oportunamente decrete el divorcio y homologue el convenio.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+  },
+  {
+    id: 'medidas-proteccion-baires',
+    titulo: 'Solicita medidas de protección — violencia familiar (Prov. Buenos Aires)',
+    categoria: 'Familia',
+    descripcion: 'Denuncia y medidas urgentes de protección en la Provincia de Buenos Aires (Ley provincial 12.569 y Ley 26.485).',
+    cuerpo: `DENUNCIA Y SOLICITA MEDIDAS DE PROTECCIÓN
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}} (que se solicita mantener reservado), con el patrocinio letrado del/de la Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico registrado (SCBA), Departamento Judicial de {{departamento_judicial}}, a V.S. digo:
+
+I. OBJETO
+Vengo a denunciar hechos de violencia y a solicitar MEDIDAS DE PROTECCIÓN URGENTES en el marco de la Ley provincial 12.569 y la Ley 26.485, respecto de {{denunciado}}, con domicilio en {{domicilio_denunciado}}.
+
+II. HECHOS
+{{hechos}}.
+
+III. MEDIDAS SOLICITADAS
+Solicito se dispongan, con carácter urgente y sin audiencia previa: {{medidas_solicitadas}} (v.gr. prohibición de acercamiento y contacto, exclusión del hogar, cese de perturbación, prohibición de compra y tenencia de armas, y toda otra pertinente).
+
+IV. DERECHO
+Ley 12.569 (Prov. Bs As) y su reglamentación; Ley 26.485; art. 3 CDN.
+
+V. PETITORIO
+Solicito se adopten de inmediato las medidas, dada la urgencia y el riesgo, y se dé intervención al equipo interdisciplinario y al Ministerio Público.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+  },
+  {
+    id: 'accidente-art-baires',
+    titulo: 'Demanda por accidente de trabajo / ART (Prov. Buenos Aires)',
+    categoria: 'Laboral',
+    descripcion: 'Accidente o enfermedad profesional ante los Tribunales del Trabajo de la Provincia de Buenos Aires (Ley 24.557 y 27.348; Ley 11.653/15.057).',
+    cuerpo: `PROMUEVE DEMANDA POR ACCIDENTE DE TRABAJO
+
+Señor Presidente del Tribunal del Trabajo:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con el patrocinio letrado del/de la Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico registrado (SCBA), Departamento Judicial de {{departamento_judicial}}, a V.E. digo:
+
+I. OBJETO
+Promuevo demanda por ACCIDENTE DE TRABAJO / ENFERMEDAD PROFESIONAL contra {{aseguradora}} (ART) y/o {{empleador}}, con domicilio en {{domicilio_demandado}}, por la suma de $ {{monto}}, con más intereses y costas.
+
+II. COMPETENCIA
+El Tribunal del Trabajo resulta competente conforme la Ley 11.653 / 15.057.
+
+III. RELACIÓN LABORAL
+Fecha de ingreso: {{fecha_ingreso}}. Categoría: {{categoria_laboral}}. Remuneración: $ {{remuneracion}}.
+
+IV. HECHOS DEL SINIESTRO
+El día {{fecha_siniestro}}, {{hechos_siniestro}}.
+
+V. INCAPACIDAD
+Lesiones sufridas: {{lesiones}}, con incapacidad estimada del {{porcentaje_incapacidad}} % de la T.O.
+
+VI. INSTANCIA ADMINISTRATIVA
+{{estado_comision_medica}} (Comisión Médica, conf. Ley 27.348).
+
+VII. DERECHO
+Ley 24.557 y modif., Ley 27.348; en su caso acción civil (arts. 1716, 1737, 1749 CCyCN).
+
+VIII. PRUEBA
+Pericial médica, documental, testimonial e informativa: {{prueba_documental}}.
+
+IX. PETITORIO
+Solicito se tenga por promovida la demanda, se corra traslado y, oportunamente, se condene al pago de las prestaciones e indemnizaciones que correspondan, con costas.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+  },
+  {
+    id: 'ejecucion-sentencia-baires',
+    titulo: 'Promueve ejecución de sentencia (Prov. Buenos Aires)',
+    categoria: 'Ejecuciones',
+    descripcion: 'Ejecución de sentencia firme e incumplida ante la Justicia de la Provincia de Buenos Aires (arts. 497 ss. CPCC Dec-Ley 7425/68).',
+    cuerpo: `PROMUEVE EJECUCIÓN DE SENTENCIA
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con el patrocinio letrado del/de la Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico registrado (SCBA), Departamento Judicial de {{departamento_judicial}}, en los autos «{{caratula}}» (Expte. N° {{numero_expediente}}), a V.S. digo:
+
+I. OBJETO
+Habiendo quedado firme y consentida la sentencia dictada en autos, e incumplida por {{demandado}}, con domicilio en {{domicilio_demandado}}, vengo a promover su EJECUCIÓN por la suma de $ {{monto}} de capital, con más intereses y costas.
+
+II. LIQUIDACIÓN
+Acompaño la siguiente liquidación: {{detalle_liquidacion}}.
+
+III. DERECHO
+Arts. 497 y siguientes del CPCC de la Provincia de Buenos Aires (Decreto-Ley 7425/68), sobre ejecución de sentencia.
+
+IV. PETITORIO
+Solicito a V.S.: 1) Apruebe la liquidación; 2) Intime al ejecutado al pago en el plazo legal, bajo apercibimiento de ejecución; 3) En su defecto, trabe embargo sobre bienes suficientes.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+  },
 ];
 
 // 🔗 Sugiere el modelo de escrito más adecuado según el tipo de documento
