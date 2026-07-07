@@ -25,7 +25,10 @@ import {
   removeChecklistItem,
   createCaseEvent,
   deleteCaseEvent,
+  generarResumenExpediente,
 } from '../actions';
+import { canUseAi } from '@/lib/permissions/roles';
+import { CopilotoExpediente } from './CopilotoExpediente';
 import type { CaseRecord } from '@/types/case';
 
 interface CaseDetailPageProps {
@@ -205,6 +208,26 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
     (item) => item.status === 'pending' || item.status === 'rejected'
   );
 
+  const { data: resumenData } = await supabase
+    .from('ai_outputs')
+    .select('result_json, created_at')
+    .eq('case_id', caseRecord.id)
+    .eq('organization_id', profile.organization_id)
+    .eq('output_type', 'case_summary')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const { data: analisisData } = await supabase
+    .from('ai_outputs')
+    .select('document_id')
+    .eq('case_id', caseRecord.id)
+    .eq('organization_id', profile.organization_id)
+    .eq('output_type', 'document_analysis');
+
+  const documentosAnalizados = new Set((analisisData ?? []).map((o) => o.document_id).filter(Boolean)).size;
+  const puedeUsarIA = canUseAi(profile.role);
+
   return (
     <AppShell>
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -226,6 +249,14 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
 
       <div className="grid gap-6 xl:grid-cols-[1fr_0.7fr]">
         <div className="space-y-6">
+          <CopilotoExpediente
+            caseId={caseRecord.id}
+            resumen={(resumenData?.result_json as any) ?? null}
+            generadoEl={resumenData?.created_at ?? null}
+            documentosAnalizados={documentosAnalizados}
+            puedeUsarIA={puedeUsarIA}
+          />
+
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <h3 className="text-lg font-bold text-slate-950">
             Datos del expediente
