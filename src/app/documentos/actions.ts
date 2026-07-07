@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createAuditLog } from '@/lib/audit/createAuditLog';
+import { indexarDocumento } from '@/lib/ai/indexarDocumento';
 import {
   canUploadDocument,
   canUseAi,
@@ -845,6 +846,33 @@ await createAuditLog({
     output_type: 'document_analysis',
   },
 });
+
+  // --- Indexación semántica (no bloqueante) ---
+  const textoParaIndexar =
+    extractedText && extractedText.length >= 200
+      ? extractedText
+      : [
+          ia?.resumen ?? '',
+          (ia?.partes ?? []).join('. '),
+          (ia?.datos_clave ?? []).join('. '),
+          (ia?.clausulas_riesgos ?? []).join('. '),
+          (ia?.proximas_acciones ?? []).join('. '),
+        ]
+          .filter(Boolean)
+          .join('\n');
+
+  if (textoParaIndexar.trim().length > 0) {
+    try {
+      await indexarDocumento(supabase, {
+        documentId,
+        organizationId: profile.organization_id,
+        texto: textoParaIndexar,
+      });
+    } catch (e) {
+      console.error('Indexación semántica falló (no bloqueante):', e);
+    }
+  }
+
   revalidatePath('/dashboard');
   revalidatePath('/documentos');
   revalidatePath(`/documentos/${documentId}`);
