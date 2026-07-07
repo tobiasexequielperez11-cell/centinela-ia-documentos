@@ -22,3 +22,11 @@ export const FERIAS_JUDICIALES: Array<{ desde: string; hasta: string; nombre: st
   { desde: '2026-01-01', hasta: '2026-01-31', nombre: 'Feria de verano 2026' },
   { desde: '2026-07-20', hasta: '2026-07-31', nombre: 'Feria de invierno 2026 (Ac. CSJN 11/2026)' },
 ];
+
+// ── Honorarios de mediación (valores actualizables mensualmente) ──
+// Nación: UHOM (Ley 26.589, Dec. 1467/2011 mod. 2536/2015). $12.150 desde 1/5/2026 (CPACF).
+export const UHOM_VALOR = 12150;
+// Buenos Aires: Jus arancelario Ley 14.967 (art. 9). $49.750 desde 1/4/2026 (SCBA).
+export const JUS_BA_MEDIACION = 49750;
+// Corrientes: Jus provincial (STJ). $58.519,61 desde 1/5/2026.
+export const JUS_CORRIENTES = 58519.61;

@@ -4,10 +4,10 @@ import { useState, type ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { CalendarClock, Coins, Scale, AlertTriangle, CalendarPlus, Check, Loader2, Briefcase, TrendingUp, Users, Gavel, Hourglass, Siren, HeartPulse, MapPin, Percent } from 'lucide-react';
 import { guardarPlazoEnAgenda } from './actions';
-import { UMA_VALOR, UMA_VIGENCIA, TASA_JUSTICIA_PORCENTAJE } from '@/lib/legal/config';
+import { UMA_VALOR, UMA_VIGENCIA, TASA_JUSTICIA_PORCENTAJE, UHOM_VALOR, JUS_BA_MEDIACION, JUS_CORRIENTES } from '@/lib/legal/config';
 import { parseISODate, sumarDiasCorridos, sumarDiasHabiles } from '@/lib/legal/plazos';
 
-type Tab = 'plazos' | 'honorarios' | 'tasa' | 'laboral' | 'intereses' | 'alimentos' | 'danos' | 'caducidad' | 'punitivos' | 'incapacidad' | 'distancia' | 'prorrateo';
+type Tab = 'plazos' | 'honorarios' | 'tasa' | 'laboral' | 'intereses' | 'alimentos' | 'danos' | 'caducidad' | 'punitivos' | 'incapacidad' | 'distancia' | 'prorrateo' | 'mediacion';
 
 const currency = (n: number) =>
   new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 2 }).format(
@@ -845,6 +845,235 @@ function ProrrateoCalc() {
 	)
 }
 
+// ============ CALCULADORA DE MEDIACIÓN (3 jurisdicciones) ============
+const fmtARS = (n: number) =>
+  n.toLocaleString("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 2 })
+
+// ---------- NACIÓN (UHOM · Ley 26.589) ----------
+type TipoNacion = "patrimonial" | "familia" | "indeterminable" | "sin_valor"
+function calcMediacionNacion(o: { tipo: TipoNacion; monto: number; audiencias: number; valorUHOM: number }) {
+  const { tipo, monto, audiencias, valorUHOM } = o
+  let item = "", basicoUHOM = 0
+  if (tipo === "familia") { item = "Familia (art. 31 b/c)"; basicoUHOM = 9 }
+  else if (tipo === "indeterminable") { item = "H (indeterminable)"; basicoUHOM = 20 }
+  else if (tipo === "sin_valor") { item = "I (sin valor pecuniario)"; basicoUHOM = 12 }
+  else {
+    const u = monto / valorUHOM
+    if (u <= 30) { item = "A"; basicoUHOM = 3 }
+    else if (u <= 60) { item = "B"; basicoUHOM = 6 }
+    else if (u <= 150) { item = "C"; basicoUHOM = 9 }
+    else if (u <= 300) { item = "D"; basicoUHOM = 12 }
+    else if (u <= 600) { item = "E"; basicoUHOM = 16 }
+    else if (u <= 1000) { item = "F"; basicoUHOM = 20 }
+    else { item = "G (2% con tope 120 UHOM)"; basicoUHOM = Math.min(0.02 * monto, 120 * valorUHOM) / valorUHOM }
+  }
+  const basicoPesos = basicoUHOM * valorUHOM
+  const adicUHOM = tipo === "familia"
+    ? Math.max(0, audiencias - 1) * 1
+    : Math.max(0, audiencias - 3) * (item === "A" || item === "B" ? 0.5 : 1)
+  const adicPesos = adicUHOM * valorUHOM
+  return { item, basicoUHOM, basicoPesos, adicUHOM, adicPesos,
+    provisionalPesos: 2 * valorUHOM, totalPesos: basicoPesos + adicPesos }
+}
+
+// ---------- BUENOS AIRES (Jus Ley 14.967 · Dec. 600/21 art. 31) ----------
+function calcMediacionBA(o: { monto: number; indeterminado: boolean; valorJus: number }) {
+  const { monto, indeterminado, valorJus } = o
+  let tramo = "", honJus = 0
+  if (indeterminado) { tramo = "Monto indeterminado"; honJus = 8.69 }
+  else {
+    const j = monto / valorJus
+    if (j <= 32.07) { tramo = "a"; honJus = 2.18 }
+    else if (j <= 79.80) { tramo = "b"; honJus = 7.31 }
+    else if (j <= 159.60) { tramo = "c"; honJus = 13.04 }
+    else if (j <= 319.20) { tramo = "d"; honJus = 20.87 }
+    else if (j <= 638.41) { tramo = "e"; honJus = 31.31 }
+    else if (j <= 1112.32) { tramo = "f"; honJus = 47.70 }
+    else { tramo = "g"; honJus = 47.70 + Math.ceil((j - 1112.32) / 79.80) * 4.37 }
+  }
+  return { tramo, honJus, honPesos: honJus * valorJus, anticipoJus: 1, anticipoPesos: valorJus }
+}
+
+// ---------- CORRIENTES (Acuerdo 14/22 art. 18 RIM · Ley 5931) ----------
+type ResultadoCtes = "acuerdo" | "sin_acuerdo"
+type TipoCtes = "patrimonial" | "alimentaria" | "sin_valor"
+function calcMediacionCorrientes(o: {
+  resultado: ResultadoCtes; tipo: TipoCtes; monto: number; cuotaMensual: number; valorJus: number
+}) {
+  const { resultado, tipo, monto, cuotaMensual, valorJus } = o
+  const pct = resultado === "acuerdo" ? 0.05 : 0.025
+  let honPesos = 0, detalle = "", aplicaMinimo = false
+  if (tipo === "sin_valor") {
+    const jus = resultado === "acuerdo" ? 4 : 2
+    honPesos = jus * valorJus
+    detalle = `${jus} Jus (sin contenido patrimonial / monto indeterminado)`
+  } else {
+    const base = tipo === "alimentaria" ? cuotaMensual * 12 : monto
+    honPesos = base * pct
+    detalle = `${pct * 100}% sobre ${tipo === "alimentaria" ? "la cuota × 12" : "el monto"}`
+    if (resultado === "acuerdo" && honPesos < valorJus) { honPesos = valorJus; aplicaMinimo = true }
+  }
+  return { honPesos, honJus: honPesos / valorJus, detalle, aplicaMinimo }
+}
+
+function MediacionTab() {
+  const [juris, setJuris] = useState<"nacion" | "baires" | "corrientes">("nacion")
+
+  // Nación
+  const [uhom, setUhom] = useState(String(UHOM_VALOR))
+  const [tipoNac, setTipoNac] = useState<TipoNacion>("patrimonial")
+  const [montoNac, setMontoNac] = useState("")
+  const [audNac, setAudNac] = useState("1")
+
+  // Buenos Aires
+  const [jusBA, setJusBA] = useState(String(JUS_BA_MEDIACION))
+  const [indetBA, setIndetBA] = useState(false)
+  const [montoBA, setMontoBA] = useState("")
+
+  // Corrientes
+  const [jusC, setJusC] = useState(String(JUS_CORRIENTES))
+  const [resC, setResC] = useState<ResultadoCtes>("acuerdo")
+  const [tipoC, setTipoC] = useState<TipoCtes>("patrimonial")
+  const [montoC, setMontoC] = useState("")
+  const [cuotaC, setCuotaC] = useState("")
+
+  const rNac = calcMediacionNacion({
+    tipo: tipoNac, monto: parseMonto(montoNac), audiencias: Number(audNac) || 1, valorUHOM: Number(uhom) || UHOM_VALOR,
+  })
+  const rBA = calcMediacionBA({
+    monto: parseMonto(montoBA), indeterminado: indetBA, valorJus: Number(jusBA) || JUS_BA_MEDIACION,
+  })
+  const rC = calcMediacionCorrientes({
+    resultado: resC, tipo: tipoC, monto: parseMonto(montoC), cuotaMensual: parseMonto(cuotaC), valorJus: Number(jusC) || JUS_CORRIENTES,
+  })
+
+  return (
+    <Card title="Honorarios de mediación">
+      <div className="block mb-4">
+        <span className="mb-1 block text-xs font-semibold text-slate-600">Jurisdicción</span>
+        <div className="mt-1 flex flex-wrap gap-2">
+          <RadioPill active={juris === 'nacion'} onClick={() => setJuris('nacion')} label="Nación" />
+          <RadioPill active={juris === 'baires'} onClick={() => setJuris('baires')} label="Buenos Aires" />
+          <RadioPill active={juris === 'corrientes'} onClick={() => setJuris('corrientes')} label="Corrientes" />
+        </div>
+      </div>
+
+      {/* ---------- NACIÓN ---------- */}
+      {juris === "nacion" && (
+        <div className="space-y-4">
+          <Field label="Valor UHOM ($)">
+            <input className={inputClass} value={uhom} onChange={(e) => setUhom(e.target.value)} type="number" />
+          </Field>
+          
+          <div className="block">
+            <span className="mb-1 block text-xs font-semibold text-slate-600">Tipo de asunto</span>
+            <div className="mt-1 flex flex-wrap gap-2">
+              <RadioPill active={tipoNac === 'patrimonial'} onClick={() => setTipoNac('patrimonial')} label="Patrimonial" />
+              <RadioPill active={tipoNac === 'familia'} onClick={() => setTipoNac('familia')} label="Familia" />
+              <RadioPill active={tipoNac === 'indeterminable'} onClick={() => setTipoNac('indeterminable')} label="Indeterminable" />
+              <RadioPill active={tipoNac === 'sin_valor'} onClick={() => setTipoNac('sin_valor')} label="Sin valor" />
+            </div>
+          </div>
+          
+          {tipoNac === "patrimonial" && (
+            <Field label="Monto del asunto ($)">
+              <input className={inputClass} value={montoNac} onChange={(e) => setMontoNac(e.target.value)} />
+            </Field>
+          )}
+          
+          <Field label="Cantidad de audiencias">
+            <input className={inputClass} value={audNac} onChange={(e) => setAudNac(e.target.value)} type="number" />
+          </Field>
+          
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <ResultBox label="Ítem de escala" value={rNac.item} />
+            <ResultBox label="Honorario básico" value={`${rNac.basicoUHOM.toFixed(2)} UHOM`} subtitle={fmtARS(rNac.basicoPesos)} />
+            <ResultBox label="Adicional por audiencias" value={`${rNac.adicUHOM.toFixed(2)} UHOM`} subtitle={fmtARS(rNac.adicPesos)} />
+            <ResultBox label="Honorario provisional (2 UHOM)" value={fmtARS(rNac.provisionalPesos)} />
+          </div>
+          <ResultBox label="TOTAL estimado" value={fmtARS(rNac.totalPesos)} highlight={true} />
+        </div>
+      )}
+
+      {/* ---------- BUENOS AIRES ---------- */}
+      {juris === "baires" && (
+        <div className="space-y-4">
+          <Field label="Valor Jus Ley 14.967 ($)">
+            <input className={inputClass} value={jusBA} onChange={(e) => setJusBA(e.target.value)} type="number" />
+          </Field>
+          <label className="flex items-center gap-2 text-sm mt-3 cursor-pointer">
+            <input type="checkbox" checked={indetBA} onChange={(e) => setIndetBA(e.target.checked)} className="rounded border-slate-300 text-sky-600 focus:ring-sky-500" />
+            Monto indeterminado
+          </label>
+          {!indetBA && (
+            <Field label="Monto del asunto ($)">
+              <input className={inputClass} value={montoBA} onChange={(e) => setMontoBA(e.target.value)} />
+            </Field>
+          )}
+          
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <ResultBox label="Tramo (art. 31 Dec. 600/21)" value={rBA.tramo} />
+            <ResultBox label="Anticipo (1 Jus)" value={fmtARS(rBA.anticipoPesos)} />
+          </div>
+          <div className="mt-3">
+            <ResultBox label="Honorario" value={`${rBA.honJus.toFixed(2)} Jus`} subtitle={fmtARS(rBA.honPesos)} highlight={true} />
+          </div>
+          
+          <p className="text-xs text-slate-500 mt-2">⚠️ En Buenos Aires las causas de familia (divorcio, alimentos, etc.) están excluidas de la mediación previa obligatoria.</p>
+        </div>
+      )}
+
+      {/* ---------- CORRIENTES ---------- */}
+      {juris === "corrientes" && (
+        <div className="space-y-4">
+          <Field label="Valor Jus Corrientes ($)">
+            <input className={inputClass} value={jusC} onChange={(e) => setJusC(e.target.value)} type="number" />
+          </Field>
+          
+          <div className="block">
+            <span className="mb-1 block text-xs font-semibold text-slate-600">Resultado de la mediación</span>
+            <div className="mt-1 flex flex-wrap gap-2">
+              <RadioPill active={resC === 'acuerdo'} onClick={() => setResC('acuerdo')} label="Con acuerdo" />
+              <RadioPill active={resC === 'sin_acuerdo'} onClick={() => setResC('sin_acuerdo')} label="Sin acuerdo" />
+            </div>
+          </div>
+          
+          <div className="block">
+            <span className="mb-1 block text-xs font-semibold text-slate-600">Tipo de asunto</span>
+            <div className="mt-1 flex flex-wrap gap-2">
+              <RadioPill active={tipoC === 'patrimonial'} onClick={() => setTipoC('patrimonial')} label="Patrimonial" />
+              <RadioPill active={tipoC === 'alimentaria'} onClick={() => setTipoC('alimentaria')} label="Cuota alimentaria" />
+              <RadioPill active={tipoC === 'sin_valor'} onClick={() => setTipoC('sin_valor')} label="Sin contenido patrimonial" />
+            </div>
+          </div>
+          
+          {tipoC === "patrimonial" && (
+            <Field label="Monto ($)">
+              <input className={inputClass} value={montoC} onChange={(e) => setMontoC(e.target.value)} />
+            </Field>
+          )}
+          {tipoC === "alimentaria" && (
+            <Field label="Cuota mensual ($)">
+              <input className={inputClass} value={cuotaC} onChange={(e) => setCuotaC(e.target.value)} />
+            </Field>
+          )}
+          
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <ResultBox label="Cálculo" value={rC.detalle} />
+            <ResultBox label="Honorario" value={`${rC.honJus.toFixed(2)} Jus`} subtitle={fmtARS(rC.honPesos)} highlight={true} />
+            {rC.aplicaMinimo && <ResultBox label="Nota" value="Se aplicó el honorario mínimo de 1 Jus" />}
+          </div>
+        </div>
+      )}
+
+      <p className="text-xs text-slate-400 mt-5">
+        Honorarios mínimos indicativos. Nación: Ley 26.589 (CABA/Justicia Nacional). Buenos Aires: Ley 13.951 + Dec. 600/21.
+        Corrientes: Ley 5931 + Acuerdo 14/22 del STJ (art. 18 RIM). Actualizá el valor de la unidad vigente del mes.
+      </p>
+    </Card>
+  )
+}
+
 export function CalculadorasClient() {
   const [tab, setTab] = useState<Tab>('plazos');
   const tabs: Array<{ id: Tab; label: string; icon: LucideIcon }> = [
@@ -860,6 +1089,7 @@ export function CalculadorasClient() {
     { id: 'incapacidad', label: 'Incapacidad', icon: HeartPulse },
     { id: 'distancia', label: 'Ampliación distancia', icon: MapPin },
     { id: 'prorrateo', label: 'Prorrateo 25%', icon: Percent },
+    { id: 'mediacion', label: 'Mediación', icon: Users },
   ];
 
   return (
@@ -910,6 +1140,7 @@ export function CalculadorasClient() {
       {tab === 'incapacidad' && <IncapacidadCalc />}
       {tab === 'distancia' && <AmpliacionDistanciaCalc />}
       {tab === 'prorrateo' && <ProrrateoCalc />}
+      {tab === 'mediacion' && <MediacionTab />}
     </div>
   );
 }
