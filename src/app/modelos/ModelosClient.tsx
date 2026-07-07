@@ -50,6 +50,15 @@ function fillTemplate(cuerpo: string, values: Record<string, string>): string {
   });
 }
 
+type ProvinciaFiltro = 'todas' | 'Nacional' | 'Corrientes' | 'Buenos Aires';
+
+function provinciaDeModelo(m: ModeloEscrito): 'Nacional' | 'Corrientes' | 'Buenos Aires' {
+	const t = m.titulo.toLowerCase();
+	if (t.includes('(corrientes)')) return 'Corrientes';
+	if (t.includes('buenos aires')) return 'Buenos Aires';
+	return 'Nacional';
+}
+
 export function ModelosClient({
   expedientes,
   modeloInicialId = null,
@@ -63,6 +72,7 @@ export function ModelosClient({
       : null;
   const [seleccionadoId, setSeleccionadoId] = useState<string | null>(idInicial);
   const [busqueda, setBusqueda] = useState('');
+  const [provincia, setProvincia] = useState<ProvinciaFiltro>('todas');
   const [valores, setValores] = useState<Record<string, string>>({});
   const [copiado, setCopiado] = useState(false);
   const [expedienteId, setExpedienteId] = useState('');
@@ -75,13 +85,16 @@ export function ModelosClient({
 
   const categorias = useMemo(() => {
     const filtro = busqueda.trim().toLowerCase();
-    const filtrados = MODELOS.filter(
-      (m) =>
+    const filtrados = MODELOS.filter((m) => {
+      const coincideTexto =
         !filtro ||
         m.titulo.toLowerCase().includes(filtro) ||
         m.descripcion.toLowerCase().includes(filtro) ||
-        m.categoria.toLowerCase().includes(filtro)
-    );
+        m.categoria.toLowerCase().includes(filtro);
+      const coincideProvincia =
+        provincia === 'todas' || provinciaDeModelo(m) === provincia;
+      return coincideTexto && coincideProvincia;
+    });
     const grupos = new Map<string, ModeloEscrito[]>();
     for (const m of filtrados) {
       const arr = grupos.get(m.categoria) ?? [];
@@ -89,7 +102,7 @@ export function ModelosClient({
       grupos.set(m.categoria, arr);
     }
     return Array.from(grupos.entries());
-  }, [busqueda]);
+  }, [busqueda, provincia]);
 
   const variables = seleccionado ? extractVars(seleccionado.cuerpo) : [];
   const textoFinal = seleccionado ? fillTemplate(seleccionado.cuerpo, valores) : '';
@@ -208,6 +221,27 @@ export function ModelosClient({
               placeholder="Buscar modelo…"
               className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3 text-sm text-slate-950 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
             />
+          </div>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            {([
+              { id: 'todas', label: 'Todas' },
+              { id: 'Nacional', label: 'Nacional' },
+              { id: 'Corrientes', label: 'Corrientes' },
+              { id: 'Buenos Aires', label: 'Buenos Aires' },
+            ] as { id: ProvinciaFiltro; label: string }[]).map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setProvincia(p.id)}
+                className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                  provincia === p.id
+                    ? 'bg-sky-600 text-white'
+                    : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
           </div>
 
           {categorias.length === 0 && <p className="text-sm text-slate-500">No encontramos modelos para “{busqueda}”.</p>}
