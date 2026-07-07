@@ -573,6 +573,227 @@ SERÁ JUSTICIA.
 
 {{abogado}}`,
   },
+	// ───────────── CORRIENTES (CPCC Ley 6.556 · plataforma FORUM) ─────────────
+	{
+		id: 'demanda-danos-corrientes',
+		titulo: 'Demanda de daños y perjuicios (Corrientes)',
+		categoria: 'Civil y comercial',
+		descripcion: 'Demanda por daños y perjuicios ante la Justicia Civil y Comercial de Corrientes (CPCC Ley 6.556, gestión electrónica FORUM).',
+		cuerpo: `PROMUEVE DEMANDA POR DAÑOS Y PERJUICIOS
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con el patrocinio letrado del/de la Dr./Dra. {{abogado}}, Tomo {{tomo}} Folio {{folio}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico en la plataforma FORUM (CUIF {{cuif}}), a V.S. respetuosamente digo:
+
+I. OBJETO
+Vengo a promover formal demanda por daños y perjuicios contra {{demandado}}, con domicilio en {{domicilio_demandado}}, por la suma de $ {{monto}}, o lo que en más o en menos resulte de la prueba a producirse, con más sus intereses y costas.
+
+II. COMPETENCIA
+V.S. resulta competente en razón del territorio y la materia, conforme el Código Procesal Civil y Comercial de la Provincia de Corrientes (Ley N° 6.556) y en atención al domicilio del demandado.
+
+III. HECHOS
+{{hechos}}
+
+IV. DERECHO
+Fundo el derecho en los arts. 1708, 1716, 1717, 1737, 1740 y concordantes del Código Civil y Comercial de la Nación (reparación plena) y en el Código Procesal Civil y Comercial de la Provincia de Corrientes (Ley N° 6.556).
+
+V. RUBROS RECLAMADOS
+Daño emergente, lucro cesante, daño moral y demás perjuicios que se acrediten, conforme se liquidará.
+
+VI. PRUEBA
+DOCUMENTAL: {{prueba_documental}}. Asimismo se ofrece prueba INFORMATIVA, PERICIAL y TESTIMONIAL conforme se detalla.
+
+VII. PETITORIO
+Solicito a V.S.: a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Se corra traslado de la demanda por el plazo de ley; c) Oportunamente se haga lugar a la demanda, con costas.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+	},
+	{
+		id: 'demanda-alimentos-corrientes',
+		titulo: 'Demanda de alimentos (Corrientes)',
+		categoria: 'Familia',
+		descripcion: 'Demanda de alimentos ante la Justicia de Familia de Corrientes (CPCC Ley 6.556, plataforma FORUM).',
+		cuerpo: `PROMUEVE DEMANDA DE ALIMENTOS
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, por derecho propio y/o en representación de {{beneficiario}}, con patrocinio letrado del/de la Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico en la plataforma FORUM (CUIF {{cuif}}), a V.S. digo:
+
+I. OBJETO
+Vengo a promover demanda de alimentos contra {{alimentante}}, con domicilio en {{domicilio_demandado}}, a fin de que se fije una cuota alimentaria mensual a favor de {{beneficiario}}, en razón del vínculo de {{vinculo}}.
+
+II. LEGITIMACIÓN Y VÍNCULO
+Acredito el título en cuya virtud reclamo con la documentación acompañada: {{documentacion_vinculo}}.
+
+III. HECHOS Y NECESIDADES
+{{hechos}}
+
+IV. CAUDAL DEL ALIMENTANTE
+Denuncio, siquiera aproximadamente, el caudal económico del alimentante: {{caudal_alimentante}}.
+
+V. CUOTA SOLICITADA Y ALIMENTOS PROVISORIOS
+Solicito se fije una cuota alimentaria de $ {{monto_cuota}} mensuales y se establezcan alimentos provisorios, conforme los arts. 541, 542, 544, 548 y concordantes del Código Civil y Comercial de la Nación y el Código Procesal Civil y Comercial de la Provincia de Corrientes (Ley N° 6.556).
+
+VI. PRUEBA
+DOCUMENTAL: {{prueba_documental}}. INFORMATIVA y TESTIMONIAL conforme se detalla.
+
+VII. PETITORIO
+Solicito a V.S.: a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Se fijen alimentos provisorios; c) Se corra traslado y oportunamente se haga lugar a la demanda, con costas.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+	},
+	{
+		id: 'demanda-laboral-corrientes',
+		titulo: 'Demanda laboral por despido (Corrientes)',
+		categoria: 'Laboral',
+		descripcion: 'Demanda laboral por despido ante el fuero Laboral de Corrientes (fondo LCT 20.744; procedimiento laboral provincial, gestión FORUM).',
+		cuerpo: `PROMUEVE DEMANDA LABORAL
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con patrocinio letrado del/de la Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico en la plataforma FORUM (CUIF {{cuif}}), a V.S. digo:
+
+I. OBJETO
+Vengo a promover demanda laboral contra {{empleador}}, con domicilio en {{domicilio_demandado}}, por la suma de $ {{monto}}, o lo que en más o en menos resulte de la prueba, con más intereses y costas, en concepto de los rubros que se detallan.
+
+II. RELACIÓN LABORAL
+Fecha de ingreso: {{fecha_ingreso}}. Fecha de egreso: {{fecha_egreso}}. Categoría: {{categoria_laboral}}. Remuneración: $ {{remuneracion}}. Jornada y modalidad: {{modalidad}}.
+
+III. HECHOS
+{{hechos}}
+
+IV. RUBROS RECLAMADOS
+{{rubros}} (indemnización por antigüedad, preaviso, integración del mes de despido, SAC y vacaciones proporcionales, y multas que correspondan).
+
+V. DERECHO
+Fundo el reclamo en la Ley de Contrato de Trabajo N° 20.744 y normas complementarias, y en las normas del procedimiento laboral vigente en la Provincia de Corrientes.
+
+VI. PRUEBA
+DOCUMENTAL: {{prueba_documental}}. INFORMATIVA, PERICIAL CONTABLE y TESTIMONIAL conforme se detalla.
+
+VII. PETITORIO
+Solicito a V.S.: a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Se corra traslado de la demanda; c) Oportunamente se haga lugar, con costas.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+	},
+	// ───────────── BUENOS AIRES (CPCC Dec-Ley 7425/68 · MEV/SCBA) ─────────────
+	{
+		id: 'demanda-danos-baires',
+		titulo: 'Demanda de daños y perjuicios (Prov. Buenos Aires)',
+		categoria: 'Civil y comercial',
+		descripcion: 'Demanda por daños y perjuicios ante la Justicia Civil y Comercial de la Provincia de Buenos Aires (CPCC Dec-Ley 7425/68, notificación electrónica MEV).',
+		cuerpo: `PROMUEVE DEMANDA POR DAÑOS Y PERJUICIOS
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con el patrocinio letrado del/de la Dr./Dra. {{abogado}}, Tomo {{tomo}} Folio {{folio}} C.A.{{colegio}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico registrado en el sistema de notificaciones (SCBA), Departamento Judicial de {{departamento_judicial}}, a V.S. respetuosamente digo:
+
+I. OBJETO
+Vengo a promover demanda por daños y perjuicios contra {{demandado}}, con domicilio en {{domicilio_demandado}}, por la suma de $ {{monto}}, o lo que en más o en menos resulte de la prueba, con más intereses y costas.
+
+II. COMPETENCIA
+V.S. resulta competente conforme el Código Procesal Civil y Comercial de la Provincia de Buenos Aires (Decreto-Ley 7425/68) y en atención al domicilio del demandado y/o lugar del hecho.
+
+III. HECHOS
+{{hechos}}
+
+IV. DERECHO
+Fundo el derecho en los arts. 1708, 1716, 1717, 1737, 1740 y concordantes del Código Civil y Comercial de la Nación, y en el Código Procesal Civil y Comercial de la Provincia de Buenos Aires (Decreto-Ley 7425/68).
+
+V. RUBROS RECLAMADOS
+Daño emergente, lucro cesante, daño moral y demás perjuicios que se acrediten.
+
+VI. PRUEBA
+DOCUMENTAL: {{prueba_documental}}. INFORMATIVA, PERICIAL y TESTIMONIAL conforme se detalla.
+
+VII. PETITORIO
+Solicito a V.S.: a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Se corra traslado de la demanda por el plazo de ley; c) Oportunamente se haga lugar, con costas.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+	},
+	{
+		id: 'demanda-alimentos-baires',
+		titulo: 'Demanda de alimentos (Prov. Buenos Aires)',
+		categoria: 'Familia',
+		descripcion: 'Demanda de alimentos ante el Juzgado de Familia de la Provincia de Buenos Aires (art. 635 CPCC t.o. Ley 15.513, con alimentos provisorios y vista al Ministerio Público).',
+		cuerpo: `PROMUEVE DEMANDA DE ALIMENTOS
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, por derecho propio y/o en representación de {{beneficiario}}, con patrocinio letrado del/de la Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico registrado (SCBA), Departamento Judicial de {{departamento_judicial}}, a V.S. digo:
+
+I. OBJETO
+Vengo a promover demanda de alimentos contra {{alimentante}}, con domicilio en {{domicilio_demandado}}, a favor de {{beneficiario}}, en razón del vínculo de {{vinculo}}, cumpliendo los recaudos del art. 635 del CPCC (t.o. Ley 15.513).
+
+II. TÍTULO / VÍNCULO (art. 635 inc. 1)
+Acredito el título con la documentación acompañada: {{documentacion_vinculo}}.
+
+III. CAUDAL DEL ALIMENTANTE (art. 635 inc. 2)
+Denuncio, siquiera aproximadamente y por prueba indiciaria, el caudal del alimentante: {{caudal_alimentante}}.
+
+IV. HECHOS Y NECESIDADES
+{{hechos}}
+
+V. ALIMENTOS PROVISORIOS Y CUOTA SOLICITADA
+Solicito la fijación de alimentos provisorios (art. 636 bis CPCC) y, oportunamente, una cuota alimentaria de $ {{monto_cuota}} mensuales, conforme los arts. 541, 542, 544, 548 y concordantes del Código Civil y Comercial de la Nación.
+
+VI. PRUEBA (art. 635 inc. 4)
+DOCUMENTAL: {{prueba_documental}}. INFORMATIVA y TESTIMONIAL (los testigos declararán en la primera audiencia).
+
+VII. PETITORIO
+Solicito a V.S.: a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Se fijen alimentos provisorios; c) Se dé la intervención que corresponda al Ministerio Público; d) Oportunamente se haga lugar a la demanda, con costas.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+	},
+	{
+		id: 'demanda-laboral-baires',
+		titulo: 'Demanda laboral por despido (Prov. Buenos Aires)',
+		categoria: 'Laboral',
+		descripcion: 'Demanda laboral por despido ante los Tribunales del Trabajo de la Provincia de Buenos Aires (Ley 11.653 / 15.057; fondo LCT 20.744).',
+		cuerpo: `PROMUEVE DEMANDA LABORAL
+
+Señor Presidente del Tribunal del Trabajo:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con patrocinio letrado del/de la Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico registrado (SCBA), Departamento Judicial de {{departamento_judicial}}, a V.E. digo:
+
+I. OBJETO
+Vengo a promover demanda laboral contra {{empleador}}, con domicilio en {{domicilio_demandado}}, por la suma de $ {{monto}}, o lo que en más o en menos resulte de la prueba, con más intereses y costas.
+
+II. COMPETENCIA
+El Tribunal resulta competente conforme los arts. 2 y 3 de la Ley 11.653 / 15.057 (domicilio del demandado, lugar de prestación del trabajo o de celebración del contrato).
+
+III. RELACIÓN LABORAL
+Fecha de ingreso: {{fecha_ingreso}}. Fecha de egreso: {{fecha_egreso}}. Categoría: {{categoria_laboral}}. Remuneración: $ {{remuneracion}}. Modalidad: {{modalidad}}.
+
+IV. HECHOS
+{{hechos}}
+
+V. RUBROS RECLAMADOS
+{{rubros}} (indemnización por antigüedad, preaviso, integración del mes de despido, SAC y vacaciones proporcionales, y multas que correspondan).
+
+VI. DERECHO
+Fundo el reclamo en la Ley de Contrato de Trabajo N° 20.744 y complementarias, y en la ley de procedimiento laboral de la Provincia de Buenos Aires (Ley 11.653 / 15.057).
+
+VII. PRUEBA
+DOCUMENTAL: {{prueba_documental}}. INFORMATIVA, PERICIAL CONTABLE y TESTIMONIAL conforme se detalla.
+
+VIII. PETITORIO
+Solicito al Tribunal: a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Se corra traslado de la demanda; c) Oportunamente se haga lugar, con costas.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+	},
 ];
 
 // 🔗 Sugiere el modelo de escrito más adecuado según el tipo de documento
