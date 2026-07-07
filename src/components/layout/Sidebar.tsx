@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
-import { BarChart3, FileText, FolderKanban, Users, AlertCircle, Calculator, FileSignature, CalendarDays, ScanLine } from 'lucide-react';
+import { BarChart3, FileText, FolderKanban, Users, AlertCircle, Calculator, FileSignature, CalendarDays, ScanLine, Search } from 'lucide-react';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { isUserRole } from '@/lib/permissions/roles';
 import { createClient } from '@/lib/supabase/server';
@@ -18,6 +18,7 @@ const navigation: NavItem[] = [
   { name: 'Inicio', href: '/dashboard', icon: BarChart3, roles: ['admin', 'employee', 'auditor', 'client'] },
   { name: 'Expedientes', href: '/expedientes', icon: FolderKanban, roles: ['admin', 'employee', 'auditor', 'client'] },
   { name: 'Documentos', href: '/documentos', icon: FileText, roles: ['admin', 'employee', 'auditor', 'client'] },
+  { name: 'Buscar', href: '/buscar', icon: Search, roles: ['admin', 'employee'] },
   { name: 'Observaciones', href: '/observaciones', icon: AlertCircle, roles: ['admin', 'employee', 'auditor', 'client'] },
   { name: 'Calculadoras', href: '/calculadoras', icon: Calculator, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['legal', 'escribania'] },
   { name: 'Modelos', href: '/modelos', icon: FileSignature, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['legal', 'escribania'] },
