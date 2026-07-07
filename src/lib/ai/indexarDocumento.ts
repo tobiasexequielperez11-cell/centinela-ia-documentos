@@ -3,17 +3,15 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { generarEmbedding, partirEnFragmentos } from './embeddings';
 
-/** Indexa (o re-indexa) un documento: parte el texto, genera embeddings y guarda. */
 export async function indexarDocumento(
   supabase: SupabaseClient,
   params: { documentId: string; organizationId: string; texto: string }
-): Promise<{ ok: boolean; chunks: number }> {
+): Promise<{ ok: boolean; chunks: number; motivo?: string }> {
   const { documentId, organizationId, texto } = params;
 
   const fragmentos = partirEnFragmentos(texto);
-  if (fragmentos.length === 0) return { ok: false, chunks: 0 };
+  if (fragmentos.length === 0) return { ok: false, chunks: 0, motivo: 'sin-fragmentos' };
 
-  // Borramos indexación previa de este documento (re-indexar limpio)
   await supabase.from('document_chunks').delete().eq('document_id', documentId);
 
   const filas: {
@@ -32,16 +30,16 @@ export async function indexarDocumento(
       organization_id: organizationId,
       chunk_index: i,
       content: fragmentos[i],
-      embedding: JSON.stringify(emb), // pgvector acepta "[...]" como texto
+      embedding: JSON.stringify(emb),
     });
   }
 
-  if (filas.length === 0) return { ok: false, chunks: 0 };
+  if (filas.length === 0) return { ok: false, chunks: 0, motivo: 'embeddings-fallaron' };
 
   const { error } = await supabase.from('document_chunks').insert(filas);
   if (error) {
     console.error('Index insert error:', error);
-    return { ok: false, chunks: 0 };
+    return { ok: false, chunks: 0, motivo: 'insert:' + error.message };
   }
 
   return { ok: true, chunks: filas.length };

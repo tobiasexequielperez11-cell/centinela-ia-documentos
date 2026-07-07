@@ -1,6 +1,5 @@
 const GEMINI_EMBED_MODEL = 'text-embedding-004'; // 768 dimensiones (gratis)
 
-/** Genera el vector de embedding de un texto usando Gemini. */
 export async function generarEmbedding(texto: string): Promise<number[] | null> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
@@ -35,7 +34,6 @@ export async function generarEmbedding(texto: string): Promise<number[] | null> 
   }
 }
 
-/** Parte un texto largo en fragmentos con solapamiento, para indexar. */
 export function partirEnFragmentos(texto: string, maxLen = 1200, overlap = 150): string[] {
   const limpio = texto.replace(/\s+/g, ' ').trim();
   if (!limpio) return [];

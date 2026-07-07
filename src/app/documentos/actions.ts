@@ -847,7 +847,8 @@ await createAuditLog({
   },
 });
 
-  // --- Indexación semántica (no bloqueante) ---
+  // --- Indexación semántica (no bloqueante, con diagnóstico) ---
+  let idxInfo = 'skip';
   const textoParaIndexar =
     extractedText && extractedText.length >= 200
       ? extractedText
@@ -865,14 +866,14 @@ await createAuditLog({
 
   if (textoParaIndexar.trim().length > 0) {
     try {
-      const resIndex = await indexarDocumento(supabase, {
+      const r = await indexarDocumento(supabase, {
         documentId: documentRecord.id,
         organizationId: profile.organization_id,
         texto: textoParaIndexar,
       });
-      console.log('Indexación semántica:', resIndex);
+      idxInfo = r.ok ? 'ok-' + r.chunks : 'fail-' + (r.motivo || '?');
     } catch (e) {
-      console.error('Indexación semántica falló (no bloqueante):', e);
+      idxInfo = 'excepcion';
     }
   }
 
@@ -880,5 +881,5 @@ await createAuditLog({
   revalidatePath('/documentos');
   revalidatePath(`/documentos/${documentId}`);
 
-  redirect(`/documentos/${documentId}?analysis=beta`);
+  redirect(`/documentos/${documentId}?analysis=beta&idx=${encodeURIComponent(idxInfo)}`);
 }
