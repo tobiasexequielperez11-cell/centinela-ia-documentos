@@ -1314,6 +1314,61 @@ V. PETITORIO. Solicito se adopten de inmediato las medidas requeridas, dada la u
 Proveer de conformidad,
 SERÁ JUSTICIA.`,
   },
+  // ─────────────────────────────────────────────
+  // 💼 LABORAL / 🛒 CONSUMIDOR
+  // ─────────────────────────────────────────────
+  {
+    id: 'demanda-diferencias-salariales',
+    titulo: 'Demanda laboral por diferencias salariales',
+    categoria: 'Laboral',
+    descripcion: 'Reclama diferencias de haberes, rubros y horas adeudadas conforme LCT y CCT.',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, con el patrocinio letrado del Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}}, a V.S. digo:
+I. OBJETO. Promuevo demanda laboral por cobro de DIFERENCIAS SALARIALES contra {{empleador}}, con domicilio en {{domicilio_empleador}}, por la suma de $ {{monto}}, con más intereses y costas.
+II. RELACIÓN LABORAL. Ingresé a trabajar el {{fecha_ingreso}}, desempeñando la categoría {{categoria_laboral}}, con una remuneración mensual de $ {{remuneracion}}, bajo el CCT {{convenio_colectivo}}.
+III. DIFERENCIAS RECLAMADAS. {{diferencias_reclamadas}} (v.gr. haberes abonados por debajo del convenio, rubros no liquidados, horas extra impagas, diferencias de categoría). Liquidación practicada: {{detalle_liquidacion}}.
+IV. INTIMACIÓN PREVIA. Se intimó al empleador conforme constancias que se acompañan, sin obtener respuesta favorable.
+V. DERECHO. Arts. 103, 116, 196, 260 y concordantes de la LCT (Ley 20.744) y CCT aplicable.
+VI. PRUEBA. Documental, pericial contable, testimonial e informativa.
+VII. PETITORIO. Solicito se tenga por promovida la demanda, se corra traslado y, oportunamente, se condene al pago de las diferencias reclamadas con más intereses y costas.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
+  {
+    id: 'demanda-accidente-art',
+    titulo: 'Demanda por accidente de trabajo / ART',
+    categoria: 'Laboral',
+    descripcion: 'Reclama prestaciones por accidente o enfermedad profesional (Ley 24.557 y 27.348).',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, con el patrocinio letrado del Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}}, a V.S. digo:
+I. OBJETO. Promuevo demanda por ACCIDENTE DE TRABAJO / ENFERMEDAD PROFESIONAL contra {{aseguradora}} (Aseguradora de Riesgos del Trabajo) y/o {{empleador}}, por la suma de $ {{monto}}, con más intereses y costas.
+II. RELACIÓN LABORAL. Ingresé el {{fecha_ingreso}}, desempeñando la categoría {{categoria_laboral}}, con remuneración de $ {{remuneracion}}.
+III. HECHOS DEL SINIESTRO. El día {{fecha_siniestro}}, {{hechos_siniestro}}.
+IV. INCAPACIDAD. A raíz del hecho sufrí las siguientes lesiones: {{lesiones}}, con una incapacidad estimada del {{porcentaje_incapacidad}} % de la T.O.
+V. INSTANCIA ADMINISTRATIVA. {{estado_comision_medica}} (trámite ante la Comisión Médica, conf. Ley 27.348).
+VI. DERECHO. Ley 24.557 y modif., Ley 27.348; en su caso, acción civil (arts. 1716, 1737, 1749 CCyCN).
+VII. PRUEBA. Pericial médica, documental, testimonial e informativa.
+VIII. PETITORIO. Solicito se tenga por promovida la demanda, se corra traslado y, oportunamente, se condene al pago de las prestaciones e indemnizaciones que correspondan.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
+  {
+    id: 'demanda-danos-consumo',
+    titulo: 'Demanda por daños — relación de consumo',
+    categoria: 'Civil y comercial',
+    descripcion: 'Reclama daños derivados de una relación de consumo, con daño punitivo (Ley 24.240).',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, con el patrocinio letrado del Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}}, a V.S. digo:
+I. OBJETO. Promuevo demanda por DAÑOS Y PERJUICIOS derivados de una RELACIÓN DE CONSUMO contra {{proveedor}}, con domicilio en {{domicilio_proveedor}}, por la suma de $ {{monto}}, o lo que en más o en menos resulte de la prueba, con más intereses y costas.
+II. RELACIÓN DE CONSUMO. Revisto la calidad de consumidor en los términos de los arts. 1 y 2 de la Ley 24.240 y art. 1092 del CCyCN.
+III. HECHOS. {{hechos}}.
+IV. RUBROS RECLAMADOS. Daño emergente, daño moral y DAÑO PUNITIVO (art. 52 bis, Ley 24.240): {{detalle_rubros}}.
+V. DERECHO. Ley 24.240 (arts. 8 bis, 40, 52 bis, 53); arts. 1092 y ss. CCyCN. Invoco el beneficio de gratuidad (art. 53) y la carga dinámica probatoria en cabeza del proveedor.
+VI. PRUEBA. Documental, pericial, testimonial e informativa.
+VII. PETITORIO. Solicito se tenga por promovida la demanda, se corra traslado y, oportunamente, se condene al pago de los rubros reclamados con más intereses y costas.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
 ];
 
 // 🔗 Sugiere el modelo de escrito más adecuado según el tipo de documento
