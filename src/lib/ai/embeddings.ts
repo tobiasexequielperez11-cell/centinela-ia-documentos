@@ -1,8 +1,10 @@
-const GEMINI_EMBED_MODEL = 'text-embedding-004'; // 768 dimensiones (gratis)
+const GEMINI_EMBED_MODEL = 'text-embedding-004'; // 768 dimensiones
 
-export async function generarEmbedding(texto: string): Promise<number[] | null> {
+export type EmbeddingResult = { values: number[] } | { error: string };
+
+export async function generarEmbedding(texto: string): Promise<EmbeddingResult> {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return null;
+  if (!apiKey) return { error: 'sin-api-key' };
 
   const url =
     'https://generativelanguage.googleapis.com/v1beta/models/' +
@@ -21,16 +23,16 @@ export async function generarEmbedding(texto: string): Promise<number[] | null> 
     });
 
     if (!resp.ok) {
-      console.error('Embedding error:', resp.status, await resp.text());
-      return null;
+      const detalle = await resp.text();
+      return { error: 'http' + resp.status + ':' + detalle.slice(0, 160) };
     }
 
     const data = await resp.json();
     const values = data?.embedding?.values;
-    return Array.isArray(values) ? values : null;
+    if (!Array.isArray(values)) return { error: 'sin-values' };
+    return { values };
   } catch (e) {
-    console.error('Embedding fetch error:', e);
-    return null;
+    return { error: 'fetch:' + String(e).slice(0, 160) };
   }
 }
 
