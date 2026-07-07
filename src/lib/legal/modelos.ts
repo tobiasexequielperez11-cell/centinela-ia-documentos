@@ -1369,6 +1369,75 @@ VII. PETITORIO. Solicito se tenga por promovida la demanda, se corra traslado y,
 Proveer de conformidad,
 SERÁ JUSTICIA.`,
   },
+  // ─────────────────────────────────────────────
+  // ⚖️ EJECUCIONES
+  // ─────────────────────────────────────────────
+  {
+    id: 'ejecucion-sentencia',
+    titulo: 'Promueve ejecución de sentencia',
+    categoria: 'Civil y comercial',
+    descripcion: 'Ejecuta una sentencia firme incumplida, con liquidación (arts. 499 ss. CPCCN).',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, con el patrocinio letrado del Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}}, en los autos «{{caratula}}» (Expte. N° {{numero_expediente}}), a V.S. digo:
+I. OBJETO. Que habiendo quedado firme y consentida la sentencia dictada en autos, e incumplida por {{demandado}}, vengo a promover su EJECUCIÓN en los términos de los arts. 499 y siguientes del CPCCN, por la suma de $ {{monto}} en concepto de capital, con más intereses y costas.
+II. LIQUIDACIÓN. Acompaño la siguiente liquidación: {{detalle_liquidacion}}.
+III. PETITORIO. Solicito a V.S.:
+1) Apruebe la liquidación practicada.
+2) Intime al ejecutado al pago en el plazo legal, bajo apercibimiento de ejecución.
+3) En su defecto, trabe embargo sobre bienes suficientes para cubrir el crédito, intereses y costas.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
+  {
+    id: 'ejecucion-honorarios',
+    titulo: 'Promueve ejecución de honorarios',
+    categoria: 'Civil y comercial',
+    descripcion: 'Ejecuta honorarios regulados, firmes e impagos (arts. 499 ss. CPCCN; Ley 27.423).',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, letrado/a, con domicilio procesal constituido en {{domicilio_procesal}}, en los autos «{{caratula}}» (Expte. N° {{numero_expediente}}), a V.S. digo:
+I. OBJETO. Que habiendo quedado firmes y siendo exigibles los honorarios regulados a mi favor, por la suma de $ {{monto}}, e impagos pese a la intimación cursada, vengo a promover su EJECUCIÓN contra {{ejecutado}}.
+II. FUNDAMENTO. Arts. 499 y ss. del CPCCN y Ley 27.423 de honorarios profesionales.
+III. PETITORIO. Solicito a V.S.:
+1) Intime al obligado al pago de los honorarios, con más sus intereses, en el plazo de ley.
+2) En su defecto, trabe embargo sobre bienes suficientes.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
+  // ─────────────────────────────────────────────
+  // 📜 SUCESORIO
+  // ─────────────────────────────────────────────
+  {
+    id: 'cesion-derechos-hereditarios',
+    titulo: 'Denuncia cesión de derechos hereditarios',
+    categoria: 'Sucesiones',
+    descripcion: 'Incorpora al juicio sucesorio una cesión de derechos hereditarios (art. 2302 CCyCN).',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, con el patrocinio letrado del Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}}, en los autos «{{caratula}}» (Expte. N° {{numero_expediente}}), a V.S. digo:
+I. OBJETO. Que vengo a denunciar y acompañar la CESIÓN DE DERECHOS HEREDITARIOS instrumentada por escritura pública N° {{numero_escritura}} de fecha {{fecha_escritura}}, por la cual {{cedente}} cede a {{cesionario}} los derechos y acciones hereditarios que le corresponden en la sucesión de {{causante}}.
+II. ALCANCE. La cesión comprende {{alcance_cesion}} (la totalidad o la porción indicada) de la herencia.
+III. DERECHO. Arts. 2302 y siguientes del CCyCN.
+IV. PETITORIO. Solicito a V.S.:
+1) Tenga presente la cesión y por acompañada la escritura.
+2) Tenga al cesionario por parte en el carácter invocado.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
+  {
+    id: 'inscripcion-declaratoria-herederos',
+    titulo: 'Solicita inscripción de declaratoria de herederos',
+    categoria: 'Sucesiones',
+    descripcion: 'Pide librar oficios/testimonios para inscribir la declaratoria y transmitir los bienes.',
+    cuerpo: `Señor Juez:
+{{nombre_parte}}, con el patrocinio letrado del Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}}, en los autos «{{caratula}}» (Expte. N° {{numero_expediente}}), a V.S. digo:
+I. OBJETO. Que habiéndose dictado la declaratoria de herederos en autos, vengo a solicitar se libren los oficios y/o testimonios necesarios para su INSCRIPCIÓN y para la transmisión de los bienes a nombre de los herederos declarados.
+II. BIENES. La inscripción se solicita respecto de los siguientes bienes: {{detalle_bienes}}.
+III. DERECHO. Arts. 2337 y 2338 del CCyCN.
+IV. PETITORIO. Solicito a V.S.:
+1) Ordene librar oficio/testimonio al Registro de la Propiedad Inmueble, del Automotor y/o entidad que corresponda.
+2) Se autorice al letrado a su diligenciamiento.
+Proveer de conformidad,
+SERÁ JUSTICIA.`,
+  },
 ];
 
 // 🔗 Sugiere el modelo de escrito más adecuado según el tipo de documento
