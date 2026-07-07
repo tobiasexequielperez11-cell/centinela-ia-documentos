@@ -794,6 +794,326 @@ Proveer de conformidad, SERÁ JUSTICIA.
 
 {{localidad}}, {{fecha}}.`,
 	},
+	// ═══════════ AMPARO DE SALUD ═══════════
+	{
+		id: 'accion-amparo-salud-corrientes',
+		titulo: 'Acción de amparo de salud (Corrientes)',
+		categoria: 'Amparo',
+		descripcion: 'Amparo de salud ante la Justicia de Corrientes (art. 43 CN y Constitución provincial; sin agotar vía administrativa, doctrina STJ).',
+		cuerpo: `INTERPONE ACCIÓN DE AMPARO (SALUD)
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con patrocinio letrado del/de la Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico en la plataforma FORUM (CUIF {{cuif}}), a V.S. digo:
+
+I. OBJETO
+Vengo a interponer acción de amparo contra {{entidad_demandada}}, con domicilio en {{domicilio_demandado}}, a fin de que se ordene el otorgamiento inmediato de {{prestacion}}, prescripta en razón de la patología {{patologia}}, cuya cobertura fue negada o demorada con fecha {{fecha_negativa}}.
+
+II. ADMISIBILIDAD
+La acción de amparo es la vía idónea (art. 43 de la Constitución Nacional y normas de amparo de la Constitución de la Provincia de Corrientes), no resultando exigible el previo agotamiento de la vía administrativa conforme la doctrina del Superior Tribunal de Justicia de Corrientes.
+
+III. HECHOS
+{{hechos}}
+
+IV. DERECHO
+Arts. 42 y 43 CN; derecho a la salud (arts. 14 bis y 75 inc. 22 CN y tratados internacionales); Ley 26.682 de Medicina Prepaga y PMO (Ley 24.754); normas de amparo de la Provincia de Corrientes.
+
+V. MEDIDA CAUTELAR
+Solicito medida cautelar innovativa que ordene otorgar la prestación durante el proceso, atento la verosimilitud del derecho y el peligro en la demora.
+
+VI. PRUEBA
+DOCUMENTAL: {{prueba_documental}} (historia clínica, prescripción médica, negativa de cobertura). INFORMATIVA y PERICIAL MÉDICA.
+
+VII. PETITORIO
+a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Despache la medida cautelar; c) Corra traslado del amparo; d) Oportunamente haga lugar, con costas.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+	},
+	{
+		id: 'accion-amparo-salud-baires',
+		titulo: 'Acción de amparo de salud (Prov. Buenos Aires)',
+		categoria: 'Amparo',
+		descripcion: 'Amparo de salud ante la Justicia de la Provincia de Buenos Aires (Ley 13.928, art. 20 inc. 2 Const. prov.; plazo 30 días).',
+		cuerpo: `INTERPONE ACCIÓN DE AMPARO (SALUD)
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con patrocinio letrado del/de la Dr./Dra. {{abogado}} (C.A. {{colegio_abogados}}), constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico registrado (SCBA), Departamento Judicial de {{departamento_judicial}}, a V.S. digo:
+
+I. OBJETO
+Vengo a interponer acción de amparo contra {{entidad_demandada}}, con domicilio en {{domicilio_demandado}}, a fin de que se ordene el otorgamiento inmediato de {{prestacion}}, prescripta en razón de la patología {{patologia}}, cuya cobertura fue negada o demorada con fecha {{fecha_negativa}}.
+
+II. ADMISIBILIDAD Y PLAZO
+La acción se interpone conforme la Ley 13.928 (reglamentaria del art. 20 inc. 2 de la Constitución de la Provincia de Buenos Aires), dentro del plazo de treinta (30) días desde la toma de conocimiento del acto lesivo (art. 5 Ley 13.928, texto Ley 14.192).
+
+III. HECHOS
+{{hechos}}
+
+IV. DERECHO
+Arts. 42 y 43 CN; art. 20 inc. 2 Const. Prov. Bs As; Ley 13.928; derecho a la salud (arts. 14 bis y 75 inc. 22 CN); Ley 26.682 y PMO (Ley 24.754).
+
+V. MEDIDA CAUTELAR
+Solicito medida cautelar innovativa que ordene otorgar la prestación durante el proceso, atento la verosimilitud del derecho y el peligro en la demora.
+
+VI. PRUEBA
+DOCUMENTAL: {{prueba_documental}} (historia clínica, prescripción médica, negativa de cobertura). INFORMATIVA y PERICIAL MÉDICA.
+
+VII. PETITORIO
+a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Despache la medida cautelar; c) Corra traslado del amparo; d) Oportunamente haga lugar, con costas.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+	},
+	// ═══════════ EJECUCIONES ═══════════
+	{
+		id: 'demanda-ejecutiva-corrientes',
+		titulo: 'Demanda ejecutiva / juicio ejecutivo (Corrientes)',
+		categoria: 'Ejecuciones',
+		descripcion: 'Juicio ejecutivo por pagaré u otro título ante la Justicia de Corrientes (Dec-Ley 5965/63; CPCC Ley 6.556).',
+		cuerpo: `PROMUEVE JUICIO EJECUTIVO
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con patrocinio letrado del/de la Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico en la plataforma FORUM (CUIF {{cuif}}), a V.S. digo:
+
+I. OBJETO
+Promuevo juicio ejecutivo contra {{demandado}}, con domicilio en {{domicilio_demandado}}, por el cobro de la suma de $ {{monto}}, con más intereses y costas.
+
+II. TÍTULO EJECUTIVO
+El crédito consta en {{titulo}}, con vencimiento el {{fecha_vencimiento}}, que reúne los recaudos del Decreto-Ley 5965/63 y constituye título ejecutivo hábil que se acompaña en original.
+
+III. DERECHO
+Decreto-Ley 5965/63 y normas del juicio ejecutivo del Código Procesal Civil y Comercial de la Provincia de Corrientes (Ley N° 6.556).
+
+IV. PRUEBA
+DOCUMENTAL: {{prueba_documental}} (título original).
+
+V. PETITORIO
+a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Libre mandamiento de intimación de pago y embargo por capital, intereses y costas; c) Cite de remate al ejecutado; d) Oportunamente dicte sentencia de trance y remate, con costas.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+	},
+	{
+		id: 'demanda-ejecutiva-baires',
+		titulo: 'Demanda ejecutiva / juicio ejecutivo (Prov. Buenos Aires)',
+		categoria: 'Ejecuciones',
+		descripcion: 'Juicio ejecutivo por pagaré u otro título ante la Justicia de la Provincia de Buenos Aires (Dec-Ley 5965/63; CPCC 7425/68).',
+		cuerpo: `PROMUEVE JUICIO EJECUTIVO
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con patrocinio letrado del/de la Dr./Dra. {{abogado}} (C.A. {{colegio_abogados}}), constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico registrado (SCBA), Departamento Judicial de {{departamento_judicial}}, a V.S. digo:
+
+I. OBJETO
+Promuevo juicio ejecutivo contra {{demandado}}, con domicilio en {{domicilio_demandado}}, por el cobro de la suma de $ {{monto}}, con más intereses y costas.
+
+II. TÍTULO EJECUTIVO
+El crédito consta en {{titulo}}, con vencimiento el {{fecha_vencimiento}}, que reúne los recaudos del Decreto-Ley 5965/63 y constituye título ejecutivo hábil que se acompaña en original.
+
+III. DERECHO
+Decreto-Ley 5965/63 y normas del juicio ejecutivo del Código Procesal Civil y Comercial de la Provincia de Buenos Aires (Decreto-Ley 7425/68).
+
+IV. PRUEBA
+DOCUMENTAL: {{prueba_documental}} (título original).
+
+V. PETITORIO
+a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Libre mandamiento de intimación de pago y embargo por capital, intereses y costas; c) Cite de remate al ejecutado; d) Oportunamente dicte sentencia de trance y remate, con costas.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+	},
+	// ═══════════ DESALOJO POR FALTA DE PAGO ═══════════
+	{
+		id: 'desalojo-falta-pago-corrientes',
+		titulo: 'Demanda de desalojo por falta de pago (Corrientes)',
+		categoria: 'Civil y comercial',
+		descripcion: 'Desalojo por falta de pago ante la Justicia de Corrientes (art. 1219 CCyCN; CPCC Ley 6.556).',
+		cuerpo: `PROMUEVE DEMANDA DE DESALOJO POR FALTA DE PAGO
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con patrocinio letrado del/de la Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico en la plataforma FORUM (CUIF {{cuif}}), a V.S. digo:
+
+I. OBJETO
+Promuevo demanda de desalojo por falta de pago contra {{demandado}}, con domicilio en {{domicilio_demandado}}, respecto del inmueble sito en {{inmueble}}, a fin de que se lo condene a desocuparlo y restituirlo.
+
+II. HECHOS
+Las partes celebraron contrato de locación por un canon mensual de $ {{canon}}. El locatario adeuda los períodos {{periodos_adeudados}}, configurándose la causal de falta de pago. {{hechos}}
+
+III. DERECHO
+Art. 1219 y concordantes del Código Civil y Comercial de la Nación y normas del proceso de desalojo del Código Procesal Civil y Comercial de la Provincia de Corrientes (Ley N° 6.556).
+
+IV. PRUEBA
+DOCUMENTAL: {{prueba_documental}} (contrato de locación, recibos, intimación de pago). INFORMATIVA y TESTIMONIAL.
+
+V. PETITORIO
+a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Corra traslado de la demanda; c) Oportunamente haga lugar, condenando a la desocupación y restitución del inmueble bajo apercibimiento de lanzamiento, con costas.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+	},
+	{
+		id: 'desalojo-falta-pago-baires',
+		titulo: 'Demanda de desalojo por falta de pago (Prov. Buenos Aires)',
+		categoria: 'Civil y comercial',
+		descripcion: 'Desalojo por falta de pago ante la Justicia de la Provincia de Buenos Aires, con desocupación inmediata (arts. 676 bis/ter CPCC, Ley 14.220).',
+		cuerpo: `PROMUEVE DEMANDA DE DESALOJO POR FALTA DE PAGO
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con patrocinio letrado del/de la Dr./Dra. {{abogado}} (C.A. {{colegio_abogados}}), constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico registrado (SCBA), Departamento Judicial de {{departamento_judicial}}, a V.S. digo:
+
+I. OBJETO
+Promuevo demanda de desalojo por falta de pago contra {{demandado}}, con domicilio en {{domicilio_demandado}}, respecto del inmueble sito en {{inmueble}}, a fin de que se lo condene a desocuparlo y restituirlo.
+
+II. HECHOS
+Las partes celebraron contrato de locación por un canon mensual de $ {{canon}}. El locatario adeuda los períodos {{periodos_adeudados}}, configurándose la causal de falta de pago. {{hechos}}
+
+III. DESOCUPACIÓN INMEDIATA
+Atento la causal de falta de pago, solicito la desocupación inmediata del inmueble bajo caución real, conforme los arts. 676 bis y 676 ter del CPCC de la Provincia de Buenos Aires (texto Ley 14.220).
+
+IV. DERECHO
+Art. 1219 y concordantes del Código Civil y Comercial de la Nación y arts. 676 y ss. del Código Procesal Civil y Comercial de la Provincia de Buenos Aires (Decreto-Ley 7425/68).
+
+V. PRUEBA
+DOCUMENTAL: {{prueba_documental}} (contrato de locación, recibos, intimación de pago). INFORMATIVA y TESTIMONIAL.
+
+VI. PETITORIO
+a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Despache la desocupación inmediata bajo caución; c) Corra traslado de la demanda; d) Oportunamente haga lugar, con costas.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+	},
+	// ═══════════ SUCESIONES ═══════════
+	{
+		id: 'sucesion-corrientes',
+		titulo: 'Inicia juicio sucesorio (Corrientes)',
+		categoria: 'Sucesiones',
+		descripcion: 'Apertura de sucesión ante la Justicia de Corrientes (último domicilio del causante, art. 2336 CCyCN; CPCC Ley 6.556).',
+		cuerpo: `PROMUEVE JUICIO SUCESORIO
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con patrocinio letrado del/de la Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico en la plataforma FORUM (CUIF {{cuif}}), a V.S. digo:
+
+I. OBJETO
+Promuevo el juicio sucesorio de {{causante}}, fallecido/a el {{fecha_fallecimiento}}, cuyo último domicilio se encontraba en {{ultimo_domicilio_causante}}, en mi carácter de {{vinculo_heredero}}.
+
+II. COMPETENCIA
+V.S. resulta competente por corresponder al último domicilio del causante (art. 2336 del Código Civil y Comercial de la Nación) y conforme el Código Procesal Civil y Comercial de la Provincia de Corrientes (Ley N° 6.556).
+
+III. BIENES
+Se denuncian los siguientes bienes: {{bienes}}.
+
+IV. PRUEBA
+DOCUMENTAL: {{prueba_documental}} (partida de defunción, partidas que acreditan el vínculo, títulos de los bienes).
+
+V. PETITORIO
+a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Tenga por iniciado el sucesorio; c) Ordene la publicación de edictos citando a herederos y acreedores; d) Oportunamente dicte declaratoria de herederos.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+	},
+	{
+		id: 'sucesion-baires',
+		titulo: 'Inicia juicio sucesorio (Prov. Buenos Aires)',
+		categoria: 'Sucesiones',
+		descripcion: 'Apertura de sucesión ante la Justicia de la Provincia de Buenos Aires (último domicilio del causante, art. 2336 CCyCN; CPCC 7425/68).',
+		cuerpo: `PROMUEVE JUICIO SUCESORIO
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con patrocinio letrado del/de la Dr./Dra. {{abogado}} (C.A. {{colegio_abogados}}), constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico registrado (SCBA), Departamento Judicial de {{departamento_judicial}}, a V.S. digo:
+
+I. OBJETO
+Promuevo el juicio sucesorio de {{causante}}, fallecido/a el {{fecha_fallecimiento}}, cuyo último domicilio se encontraba en {{ultimo_domicilio_causante}}, en mi carácter de {{vinculo_heredero}}.
+
+II. COMPETENCIA
+V.S. resulta competente por corresponder al último domicilio del causante (art. 2336 del Código Civil y Comercial de la Nación) y conforme el Código Procesal Civil y Comercial de la Provincia de Buenos Aires (Decreto-Ley 7425/68).
+
+III. BIENES
+Se denuncian los siguientes bienes: {{bienes}}.
+
+IV. PRUEBA
+DOCUMENTAL: {{prueba_documental}} (partida de defunción, partidas que acreditan el vínculo, títulos de los bienes).
+
+V. PETITORIO
+a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Tenga por iniciado el sucesorio; c) Ordene la publicación de edictos citando a herederos y acreedores; d) Oportunamente dicte declaratoria de herederos.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+	},
+	// ═══════════ COBRO ORDINARIO DE PESOS ═══════════
+	{
+		id: 'cobro-pesos-ordinario-corrientes',
+		titulo: 'Demanda ordinaria por cobro de pesos (Corrientes)',
+		categoria: 'Civil y comercial',
+		descripcion: 'Cobro de pesos por proceso de conocimiento ante la Justicia de Corrientes (CCyCN; CPCC Ley 6.556).',
+		cuerpo: `PROMUEVE DEMANDA POR COBRO DE PESOS
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con patrocinio letrado del/de la Dr./Dra. {{abogado}}, constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico en la plataforma FORUM (CUIF {{cuif}}), a V.S. digo:
+
+I. OBJETO
+Promuevo demanda por cobro de pesos contra {{demandado}}, con domicilio en {{domicilio_demandado}}, por la suma de $ {{monto}}, con más intereses y costas.
+
+II. HECHOS Y ORIGEN DE LA DEUDA
+La deuda reclamada tiene origen en {{origen_deuda}}. {{hechos}}
+
+III. DERECHO
+Arts. 724, 725, 726, 730, 765 y concordantes del Código Civil y Comercial de la Nación y normas del proceso de conocimiento del Código Procesal Civil y Comercial de la Provincia de Corrientes (Ley N° 6.556).
+
+IV. PRUEBA
+DOCUMENTAL: {{prueba_documental}}. INFORMATIVA, PERICIAL y TESTIMONIAL.
+
+V. PETITORIO
+a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Corra traslado de la demanda; c) Oportunamente haga lugar, con costas.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+	},
+	{
+		id: 'cobro-pesos-ordinario-baires',
+		titulo: 'Demanda ordinaria por cobro de pesos (Prov. Buenos Aires)',
+		categoria: 'Civil y comercial',
+		descripcion: 'Cobro de pesos por proceso de conocimiento ante la Justicia de la Provincia de Buenos Aires (CCyCN; CPCC 7425/68).',
+		cuerpo: `PROMUEVE DEMANDA POR COBRO DE PESOS
+
+Señor Juez:
+
+{{nombre_parte}}, DNI N° {{dni_parte}}, con domicilio real en {{domicilio_real_parte}}, con patrocinio letrado del/de la Dr./Dra. {{abogado}} (C.A. {{colegio_abogados}}), constituyendo domicilio procesal en {{domicilio_procesal}} y domicilio electrónico registrado (SCBA), Departamento Judicial de {{departamento_judicial}}, a V.S. digo:
+
+I. OBJETO
+Promuevo demanda por cobro de pesos contra {{demandado}}, con domicilio en {{domicilio_demandado}}, por la suma de $ {{monto}}, con más intereses y costas.
+
+II. HECHOS Y ORIGEN DE LA DEUDA
+La deuda reclamada tiene origen en {{origen_deuda}}. {{hechos}}
+
+III. DERECHO
+Arts. 724, 725, 726, 730, 765 y concordantes del Código Civil y Comercial de la Nación y normas del proceso de conocimiento del Código Procesal Civil y Comercial de la Provincia de Buenos Aires (Decreto-Ley 7425/68).
+
+IV. PRUEBA
+DOCUMENTAL: {{prueba_documental}}. INFORMATIVA, PERICIAL y TESTIMONIAL.
+
+V. PETITORIO
+a) Me tenga por presentado, por parte y por constituidos los domicilios; b) Corra traslado de la demanda; c) Oportunamente haga lugar, con costas.
+
+Proveer de conformidad, SERÁ JUSTICIA.
+
+{{localidad}}, {{fecha}}.`,
+	},
 ];
 
 // 🔗 Sugiere el modelo de escrito más adecuado según el tipo de documento
