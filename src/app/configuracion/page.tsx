@@ -1,5 +1,119 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { AppShell } from '@/components/layout/AppShell';
+import { createClient } from '@/lib/supabase/server';
+import { getUserProfile } from '@/lib/auth/getUserProfile';
+import { updateOrganizationIndustryType } from './actions';
+import {
+  ACTIVE_INDUSTRY_TYPES,
+  industryLabels,
+  normalizeIndustryType,
+} from '@/lib/industries/documentTypes';
 
-export default function ConfiguracionPage() {
-  redirect('/dashboard');
+const panels = [
+  { name: 'Resumen operativo', href: '/configuracion/resumen', description: 'Visión general de la configuración de la organización.' },
+  { name: 'Entorno de trabajo', href: '/configuracion/entorno', description: 'Personalización y ajustes del espacio.' },
+  { name: 'Motor IA', href: '/configuracion/ia', description: 'Opciones de análisis y procesamiento documental.' },
+  { name: 'Seguridad y acceso', href: '/configuracion/seguridad', description: 'Políticas, permisos y auditoría.' },
+  { name: 'Documentación', href: '/configuracion/documentacion', description: 'Tipos documentales y reglas de almacenamiento.' },
+  { name: 'Estado beta', href: '/configuracion/estado-beta', description: 'Gestión del entorno controlado y experimental.' },
+  { name: 'Roadmap', href: '/configuracion/roadmap', description: 'Próximas actualizaciones y lanzamientos.' },
+];
+
+export default async function ConfiguracionPage() {
+  const { user, profile } = await getUserProfile();
+
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+
+  if (profile.role !== 'admin') {
+    redirect('/acceso-denegado');
+  }
+
+  const supabase = await createClient();
+  const { data: org } = await supabase
+    .from('organizations')
+    .select('industry_type')
+    .eq('id', profile.organization_id)
+    .single();
+
+  const currentIndustry = normalizeIndustryType(org?.industry_type);
+
+  return (
+    <AppShell>
+      <div className="mb-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-soft">
+          CONFIGURACIÓN GLOBAL
+        </p>
+        <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight text-white">
+          Panel de <span className="text-gradient">Configuración</span>
+        </h2>
+        <p className="mt-2 text-sm text-slate-400">
+          Administración central de la organización y módulos del sistema.
+        </p>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[1.5fr_2fr]">
+        <div className="space-y-6">
+          <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_16px_40px_-16px_rgba(0,0,0,0.7)] transition-colors hover:border-accent/40">
+            <div className="mb-6">
+              <h3 className="font-display text-xl font-semibold text-white">Rubro de la organización</h3>
+              <p className="mt-2 text-sm text-slate-400">
+                Como administrador de la plataforma podés cambiar de rubro para testear; un cliente solo puede elegirlo una vez.
+              </p>
+            </div>
+
+            <form action={updateOrganizationIndustryType} className="space-y-4">
+              <input type="hidden" name="organization_id" value={profile.organization_id} />
+              
+              <div className="mb-2">
+                <label className="text-sm text-slate-400">
+                  Rubro actual: <span className="font-semibold text-white">{industryLabels[currentIndustry]}</span>
+                </label>
+              </div>
+
+              <select
+                name="industry_type"
+                defaultValue={currentIndustry}
+                className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none focus:border-accent focus:ring-1 focus:ring-accent"
+              >
+                {ACTIVE_INDUSTRY_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {industryLabels[t]}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="submit"
+                className="w-full rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-accent-strong"
+              >
+                Guardar rubro
+              </button>
+            </form>
+          </section>
+        </div>
+
+        <div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {panels.map((panel) => (
+              <Link
+                key={panel.href}
+                href={panel.href}
+                className="group flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.03] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_16px_40px_-16px_rgba(0,0,0,0.7)] transition-colors hover:border-accent/40"
+              >
+                <div>
+                  <h4 className="font-display text-base font-semibold text-white group-hover:text-accent-soft">
+                    {panel.name}
+                  </h4>
+                  <p className="mt-1 text-sm text-slate-400">
+                    {panel.description}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </AppShell>
+  );
 }
