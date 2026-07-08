@@ -55,8 +55,8 @@ export async function Sidebar() {
   const groupOrder = ['Operación', 'Herramientas jurídicas', 'Utilidades', 'Gestión'];
 
   return (
-    <aside className="fixed inset-y-0 left-0 hidden h-screen w-72 flex-col border-r border-white/10 bg-[#071326] px-5 py-6 shadow-[18px_0_55px_rgba(0,0,0,0.24)] lg:flex">
-      <Link href="/dashboard" className="mb-8 block">
+    <aside className="fixed inset-y-0 left-0 hidden h-screen w-72 flex-col border-r border-white/10 bg-[#071326] px-5 py-4 shadow-[18px_0_55px_rgba(0,0,0,0.24)] lg:flex">
+      <Link href="/dashboard" className="mb-6 block">
         <p className="text-xs font-semibold uppercase tracking-[0.25em]">
           <span className="text-white">Centinela</span>{' '}
           <span className="text-[#1E9BF0]">IA</span>
@@ -71,8 +71,8 @@ export async function Sidebar() {
           const items = visibleNavigation.filter((i) => i.group === group);
           if (items.length === 0) return null;
           return (
-            <div key={group} className="mb-1">
-              <p className="px-3 pb-0.5 pt-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+            <div key={group} className="mb-0.5">
+              <p className="px-3 pt-1.5 pb-0.5 text-[10px] leading-none font-semibold uppercase tracking-wider text-slate-500">
                 {group}
               </p>
               {items.map((item) => {
@@ -81,9 +81,9 @@ export async function Sidebar() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-[#C2CCD9] transition-all hover:bg-[#1E9BF0]/12 hover:text-[#29C5FF]"
+                    className="flex items-center gap-2.5 rounded-2xl px-3 py-1.5 text-sm font-semibold text-[#C2CCD9] transition-all hover:bg-[#1E9BF0]/12 hover:text-[#29C5FF]"
                   >
-                    <Icon className="h-4 w-4 text-current" />
+                    <Icon className="h-[18px] w-[18px] text-current" />
                     {item.name}
                   </Link>
                 );
