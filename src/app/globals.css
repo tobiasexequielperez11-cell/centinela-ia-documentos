@@ -246,16 +246,20 @@ body {
 .internal-shell button.bg-slate-950,
 .internal-shell a.bg-slate-900,
 .internal-shell button.bg-slate-900 {
-  background-color: #22d3ee !important;
+  background-image: linear-gradient(135deg, #22d3ee 0%, #6366f1 55%, #8b5cf6 100%) !important;
+  background-color: transparent !important;
   color: #ffffff !important;
-  box-shadow: 0 14px 34px rgba(34, 211, 238, 0.24), 0 0 18px rgba(139, 92, 246, 0.22) !important;
+  border: none !important;
+  box-shadow: 0 10px 30px rgba(34, 211, 238, 0.28), 0 0 22px rgba(139, 92, 246, 0.30) !important;
 }
 
 .internal-shell a.bg-slate-950:hover,
 .internal-shell button.bg-slate-950:hover,
 .internal-shell a.bg-slate-900:hover,
 .internal-shell button.bg-slate-900:hover {
-  background-color: #06b6d4 !important;
+  background-image: linear-gradient(135deg, #38e0f5 0%, #7c7ff5 55%, #a78bfa 100%) !important;
+  box-shadow: 0 14px 40px rgba(34, 211, 238, 0.42), 0 0 28px rgba(139, 92, 246, 0.42) !important;
+  transform: translateY(-1px);
 }
 
 .internal-shell .hover\:bg-slate-50:hover,
