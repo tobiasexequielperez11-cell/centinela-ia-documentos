@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { ImagenAPdf } from './ImagenAPdf';
+import { UnirPdf } from './UnirPdf';
 import { ConversorImagenes } from './ConversorImagenes';
 import { UtilidadesTexto } from './UtilidadesTexto';
 
@@ -30,6 +31,16 @@ export default async function HerramientasPage() {
           </p>
           <div className="mt-4">
             <ImagenAPdf />
+          </div>
+        </section>
+
+        <section className="mt-12 border-t border-slate-100 pt-8">
+          <h2 className="text-lg font-semibold text-slate-900">Unir PDF</h2>
+          <p className="mt-1 text-sm text-slate-500">
+            Combiná varios archivos PDF en uno solo, en el orden que quieras.
+          </p>
+          <div className="mt-4">
+            <UnirPdf />
           </div>
         </section>
 
