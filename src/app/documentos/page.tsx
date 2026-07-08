@@ -7,6 +7,10 @@ import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
 import { formatFileSize } from '@/lib/format/fileSize';
 import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles, getDaysUntilExpiry } from '@/lib/documents/expiry';
 import { sensitivityLabel } from '@/lib/documents/sensitivity';
+import { MetricCard } from '@/components/dashboard/MetricCard';
+import { Banner } from '@/components/ui/Banner';
+import { Badge } from '@/components/ui/Badge';
+import { Reveal } from '@/components/ui/Reveal';
 import { analyzeDocument } from './actions';
 import { AnalyzeButton } from './AnalyzeButton';
 import type { DocumentRecord } from '@/types/document';
@@ -32,14 +36,12 @@ function getAiStatus(count: number) {
     return {
       label: 'Pendiente',
       countLabel: null,
-      className: 'bg-slate-100 text-slate-500',
     };
   }
 
   return {
     label: 'Analizado IA',
     countLabel: null,
-    className: 'bg-sky-50 text-sky-700',
   };
 }
 
@@ -150,58 +152,36 @@ export default async function DocumentsPage({
 
   return (
     <AppShell>
-      <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
-            Documentos
-          </p>
+      <Reveal>
+        <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+              Documentos
+            </p>
 
-          <h2 className="mt-2 text-3xl font-bold text-slate-950">
-            Bóveda documental
-          </h2>
+            <h2 className="mt-2 text-3xl font-bold text-slate-950">
+              Bóveda documental
+            </h2>
 
-          <p className="mt-2 text-sm text-slate-600">
-            Control operativo de documentos cargados, clasificación y estado de análisis IA.
-          </p>
+            <p className="mt-2 text-sm text-slate-600">
+              Control operativo de documentos cargados, clasificación y estado de análisis IA.
+            </p>
+          </div>
+
+          <Link
+            href="/documentos/subir"
+            className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-bold text-white transition-all"
+          >
+            Subir documento
+          </Link>
         </div>
 
-        <Link
-          href="/documentos/subir"
-          className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800"
-        >
-          Subir documento
-        </Link>
-      </div>
-
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-500">
-            Documentos totales
-          </p>
-          <p className="mt-2 text-3xl font-bold text-slate-950">
-            {totalDocuments}
-          </p>
+        <div className="mb-6 grid gap-4 sm:grid-cols-3">
+          <MetricCard index={0} label="Documentos totales" value={String(totalDocuments)} helper="Bóveda privada" />
+          <MetricCard index={1} label="Pendientes de revisión" value={String(pendingDocuments)} helper="Sin análisis IA" />
+          <MetricCard index={2} label="Con análisis IA" value={String(analyzedDocuments)} helper="Al menos un análisis" />
         </div>
-
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-500">
-            Pendientes de revisión
-          </p>
-          <p className="mt-2 text-3xl font-bold text-slate-950">
-            {pendingDocuments}
-          </p>
-        </div>
-
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-500">
-            Con análisis IA
-          </p>
-          <p className="mt-2 text-3xl font-bold text-slate-950">
-            {analyzedDocuments}
-          </p>
-        </div>
-
-      </div>
+      </Reveal>
 
       <form method="get" className="mb-4 flex gap-2">
         {activeFilter !== 'todos' ? (
@@ -229,8 +209,8 @@ export default async function DocumentsPage({
               href={filter.href}
               className={`rounded-2xl px-4 py-2 text-sm font-bold ${
                 isActive
-                  ? 'bg-slate-950 text-white'
-                  : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                  ? 'bg-slate-900 text-white'
+                  : 'border border-white/10 bg-white/[0.04] text-slate-300'
               }`}
             >
               {filter.label} · {filter.count}
@@ -240,52 +220,38 @@ export default async function DocumentsPage({
       </div>
 
       {pendingDocuments > 0 ? (
-        <div className="mb-6 rounded-3xl border border-amber-200 bg-amber-50 p-5">
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-            <div>
-              <p className="font-bold text-amber-950">
-                Hay documentos pendientes de análisis IA.
-              </p>
-              <p className="mt-1 text-sm text-amber-800">
-                Revisá los pendientes y ejecutá el análisis IA para completar la cobertura documental.
-              </p>
-            </div>
-
-            <Link
-              href="/documentos?ia=pendientes"
-              className="rounded-2xl bg-amber-900 px-5 py-3 text-center text-sm font-bold text-white hover:bg-amber-800"
-            >
-              Ver pendientes IA
-            </Link>
-          </div>
+        <div className="mb-6">
+          <Banner
+            variant="warning"
+            title="Hay documentos pendientes de análisis IA."
+            description="Revisá los pendientes y ejecutá el análisis IA para completar la cobertura documental."
+            action={<Link href="/documentos?ia=pendientes" className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-slate-800">Ver pendientes IA</Link>}
+          />
         </div>
       ) : (
-        <div className="mb-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-5">
-          <p className="font-bold text-emerald-900">
-            Cobertura IA completa.
-          </p>
-          <p className="mt-1 text-sm text-emerald-800">
-            Todos los documentos cargados tienen al menos un análisis IA registrado.
-          </p>
+        <div className="mb-6">
+          <Banner
+            variant="success"
+            title="Cobertura IA completa."
+            description="Todos los documentos cargados tienen al menos un análisis IA registrado."
+          />
         </div>
       )}
 
       {expiringDocs > 0 || expiredDocs > 0 ? (
-        <div className="mb-6 rounded-3xl border border-amber-200 bg-amber-50 p-5">
-          <p className="font-bold text-amber-950">
-            Alertas de vencimiento
-          </p>
-          <p className="mt-1 text-sm text-amber-800">
-            {expiringDocs > 0 ? `${expiringDocs} documento(s) por vencer` : ''} 
-            {expiringDocs > 0 && expiredDocs > 0 ? ' y ' : ''}
-            {expiredDocs > 0 ? `${expiredDocs} documento(s) vencido(s)` : ''}.
-          </p>
+        <div className="mb-6">
+          <Banner
+            variant="warning"
+            title="Alertas de vencimiento"
+            description={`${expiringDocs > 0 ? `${expiringDocs} documento(s) por vencer` : ''}${expiringDocs > 0 && expiredDocs > 0 ? ' y ' : ''}${expiredDocs > 0 ? `${expiredDocs} documento(s) vencido(s)` : ''}.`}
+          />
         </div>
       ) : null}
 
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+      <Reveal delay={0.1}>
+        <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-white/[0.04] text-[11px] font-semibold uppercase tracking-wide text-slate-400">
             <tr>
               <th className="px-5 py-4">Archivo</th>
               <th className="px-5 py-4">Tipo</th>
@@ -315,7 +281,7 @@ export default async function DocumentsPage({
               }
 
               return (
-                <tr key={item.id} className="hover:bg-slate-50">
+                <tr key={item.id} className="border-t border-white/5 transition-colors hover:bg-white/[0.03]">
                   <td className="px-5 py-4 font-bold text-slate-950">
                     {item.file_name}
                   </td>
@@ -325,29 +291,18 @@ export default async function DocumentsPage({
                   </td>
 
                   <td className="px-5 py-4 text-slate-600">
-                    {sensitivityLabel(item.sensitivity_level)}
+                    <Badge tone={sensitivityLabel(item.sensitivity_level) === 'Crítico' || sensitivityLabel(item.sensitivity_level) === 'Alto' ? 'danger' : 'neutral'}>{sensitivityLabel(item.sensitivity_level)}</Badge>
                   </td>
 
                   <td className="px-5 py-4">
-                    <span
-                      className={`inline-flex h-8 items-center gap-2 whitespace-nowrap rounded-full px-3 text-xs font-bold leading-none ${aiStatus.className}`}
-                    >
-                      <span>{aiStatus.label}</span>
-                      {aiStatus.countLabel ? (
-                        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white/70 px-1.5 text-[11px] font-black leading-none text-current">
-                          {aiStatus.countLabel}
-                        </span>
-                      ) : null}
-                    </span>
+                    <Badge tone={isPending ? 'neutral' : 'accent'}>{aiStatus.label}</Badge>
                   </td>
 
                   <td className="px-5 py-4">
                     {expiryStatus === 'sin_vencimiento' ? (
                       <span className="text-slate-400">—</span>
                     ) : (
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${expiryBadge.className}`}>
-                        {expiryText}
-                      </span>
+                      <Badge tone={expiryStatus === 'vencido' ? 'danger' : 'warning'}>{expiryText}</Badge>
                     )}
                   </td>
 
@@ -402,7 +357,8 @@ export default async function DocumentsPage({
             </p>
           </div>
         ) : null}
-      </div>
+        </div>
+      </Reveal>
     </AppShell>
   );
 }
