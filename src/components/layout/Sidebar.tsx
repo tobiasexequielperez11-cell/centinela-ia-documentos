@@ -6,29 +6,7 @@ import { isUserRole } from '@/lib/permissions/roles';
 import { createClient } from '@/lib/supabase/server';
 import { normalizeIndustryType, type IndustryType } from '@/lib/industries/documentTypes';
 
-type NavItem = {
-  name: string;
-  href: string;
-  icon: LucideIcon;
-  roles: string[];
-  industries?: IndustryType[];
-  group: string;
-};
-
-const navigation: NavItem[] = [
-  { name: 'Inicio', href: '/dashboard', icon: BarChart3, roles: ['admin', 'employee', 'auditor', 'client'], group: 'Operación' },
-  { name: 'Expedientes', href: '/expedientes', icon: FolderKanban, roles: ['admin', 'employee', 'auditor', 'client'], group: 'Operación' },
-  { name: 'Documentos', href: '/documentos', icon: FileText, roles: ['admin', 'employee', 'auditor', 'client'], group: 'Operación' },
-  { name: 'Buscar', href: '/buscar', icon: Search, roles: ['admin', 'employee'], group: 'Utilidades' },
-  { name: 'Observaciones', href: '/observaciones', icon: AlertCircle, roles: ['admin', 'employee', 'auditor', 'client'], group: 'Gestión' },
-  { name: 'Calculadoras', href: '/calculadoras', icon: Calculator, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['legal', 'escribania'], group: 'Herramientas jurídicas' },
-  { name: 'Modelos', href: '/modelos', icon: FileSignature, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['legal', 'escribania'], group: 'Herramientas jurídicas' },
-  { name: 'Agenda', href: '/agenda', icon: CalendarDays, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['legal', 'escribania'], group: 'Herramientas jurídicas' },
-  { name: 'Herramientas', href: '/herramientas', icon: ScanLine, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['legal', 'escribania'], group: 'Utilidades' },
-  { name: 'Usuarios', href: '/usuarios', icon: Users, roles: ['admin'], group: 'Gestión' },
-  { name: 'Reportes', href: '/reportes', icon: BarChart3, roles: ['admin', 'employee', 'auditor'], group: 'Gestión' },
-  { name: 'Configuración', href: '/configuracion', icon: Settings, roles: ['admin'], group: 'Gestión' },
-];
+import { navigation } from '@/config/navigation';
 
 export async function Sidebar() {
   const { profile } = await getUserProfile();

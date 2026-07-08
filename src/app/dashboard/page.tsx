@@ -6,6 +6,10 @@ import { createClient } from '@/lib/supabase/server';
 import { AppShell } from '@/components/layout/AppShell';
 import { MetricCard } from '@/components/dashboard/MetricCard';
 import { Reveal } from '@/components/ui/Reveal';
+import { MotionCard } from '@/components/ui/MotionCard';
+import { MotionButton } from '@/components/ui/MotionButton';
+import { ModulosGrid } from '@/components/dashboard/ModulosGrid';
+import { navigation } from '@/config/navigation';
 import {
   getDocumentTypeLabel,
   normalizeIndustryType,
@@ -246,6 +250,13 @@ export default async function DashboardPage() {
 
   const showRecentActivity = dashboardCards.includes('actividad_reciente');
 
+  const filteredModules = navigation.filter((item) => {
+    if (item.name === 'Inicio') return false;
+    if (item.roles && !item.roles.includes(role || '')) return false;
+    if (item.industries && !item.industries.includes(industry)) return false;
+    return true;
+  });
+
   // Primeros pasos (home guiado)
   const { count: memberCount } = await supabase
     .from('profiles')
@@ -260,21 +271,21 @@ export default async function DashboardPage() {
 
   return (
     <AppShell>
-      <Reveal>
-        <div className="mb-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-soft">
-            INICIO
-          </p>
+      <MotionCard className="mb-8" index={0}>
+        <p className="text-xs font-semibold uppercase tracking-widest text-cyan-400/80">INICIO</p>
+        <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-white">
+          Bienvenido, <span className="text-gradient">{profile.full_name}</span>
+        </h1>
+        <p className="mt-2 text-sm text-slate-400">
+          Tu panel operativo de expedientes, documentos e IA.
+        </p>
 
-          <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight text-white">
-            Bienvenido, <span className="text-gradient">{profile.full_name}</span>
-          </h2>
-
-          <p className="mt-2 text-sm text-slate-600">
-            Resumen operativo de expedientes, documentos, análisis IA y actividad auditada.
-          </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link href="/expedientes/nuevo" className="quick-action">＋ Nuevo expediente</Link>
+          <Link href="/documentos/subir" className="quick-action">⬆ Subir documento</Link>
+          <Link href="/buscar" className="quick-action">🔍 Buscar</Link>
         </div>
-      </Reveal>
+      </MotionCard>
 
       {showGettingStarted && (
         <PrimerosPasos
@@ -292,138 +303,88 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {showRecentActivity ? (
-        <Reveal delay={0.1}>
-          <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.055] p-6 shadow-[0_18px_45px_rgba(0,0,0,0.18)] backdrop-blur-sm">
-          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
-            <div>
-              <div className="flex items-center gap-2.5">
-                <span className="h-6 w-1 rounded-full bg-gradient-to-b from-accent to-brandviolet" />
-                <h2 className="font-display text-lg font-semibold text-white">Actividad reciente</h2>
-              </div>
-              <p className="mt-2 text-sm text-slate-400">
-                Últimos eventos auditados
-              </p>
-            </div>
-            <Link
-              href="/reportes"
-              className="rounded-2xl border border-white/10 px-5 py-3 text-center text-sm font-bold text-white hover:border-sky-400 hover:text-sky-300"
-            >
-              Ver reportes
-            </Link>
-          </div>
+      <div className="mt-8">
+        <ModulosGrid modules={filteredModules} />
+      </div>
 
-          <div className="mt-5 space-y-3">
-            {!mayViewAudit ? (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-slate-300">
-                Tu rol no tiene acceso a la auditoría.
-              </div>
-            ) : recentActivity.length > 0 ? (
-              recentActivity.map((log) => (
-                <div
-                  key={log.id}
-                  className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div>
-                    <p className="font-bold text-white">
-                      {formatAuditActionLabel(log.action)}
-                    </p>
-                    <p className="mt-1 text-sm text-slate-400">
-                      {getAuditDetail(log)}
-                    </p>
-                  </div>
-                  <span className="text-xs font-semibold text-slate-400">
-                    {formatDate(log.created_at)}
-                  </span>
+      <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_0.8fr]">
+        <MotionCard index={1} className="flex flex-col justify-between">
+          <div>
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+              <div>
+                <div className="flex items-center gap-2.5">
+                  <span className="h-6 w-1 rounded-full bg-gradient-to-b from-accent to-brandviolet" />
+                  <h2 className="font-display text-lg font-semibold text-white">IA documental</h2>
                 </div>
-              ))
-            ) : (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-slate-300">
-                Todavía no hay actividad auditada para mostrar.
-              </div>
-            )}
-          </div>
-          </section>
-        </Reveal>
-      ) : null}
+                <h3 className="mt-2 font-display text-2xl font-semibold text-white">
+                  Cobertura de análisis
+                </h3>
 
-      <Reveal delay={0.15}>
-        <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_0.8fr]">
-        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-            <div>
-              <div className="flex items-center gap-2.5">
-                <span className="h-6 w-1 rounded-full bg-gradient-to-b from-accent to-brandviolet" />
-                <h2 className="font-display text-lg font-semibold text-white">IA documental</h2>
+                <p className="mt-2 text-sm text-slate-400">
+                  Seguimiento de documentos procesados y pendientes.
+                </p>
               </div>
-              <h3 className="mt-2 font-display text-2xl font-semibold text-slate-950">
-                Cobertura de análisis
-              </h3>
 
-              <p className="mt-2 text-sm text-slate-600">
-                Seguimiento de documentos procesados y pendientes.
-              </p>
+              <Link
+                href="/documentos?ia=pendientes"
+                className="quick-action"
+              >
+                Ver pendientes
+              </Link>
             </div>
 
-            <Link
-              href="/documentos?ia=pendientes"
-              className="rounded-2xl bg-slate-950 px-5 py-3 text-center text-sm font-bold text-white hover:bg-slate-800"
-            >
-              Ver pendientes
-            </Link>
-          </div>
+            <div className="mt-6">
+              <div className="mb-2 flex justify-between text-sm">
+                <span className="font-semibold text-slate-400">
+                  Cobertura IA
+                </span>
+                <span className="font-bold text-white">{coverage}%</span>
+              </div>
 
-          <div className="mt-6">
-            <div className="mb-2 flex justify-between text-sm">
-              <span className="font-semibold text-slate-600">
-                Cobertura IA
-              </span>
-              <span className="font-bold text-slate-950">{coverage}%</span>
-            </div>
-
-            <div className="h-3 overflow-hidden rounded-full bg-slate-100">
-              <div
-                className="h-full rounded-full bg-sky-500"
-                style={{ width: `${coverage}%` }}
-              />
+              <div className="h-3 overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]"
+                  style={{ width: `${coverage}%` }}
+                />
+              </div>
             </div>
           </div>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl bg-slate-50 p-4">
+            <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Procesados
               </p>
-              <p className="mt-2 text-2xl font-bold text-slate-950">
+              <p className="mt-2 text-2xl font-bold text-white">
                 {analyzedDocuments.length}
               </p>
             </div>
 
-            <div className="rounded-2xl bg-slate-50 p-4">
+            <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Pendientes
               </p>
-              <p className="mt-2 text-2xl font-bold text-slate-950">
+              <p className="mt-2 text-2xl font-bold text-white">
                 {pendingDocuments.length}
               </p>
             </div>
           </div>
-        </section>
+        </MotionCard>
 
-        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <MotionCard index={2} className="flex flex-col">
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2.5">
                 <span className="h-6 w-1 rounded-full bg-gradient-to-b from-accent to-brandviolet" />
-                <h2 className="font-display text-lg font-semibold text-slate-950">Documentos pendientes de análisis</h2>
+                <h2 className="font-display text-lg font-semibold text-white">Documentos pendientes de análisis</h2>
               </div>
 
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-slate-400">
                 Primeros documentos que todavía requieren procesamiento IA.
               </p>
             </div>
 
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+            <span className="rounded-full bg-cyan-500/10 px-3 py-1 text-xs font-bold text-cyan-400">
               {pendingDocuments.length} pendientes
             </span>
           </div>
@@ -436,15 +397,15 @@ export default async function DashboardPage() {
                 return (
                   <div
                     key={document.id}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+                    className="rounded-2xl border border-white/5 bg-white/[0.02] p-4"
                   >
                     <Link href={`/documentos/${document.id}`}>
-                      <p className="font-bold text-slate-950 hover:text-sky-700">
+                      <p className="font-bold text-white hover:text-cyan-400">
                         {document.file_name}
                       </p>
                     </Link>
 
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-slate-400">
                       Tipo: {getDocumentTypeLabel(document.document_type)} - Sensibilidad:{' '}
                       {sensitivityLabel(document.sensitivity_level)}
                     </p>
@@ -452,7 +413,7 @@ export default async function DashboardPage() {
                     <div className="mt-3 flex flex-wrap gap-2">
                       <Link
                         href={`/documentos/${document.id}`}
-                        className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                        className="quick-action"
                       >
                         Ver documento
                       </Link>
@@ -465,12 +426,12 @@ export default async function DashboardPage() {
                             value={document.id}
                           />
 
-                          <button className="rounded-xl bg-slate-950 px-3 py-2 text-xs font-bold text-white hover:bg-slate-800">
+                          <MotionButton className="bg-gradient-to-r from-accent to-brandviolet text-xs text-white">
                             Analizar IA
-                          </button>
+                          </MotionButton>
                         </form>
                       ) : (
-                        <span className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-bold text-slate-500">
+                        <span className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-slate-400">
                           IA solo PDF
                         </span>
                       )}
@@ -479,7 +440,7 @@ export default async function DashboardPage() {
                 );
               })
             ) : (
-              <div className="rounded-2xl bg-sky-50 p-4 text-sm text-sky-800">
+              <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/10 p-4 text-sm text-cyan-200">
                 Todos los documentos cargados ya tienen al menos un análisis IA.
               </div>
             )}
@@ -488,14 +449,66 @@ export default async function DashboardPage() {
           {pendingDocuments.length > 5 ? (
             <Link
               href="/documentos?ia=pendientes"
-              className="mt-5 inline-flex text-sm font-bold text-sky-600 hover:text-sky-700"
+              className="mt-5 inline-flex text-sm font-bold text-cyan-400 hover:text-cyan-300"
             >
               Ver todos los pendientes
             </Link>
           ) : null}
-        </section>
-        </div>
-      </Reveal>
+        </MotionCard>
+      </div>
+
+      {showRecentActivity ? (
+        <MotionCard index={3} className="mt-8">
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+            <div>
+              <div className="flex items-center gap-2.5">
+                <span className="h-6 w-1 rounded-full bg-gradient-to-b from-accent to-brandviolet" />
+                <h2 className="font-display text-lg font-semibold text-white">Actividad reciente</h2>
+              </div>
+              <p className="mt-2 text-sm text-slate-400">
+                Últimos eventos auditados
+              </p>
+            </div>
+            <Link
+              href="/reportes"
+              className="quick-action"
+            >
+              Ver reportes
+            </Link>
+          </div>
+
+          <div className="mt-5 space-y-3">
+            {!mayViewAudit ? (
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-slate-400">
+                Tu rol no tiene acceso a la auditoría.
+              </div>
+            ) : recentActivity.length > 0 ? (
+              recentActivity.map((log) => (
+                <div
+                  key={log.id}
+                  className="flex flex-col gap-2 rounded-2xl border border-white/5 bg-white/[0.02] p-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div>
+                    <p className="font-bold text-white">
+                      {formatAuditActionLabel(log.action)}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-400">
+                      {getAuditDetail(log)}
+                    </p>
+                  </div>
+                  <span className="text-xs font-semibold text-slate-500">
+                    {formatDate(log.created_at)}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-slate-400">
+                Todavía no hay actividad auditada para mostrar.
+              </div>
+            )}
+          </div>
+        </MotionCard>
+      ) : null}
     </AppShell>
   );
 }

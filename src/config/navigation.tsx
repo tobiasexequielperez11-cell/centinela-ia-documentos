@@ -1,0 +1,40 @@
+import type { LucideIcon } from 'lucide-react';
+import {
+  BarChart3,
+  FileText,
+  FolderKanban,
+  Users,
+  AlertCircle,
+  Calculator,
+  FileSignature,
+  CalendarDays,
+  ScanLine,
+  Search,
+  Settings,
+} from 'lucide-react';
+import { type IndustryType } from '@/lib/industries/documentTypes';
+
+export type NavItem = {
+  name: string;
+  href: string;
+  icon: LucideIcon;
+  roles: string[];
+  industries?: IndustryType[];
+  group: string;
+  description?: string;
+};
+
+export const navigation: NavItem[] = [
+  { name: 'Inicio', href: '/dashboard', icon: BarChart3, roles: ['admin', 'employee', 'auditor', 'client'], group: 'Operación', description: 'Panel principal y acceso rápido a módulos.' },
+  { name: 'Expedientes', href: '/expedientes', icon: FolderKanban, roles: ['admin', 'employee', 'auditor', 'client'], group: 'Operación', description: 'Gestión operativa de expedientes vinculados.' },
+  { name: 'Documentos', href: '/documentos', icon: FileText, roles: ['admin', 'employee', 'auditor', 'client'], group: 'Operación', description: 'Bóveda documental y análisis en modo beta.' },
+  { name: 'Buscar', href: '/buscar', icon: Search, roles: ['admin', 'employee'], group: 'Utilidades', description: 'Búsqueda avanzada de expedientes y documentos.' },
+  { name: 'Observaciones', href: '/observaciones', icon: AlertCircle, roles: ['admin', 'employee', 'auditor', 'client'], group: 'Gestión', description: 'Panel de observaciones y tareas pendientes.' },
+  { name: 'Calculadoras', href: '/calculadoras', icon: Calculator, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['legal', 'escribania'], group: 'Herramientas jurídicas', description: 'Herramientas de cálculo para plazos y montos.' },
+  { name: 'Modelos', href: '/modelos', icon: FileSignature, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['legal', 'escribania'], group: 'Herramientas jurídicas', description: 'Plantillas y modelos de documentos.' },
+  { name: 'Agenda', href: '/agenda', icon: CalendarDays, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['legal', 'escribania'], group: 'Herramientas jurídicas', description: 'Calendario de vencimientos y plazos.' },
+  { name: 'Herramientas', href: '/herramientas', icon: ScanLine, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['legal', 'escribania'], group: 'Utilidades', description: 'Utilidades extra para gestión documental.' },
+  { name: 'Usuarios', href: '/usuarios', icon: Users, roles: ['admin'], group: 'Gestión', description: 'Administración de usuarios e invitaciones.' },
+  { name: 'Reportes', href: '/reportes', icon: BarChart3, roles: ['admin', 'employee', 'auditor'], group: 'Gestión', description: 'Métricas y reportes de actividad.' },
+  { name: 'Configuración', href: '/configuracion', icon: Settings, roles: ['admin'], group: 'Gestión', description: 'Ajustes globales y preferencias de la plataforma.' },
+];
