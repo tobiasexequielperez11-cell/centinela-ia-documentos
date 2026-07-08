@@ -55,7 +55,7 @@ export async function Sidebar() {
   const groupOrder = ['Operación', 'Herramientas jurídicas', 'Utilidades', 'Gestión'];
 
   return (
-    <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-white/10 bg-[#071326] px-5 py-6 shadow-[18px_0_55px_rgba(0,0,0,0.24)] lg:block">
+    <aside className="fixed inset-y-0 left-0 hidden h-screen w-72 flex-col border-r border-white/10 bg-[#071326] px-5 py-6 shadow-[18px_0_55px_rgba(0,0,0,0.24)] lg:flex">
       <Link href="/dashboard" className="mb-8 block">
         <p className="text-xs font-semibold uppercase tracking-[0.25em]">
           <span className="text-white">Centinela</span>{' '}
@@ -66,13 +66,13 @@ export async function Sidebar() {
         </h1>
       </Link>
 
-      <nav className="space-y-1">
+      <nav className="space-y-1 flex-1 overflow-y-auto pb-6">
         {groupOrder.map((group) => {
           const items = visibleNavigation.filter((i) => i.group === group);
           if (items.length === 0) return null;
           return (
-            <div key={group} className="mb-3">
-              <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+            <div key={group} className="mb-1">
+              <p className="px-3 pb-0.5 pt-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                 {group}
               </p>
               {items.map((item) => {
