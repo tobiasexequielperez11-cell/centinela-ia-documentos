@@ -31,6 +31,8 @@ import { canUseAi } from '@/lib/permissions/roles';
 import { CopilotoExpediente } from './CopilotoExpediente';
 import { CronologiaExpediente } from './CronologiaExpediente';
 import { RadarPlazos } from './RadarPlazos';
+import { Tabs } from '@/components/ui/Tabs';
+import { Badge } from '@/components/ui/Badge';
 import type { CaseRecord } from '@/types/case';
 
 interface CaseDetailPageProps {
@@ -88,16 +90,16 @@ const CASE_EVENT_TYPE_LABELS: Record<string,string> = {
   otro: 'Otro movimiento',
 };
 
-function getEventTypeBadgeColor(type: string) {
-  const colors: Record<string, string> = {
-    escrito: 'bg-slate-100 text-slate-700',
-    audiencia: 'bg-amber-100 text-amber-700',
-    notificacion: 'bg-sky-100 text-sky-700',
-    resolucion: 'bg-emerald-100 text-emerald-700',
-    prueba: 'bg-purple-100 text-purple-700',
-    otro: 'bg-slate-100 text-slate-700',
+function getEventTypeBadgeColor(type: string): "warning" | "success" | "accent" | "neutral" {
+  const tones: Record<string, "warning" | "success" | "accent" | "neutral"> = {
+    escrito: 'neutral',
+    audiencia: 'warning',
+    notificacion: 'accent',
+    resolucion: 'success',
+    prueba: 'accent',
+    otro: 'neutral',
   };
-  return colors[type] || colors.otro;
+  return tones[type] || 'neutral';
 }
 
 const darkOptionStyle = { backgroundColor: '#0C2340', color: '#FFFFFF' };
@@ -334,40 +336,43 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
         </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_0.7fr]">
-        <div className="space-y-6">
-          <CopilotoExpediente
-            caseId={caseRecord.id}
-            resumen={(resumenData?.result_json as any) ?? null}
-            generadoEl={resumenData?.created_at ?? null}
-            documentosAnalizados={documentosAnalizados}
-            puedeUsarIA={puedeUsarIA}
-          />
-          <RadarPlazos items={cronologia} caseId={caseRecord.id} />
-          <CronologiaExpediente items={cronologia} />
-
-        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <Tabs
+        tabs={[
+          {
+            id: 'resumen',
+            label: '📊 Resumen',
+            content: (
+              <div className="space-y-6">
+                <CopilotoExpediente
+                  caseId={caseRecord.id}
+                  resumen={(resumenData?.result_json as any) ?? null}
+                  generadoEl={resumenData?.created_at ?? null}
+                  documentosAnalizados={documentosAnalizados}
+                  puedeUsarIA={puedeUsarIA}
+                />
+                <RadarPlazos items={cronologia} caseId={caseRecord.id} />
+                <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
           <h3 className="text-lg font-bold text-slate-950">
             Datos del expediente
           </h3>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl bg-slate-50 p-4">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Tipo
               </p>
 
-              <p className="mt-2 font-bold text-slate-950">
+              <p className="mt-2 font-bold text-white">
                 {caseRecord.case_type ?? 'General'}
               </p>
             </div>
 
-            <div className="rounded-2xl bg-slate-50 p-4">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Estado
               </p>
 
-              <p className="mt-2 font-bold text-slate-950">
+              <p className="mt-2 font-bold text-white">
                 {getCaseStatusLabel(caseRecord.status, industry)}
               </p>
             </div>
@@ -378,17 +383,17 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                 const status = getDocumentExpiryStatus(value);
                 const days = getDaysUntilExpiry(value) ?? 0;
                 return (
-                  <div key={field.key} className="rounded-2xl bg-slate-50 p-4">
+                  <div key={field.key} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                       {field.label}
                     </p>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <p className="font-bold text-slate-950">
+                      <p className="font-bold text-white">
                         {formatPlazoDate(value)}
                       </p>
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getExpiryBadgeStyles(status)}`}>
+                      <Badge tone={status === 'vencido' ? 'danger' : status === 'por_vencer' ? 'warning' : 'neutral'}>
                         {expiryStatusLabel(status)}
-                      </span>
+                      </Badge>
                       <span className="text-xs font-medium text-slate-500">
                         {days >= 0 ? `(faltan ${days} días)` : `(vencido hace ${Math.abs(days)} días)`}
                       </span>
@@ -397,11 +402,11 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                 );
               }
               return (
-                <div key={field.key} className="rounded-2xl bg-slate-50 p-4">
+                <div key={field.key} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                     {field.label}
                   </p>
-                  <p className="mt-2 font-bold text-slate-950">
+                  <p className="mt-2 font-bold text-white">
                     {value}
                   </p>
                 </div>
@@ -418,13 +423,13 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
               <input type="hidden" name="case_id" value={caseRecord.id} />
 
               <div>
-                <label className="text-sm font-semibold text-slate-700">
+                <label className="text-sm font-semibold text-slate-400">
                   Estado
                 </label>
                 <select
                   name="status"
                   defaultValue={caseRecord.status}
-                  className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#0C2340] px-4 py-3 text-white outline-none focus:ring-2 focus:ring-sky-400"
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-400"
                 >
                   {statusOptions.map((status) => (
                     <option
@@ -443,7 +448,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                 <div className="grid gap-4 sm:grid-cols-2">
                   {caseFields.map((field) => (
                     <div key={field.key}>
-                      <label className="text-sm font-semibold text-slate-700">
+                      <label className="text-sm font-semibold text-slate-400">
                         {field.label}
                       </label>
 
@@ -451,7 +456,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                         <select
                           name={`case_metadata.${field.key}`}
                           defaultValue={getMetadataValue(caseRecord.metadata, field.key)}
-                          className="mt-2 w-full rounded-2xl border border-slate-200 bg-[#0C2340] px-4 py-3 text-white outline-none focus:ring-2 focus:ring-sky-400"
+                          className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-400"
                         >
                           <option
                             value=""
@@ -476,7 +481,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                           name={`case_metadata.${field.key}`}
                           type={field.type}
                           defaultValue={getMetadataValue(caseRecord.metadata, field.key)}
-                          className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-sky-400"
+                          className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-400"
                         />
                       )}
                     </div>
@@ -484,21 +489,27 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                 </div>
               ) : null}
 
-              <button className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800">
+              <button className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-bold text-white transition-all hover:bg-slate-800">
                 Actualizar expediente
               </button>
             </form>
           </details>
         </section>
-
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              </div>
+            )
+          },
+          {
+            id: 'documentos',
+            label: '📄 Documentos',
+            content: (
+              <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
               <div>
-                <h3 className="text-lg font-bold text-slate-950">
+                <h3 className="text-lg font-bold text-white">
                   Documentos del expediente
                 </h3>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-slate-400">
                   Documentos cargados en la bóveda y asociados a este expediente.
                 </p>
               </div>
@@ -516,10 +527,10 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                 {caseDocuments.map((document) => (
                   <div
                     key={document.id}
-                    className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-bold text-slate-950">
+                      <p className="truncate text-sm font-bold text-white">
                         {document.file_name}
                       </p>
                       <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -528,12 +539,12 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                     </div>
 
                     <div className="flex shrink-0 items-center gap-3">
-                      <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-bold text-sky-700">
+                      <Badge tone={sensitivityLabel(document.sensitivity_level) === 'Crítico' || sensitivityLabel(document.sensitivity_level) === 'Alto' ? 'danger' : 'neutral'}>
                         {sensitivityLabel(document.sensitivity_level)}
-                      </span>
+                      </Badge>
                       <Link
                         href={`/documentos/${document.id}`}
-                        className="text-sm font-bold text-sky-600 hover:text-sky-700"
+                        className="text-sm font-bold text-accent-soft hover:text-white"
                       >
                         Ver documento
                       </Link>
@@ -542,15 +553,22 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                 ))}
               </div>
             ) : (
-              <div className="mt-5 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">
+              <div className="mt-5 rounded-2xl border border-dashed border-white/10 bg-white/[0.04] p-5 text-sm text-slate-400">
                 Aún no hay documentos en este expediente.
               </div>
             )}
           </section>
-
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-950">Línea de tiempo del expediente</h3>
-            <p className="mt-1 text-sm text-slate-500">Registro cronológico de actuaciones, audiencias y movimientos.</p>
+            )
+          },
+          {
+            id: 'cronologia',
+            label: '🕑 Cronología',
+            content: (
+              <div className="space-y-6">
+                <CronologiaExpediente items={cronologia} />
+                <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+            <h3 className="text-lg font-bold text-white">Línea de tiempo del expediente</h3>
+            <p className="mt-1 text-sm text-slate-400">Registro cronológico de actuaciones, audiencias y movimientos.</p>
             
             <form action={async (formData: FormData) => {
               'use server';
@@ -561,58 +579,58 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                 title: String(formData.get('title')),
                 description: String(formData.get('description') || '')
               });
-            }} className="mt-5 grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            }} className="mt-5 grid gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Fecha</label>
-                  <input type="date" name="eventDate" required className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-400" />
+                  <input type="date" name="eventDate" required className="mt-1 w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-400" />
                 </div>
                 <div>
                   <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Tipo</label>
-                  <select name="eventType" defaultValue="otro" className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-sky-400">
+                  <select name="eventType" defaultValue="otro" className="mt-1 w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-400">
                     {Object.entries(CASE_EVENT_TYPE_LABELS).map(([val, label]) => (
-                      <option key={val} value={val}>{label}</option>
+                      <option key={val} value={val} style={darkOptionStyle} className="bg-[#0C2340] text-white">{label}</option>
                     ))}
                   </select>
                 </div>
               </div>
               <div>
                 <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Título</label>
-                <input type="text" name="title" required placeholder="Ej: Se presentó la demanda" className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-400" />
+                <input type="text" name="title" required placeholder="Ej: Se presentó la demanda" className="mt-1 w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-400" />
               </div>
               <div>
                 <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Descripción (opcional)</label>
-                <textarea name="description" rows={2} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-400" />
+                <textarea name="description" rows={2} className="mt-1 w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-sky-400" />
               </div>
-              <button type="submit" className="justify-self-start rounded-xl bg-[#1E9BF0] px-4 py-2 text-sm font-bold text-white hover:bg-[#1485D6]">
+              <button type="submit" className="justify-self-start rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800 transition-all">
                 Agregar actuación
               </button>
             </form>
 
-            <div className="mt-6 space-y-4 border-l-2 border-slate-200 pl-4">
+            <div className="mt-6 space-y-4 border-l-2 border-white/10 pl-4">
               {eventos.length === 0 ? (
-                <div className="text-sm text-slate-500">Todavía no hay actuaciones registradas en este expediente.</div>
+                <div className="text-sm text-slate-400">Todavía no hay actuaciones registradas en este expediente.</div>
               ) : (
                 eventos.map((item) => (
                   <div key={item.id} className="relative mb-6 last:mb-0">
-                    <span className="absolute -left-[23px] top-1 flex h-3 w-3 items-center justify-center rounded-full bg-slate-300 ring-4 ring-white" />
+                    <span className="absolute -left-[23px] top-1 flex h-3 w-3 items-center justify-center rounded-full bg-slate-300 ring-4 ring-[#0a1830]" />
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-xs font-bold text-slate-500">{formatPlazoDate(item.event_date)}</span>
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${getEventTypeBadgeColor(item.event_type)}`}>
+                      <span className="text-xs font-bold text-slate-400">{formatPlazoDate(item.event_date)}</span>
+                      <Badge tone={getEventTypeBadgeColor(item.event_type)}>
                         {CASE_EVENT_TYPE_LABELS[item.event_type] || CASE_EVENT_TYPE_LABELS.otro}
-                      </span>
+                      </Badge>
                     </div>
-                    <div className="mt-2 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="mt-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <p className="font-bold text-slate-950">{item.title}</p>
-                          {item.description && <p className="mt-1 text-sm text-slate-600">{item.description}</p>}
+                          <p className="font-bold text-white">{item.title}</p>
+                          {item.description && <p className="mt-1 text-sm text-slate-400">{item.description}</p>}
                         </div>
                         <form action={async () => {
                           'use server';
                           await deleteCaseEvent({ eventId: item.id, caseId: caseRecord.id });
                         }}>
-                          <button type="submit" className="text-xs font-bold text-rose-500 hover:text-rose-600">Eliminar</button>
+                          <button type="submit" className="text-xs font-bold text-rose-500 hover:text-rose-400 transition-colors">Eliminar</button>
                         </form>
                       </div>
                     </div>
@@ -621,19 +639,23 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
               )}
             </div>
           </section>
-        </div>
-
-        <div className="space-y-6">
-          <aside className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-950">
+              </div>
+            )
+          },
+          {
+            id: 'checklist',
+            label: '✅ Checklist',
+            content: (
+          <aside className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+            <h3 className="text-lg font-bold text-white">
               Checklist documental
             </h3>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-400">
               Lista sugerida. Marcá lo que no aplica o agregá lo que necesites.
             </p>
 
             {checklistItems.length === 0 && (
-              <p className="mt-5 text-sm text-slate-500">
+              <p className="mt-5 text-sm text-slate-400">
                 Aún no hay ítems en este checklist.
               </p>
             )}
@@ -690,10 +712,10 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                       <div key={item.id} className={`space-y-3 ${isNotRequired ? 'opacity-60' : ''}`}>
                       <div className={`flex items-center gap-3 rounded-2xl border p-3 transition-colors ${
                           isMissing
-                            ? 'border-[#F59E0B] bg-white'
+                            ? 'border-[#F59E0B] bg-white/[0.04]'
                             : isNotRequired
-                            ? 'border-slate-200 bg-slate-100'
-                            : 'border-slate-200 bg-slate-50'
+                            ? 'border-white/10 bg-white/[0.02]'
+                            : 'border-white/10 bg-white/[0.05]'
                         }`}>
                         
                         {!isNotRequired ? (
@@ -707,14 +729,14 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                               className={`flex h-5 w-5 items-center justify-center rounded-md border text-xs font-bold ${
                                 isDone
                                   ? 'border-sky-500 bg-sky-500 text-white'
-                                  : 'border-slate-300 bg-white text-transparent'
+                                  : 'border-white/20 bg-white/[0.02] text-transparent'
                               }`}
                             >
                               ✓
                             </button>
                           </form>
                         ) : (
-                          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-slate-300 bg-slate-200 text-xs text-transparent">✓</div>
+                          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/[0.02] text-xs text-transparent">✓</div>
                         )}
 
                         <div className="min-w-0 flex-1">
@@ -722,13 +744,13 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                             className={`text-sm font-semibold ${
                               isDone || isNotRequired
                                 ? 'text-slate-500 line-through'
-                                : 'text-slate-900'
+                                : 'text-white'
                             }`}
                           >
                             {item.title}
                           </p>
                           <div className="mt-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                            <span>{checklistStatusLabel(item.status)}</span>
+                            <Badge tone={isDone ? 'success' : isNotRequired ? 'neutral' : 'warning'}>{checklistStatusLabel(item.status)}</Badge>
                             <span>•</span>
                             <form action={toggleChecklistItemNotRequired} className="inline-block">
                               <input type="hidden" name="case_id" value={caseRecord.id} />
@@ -793,7 +815,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                               ))}
                             </select>
 
-                            <button className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold text-slate-700 hover:border-sky-400 hover:text-sky-600">
+                            <button className="rounded-xl border border-white/10 px-3 py-2 text-sm font-bold text-slate-300 hover:border-sky-400 hover:text-sky-400">
                               Guardar
                             </button>
                           </div>
@@ -806,23 +828,24 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
               </div>
             </>
             ) : null}
-            <form action={addChecklistItem} className="mt-5 flex items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+            <form action={addChecklistItem} className="mt-5 flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] p-2">
               <input type="hidden" name="case_id" value={caseRecord.id} />
               <input 
                 type="text" 
                 name="title" 
                 placeholder="Agregar documento al checklist…" 
                 required
-                className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400"
+                className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-white outline-none placeholder:text-slate-500"
               />
-              <button className="shrink-0 rounded-xl bg-slate-950 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800">
+              <button className="shrink-0 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white transition-all hover:bg-slate-800">
                 Agregar
               </button>
             </form>
           </aside>
-
-        </div>
-      </div>
+            )
+          }
+        ]}
+      />
     </AppShell>
   );
 }
