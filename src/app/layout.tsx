@@ -1,5 +1,12 @@
 import type { Metadata } from 'next';
+import { Space_Grotesk } from 'next/font/google';
 import './globals.css';
+
+const display = Space_Grotesk({
+  subsets: ['latin'],
+  weight: ['500', '600', '700'],
+  variable: '--font-display',
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://centinela-ia-documentos.vercel.app'),
@@ -57,7 +64,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es">
+    <html lang="es" className={`${display.variable}`}>
       <body>{children}</body>
     </html>
   );

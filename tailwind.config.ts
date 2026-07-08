@@ -7,6 +7,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        display: ['var(--font-display)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
       colors: {
         base: "var(--bg-base)",
         elevated: "var(--bg-elevated)",

@@ -223,8 +223,42 @@ body {
   transform: translateY(0);
 }
 
+/* ===== Capa de identidad: fondo con atmósfera ===== */
 .internal-shell {
   color-scheme: dark;
+  position: relative;
+  min-height: 100vh;
+  background-color: #0a1830;
+  background-image:
+    radial-gradient(ellipse 90% 55% at 50% -10%, rgba(139, 92, 246, 0.16), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 88% 0%, rgba(34, 211, 238, 0.12), transparent 55%);
+  background-attachment: fixed;
+}
+
+/* grilla sutil que se desvanece hacia abajo */
+.internal-shell::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(ellipse 100% 80% at 50% 0%, black, transparent 78%);
+  mask-image: radial-gradient(ellipse 100% 80% at 50% 0%, black, transparent 78%);
+}
+
+/* el contenido queda por encima de la grilla */
+.internal-shell > * { position: relative; z-index: 1; }
+
+/* ===== Utilidad: texto con degradé firma ===== */
+.text-gradient {
+  background: linear-gradient(135deg, #22d3ee 0%, #6366f1 55%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .internal-shell .bg-white,

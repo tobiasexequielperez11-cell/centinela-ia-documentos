@@ -262,12 +262,12 @@ export default async function DashboardPage() {
     <AppShell>
       <Reveal>
         <div className="mb-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
-            Inicio
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-soft">
+            INICIO
           </p>
 
-          <h2 className="mt-2 text-3xl font-bold text-slate-950">
-            Bienvenido, {profile.full_name}
+          <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight text-white">
+            Bienvenido, <span className="text-gradient">{profile.full_name}</span>
           </h2>
 
           <p className="mt-2 text-sm text-slate-600">
@@ -297,12 +297,13 @@ export default async function DashboardPage() {
           <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.055] p-6 shadow-[0_18px_45px_rgba(0,0,0,0.18)] backdrop-blur-sm">
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-400">
-                Actividad reciente
-              </p>
-              <h3 className="mt-2 text-2xl font-bold text-white">
+              <div className="flex items-center gap-2.5">
+                <span className="h-6 w-1 rounded-full bg-gradient-to-b from-accent to-brandviolet" />
+                <h2 className="font-display text-lg font-semibold text-white">Actividad reciente</h2>
+              </div>
+              <p className="mt-2 text-sm text-slate-400">
                 Últimos eventos auditados
-              </h3>
+              </p>
             </div>
             <Link
               href="/reportes"
@@ -351,11 +352,11 @@ export default async function DashboardPage() {
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
-                IA documental
-              </p>
-
-              <h3 className="mt-2 text-2xl font-bold text-slate-950">
+              <div className="flex items-center gap-2.5">
+                <span className="h-6 w-1 rounded-full bg-gradient-to-b from-accent to-brandviolet" />
+                <h2 className="font-display text-lg font-semibold text-white">IA documental</h2>
+              </div>
+              <h3 className="mt-2 font-display text-2xl font-semibold text-slate-950">
                 Cobertura de análisis
               </h3>
 
@@ -412,9 +413,10 @@ export default async function DashboardPage() {
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="text-xl font-bold text-slate-950">
-                Documentos pendientes de análisis
-              </h3>
+              <div className="flex items-center gap-2.5">
+                <span className="h-6 w-1 rounded-full bg-gradient-to-b from-accent to-brandviolet" />
+                <h2 className="font-display text-lg font-semibold text-slate-950">Documentos pendientes de análisis</h2>
+              </div>
 
               <p className="mt-2 text-sm text-slate-500">
                 Primeros documentos que todavía requieren procesamiento IA.
