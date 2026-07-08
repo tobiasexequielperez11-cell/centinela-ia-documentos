@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 
 interface RoadmapSprint {
@@ -95,6 +96,24 @@ export default async function RoadmapPage() {
 
   if (profile.role !== 'admin') {
     redirect('/acceso-denegado?motivo=rol');
+  }
+
+  const admin = createAdminClient();
+  let isPlatformOwner = false;
+  
+  if (admin) {
+    const { data: owner } = await admin
+      .from('platform_admins')
+      .select('user_id, active')
+      .eq('user_id', user.id)
+      .eq('active', true)
+      .maybeSingle();
+      
+    isPlatformOwner = Boolean(owner);
+  }
+
+  if (!isPlatformOwner) {
+    redirect('/configuracion');
   }
 
   const roadmap: RoadmapSprint[] = [

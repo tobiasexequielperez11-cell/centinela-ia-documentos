@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 interface SummaryCardProps {
   title: string;
@@ -145,6 +146,24 @@ export default async function ResumenSistemaPage() {
 
   if (profile.role !== 'admin') {
     redirect('/acceso-denegado?motivo=rol');
+  }
+
+  const admin = createAdminClient();
+  let isPlatformOwner = false;
+  
+  if (admin) {
+    const { data: owner } = await admin
+      .from('platform_admins')
+      .select('user_id, active')
+      .eq('user_id', user.id)
+      .eq('active', true)
+      .maybeSingle();
+      
+    isPlatformOwner = Boolean(owner);
+  }
+
+  if (!isPlatformOwner) {
+    redirect('/configuracion');
   }
 
   const supabase = await createClient();
