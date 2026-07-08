@@ -242,14 +242,6 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
   }[] = [];
 
   // 1) Actuaciones (línea de tiempo manual)
-  const CASE_EVENT_TYPE_LABELS: Record<string, string> = {
-    presentation: 'Presentación',
-    notification: 'Notificación',
-    hearing: 'Audiencia',
-    resolution: 'Resolución',
-    other: 'Otro',
-  };
-
   for (const ev of eventos) {
     const f = String(ev.event_date).slice(0, 10);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(f)) continue;
