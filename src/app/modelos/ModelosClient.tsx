@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Document, Packer, Paragraph, TextRun } from 'docx';
 import { ArrowLeft, Copy, Check, Download, FileSignature, Search, FolderKanban, FileDown, Sparkles, Loader2 } from 'lucide-react';
 import { MODELOS, type ModeloEscrito } from '@/lib/legal/modelos';
+import { Reveal } from '@/components/ui/Reveal';
 import { redactarEscritoIA } from './actions';
 
 export type ExpedienteLite = {
@@ -235,8 +236,8 @@ export function ModelosClient({
                 onClick={() => setProvincia(p.id)}
                 className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                   provincia === p.id
-                    ? 'bg-sky-600 text-white'
-                    : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
+                    ? 'bg-slate-900 text-white'
+                    : 'border border-white/10 bg-white/[0.04] text-slate-300'
                 }`}
               >
                 {p.label}
@@ -247,26 +248,29 @@ export function ModelosClient({
           {categorias.length === 0 && <p className="text-sm text-slate-500">No encontramos modelos para “{busqueda}”.</p>}
 
           <div className="space-y-6">
-            {categorias.map(([categoria, modelos]) => (
-              <div key={categoria}>
-                <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">{categoria}</h2>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {modelos.map((m) => (
-                    <button
-                      key={m.id}
-                      type="button"
-                      onClick={() => abrir(m)}
-                      className="group flex flex-col items-start rounded-2xl border border-slate-100 bg-white p-5 text-left shadow-sm transition hover:border-sky-200 hover:shadow-md"
-                    >
-                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
-                        <FileSignature className="h-5 w-5" />
-                      </span>
-                      <span className="mt-3 text-sm font-semibold text-slate-950">{m.titulo}</span>
-                      <span className="mt-1 text-xs text-slate-500">{m.descripcion}</span>
-                    </button>
-                  ))}
+            {categorias.map(([categoria, modelos], idx) => (
+              <Reveal key={categoria} delay={idx * 0.1}>
+                <div>
+                  <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">{categoria}</h2>
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {modelos.map((m, i) => (
+                      <Reveal key={m.id} delay={0.1 + i * 0.05}>
+                        <button
+                          type="button"
+                          onClick={() => abrir(m)}
+                          className="group flex w-full flex-col items-start rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition-all hover:-translate-y-0.5 hover:border-accent/40 hover:bg-white/[0.05]"
+                        >
+                          <div className="mb-3 inline-flex rounded-xl border border-accent/20 bg-accent/[0.08] p-2 text-accent-soft">
+                            <FileSignature className="h-5 w-5" />
+                          </div>
+                          <span className="text-sm font-semibold text-white">{m.titulo}</span>
+                          <span className="mt-1 text-xs text-slate-400">{m.descripcion}</span>
+                        </button>
+                      </Reveal>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
         </>

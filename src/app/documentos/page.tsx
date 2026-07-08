@@ -249,17 +249,17 @@ export default async function DocumentsPage({
       ) : null}
 
       <Reveal delay={0.1}>
-        <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
+        <div className="overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.03]">
           <table className="w-full text-left text-sm">
             <thead className="bg-white/[0.04] text-[11px] font-semibold uppercase tracking-wide text-slate-400">
             <tr>
-              <th className="px-5 py-4">Archivo</th>
-              <th className="px-5 py-4">Tipo</th>
-              <th className="px-5 py-4">Sensibilidad</th>
-              <th className="px-5 py-4">Estado IA</th>
-              <th className="px-5 py-4">Vencimiento</th>
-              <th className="px-5 py-4">Tamaño</th>
-              <th className="px-5 py-4">Acción</th>
+              <th className="px-3 py-3">Archivo</th>
+              <th className="px-3 py-3">Tipo</th>
+              <th className="px-3 py-3">Sensibilidad</th>
+              <th className="px-3 py-3">Estado IA</th>
+              <th className="px-3 py-3">Vencimiento</th>
+              <th className="px-3 py-3">Tamaño</th>
+              <th className="px-3 py-3">Acción</th>
             </tr>
           </thead>
 
@@ -282,23 +282,23 @@ export default async function DocumentsPage({
 
               return (
                 <tr key={item.id} className="border-t border-white/5 transition-colors hover:bg-white/[0.03]">
-                  <td className="px-5 py-4 font-bold text-slate-950">
+                  <td className="px-3 py-3 font-bold text-slate-950">
                     {item.file_name}
                   </td>
 
-                  <td className="px-5 py-4 text-slate-600">
+                  <td className="px-3 py-3 text-slate-600">
                     {getDocumentTypeLabel(item.document_type)}
                   </td>
 
-                  <td className="px-5 py-4 text-slate-600">
+                  <td className="px-3 py-3 text-slate-600">
                     <Badge tone={sensitivityLabel(item.sensitivity_level) === 'Crítico' || sensitivityLabel(item.sensitivity_level) === 'Alto' ? 'danger' : 'neutral'}>{sensitivityLabel(item.sensitivity_level)}</Badge>
                   </td>
 
-                  <td className="px-5 py-4">
+                  <td className="px-3 py-3">
                     <Badge tone={isPending ? 'neutral' : 'accent'}>{aiStatus.label}</Badge>
                   </td>
 
-                  <td className="px-5 py-4">
+                  <td className="px-3 py-3">
                     {expiryStatus === 'sin_vencimiento' ? (
                       <span className="text-slate-400">—</span>
                     ) : (
@@ -306,34 +306,24 @@ export default async function DocumentsPage({
                     )}
                   </td>
 
-                  <td className="px-5 py-4 text-slate-600">
+                  <td className="px-3 py-3 text-slate-600">
                     {formatFileSize(item.file_size)}
                   </td>
 
-                  <td className="px-5 py-4">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <Link
-                        href={`/documentos/${item.id}`}
-                        className="font-bold text-sky-600 hover:text-sky-700"
-                      >
-                        Ver documento
+                  <td className="px-3 py-3">
+                    <div className="flex flex-col items-end gap-1.5">
+                      <Link href={`/documentos/${item.id}`} className="text-xs font-medium text-sky-400 hover:text-sky-300">
+                        Ver
                       </Link>
-
                       {isPending && isAnalyzable ? (
                         <form action={analyzeDocument}>
-                          <input
-                            type="hidden"
-                            name="document_id"
-                            value={item.id}
-                          />
-
-                          <AnalyzeButton className="rounded-xl bg-slate-950 px-3 py-2 text-xs font-bold text-white hover:bg-slate-800" />
+                          <input type="hidden" name="document_id" value={item.id} />
+                          <AnalyzeButton className="rounded-xl bg-slate-950 px-2.5 py-1 text-[10px] uppercase tracking-wide font-bold text-white hover:bg-slate-800" />
                         </form>
                       ) : null}
-
                       {isPending && !isAnalyzable ? (
-                        <span className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-bold text-slate-500">
-                          IA no disponible
+                        <span className="rounded-xl bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-500">
+                          Sin IA
                         </span>
                       ) : null}
                     </div>
