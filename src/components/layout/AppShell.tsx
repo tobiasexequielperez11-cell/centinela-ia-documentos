@@ -7,9 +7,9 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   return (
-    <div className="internal-shell min-h-screen text-white">
+    <div className="internal-shell text-white">
       <Sidebar />
-      <div className="min-h-screen lg:pl-72">
+      <div className="lg:pl-72">
         <Topbar />
         <main className="p-4 sm:p-6 lg:p-8">{children}</main>
       </div>

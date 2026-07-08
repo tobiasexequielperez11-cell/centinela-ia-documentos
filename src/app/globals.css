@@ -223,24 +223,26 @@ body {
   transform: translateY(0);
 }
 
-/* ===== Capa de identidad: fondo con atmósfera ===== */
-.internal-shell {
-  color-scheme: dark;
-  position: relative;
-  min-height: 100vh;
-  background-color: #0a1830;
-  background-image:
-    radial-gradient(ellipse 90% 55% at 50% -10%, rgba(139, 92, 246, 0.16), transparent 60%),
-    radial-gradient(ellipse 70% 50% at 88% 0%, rgba(34, 211, 238, 0.12), transparent 55%);
-  background-attachment: fixed;
-}
+/* ===== Fondo con atmósfera: capa FIJA, cubre todo, no ocupa layout ===== */
+.internal-shell { color-scheme: dark; }
 
-/* grilla sutil que se desvanece hacia abajo */
 .internal-shell::before {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-color: #0a1830;
+  background-image:
+    radial-gradient(ellipse 90% 55% at 50% -10%, rgba(139, 92, 246, 0.16), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 88% 0%, rgba(34, 211, 238, 0.12), transparent 55%);
+}
+
+.internal-shell::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
   pointer-events: none;
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
@@ -250,8 +252,13 @@ body {
   mask-image: radial-gradient(ellipse 100% 80% at 50% 0%, black, transparent 78%);
 }
 
-/* el contenido queda por encima de la grilla */
-.internal-shell > * { position: relative; z-index: 1; }
+.internal-shell h1,
+.internal-shell h2,
+.internal-shell h3,
+.internal-shell h4 {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
 
 /* ===== Utilidad: texto con degradé firma ===== */
 .text-gradient {
