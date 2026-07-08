@@ -5,6 +5,7 @@ import { formatAuditActionLabel } from '@/lib/audit/actionLabels';
 import { createClient } from '@/lib/supabase/server';
 import { AppShell } from '@/components/layout/AppShell';
 import { MetricCard } from '@/components/dashboard/MetricCard';
+import { Reveal } from '@/components/ui/Reveal';
 import {
   getDocumentTypeLabel,
   normalizeIndustryType,
@@ -259,19 +260,21 @@ export default async function DashboardPage() {
 
   return (
     <AppShell>
-      <div className="mb-8">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
-          Inicio
-        </p>
+      <Reveal>
+        <div className="mb-8">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+            Inicio
+          </p>
 
-        <h2 className="mt-2 text-3xl font-bold text-slate-950">
-          Bienvenido, {profile.full_name}
-        </h2>
+          <h2 className="mt-2 text-3xl font-bold text-slate-950">
+            Bienvenido, {profile.full_name}
+          </h2>
 
-        <p className="mt-2 text-sm text-slate-600">
-          Resumen operativo de expedientes, documentos, análisis IA y actividad auditada.
-        </p>
-      </div>
+          <p className="mt-2 text-sm text-slate-600">
+            Resumen operativo de expedientes, documentos, análisis IA y actividad auditada.
+          </p>
+        </div>
+      </Reveal>
 
       {showGettingStarted && (
         <PrimerosPasos
@@ -284,13 +287,14 @@ export default async function DashboardPage() {
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {metricCards.map((metric) => (
-          <MetricCard key={metric.label} {...metric} />
+        {metricCards.map((metric, i) => (
+          <MetricCard key={metric.label} index={i} label={metric.label} value={metric.value} helper={metric.helper} href={metric.href} />
         ))}
       </div>
 
       {showRecentActivity ? (
-        <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.055] p-6 shadow-[0_18px_45px_rgba(0,0,0,0.18)] backdrop-blur-sm">
+        <Reveal delay={0.1}>
+          <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.055] p-6 shadow-[0_18px_45px_rgba(0,0,0,0.18)] backdrop-blur-sm">
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-400">
@@ -338,10 +342,12 @@ export default async function DashboardPage() {
               </div>
             )}
           </div>
-        </section>
+          </section>
+        </Reveal>
       ) : null}
 
-      <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_0.8fr]">
+      <Reveal delay={0.15}>
+        <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_0.8fr]">
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
             <div>
@@ -486,7 +492,8 @@ export default async function DashboardPage() {
             </Link>
           ) : null}
         </section>
-      </div>
+        </div>
+      </Reveal>
     </AppShell>
   );
 }

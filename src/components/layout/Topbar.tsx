@@ -26,7 +26,7 @@ export async function Topbar() {
           {canUpload ? (
             <Link
               href="/documentos/subir"
-              className="inline-flex items-center gap-2 rounded-2xl bg-[#1E9BF0] px-4 py-2 text-sm font-bold text-white shadow-[0_12px_28px_rgba(30,155,240,0.25)] transition-all hover:-translate-y-0.5 hover:bg-[#1485D6]"
+              className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2 text-sm font-bold text-white transition-all"
             >
               <Upload className="h-4 w-4" />
               Subir documento
