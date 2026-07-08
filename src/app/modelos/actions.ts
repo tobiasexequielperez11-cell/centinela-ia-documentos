@@ -78,3 +78,108 @@ export async function redactarEscritoIA(input: {
     return { ok: false, motivo: 'error' };
   }
 }
+
+export type RevisionEscrito = {
+  puntuacion: number; // 0-100
+  semaforo: 'verde' | 'amarillo' | 'rojo';
+  resumen: string;
+  secciones_faltantes: string[];
+  errores: string[];
+  datos_incompletos: string[];
+  sugerencias: string[];
+  checklist: { item: string; ok: boolean }[];
+};
+
+export type RevisionResult =
+  | { ok: true; revision: RevisionEscrito }
+  | { ok: false; motivo: 'sin_key' | 'sin_permiso' | 'sin_texto' | 'error' };
+
+export async function revisarEscritoIA(input: { texto: string }): Promise<RevisionResult> {
+  const { user, profile } = await getUserProfile();
+  if (!user || !profile) return { ok: false, motivo: 'sin_permiso' };
+
+  const texto = input.texto?.trim();
+  if (!texto || texto.length < 40) return { ok: false, motivo: 'sin_texto' };
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return { ok: false, motivo: 'sin_key' };
+
+  const modelo = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+
+  const prompt = [
+    'Sos un abogado senior argentino, revisor de escritos judiciales. Revisá el ESCRITO que te paso y devolvé una auditoría profesional, clara y accionable, para que un abogado lo mejore antes de presentarlo.',
+    'Respondé SOLO un objeto JSON válido (sin texto adicional) con esta forma exacta:',
+    '{',
+    '  "puntuacion": número 0-100 (qué tan listo está para presentar),',
+    '  "semaforo": "verde" | "amarillo" | "rojo",',
+    '  "resumen": "2-3 oraciones con la valoración general",',
+    '  "secciones_faltantes": ["secciones formales que faltan o están flojas: encabezado/carátula, objeto, hechos, derecho, prueba, petitorio, firma, etc."],',
+    '  "errores": ["errores, contradicciones o inconsistencias concretas del texto"],',
+    '  "datos_incompletos": ["datos o marcadores sin completar: nombre, domicilio, monto, fecha, número de expediente, etc."],',
+    '  "sugerencias": ["mejoras de redacción, claridad y fundamentación"],',
+    '  "checklist": [{"item": "requisito de presentación", "ok": true/false}]',
+    '}',
+    'Reglas ESTRICTAS:',
+    '- NO inventes ni corrijas datos personales, montos, fechas ni números de expediente: si faltan, marcalos en "datos_incompletos".',
+    '- Referite solo a artículos o normativa que YA aparezcan en el escrito; NO inventes citas legales. Si una cita parece dudosa, señalala en "errores" como "verificar cita".',
+    '- Si algo no aplica, devolvé un array vacío. Basate SOLO en el texto aportado.',
+    '',
+    'ESCRITO A REVISAR:',
+    texto,
+  ].join('\n');
+
+  try {
+    // Usá EXACTAMENTE la misma URL de fetch que ya usa redactarEscritoIA en este archivo.
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.2, responseMimeType: 'application/json' },
+        }),
+      }
+    );
+
+    if (!resp.ok) {
+      console.error('Revisión Gemini error:', resp.status, await resp.text());
+      return { ok: false, motivo: 'error' };
+    }
+
+    const data = await resp.json();
+    const raw: string =
+      data?.candidates?.[0]?.content?.parts
+        ?.map((p: { text?: string }) => p.text ?? '')
+        .join('') ?? '';
+    if (!raw.trim()) return { ok: false, motivo: 'error' };
+
+    const parsed = JSON.parse(raw);
+    const arr = (v: unknown): string[] => (Array.isArray(v) ? v.map((x) => String(x)) : []);
+    const semaforo: RevisionEscrito['semaforo'] =
+      parsed.semaforo === 'verde' || parsed.semaforo === 'rojo' ? parsed.semaforo : 'amarillo';
+    const punt = Number(parsed.puntuacion);
+    const checklist = Array.isArray(parsed.checklist)
+      ? parsed.checklist
+          .map((c: { item?: unknown; ok?: unknown }) => ({ item: String(c?.item ?? ''), ok: Boolean(c?.ok) }))
+          .filter((c: { item: string }) => c.item)
+      : [];
+
+    return {
+      ok: true,
+      revision: {
+        puntuacion: Number.isFinite(punt) ? Math.max(0, Math.min(100, Math.round(punt))) : 0,
+        semaforo,
+        resumen: String(parsed.resumen ?? ''),
+        secciones_faltantes: arr(parsed.secciones_faltantes),
+        errores: arr(parsed.errores),
+        datos_incompletos: arr(parsed.datos_incompletos),
+        sugerencias: arr(parsed.sugerencias),
+        checklist,
+      },
+    };
+  } catch (e) {
+    console.error('Revisión parse error:', e);
+    return { ok: false, motivo: 'error' };
+  }
+}

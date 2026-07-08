@@ -3,6 +3,8 @@ import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { ModelosClient, type ExpedienteLite } from './ModelosClient';
+import { canUseAi } from '@/lib/permissions/roles';
+import { RevisarEscrito } from './RevisarEscrito';
 
 export default async function ModelosPage({
   searchParams,
@@ -27,9 +29,14 @@ export default async function ModelosPage({
   const sp = await searchParams;
   const modeloInicialId = typeof sp.modelo === 'string' ? sp.modelo : null;
 
+  const puedeIA = canUseAi(profile.role);
+
   return (
     <AppShell>
-      <ModelosClient expedientes={expedientes} modeloInicialId={modeloInicialId} />
+      <div className="space-y-6">
+        <ModelosClient expedientes={expedientes} modeloInicialId={modeloInicialId} />
+        {puedeIA && <RevisarEscrito />}
+      </div>
     </AppShell>
   );
 }
