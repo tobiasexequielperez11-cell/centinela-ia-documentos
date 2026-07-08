@@ -30,6 +30,7 @@ import {
 import { canUseAi } from '@/lib/permissions/roles';
 import { CopilotoExpediente } from './CopilotoExpediente';
 import { CronologiaExpediente } from './CronologiaExpediente';
+import { RadarPlazos } from './RadarPlazos';
 import type { CaseRecord } from '@/types/case';
 
 interface CaseDetailPageProps {
@@ -321,6 +322,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
             documentosAnalizados={documentosAnalizados}
             puedeUsarIA={puedeUsarIA}
           />
+          <RadarPlazos items={cronologia} />
           <CronologiaExpediente items={cronologia} />
 
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
