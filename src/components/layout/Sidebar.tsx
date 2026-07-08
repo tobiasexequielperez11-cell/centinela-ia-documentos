@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
-import { BarChart3, FileText, FolderKanban, Users, AlertCircle, Calculator, FileSignature, CalendarDays, ScanLine, Search } from 'lucide-react';
+import { BarChart3, FileText, FolderKanban, Users, AlertCircle, Calculator, FileSignature, CalendarDays, ScanLine, Search, Settings } from 'lucide-react';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { isUserRole } from '@/lib/permissions/roles';
 import { createClient } from '@/lib/supabase/server';
@@ -27,6 +27,7 @@ const navigation: NavItem[] = [
   { name: 'Herramientas', href: '/herramientas', icon: ScanLine, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['legal', 'escribania'], group: 'Utilidades' },
   { name: 'Usuarios', href: '/usuarios', icon: Users, roles: ['admin'], group: 'Gestión' },
   { name: 'Reportes', href: '/reportes', icon: BarChart3, roles: ['admin', 'employee', 'auditor'], group: 'Gestión' },
+  { name: 'Configuración', href: '/configuracion', icon: Settings, roles: ['admin'], group: 'Gestión' },
 ];
 
 export async function Sidebar() {
