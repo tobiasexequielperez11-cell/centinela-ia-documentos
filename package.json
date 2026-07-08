@@ -15,6 +15,7 @@
     "jspdf": "^4.2.1",
     "lucide-react": "latest",
     "mammoth": "latest",
+    "motion": "^12.42.2",
     "next": "latest",
     "openai": "latest",
     "pdf-lib": "^1.17.1",
