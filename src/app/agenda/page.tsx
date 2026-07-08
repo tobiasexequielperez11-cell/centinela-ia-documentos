@@ -25,7 +25,7 @@ export default async function AgendaPage() {
       .neq('status', 'Archivado'),
     supabase
       .from('agenda_plazos')
-      .select('id, titulo, fecha, detalle, categoria')
+      .select('id, titulo, fecha, detalle, categoria, case_id')
       .eq('organization_id', profile.organization_id),
   ]);
 
@@ -34,6 +34,9 @@ export default async function AgendaPage() {
   const plazos = plazosResult.data ?? [];
 
   const eventos: AgendaEvento[] = [];
+
+  const caseTitleById = new Map<string, string>();
+  for (const c of cases) caseTitleById.set(c.id, c.title || 'Expediente sin título');
 
   for (const doc of documents) {
     if (!doc.expires_at) continue;
@@ -61,18 +64,20 @@ export default async function AgendaPage() {
   for (const p of plazos) {
     if (!p.fecha) continue;
     const esManual = (p as { categoria?: string }).categoria === 'manual';
+    const cid = (p as { case_id?: string | null }).case_id ?? null;
     eventos.push({
       id: `${esManual ? 'evento' : 'plazo'}-${p.id}`,
       fecha: String(p.fecha).slice(0, 10),
       titulo: p.titulo ?? (esManual ? 'Evento' : 'Plazo procesal'),
       tipo: esManual ? 'evento' : 'plazo',
-      href: '/agenda',
+      href: cid ? `/expedientes/${cid}` : '/agenda',
+      expedienteNombre: cid ? caseTitleById.get(cid) : undefined,
     });
   }
 
   return (
     <AppShell>
-      <AgendaClient eventos={eventos} />
+      <AgendaClient eventos={eventos} cases={cases.map((c) => ({ id: c.id, title: c.title || 'Expediente sin título' }))} />
     </AppShell>
   );
 }

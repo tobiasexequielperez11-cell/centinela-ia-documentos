@@ -13,6 +13,7 @@ export type AgendaEvento = {
   titulo: string;
   tipo: 'documento' | 'expediente' | 'plazo' | 'evento';
   href: string;
+  expedienteNombre?: string;
 };
 
 const DIAS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
@@ -29,12 +30,13 @@ function feriaDe(fecha: string): string | null {
   return f ? f.nombre : null;
 }
 
-export function AgendaClient({ eventos }: { eventos: AgendaEvento[] }) {
+export function AgendaClient({ eventos, cases }: { eventos: AgendaEvento[]; cases: { id: string; title: string }[] }) {
   const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [nuevoTitulo, setNuevoTitulo] = useState('');
   const [nuevaFecha, setNuevaFecha] = useState('');
   const [nuevoDetalle, setNuevoDetalle] = useState('');
+  const [nuevoCaseId, setNuevoCaseId] = useState('');
   const [guardando, setGuardando] = useState(false);
   const [aviso, setAviso] = useState('');
 
@@ -45,10 +47,10 @@ export function AgendaClient({ eventos }: { eventos: AgendaEvento[] }) {
     }
     setGuardando(true);
     setAviso('');
-    const res = await guardarEventoManual({ titulo: nuevoTitulo, fecha: nuevaFecha, detalle: nuevoDetalle });
+    const res = await guardarEventoManual({ titulo: nuevoTitulo, fecha: nuevaFecha, detalle: nuevoDetalle, caseId: nuevoCaseId || undefined });
     setGuardando(false);
     if (res.ok) {
-      setNuevoTitulo(''); setNuevaFecha(''); setNuevoDetalle('');
+      setNuevoTitulo(''); setNuevaFecha(''); setNuevoDetalle(''); setNuevoCaseId('');
       setShowForm(false);
       router.refresh();
     } else {
@@ -133,6 +135,19 @@ export function AgendaClient({ eventos }: { eventos: AgendaEvento[] }) {
               <span className="mb-1 block text-xs font-semibold text-slate-600">Detalle (opcional)</span>
               <input type="text" value={nuevoDetalle} onChange={(e) => setNuevoDetalle(e.target.value)} placeholder="Descripción adicional" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-950 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100" />
             </label>
+            <label className="block">
+              <span className="mb-1 block text-xs font-medium text-slate-500">Expediente (opcional)</span>
+              <select
+                value={nuevoCaseId}
+                onChange={(e) => setNuevoCaseId(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-950 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+              >
+                <option value="">Sin expediente</option>
+                {cases.map((c) => (
+                  <option key={c.id} value={c.id}>{c.title}</option>
+                ))}
+              </select>
+            </label>
             <button
               type="button"
               onClick={crearEvento}
@@ -190,7 +205,7 @@ export function AgendaClient({ eventos }: { eventos: AgendaEvento[] }) {
                       const bgColor = ev.tipo === 'documento' ? 'bg-sky-500' : ev.tipo === 'evento' ? 'bg-emerald-500' : 'bg-violet-500';
                       const content = ev.titulo;
                       const className = `block truncate rounded px-1 py-0.5 text-[10px] font-medium text-white ${bgColor}`;
-                      if (ev.tipo === 'plazo' || ev.tipo === 'evento') {
+                      if ((ev.tipo === 'plazo' || ev.tipo === 'evento') && ev.href === '/agenda') {
                         return <div key={ev.id} title={ev.titulo} className={className}>{content}</div>;
                       }
                       return (
@@ -223,11 +238,12 @@ export function AgendaClient({ eventos }: { eventos: AgendaEvento[] }) {
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-medium text-slate-900">{ev.titulo}</span>
                     <span className="block text-xs text-slate-500">{ev.fecha.split('-').reverse().join('/')} · {typeLabel}</span>
+                    {ev.expedienteNombre && <span className="block truncate text-[11px] text-slate-400">{ev.expedienteNombre}</span>}
                   </span>
                 </>
               );
               const className = "flex items-start gap-2 rounded-lg border border-slate-100 p-2.5 transition hover:bg-slate-50";
-              if (ev.tipo === 'plazo' || ev.tipo === 'evento') {
+              if ((ev.tipo === 'plazo' || ev.tipo === 'evento') && ev.href === '/agenda') {
                 return <div key={ev.id} className={className}>{content}</div>;
               }
               return (

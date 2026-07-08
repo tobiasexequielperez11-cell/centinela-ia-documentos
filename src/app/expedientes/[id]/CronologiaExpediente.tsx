@@ -4,7 +4,7 @@ export type ItemCronologia = {
   fecha: string;
   titulo: string;
   detalle?: string | null;
-  origen: 'actuacion' | 'detectada' | 'documento';
+  origen: 'actuacion' | 'detectada' | 'documento' | 'agenda';
   etiquetaOrigen: string;
   esFuturo: boolean;
 };
@@ -13,6 +13,7 @@ const ORIGEN_STYLE: Record<string, { dot: string; badge: string; icon: string }>
   actuacion: { dot: 'bg-sky-500', badge: 'bg-sky-100 text-sky-700', icon: '⚖️' },
   detectada: { dot: 'bg-violet-500', badge: 'bg-violet-100 text-violet-700', icon: '🤖' },
   documento: { dot: 'bg-slate-400', badge: 'bg-slate-100 text-slate-600', icon: '📄' },
+  agenda: { dot: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-700', icon: '📌' },
 };
 
 export function CronologiaExpediente({ items }: { items: ItemCronologia[] }) {

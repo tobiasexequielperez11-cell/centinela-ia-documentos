@@ -44,7 +44,7 @@ function nivelDe(n: number): Nivel | null {
 
 type PlazoRadar = { item: ItemCronologia; dias: number; nivel: Nivel };
 
-export function RadarPlazos({ items }: { items: ItemCronologia[] }) {
+export function RadarPlazos({ items, caseId }: { items: ItemCronologia[]; caseId: string }) {
   const [estados, setEstados] = useState<Record<string, 'idle' | 'loading' | 'ok' | 'error'>>({});
 
   const plazos: PlazoRadar[] = items
@@ -60,6 +60,7 @@ export function RadarPlazos({ items }: { items: ItemCronologia[] }) {
         titulo: p.item.titulo,
         fecha: p.item.fecha,
         detalle: `Plazo del expediente · ${p.item.etiquetaOrigen}`,
+        caseId,
       });
       setEstados((prev) => ({ ...prev, [key]: res?.ok ? 'ok' : 'error' }));
     } catch {

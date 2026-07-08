@@ -198,6 +198,12 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
     .order('event_date', { ascending: false })
     .order('created_at', { ascending: false });
 
+  const { data: agendaData } = await supabase
+    .from('agenda_plazos')
+    .select('id, titulo, fecha, detalle, categoria')
+    .eq('organization_id', profile.organization_id)
+    .eq('case_id', caseRecord.id);
+
   const checklistItems = (checklistItemsData ?? []) as unknown as ChecklistItemRecord[];
   const caseDocuments = (caseDocumentsData ?? []) as CaseDocumentRecord[];
   const availableDocuments = (availableDocumentsData ??
@@ -239,7 +245,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
 
   const cronologia: {
     fecha: string; titulo: string; detalle?: string | null;
-    origen: 'actuacion' | 'detectada' | 'documento'; etiquetaOrigen: string; esFuturo: boolean;
+    origen: 'actuacion' | 'detectada' | 'documento' | 'agenda'; etiquetaOrigen: string; esFuturo: boolean;
   }[] = [];
 
   // 1) Actuaciones (línea de tiempo manual)
@@ -291,6 +297,21 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
     });
   }
 
+  // 4) Recordatorios manuales de la Agenda ligados a este expediente
+  for (const a of agendaData ?? []) {
+    if ((a as { categoria?: string }).categoria !== 'manual') continue; // los 'plazo' ya vienen de su fuente original
+    const f = String(a.fecha).slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(f)) continue;
+    cronologia.push({
+      fecha: f,
+      titulo: a.titulo || 'Recordatorio',
+      detalle: (a as { detalle?: string | null }).detalle ?? null,
+      origen: 'agenda',
+      etiquetaOrigen: 'Agenda',
+      esFuturo: esFuturo(f),
+    });
+  }
+
   // orden cronológico ascendente (más antiguo → más nuevo)
   cronologia.sort((a, b) => (a.fecha < b.fecha ? -1 : a.fecha > b.fecha ? 1 : 0));
 
@@ -322,7 +343,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
             documentosAnalizados={documentosAnalizados}
             puedeUsarIA={puedeUsarIA}
           />
-          <RadarPlazos items={cronologia} />
+          <RadarPlazos items={cronologia} caseId={caseRecord.id} />
           <CronologiaExpediente items={cronologia} />
 
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">

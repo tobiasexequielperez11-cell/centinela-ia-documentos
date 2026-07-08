@@ -12,6 +12,7 @@ export async function guardarEventoManual(input: {
   titulo: string;
   fecha: string; // 'YYYY-MM-DD'
   detalle?: string;
+  caseId?: string;
 }): Promise<GuardarEventoResult> {
   const { user, profile } = await getUserProfile();
   if (!user || !profile) return { ok: false, motivo: 'no_auth' };
@@ -28,11 +29,13 @@ export async function guardarEventoManual(input: {
     detalle: input.detalle?.trim() || null,
     categoria: 'manual',
     created_by: user.id,
+    case_id: input.caseId ?? null,
   });
 
   if (error) return { ok: false, motivo: 'error', mensaje: error.message };
 
   revalidatePath('/agenda');
+  if (input.caseId) revalidatePath(`/expedientes/${input.caseId}`);
   return { ok: true };
 }
 
@@ -40,6 +43,7 @@ export async function guardarPlazoDetectado(input: {
   titulo: string;
   fecha: string; // 'YYYY-MM-DD'
   detalle?: string;
+  caseId?: string;
 }): Promise<GuardarEventoResult> {
   const { user, profile } = await getUserProfile();
   if (!user || !profile) return { ok: false, motivo: 'no_auth' };
@@ -56,10 +60,12 @@ export async function guardarPlazoDetectado(input: {
     detalle: input.detalle?.trim() || null,
     categoria: 'plazo',
     created_by: user.id,
+    case_id: input.caseId ?? null,
   });
 
   if (error) return { ok: false, motivo: 'error', mensaje: error.message };
 
   revalidatePath('/agenda');
+  if (input.caseId) revalidatePath(`/expedientes/${input.caseId}`);
   return { ok: true };
 }
