@@ -20,12 +20,14 @@ function BotonGenerar({ tieneResumen }: { tieneResumen: boolean }) {
 
 function Bloque({ titulo, items, tono = 'slate' }: { titulo: string; items: string[]; tono?: 'slate' | 'amber' | 'emerald' }) {
   const tonos: Record<string, string> = {
-    slate: 'border-slate-200 bg-white', amber: 'border-amber-200 bg-amber-50', emerald: 'border-emerald-200 bg-emerald-50',
+    slate:   'border-white/10 bg-white/[0.04]',
+    amber:   'border-amber-400/25 bg-amber-400/[0.06]',
+    emerald: 'border-emerald-400/25 bg-emerald-400/[0.06]',
   };
   return (
     <div className={`rounded-xl border p-4 ${tonos[tono]}`}>
-      <h3 className="mb-2 text-sm font-semibold text-slate-800">{titulo}</h3>
-      <ul className="list-disc space-y-1 pl-4 text-sm text-slate-600">
+      <h3 className="mb-2 text-sm font-semibold text-white">{titulo}</h3>
+      <ul className="list-disc space-y-1 pl-4 text-sm text-slate-300">
         {items.map((it, i) => <li key={i}>{it}</li>)}
       </ul>
     </div>
@@ -41,11 +43,11 @@ export function CopilotoExpediente({
   const generar = generarResumenExpediente.bind(null, caseId);
 
   return (
-    <section className="rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 to-white p-6">
+    <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">🤖 Copiloto — Resumen del expediente</h2>
-          <p className="text-sm text-slate-500">Panorama ejecutivo del caso generado por IA a partir de los documentos analizados y las actuaciones.</p>
+          <h2 className="text-base font-semibold text-white">🤖 Copiloto — Resumen del expediente</h2>
+          <p className="mt-1 text-sm text-slate-400">Panorama ejecutivo del caso generado por IA a partir de los documentos analizados y las actuaciones.</p>
         </div>
         {puedeUsarIA && (
           <form action={generar}><BotonGenerar tieneResumen={!!resumen} /></form>
@@ -53,22 +55,22 @@ export function CopilotoExpediente({
       </div>
 
       {documentosAnalizados === 0 && !resumen && (
-        <p className="mt-4 rounded-xl bg-amber-50 p-3 text-sm text-amber-700">
+        <p className="mt-4 rounded-xl border border-amber-400/25 bg-amber-400/[0.06] p-3 text-sm text-amber-200">
           Todavía no hay documentos analizados en este expediente. Analizá al menos un documento con IA para poder generar el resumen.
         </p>
       )}
 
       {!resumen && documentosAnalizados > 0 && (
-        <p className="mt-4 text-sm text-slate-500">
+        <p className="mt-4 text-sm text-slate-300">
           Hay {documentosAnalizados} documento(s) analizado(s). Tocá “Generar resumen con IA” para armar el panorama del expediente.
         </p>
       )}
 
       {resumen && (
         <div className="mt-4 space-y-4">
-          <p className="text-sm leading-relaxed text-slate-700">{resumen.resumen_general}</p>
+          <p className="text-sm leading-relaxed text-slate-200">{resumen.resumen_general}</p>
           {resumen.estado_actual && (
-            <p className="text-sm text-slate-600"><span className="font-medium text-slate-800">Estado: </span>{resumen.estado_actual}</p>
+            <p className="text-sm text-slate-200"><span className="font-medium text-slate-400">Estado: </span>{resumen.estado_actual}</p>
           )}
           <div className="grid gap-4 md:grid-cols-2">
             {resumen.partes.length > 0 && <Bloque titulo="Partes" items={resumen.partes} />}
@@ -77,7 +79,7 @@ export function CopilotoExpediente({
             {resumen.proximas_acciones.length > 0 && <Bloque titulo="Próximas acciones" items={resumen.proximas_acciones} tono="emerald" />}
           </div>
           {generadoEl && (
-            <p className="text-xs text-slate-400">Generado el {new Date(generadoEl).toLocaleString('es-AR')} · Borrador orientativo, revisá antes de usar.</p>
+            <p className="text-xs text-slate-500">Generado el {new Date(generadoEl).toLocaleString('es-AR')} · Borrador orientativo, revisá antes de usar.</p>
           )}
         </div>
       )}
