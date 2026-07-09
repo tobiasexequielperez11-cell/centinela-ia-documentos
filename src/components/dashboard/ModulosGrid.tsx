@@ -5,8 +5,15 @@ import Link from 'next/link';
 import { Star } from 'lucide-react';
 import { MotionCard } from '@/components/ui/MotionCard';
 import type { NavItem } from '@/config/navigation';
+import { navigation } from '@/config/navigation';
 
-export function ModulosGrid({ modules }: { modules: NavItem[] }) {
+export function ModulosGrid({ role, industry }: { role: string; industry: string }) {
+  const modules = navigation.filter(
+    (m) =>
+      m.href !== '/dashboard' &&
+      m.roles.includes(role) &&
+      (!m.industries || m.industries.includes(industry as any))
+  );
   const [q, setQ] = useState('');
   const [favs, setFavs] = useState<string[]>([]);
   const [mounted, setMounted] = useState(false);

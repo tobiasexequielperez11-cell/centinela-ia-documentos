@@ -250,12 +250,6 @@ export default async function DashboardPage() {
 
   const showRecentActivity = dashboardCards.includes('actividad_reciente');
 
-  const filteredModules = navigation.filter((item) => {
-    if (item.name === 'Inicio') return false;
-    if (item.roles && !item.roles.includes(role || '')) return false;
-    if (item.industries && !item.industries.includes(industry)) return false;
-    return true;
-  });
 
   // Primeros pasos (home guiado)
   const { count: memberCount } = await supabase
@@ -304,7 +298,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mt-8">
-        <ModulosGrid modules={filteredModules} />
+        <ModulosGrid role={role ?? 'client'} industry={industry} />
       </div>
 
       <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_0.8fr]">
