@@ -7,8 +7,7 @@ import { createAuditLog } from '@/lib/audit/createAuditLog';
 import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
 import { formatFileSize } from '@/lib/format/fileSize';
 import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles } from '@/lib/documents/expiry';
-import { analyzeDocument } from '../actions';
-import { AnalyzeButton } from '../AnalyzeButton';
+
 import { PlazosDetectados } from './PlazosDetectados';
 import { FileSignature } from 'lucide-react';
 import { sugerirModeloPorTipo } from '@/lib/legal/modelos';
@@ -542,7 +541,7 @@ export default async function DocumentDetailPage({
               </div>
             </div>
 
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <div className="mt-6 flex flex-col gap-3">
               {signedUrl ? (
                 <a
                   href={signedUrl}
@@ -553,14 +552,6 @@ export default async function DocumentDetailPage({
                   Abrir enlace temporal
                 </a>
               ) : null}
-
-              <form action={analyzeDocument}>
-                <input type="hidden" name="document_id" value={document.id} />
-
-                <MotionButton className="w-full bg-gradient-to-r from-accent to-brandviolet text-sm font-bold text-white">
-                  {analyzeButtonLabel}
-                </MotionButton>
-              </form>
             </div>
           </MotionCard>
 
