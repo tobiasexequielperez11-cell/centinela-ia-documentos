@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
 import { normalizeIndustryType } from '@/lib/industries/documentTypes';
+import { getIndustryTerms } from '@/lib/industries/uiLabels';
 import { summarizeChecklistStatuses } from '@/lib/checklist/progress';
 import { getDocumentExpiryStatus, expiryStatusLabel } from '@/lib/documents/expiry';
 import { formatPlazoDate } from '@/lib/format/date';
@@ -48,6 +49,7 @@ export default async function CasesPage({
     .maybeSingle();
 
   const organizationIndustry = normalizeIndustryType(organization?.industry_type);
+  const terms = getIndustryTerms(organizationIndustry);
   let records = (cases ?? []) as CaseRecord[];
 
   const query = (q ?? '').trim().toLowerCase();
@@ -80,21 +82,21 @@ export default async function CasesPage({
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400/80">
-            EXPEDIENTES
+            {terms.listaEyebrow}
           </p>
 
           <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight text-white">
-            Gestión de Casos
+            {terms.listaTitulo}
           </h2>
 
           <p className="mt-2 text-sm text-slate-400">
-            Todos tus casos, clientes, estados y documentación asociada en un único panel.
+            {terms.listaSubtitulo}
           </p>
         </div>
 
         <Link href="/expedientes/nuevo">
           <MotionButton className="bg-gradient-to-r from-accent to-brandviolet text-white">
-            ＋ Nuevo expediente
+            ＋ {terms.nuevoCta}
           </MotionButton>
         </Link>
       </div>
@@ -131,7 +133,7 @@ export default async function CasesPage({
                   </div>
 
                   <h3 className="mt-4 font-display text-lg font-semibold text-white group-hover:text-cyan-400">
-                    {displayText(item.title, 'Expediente sin titulo')}
+                    {displayText(item.title, terms.itemSinTitulo)}
                   </h3>
 
                   <div className="mt-3 flex items-center gap-2 text-sm text-slate-400">
@@ -179,16 +181,16 @@ export default async function CasesPage({
         <MotionCard index={0} className="mt-4 text-center py-12">
           {query ? (
             <p className="font-bold text-white text-lg">
-              No se encontraron expedientes para «{q}».
+              {terms.vacioSinResultados} «{q}».
             </p>
           ) : (
             <p className="font-bold text-white text-lg">
-              Todavía no hay expedientes.
+              {terms.vacioSinDatos}
             </p>
           )}
 
           <p className="mt-2 text-sm text-slate-400">
-            Crea el primer expediente para comenzar la gestion documental.
+            {terms.vacioAyuda}
           </p>
         </MotionCard>
       ) : null}

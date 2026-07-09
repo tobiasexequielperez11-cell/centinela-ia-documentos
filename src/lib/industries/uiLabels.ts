@@ -26,14 +26,28 @@ export type IndustryTerms = {
   expedienteSingular: string;
   expedientePlural: string;
   partes: string;
-  gestionTitulo: string;
+  listaEyebrow: string;
+  listaTitulo: string;
+  listaSubtitulo: string;
+  nuevoCta: string;
+  itemSinTitulo: string;
+  vacioSinResultados: string;
+  vacioSinDatos: string;
+  vacioAyuda: string;
 };
 
 const defaultTerms: IndustryTerms = {
   expedienteSingular: 'Expediente',
   expedientePlural: 'Expedientes',
   partes: 'Partes',
-  gestionTitulo: 'Gestión de Expedientes',
+  listaEyebrow: 'EXPEDIENTES',
+  listaTitulo: 'Gestión de Casos',
+  listaSubtitulo: 'Todos tus casos, clientes, estados y documentación asociada en un único panel.',
+  nuevoCta: 'Nuevo expediente',
+  itemSinTitulo: 'Expediente sin titulo',
+  vacioSinResultados: 'No se encontraron expedientes para',
+  vacioSinDatos: 'Todavía no hay expedientes.',
+  vacioAyuda: 'Crea el primer expediente para comenzar la gestion documental.',
 };
 
 const termsByIndustry: Partial<Record<IndustryType, IndustryTerms>> = {
@@ -41,7 +55,14 @@ const termsByIndustry: Partial<Record<IndustryType, IndustryTerms>> = {
     expedienteSingular: 'Legajo',
     expedientePlural: 'Legajos',
     partes: 'Firmantes',
-    gestionTitulo: 'Gestión de Legajos',
+    listaEyebrow: 'LEGAJOS',
+    listaTitulo: 'Gestión de Legajos',
+    listaSubtitulo: 'Todos tus legajos, firmantes, estados y documentación asociada en un único panel.',
+    nuevoCta: 'Nuevo legajo',
+    itemSinTitulo: 'Legajo sin título',
+    vacioSinResultados: 'No se encontraron legajos para',
+    vacioSinDatos: 'Todavía no hay legajos.',
+    vacioAyuda: 'Creá el primer legajo para comenzar la gestión documental.',
   },
 };
 
