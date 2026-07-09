@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/server';
 import { normalizeIndustryType, type IndustryType } from '@/lib/industries/documentTypes';
 
 import { navigation } from '@/config/navigation';
+import { getNavGroupLabel, getNavItemLabel } from '@/lib/industries/uiLabels';
 
 export async function Sidebar() {
   const { profile } = await getUserProfile();
@@ -52,7 +53,7 @@ export async function Sidebar() {
           return (
             <div key={group} className="mb-0.5">
               <p className="px-3 pt-1.5 pb-0.5 text-[10px] leading-none font-semibold uppercase tracking-wider text-slate-500">
-                {group}
+                {getNavGroupLabel(group, industry)}
               </p>
               {items.map((item) => {
                 const Icon = item.icon;
@@ -63,7 +64,7 @@ export async function Sidebar() {
                     className="flex items-center gap-2.5 rounded-2xl px-3 py-1.5 text-sm font-semibold text-[#C2CCD9] transition-all hover:bg-[#1E9BF0]/12 hover:text-[#29C5FF]"
                   >
                     <Icon className="h-[18px] w-[18px] text-current" />
-                    {item.name}
+                    {getNavItemLabel(item, industry)}
                   </Link>
                 );
               })}
