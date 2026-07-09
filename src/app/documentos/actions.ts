@@ -7,6 +7,8 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createAuditLog } from '@/lib/audit/createAuditLog';
 import { indexarDocumento } from '@/lib/ai/indexarDocumento';
+import { normalizeIndustryType, type IndustryType } from '@/lib/industries/documentTypes';
+import { getAnalysisSystemPrompt } from '@/lib/industries/aiConfig';
 import {
   canUploadDocument,
   canUseAi,
@@ -464,7 +466,7 @@ function buildNextActions(documentType: string) {
   ];
 }
 
-async function analizarConIA(texto: string): Promise<{
+async function analizarConIA(texto: string, industry: IndustryType): Promise<{
   model: string;
   resumen: string;
   tipo_documental_detectado: string;
@@ -482,24 +484,7 @@ async function analizarConIA(texto: string): Promise<{
   const modelo = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
   const prompt = [
-    'Sos un asistente jurídico argentino experto en análisis documental.',
-    'Analizá el DOCUMENTO y devolvé SOLO un objeto JSON válido (sin texto adicional) con esta forma exacta:',
-    '{',
-    '  "resumen": "3 a 4 líneas explicando qué es y qué dice el documento",',
-    '  "tipo_documental_detectado": "tipo en una o dos palabras (ej: demanda, contrato de locación, poder, boleto de compraventa)",',
-    '  "sensibilidad_detectada": "uno de: low, medium, high, critical",',
-    '  "partes": ["cada parte interviniente y su rol"],',
-    '  "datos_clave": ["montos, fechas, plazos, vencimientos, DNI/CUIT, domicilios relevantes"],',
-    '  "clausulas_riesgos": ["cláusulas u obligaciones importantes y riesgos detectados"],',
-    '  "alertas": ["alertas jurídicas o de sensibilidad"],',
-    '  "proximas_acciones": ["acciones concretas sugeridas para el abogado"],',
-    '  "fechas_plazos": [{"descripcion": "...", "fecha": "YYYY-MM-DD"}]',
-    '}',
-    'REGLAS:',
-    '- Basáte SOLO en el contenido del documento. NO inventes datos, montos, fechas ni artículos.',
-    '- Si algún dato no aparece, devolvé un array vacío para esa clave.',
-    '- fechas_plazos: Incluí SOLO fechas concretas y relevantes del documento (vencimientos, audiencias, plazos, fechas de pago, fechas límite). La fecha debe estar en formato ISO YYYY-MM-DD; si el documento da una fecha relativa o ambigua (ej: "dentro de 15 días"), omitila.',
-    '- sensibilidad_detectada: "critical" si hay datos personales/financieros fuertes (DNI, CUIT, cuentas, historia clínica); "high" si hay nombres/contratos; "medium" o "low" si es genérico.',
+    getAnalysisSystemPrompt(industry),
     '',
     'DOCUMENTO:',
     texto,
@@ -560,7 +545,8 @@ async function analizarConIA(texto: string): Promise<{
 
 async function analizarConIAMultimodal(
   base64Data: string,
-  mimeType: string
+  mimeType: string,
+  industry: IndustryType
 ): Promise<{
   model: string;
   resumen: string;
@@ -578,28 +564,7 @@ async function analizarConIAMultimodal(
 
   const modelo = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
-  const prompt = [
-    'Sos un asistente jurídico argentino experto en análisis documental.',
-    'Vas a recibir un documento adjunto que puede ser un PDF escaneado, una foto o una imagen (JPG/PNG).',
-    'Leé su contenido aplicando OCR si hace falta y devolvé SOLO un objeto JSON válido (sin texto adicional) con esta forma exacta:',
-    '{',
-    '  "resumen": "3 a 4 líneas explicando qué es y qué dice el documento",',
-    '  "tipo_documental_detectado": "tipo en una o dos palabras (ej: demanda, contrato de locación, poder, boleto de compraventa)",',
-    '  "sensibilidad_detectada": "uno de: low, medium, high, critical",',
-    '  "partes": ["cada parte interviniente y su rol"],',
-    '  "datos_clave": ["montos, fechas, plazos, vencimientos, DNI/CUIT, domicilios relevantes"],',
-    '  "clausulas_riesgos": ["cláusulas u obligaciones importantes y riesgos detectados"],',
-    '  "alertas": ["alertas jurídicas o de sensibilidad"],',
-    '  "proximas_acciones": ["acciones concretas sugeridas para el abogado"],',
-    '  "fechas_plazos": [{"descripcion": "...", "fecha": "YYYY-MM-DD"}]',
-    '}',
-    'REGLAS:',
-    '- Basáte SOLO en el contenido del documento. NO inventes datos, montos, fechas ni artículos.',
-    '- Si algún dato no aparece, devolvé un array vacío para esa clave.',
-    '- fechas_plazos: Incluí SOLO fechas concretas y relevantes del documento (vencimientos, audiencias, plazos, fechas de pago, fechas límite). La fecha debe estar en formato ISO YYYY-MM-DD; si el documento da una fecha relativa o ambigua (ej: "dentro de 15 días"), omitila.',
-    '- Si el documento está borroso o ilegible, aclaralo en "alertas".',
-    '- sensibilidad_detectada: "critical" si hay datos personales/financieros fuertes (DNI, CUIT, cuentas, historia clínica); "high" si hay nombres/contratos; "medium" o "low" si es genérico.',
-  ].join('\n');
+  const prompt = getAnalysisSystemPrompt(industry);
 
   try {
     const resp = await fetch(
@@ -682,6 +647,14 @@ export async function analyzeDocument(formData: FormData) {
 
   const supabase = await createClient();
 
+  const { data: orgData } = await supabase
+    .from('organizations')
+    .select('industry_type')
+    .eq('id', profile.organization_id)
+    .single();
+
+  const industry = normalizeIndustryType(orgData?.industry_type);
+
   const { data: documentRecord, error: documentError } = await supabase
     .from('documents')
     .select('*')
@@ -740,10 +713,10 @@ export async function analyzeDocument(formData: FormData) {
   let ia: Awaited<ReturnType<typeof analizarConIA>> = null;
 
   if (isPdf && tieneTextoUtil) {
-    ia = await analizarConIA(extractedText);
+    ia = await analizarConIA(extractedText, industry);
   } else if (puedeMultimodal) {
     const base64 = buffer.toString('base64');
-    ia = await analizarConIAMultimodal(base64, mimeType);
+    ia = await analizarConIAMultimodal(base64, mimeType, industry);
   }
 
   // Si no hay texto NI resultado de IA, no podemos analizar (ej: imagen sin API key o archivo muy grande).

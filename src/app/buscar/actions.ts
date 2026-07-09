@@ -5,6 +5,8 @@ import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { canUseAi, isUserRole } from '@/lib/permissions/roles';
 import { generarEmbedding } from '@/lib/ai/embeddings';
 import { indexarDocumento } from '@/lib/ai/indexarDocumento';
+import { normalizeIndustryType } from '@/lib/industries/documentTypes';
+import { getRagSystemPrompt } from '@/lib/industries/aiConfig';
 
 export type FuenteBusqueda = {
   documentId: string;
@@ -31,6 +33,13 @@ export async function preguntarADocumentos(pregunta: string): Promise<RespuestaB
   }
 
   const supabase = await createClient();
+
+  const { data: orgData } = await supabase
+    .from('organizations')
+    .select('industry_type')
+    .eq('id', profile.organization_id)
+    .single();
+  const industry = normalizeIndustryType(orgData?.industry_type);
 
   // 1) Embedding de la pregunta (mismo modelo/dimensiones que la indexación)
   const emb = await generarEmbedding(texto);
@@ -87,7 +96,7 @@ export async function preguntarADocumentos(pregunta: string): Promise<RespuestaB
     .map((f, i) => `[${i + 1}] (${f.fileName})\n${f.fragmento}`)
     .join('\n\n');
 
-  const prompt = `Sos un asistente jurídico. Respondé la pregunta usando ÚNICAMENTE la información de los fragmentos de documentos a continuación. Si la respuesta no está en los fragmentos, decilo con claridad y no inventes. Citá las fuentes con [número] al final de cada afirmación relevante. Respondé en español rioplatense, claro y conciso.
+  const prompt = `${getRagSystemPrompt(industry)}
 
 FRAGMENTOS:
 ${contexto}
