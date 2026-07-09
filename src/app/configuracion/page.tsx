@@ -129,6 +129,7 @@ export default async function ConfiguracionPage() {
                   <p className="mt-1 text-sm text-slate-400">
                     {panel.description}
                   </p>
+                </div>
                 </MotionCard>
               </Link>
             ))}
@@ -156,6 +157,7 @@ export default async function ConfiguracionPage() {
                       <p className="mt-1 text-sm text-slate-400">
                         {panel.description}
                       </p>
+                    </div>
                     </MotionCard>
                   </Link>
                 ))}

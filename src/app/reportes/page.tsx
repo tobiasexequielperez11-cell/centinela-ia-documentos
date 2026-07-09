@@ -1,9 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { formatAuditActionLabel } from '@/lib/audit/actionLabels';
