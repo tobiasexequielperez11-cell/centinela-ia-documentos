@@ -34,6 +34,17 @@ export type IndustryTerms = {
   vacioSinResultados: string;
   vacioSinDatos: string;
   vacioAyuda: string;
+  // --- Detalle ---
+  detalleEyebrow: string;
+  datosTitulo: string;
+  editarDatos: string;
+  actualizarCta: string;
+  docsTitulo: string;
+  docsSubtitulo: string;
+  docsVacio: string;
+  copilotoTitulo: string;
+  copilotoSubtitulo: string;
+  resumenVacio: string;
 };
 
 const defaultTerms: IndustryTerms = {
@@ -48,6 +59,16 @@ const defaultTerms: IndustryTerms = {
   vacioSinResultados: 'No se encontraron expedientes para',
   vacioSinDatos: 'Todavía no hay expedientes.',
   vacioAyuda: 'Crea el primer expediente para comenzar la gestion documental.',
+  detalleEyebrow: 'DETALLE DE EXPEDIENTE',
+  datosTitulo: 'Datos del expediente',
+  editarDatos: 'Editar datos del expediente',
+  actualizarCta: 'Actualizar expediente',
+  docsTitulo: 'Documentos del expediente',
+  docsSubtitulo: 'Documentos cargados en la bóveda y asociados a este expediente.',
+  docsVacio: 'Aún no hay documentos en este expediente.',
+  copilotoTitulo: 'Copiloto — Resumen del expediente',
+  copilotoSubtitulo: 'Panorama ejecutivo del caso generado por IA a partir de los documentos analizados y las actuaciones.',
+  resumenVacio: 'Todavía no hay documentos analizados en este expediente. Analizá al menos un documento con IA para poder generar el resumen.',
 };
 
 const termsByIndustry: Partial<Record<IndustryType, IndustryTerms>> = {
@@ -63,6 +84,16 @@ const termsByIndustry: Partial<Record<IndustryType, IndustryTerms>> = {
     vacioSinResultados: 'No se encontraron legajos para',
     vacioSinDatos: 'Todavía no hay legajos.',
     vacioAyuda: 'Creá el primer legajo para comenzar la gestión documental.',
+    detalleEyebrow: 'DETALLE DE LEGAJO',
+    datosTitulo: 'Datos del legajo',
+    editarDatos: 'Editar datos del legajo',
+    actualizarCta: 'Actualizar legajo',
+    docsTitulo: 'Documentos del legajo',
+    docsSubtitulo: 'Documentos cargados en la bóveda y asociados a este legajo.',
+    docsVacio: 'Aún no hay documentos en este legajo.',
+    copilotoTitulo: 'Copiloto — Resumen del legajo',
+    copilotoSubtitulo: 'Panorama ejecutivo del legajo generado por IA a partir de los documentos analizados y las actuaciones.',
+    resumenVacio: 'Todavía no hay documentos analizados en este legajo. Analizá al menos un documento con IA para poder generar el resumen.',
   },
 };
 

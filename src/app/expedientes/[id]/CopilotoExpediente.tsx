@@ -35,10 +35,10 @@ function Bloque({ titulo, items, tono = 'slate' }: { titulo: string; items: stri
 }
 
 export function CopilotoExpediente({
-  caseId, resumen, generadoEl, documentosAnalizados, puedeUsarIA,
+  caseId, resumen, generadoEl, documentosAnalizados, puedeUsarIA, terms,
 }: {
   caseId: string; resumen: ResumenExpediente | null; generadoEl: string | null;
-  documentosAnalizados: number; puedeUsarIA: boolean;
+  documentosAnalizados: number; puedeUsarIA: boolean; terms: any;
 }) {
   const generar = generarResumenExpediente.bind(null, caseId);
 
@@ -46,8 +46,8 @@ export function CopilotoExpediente({
     <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-base font-semibold text-white">🤖 Copiloto — Resumen del expediente</h2>
-          <p className="mt-1 text-sm text-slate-400">Panorama ejecutivo del caso generado por IA a partir de los documentos analizados y las actuaciones.</p>
+          <h2 className="text-base font-semibold text-white">🤖 {terms.copilotoTitulo}</h2>
+          <p className="mt-1 text-sm text-slate-400">{terms.copilotoSubtitulo}</p>
         </div>
         {puedeUsarIA && (
           <form action={generar}><BotonGenerar tieneResumen={!!resumen} /></form>
@@ -56,7 +56,7 @@ export function CopilotoExpediente({
 
       {documentosAnalizados === 0 && !resumen && (
         <p className="mt-4 rounded-xl border border-amber-400/25 bg-amber-400/[0.06] p-3 text-sm text-amber-200">
-          Todavía no hay documentos analizados en este expediente. Analizá al menos un documento con IA para poder generar el resumen.
+          {terms.resumenVacio}
         </p>
       )}
 
@@ -73,7 +73,7 @@ export function CopilotoExpediente({
             <p className="text-sm text-slate-200"><span className="font-medium text-slate-400">Estado: </span>{resumen.estado_actual}</p>
           )}
           <div className="grid gap-4 md:grid-cols-2">
-            {resumen.partes.length > 0 && <Bloque titulo="Partes" items={resumen.partes} />}
+            {resumen.partes.length > 0 && <Bloque titulo={terms.partes} items={resumen.partes} />}
             {resumen.puntos_clave.length > 0 && <Bloque titulo="Puntos clave" items={resumen.puntos_clave} />}
             {resumen.riesgos_alertas.length > 0 && <Bloque titulo="⚠️ Riesgos y alertas" items={resumen.riesgos_alertas} tono="amber" />}
             {resumen.proximas_acciones.length > 0 && <Bloque titulo="Próximas acciones" items={resumen.proximas_acciones} tono="emerald" />}

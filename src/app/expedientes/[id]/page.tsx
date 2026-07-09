@@ -7,11 +7,13 @@ import {
   getCaseFields,
   getCaseStatuses,
   getCaseStatusLabel,
+  getCaseTypeLabel,
 } from '@/lib/industries/caseConfig';
 import {
   getDocumentTypeLabel,
   normalizeIndustryType,
 } from '@/lib/industries/documentTypes';
+import { getIndustryTerms } from '@/lib/industries/uiLabels';
 import { summarizeChecklistStatuses } from '@/lib/checklist/progress';
 import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles, getDaysUntilExpiry } from '@/lib/documents/expiry';
 import { sensitivityLabel } from '@/lib/documents/sensitivity';
@@ -160,6 +162,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
     .maybeSingle();
 
   const industry = normalizeIndustryType(organization?.industry_type);
+  const terms = getIndustryTerms(industry);
   const caseFields = getCaseFields(industry);
   const caseStatuses = getCaseStatuses(industry);
   const statusValues = caseStatuses.map((status) => status.value);
@@ -324,11 +327,11 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400/80">
-            Detalle de expediente
+            {terms.detalleEyebrow}
           </p>
 
           <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight text-gradient">
-            {displayText(caseRecord.title, 'Expediente sin título')}
+            {displayText(caseRecord.title, terms.itemSinTitulo)}
           </h2>
 
           <p className="mt-2 text-sm text-slate-400">
@@ -351,11 +354,12 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                   generadoEl={resumenData?.created_at ?? null}
                   documentosAnalizados={documentosAnalizados}
                   puedeUsarIA={puedeUsarIA}
+                  terms={terms}
                 />
                 <RadarPlazos items={cronologia} caseId={caseRecord.id} />
                 <MotionCard index={0}>
           <h3 className="font-display text-lg font-semibold text-white">
-            Datos del expediente
+            {terms.datosTitulo}
           </h3>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -365,7 +369,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
               </p>
 
               <p className="mt-2 font-bold text-white">
-                {caseRecord.case_type ?? 'General'}
+                {getCaseTypeLabel(caseRecord.case_type)}
               </p>
             </div>
 
@@ -418,7 +422,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
 
           <details open={visibleMetadataFields.length === 0} className="mt-6 group">
             <summary className="list-none cursor-pointer text-sm font-bold text-sky-600 hover:text-sky-700 flex items-center gap-2 select-none outline-none">
-              <span>✏️ Editar datos del expediente</span>
+              <span>✏️ {terms.editarDatos}</span>
               <span className="transition-transform group-open:rotate-90">▸</span>
             </summary>
             <form action={updateCaseStatus} className="mt-4 grid gap-4">
@@ -492,7 +496,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
               ) : null}
 
               <button className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-bold text-white transition-all hover:bg-slate-800">
-                Actualizar expediente
+                {terms.actualizarCta}
               </button>
               </form>
           </details>
@@ -508,11 +512,11 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="text-lg font-bold text-white">
-                  Documentos del expediente
+                  {terms.docsTitulo}
                 </h3>
 
                 <p className="mt-1 text-sm text-slate-400">
-                  Documentos cargados en la bóveda y asociados a este expediente.
+                  {terms.docsSubtitulo}
                 </p>
               </div>
 
@@ -556,7 +560,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
               </div>
             ) : (
               <div className="mt-5 rounded-2xl border border-dashed border-white/10 bg-white/[0.04] p-5 text-sm text-slate-400">
-                Aún no hay documentos en este expediente.
+                {terms.docsVacio}
               </div>
             )}
           </MotionCard>
