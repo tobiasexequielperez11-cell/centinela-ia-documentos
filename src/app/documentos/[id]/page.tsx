@@ -178,6 +178,27 @@ function getRiskAssessment(
     };
 }
 
+function toText(x: unknown): string {
+  if (x == null) return '';
+  if (typeof x === 'string') return x;
+  if (typeof x === 'number' || typeof x === 'boolean') return String(x);
+  if (typeof x === 'object') {
+    const o = x as Record<string, unknown>;
+    const nombre = [o.nombre, o.parte, o.nombre_completo, o.razon_social, o.titulo]
+      .find((v) => typeof v === 'string') as string | undefined;
+    const rol = typeof o.rol === 'string' ? o.rol : undefined;
+    if (nombre) return rol ? `${nombre} (${rol})` : nombre;
+    const desc = [o.descripcion, o.texto, o.detalle]
+      .find((v) => typeof v === 'string') as string | undefined;
+    if (desc) return desc;
+    const vals = Object.values(o).filter(
+      (v) => typeof v === 'string' || typeof v === 'number'
+    );
+    return vals.length ? vals.join(' — ') : JSON.stringify(o);
+  }
+  return String(x);
+}
+
 function buildSuggestedChecklist(
   document: DocumentRecord,
   aiResult?: AiAnalysisResult | null
@@ -691,7 +712,7 @@ Dictamen IA documental
                     <strong>Datos relevantes:</strong>
                     <ul className="mt-2 list-disc space-y-1 pl-5">
                       {aiResult.datos_relevantes.map((item) => (
-                        <li key={item}>{item}</li>
+                        <li key={toText(item)}>{toText(item)}</li>
                       ))}
                     </ul>
                   </div>
@@ -702,7 +723,7 @@ Dictamen IA documental
                     <strong>Alertas:</strong>
                     <ul className="mt-2 list-disc space-y-1 pl-5">
                       {aiResult.alertas.map((item) => (
-                        <li key={item}>{item}</li>
+                        <li key={toText(item)}>{toText(item)}</li>
                       ))}
                     </ul>
                   </div>
@@ -713,18 +734,24 @@ Dictamen IA documental
                     <strong>Próximas acciones:</strong>
                     <ul className="mt-2 list-disc space-y-1 pl-5">
                       {aiResult.proximas_acciones.map((item) => (
-                        <li key={item}>{item}</li>
+                        <li key={toText(item)}>{toText(item)}</li>
                       ))}
                     </ul>
                   </div>
                 ) : null}
 
-                {aiResult.fechas_plazos?.length ? (
-                  <PlazosDetectados
-                    plazos={aiResult.fechas_plazos}
-                    docNombre={document.file_name}
-                  />
-                ) : null}
+                {(() => {
+                  const plazosSeguros = (aiResult.fechas_plazos ?? []).filter(
+                    (f) => f && typeof f.descripcion === 'string' && typeof f.fecha === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(f.fecha)
+                  );
+                  if (!plazosSeguros.length) return null;
+                  return (
+                    <PlazosDetectados
+                      plazos={plazosSeguros}
+                      docNombre={document.file_name}
+                    />
+                  );
+                })()}
 
                 {(() => {
                   const modeloSugerido = sugerirModeloPorTipo(

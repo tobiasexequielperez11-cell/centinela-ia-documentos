@@ -462,8 +462,29 @@ function buildNextActions(documentType: string) {
   return [
     'Revisar manualmente el contenido extraído.',
     'Confirmar tipo documental.',
-    'Definir si requiere checklist o seguimiento.',
+    'No se detectan alertas específicas de nivel crítico en este análisis automatizado.',
   ];
+}
+
+function toText(x: unknown): string {
+  if (x == null) return '';
+  if (typeof x === 'string') return x;
+  if (typeof x === 'number' || typeof x === 'boolean') return String(x);
+  if (typeof x === 'object') {
+    const o = x as Record<string, unknown>;
+    const nombre = [o.nombre, o.parte, o.nombre_completo, o.razon_social, o.titulo]
+      .find((v) => typeof v === 'string') as string | undefined;
+    const rol = typeof o.rol === 'string' ? o.rol : undefined;
+    if (nombre) return rol ? `${nombre} (${rol})` : nombre;
+    const desc = [o.descripcion, o.texto, o.detalle]
+      .find((v) => typeof v === 'string') as string | undefined;
+    if (desc) return desc;
+    const vals = Object.values(o).filter(
+      (v) => typeof v === 'string' || typeof v === 'number'
+    );
+    return vals.length ? vals.join(' — ') : JSON.stringify(o);
+  }
+  return String(x);
 }
 
 async function analizarConIA(texto: string, industry: IndustryType): Promise<{
@@ -518,7 +539,7 @@ async function analizarConIA(texto: string, industry: IndustryType): Promise<{
 
     const parsed = JSON.parse(raw);
     const arr = (v: unknown): string[] =>
-      Array.isArray(v) ? v.map((x) => String(x)) : [];
+      Array.isArray(v) ? v.map(toText).filter((s) => s.trim().length > 0) : [];
 
     const rawFechas = Array.isArray(parsed.fechas_plazos) ? parsed.fechas_plazos : [];
     const fechas_plazos = rawFechas.filter((f: any) => 
@@ -604,7 +625,7 @@ async function analizarConIAMultimodal(
 
     const parsed = JSON.parse(raw);
     const arr = (v: unknown): string[] =>
-      Array.isArray(v) ? v.map((x) => String(x)) : [];
+      Array.isArray(v) ? v.map(toText).filter((s) => s.trim().length > 0) : [];
 
     const rawFechas = Array.isArray(parsed.fechas_plazos) ? parsed.fechas_plazos : [];
     const fechas_plazos = rawFechas.filter((f: any) => 
@@ -691,10 +712,15 @@ export async function analyzeDocument(formData: FormData) {
 
   // 1) Si es PDF, intentamos extraer texto (rápido y barato).
   if (isPdf) {
-    const pdfParseModule = await import('pdf-parse/lib/pdf-parse.js');
-    const pdfParse = pdfParseModule.default;
-    const parsedPdf = await pdfParse(buffer);
-    extractedText = cleanExtractedText(parsedPdf.text || '');
+    try {
+      const pdfParseModule = await import('pdf-parse/lib/pdf-parse.js');
+      const pdfParse = pdfParseModule.default;
+      const parsedPdf = await pdfParse(buffer);
+      extractedText = cleanExtractedText(parsedPdf.text || '');
+    } catch (e) {
+      console.error('pdf-parse error (se continúa con multimodal):', e);
+      extractedText = '';
+    }
   }
 
   // La detección por reglas necesita texto; si no hay (imagen o PDF escaneado), queda fallback genérico.
