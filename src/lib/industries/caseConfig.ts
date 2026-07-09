@@ -297,11 +297,14 @@ export function getCaseTypeLabel(type?: string | null): string {
   if (!type) return 'General';
   const value = type.trim();
   if (!value) return 'General';
-  // Código legado conocido
-  if (legacyCaseTypeLabels[value]) return legacyCaseTypeLabels[value];
-  // Ya es una etiqueta legible (tiene minúsculas o espacios) -> dejar tal cual
-  if (/[a-z]/.test(value) || value.includes(' ')) return value;
-  // Fallback: convertir ENUM_ESTILO -> "Enum estilo"
-  const pretty = value.toLowerCase().replace(/_/g, ' ');
-  return pretty.charAt(0).toUpperCase() + pretty.slice(1);
+  // Normalizar para buscar en el mapa sin importar mayúsculas, espacios o guiones
+  const key = value.toUpperCase().replace(/[\s-]+/g, '_');
+  if (legacyCaseTypeLabels[key]) return legacyCaseTypeLabels[key];
+  // Si parece un código (contiene guión bajo), prettificar: "algo_asi" -> "Algo asi"
+  if (value.includes('_')) {
+    const pretty = value.replace(/_/g, ' ').toLowerCase();
+    return pretty.charAt(0).toUpperCase() + pretty.slice(1);
+  }
+  // Si no, ya es una etiqueta legible (Demanda, Escritura, etc.) -> dejar tal cual
+  return value;
 }
