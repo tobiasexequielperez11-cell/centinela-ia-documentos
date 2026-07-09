@@ -11,6 +11,8 @@ import { MetricCard } from '@/components/dashboard/MetricCard';
 import { Banner } from '@/components/ui/Banner';
 import { Badge } from '@/components/ui/Badge';
 import { Reveal } from '@/components/ui/Reveal';
+import { MotionButton } from '@/components/ui/MotionButton';
+import { MotionTableRow } from '@/components/ui/MotionTableRow';
 import { analyzeDocument } from './actions';
 import { AnalyzeButton } from './AnalyzeButton';
 import type { DocumentRecord } from '@/types/document';
@@ -155,24 +157,23 @@ export default async function DocumentsPage({
       <Reveal>
         <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
-              Documentos
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400/80">
+              DOCUMENTOS
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold text-slate-950">
+            <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight text-gradient">
               Bóveda documental
             </h2>
 
-            <p className="mt-2 text-sm text-slate-600">
+            <p className="mt-2 text-sm text-slate-400">
               Control operativo de documentos cargados, clasificación y estado de análisis IA.
             </p>
           </div>
 
-          <Link
-            href="/documentos/subir"
-            className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-bold text-white transition-all"
-          >
-            Subir documento
+          <Link href="/documentos/subir">
+            <MotionButton className="bg-gradient-to-r from-accent to-brandviolet text-white">
+              ⬆ Subir documento
+            </MotionButton>
           </Link>
         </div>
 
@@ -183,7 +184,7 @@ export default async function DocumentsPage({
         </div>
       </Reveal>
 
-      <form method="get" className="mb-4 flex gap-2">
+      <form method="get" className="mb-6 flex gap-2">
         {activeFilter !== 'todos' ? (
           <input type="hidden" name="ia" value={activeFilter} />
         ) : null}
@@ -192,11 +193,11 @@ export default async function DocumentsPage({
           name="q"
           defaultValue={searchTerm}
           placeholder="Buscar por nombre de archivo o tipo…"
-          className="w-full max-w-md rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none"
+          className="w-full max-w-md rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:border-accent focus:ring-1 focus:ring-accent"
         />
-        <button type="submit" className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+        <MotionButton type="submit" className="bg-white/10 text-white hover:bg-white/20">
           Buscar
-        </button>
+        </MotionButton>
       </form>
 
       <div className="mb-6 flex flex-wrap gap-3">
@@ -207,10 +208,10 @@ export default async function DocumentsPage({
             <Link
               key={filter.value}
               href={filter.href}
-              className={`rounded-2xl px-4 py-2 text-sm font-bold ${
+              className={`rounded-xl px-4 py-2 text-sm font-bold transition-all ${
                 isActive
-                  ? 'bg-slate-900 text-white'
-                  : 'border border-white/10 bg-white/[0.04] text-slate-300'
+                  ? 'bg-gradient-to-r from-accent to-brandviolet text-white shadow-[0_4px_12px_rgba(34,211,238,0.2)]'
+                  : 'border border-white/10 bg-white/[0.04] text-slate-400 hover:text-white hover:border-white/20'
               }`}
             >
               {filter.label} · {filter.count}
@@ -225,7 +226,7 @@ export default async function DocumentsPage({
             variant="warning"
             title="Hay documentos pendientes de análisis IA."
             description="Revisá los pendientes y ejecutá el análisis IA para completar la cobertura documental."
-            action={<Link href="/documentos?ia=pendientes" className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-slate-800">Ver pendientes IA</Link>}
+            action={<Link href="/documentos?ia=pendientes" className="quick-action text-white">Ver pendientes IA</Link>}
           />
         </div>
       ) : (
@@ -264,7 +265,7 @@ export default async function DocumentsPage({
           </thead>
 
           <tbody className="divide-y divide-slate-200">
-            {filteredRecords.map((item) => {
+            {filteredRecords.map((item, index) => {
               const analysisCount = analysisCountByDocument.get(item.id) ?? 0;
               const aiStatus = getAiStatus(analysisCount);
               const isPending = analysisCount === 0;
@@ -281,54 +282,54 @@ export default async function DocumentsPage({
               }
 
               return (
-                <tr key={item.id} className="border-t border-white/5 transition-colors hover:bg-white/[0.03]">
-                  <td className="px-3 py-3 font-bold text-slate-950">
+                <MotionTableRow key={item.id} index={index} className="border-t border-white/5 transition-colors hover:bg-white/[0.03]">
+                  <td className="px-4 py-3 font-bold text-white">
                     {item.file_name}
                   </td>
 
-                  <td className="px-3 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-slate-300">
                     {getDocumentTypeLabel(item.document_type)}
                   </td>
 
-                  <td className="px-3 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-slate-300">
                     <Badge tone={sensitivityLabel(item.sensitivity_level) === 'Crítico' || sensitivityLabel(item.sensitivity_level) === 'Alto' ? 'danger' : 'neutral'}>{sensitivityLabel(item.sensitivity_level)}</Badge>
                   </td>
 
-                  <td className="px-3 py-3">
+                  <td className="px-4 py-3">
                     <Badge tone={isPending ? 'neutral' : 'accent'}>{aiStatus.label}</Badge>
                   </td>
 
-                  <td className="px-3 py-3">
+                  <td className="px-4 py-3">
                     {expiryStatus === 'sin_vencimiento' ? (
-                      <span className="text-slate-400">—</span>
+                      <span className="text-slate-500">—</span>
                     ) : (
                       <Badge tone={expiryStatus === 'vencido' ? 'danger' : 'warning'}>{expiryText}</Badge>
                     )}
                   </td>
 
-                  <td className="px-3 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-slate-300">
                     {formatFileSize(item.file_size)}
                   </td>
 
-                  <td className="px-3 py-3">
+                  <td className="px-4 py-3">
                     <div className="flex flex-col items-end gap-1.5">
-                      <Link href={`/documentos/${item.id}`} className="text-xs font-medium text-sky-400 hover:text-sky-300">
+                      <Link href={`/documentos/${item.id}`} className="text-xs font-medium text-accent-soft hover:text-white">
                         Ver
                       </Link>
                       {isPending && isAnalyzable ? (
                         <form action={analyzeDocument}>
                           <input type="hidden" name="document_id" value={item.id} />
-                          <AnalyzeButton className="rounded-xl bg-slate-950 px-2.5 py-1 text-[10px] uppercase tracking-wide font-bold text-white hover:bg-slate-800" />
+                          <button className="rounded-xl bg-slate-900 px-2.5 py-1 text-[10px] uppercase tracking-wide font-bold text-white hover:bg-slate-800">Analizar IA</button>
                         </form>
                       ) : null}
                       {isPending && !isAnalyzable ? (
-                        <span className="rounded-xl bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-500">
+                        <span className="rounded-xl border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold text-slate-400">
                           Sin IA
                         </span>
                       ) : null}
                     </div>
                   </td>
-                </tr>
+                </MotionTableRow>
               );
             })}
           </tbody>
@@ -336,13 +337,13 @@ export default async function DocumentsPage({
 
         {filteredRecords.length === 0 ? (
           <div className="p-10 text-center">
-            <p className="font-bold text-slate-950">
+            <p className="font-bold text-white">
               {searchTerm
                 ? `No se encontraron documentos para «${searchTerm}».`
                 : 'No hay documentos para este filtro.'}
             </p>
 
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-400">
               Probá cambiando el filtro o subiendo un nuevo documento.
             </p>
           </div>

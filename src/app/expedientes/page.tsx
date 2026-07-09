@@ -6,20 +6,19 @@ import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
 import { normalizeIndustryType } from '@/lib/industries/documentTypes';
 import { summarizeChecklistStatuses } from '@/lib/checklist/progress';
-import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles } from '@/lib/documents/expiry';
+import { getDocumentExpiryStatus, expiryStatusLabel } from '@/lib/documents/expiry';
 import { formatPlazoDate } from '@/lib/format/date';
 import { Badge } from '@/components/ui/Badge';
-import { Reveal } from '@/components/ui/Reveal';
+import { MotionCard } from '@/components/ui/MotionCard';
+import { MotionButton } from '@/components/ui/MotionButton';
 import type { CaseRecord } from '@/types/case';
+import { Calendar, User, FileText, ArrowRight } from 'lucide-react';
 
 function displayText(value?: string | null, fallback = 'Sin definir') {
   const cleanValue = value?.trim();
-
   if (!cleanValue) return fallback;
-
   return cleanValue;
 }
-
 
 export default async function CasesPage({
   searchParams,
@@ -78,160 +77,121 @@ export default async function CasesPage({
 
   return (
     <AppShell>
-      <Reveal>
-        <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
-              Gestión de expedientes
-            </p>
+      <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400/80">
+            EXPEDIENTES
+          </p>
 
-            <h2 className="mt-2 text-3xl font-bold text-slate-950">
-              Expedientes
-            </h2>
+          <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight text-white">
+            Gestión de Casos
+          </h2>
 
-            <p className="mt-2 text-sm text-slate-600">
-              Todos tus casos, clientes, estados y documentación asociada en un único panel.
-            </p>
-          </div>
-
-          <Link
-            href="/expedientes/nuevo"
-            className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-bold text-white transition-all hover:bg-slate-800"
-          >
-            Crear expediente
-          </Link>
+          <p className="mt-2 text-sm text-slate-400">
+            Todos tus casos, clientes, estados y documentación asociada en un único panel.
+          </p>
         </div>
 
-        <form method="get" className="mb-4 flex gap-2">
-          <input
-            type="search"
-            name="q"
-            defaultValue={q ?? ''}
-            placeholder="Buscar por expediente, cliente o tipo…"
-            className="w-full max-w-md rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none"
-          />
-          <button
-            type="submit"
-            className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
-          >
-            Buscar
-          </button>
-        </form>
-      </Reveal>
+        <Link href="/expedientes/nuevo">
+          <MotionButton className="bg-gradient-to-r from-accent to-brandviolet text-white">
+            ＋ Nuevo expediente
+          </MotionButton>
+        </Link>
+      </div>
 
-      <Reveal delay={0.1}>
-        <div className="overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.03]">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-white/[0.04] text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-              <tr>
-                <th className="px-4 py-3">Expediente</th>
-                <th className="px-4 py-3">Cliente</th>
-                <th className="px-4 py-3">Tipo</th>
-                <th className="px-4 py-3">Estado</th>
-                <th className="px-4 py-3">Próximo plazo</th>
-                <th className="px-4 py-3">Documentación</th>
-                <th className="px-4 py-3">Acción</th>
-              </tr>
-            </thead>
+      <form method="get" className="mb-6 flex gap-2">
+        <input
+          type="search"
+          name="q"
+          defaultValue={q ?? ''}
+          placeholder="Buscar por expediente, cliente o tipo…"
+          className="w-full max-w-md rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:border-accent focus:ring-1 focus:ring-accent"
+        />
+        <MotionButton type="submit" className="bg-white/10 text-white hover:bg-white/20">
+          Buscar
+        </MotionButton>
+      </form>
 
-          <tbody className="divide-y divide-slate-200">
-            {records.map((item) => (
-              <tr key={item.id} className="border-t border-white/5 transition-colors hover:bg-white/[0.03]">
-                <td className="px-4 py-3 font-bold text-white">
-                  {displayText(item.title, 'Expediente sin titulo')}
-                </td>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {records.map((item, i) => {
+          const statuses = statusesByCase[item.id] || [];
+          const progress = summarizeChecklistStatuses(statuses);
+          const plazo = ((item.metadata as Record<string, unknown> | null)?.fecha_relevante as string | undefined)?.trim();
+          const plazoStatus = plazo ? getDocumentExpiryStatus(plazo) : null;
 
-                <td className="px-4 py-3 text-slate-300">
-                  {displayText(item.client_name, 'Sin cliente asignado')}
-                </td>
+          return (
+            <Link key={item.id} href={`/expedientes/${item.id}`}>
+              <MotionCard index={i} className="group flex h-full flex-col justify-between cursor-pointer">
+                <div>
+                  <div className="flex items-start justify-between gap-2">
+                    <Badge tone="accent">{getCaseStatusLabel(item.status, organizationIndustry)}</Badge>
+                    <span className="rounded-full bg-white/5 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                      {item.case_type ?? 'General'}
+                    </span>
+                  </div>
 
-                <td className="px-4 py-3 text-slate-300">
-                  {item.case_type ?? 'General'}
-                </td>
+                  <h3 className="mt-4 font-display text-lg font-semibold text-white group-hover:text-cyan-400">
+                    {displayText(item.title, 'Expediente sin titulo')}
+                  </h3>
 
-                <td className="px-4 py-3">
-                  <Badge tone="accent">{getCaseStatusLabel(item.status, organizationIndustry)}</Badge>
-                </td>
+                  <div className="mt-3 flex items-center gap-2 text-sm text-slate-400">
+                    <User className="h-4 w-4 opacity-50" />
+                    <span>{displayText(item.client_name, 'Sin cliente asignado')}</span>
+                  </div>
 
-                <td className="px-4 py-3">
-                  {(() => {
-                    const plazo = ((item.metadata as Record<string, unknown> | null)?.fecha_relevante as string | undefined)?.trim();
-                    if (!plazo) {
-                      return (
-                        <Badge tone="neutral">Sin fecha</Badge>
-                      );
-                    }
-                    const status = getDocumentExpiryStatus(plazo);
-                    return (
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-slate-300">{formatPlazoDate(plazo)}</span>
-                        <Badge tone={status === 'vencido' ? 'danger' : status === 'por_vencer' ? 'warning' : 'neutral'}>
-                          {expiryStatusLabel(status)}
-                        </Badge>
-                      </div>
-                    );
-                  })()}
-                </td>
-
-                <td className="px-4 py-3">
-                  {(() => {
-                    const statuses = statusesByCase[item.id];
-                    if (!statuses || statuses.length === 0) {
-                      return (
-                        <Badge tone="neutral">Sin checklist</Badge>
-                      );
-                    }
-                    const progress = summarizeChecklistStatuses(statuses);
-                    if (progress.total === 0) {
-                      return (
-                        <Badge tone="neutral">Sin checklist</Badge>
-                      );
-                    }
-                    if (progress.isComplete) {
-                      return (
-                        <Badge tone="success">Completo</Badge>
-                      );
-                    }
-                    return (
-                      <Badge tone="warning">
-                        Sugeridos {progress.total - progress.missing}/{progress.total}
+                  {plazo && (
+                    <div className="mt-2 flex items-center gap-2 text-sm text-slate-400">
+                      <Calendar className="h-4 w-4 opacity-50" />
+                      <span>{formatPlazoDate(plazo)}</span>
+                      <Badge tone={plazoStatus === 'vencido' ? 'danger' : plazoStatus === 'por_vencer' ? 'warning' : 'neutral'}>
+                        {expiryStatusLabel(plazoStatus!)}
                       </Badge>
-                    );
-                  })()}
-                </td>
+                    </div>
+                  )}
 
-                <td className="px-4 py-3">
-                  <Link
-                    className="text-xs font-medium text-accent-soft hover:text-white"
-                    href={`/expedientes/${item.id}`}
-                  >
+                  <div className="mt-2 flex items-center gap-2 text-sm text-slate-400">
+                    <FileText className="h-4 w-4 opacity-50" />
+                    {progress.total === 0 ? (
+                      <span className="opacity-70">Sin checklist</span>
+                    ) : progress.isComplete ? (
+                      <span className="text-emerald-400">Completo</span>
+                    ) : (
+                      <span className="text-amber-400">
+                        Sugeridos {progress.total - progress.missing}/{progress.total}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-5 flex items-center justify-between border-t border-white/5 pt-4">
+                  <span className="text-xs font-semibold text-cyan-400 opacity-0 transition-opacity group-hover:opacity-100">
                     Ver detalle
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  </span>
+                  <ArrowRight className="h-4 w-4 text-cyan-400 opacity-0 transition-transform group-hover:translate-x-1 group-hover:opacity-100" />
+                </div>
+              </MotionCard>
+            </Link>
+          );
+        })}
+      </div>
 
-        {records.length === 0 ? (
-          <div className="p-10 text-center">
-            {query ? (
-              <p className="font-bold text-white">
-                No se encontraron expedientes para «{q}».
-              </p>
-            ) : (
-              <p className="font-bold text-white">
-                Todavía no hay expedientes.
-              </p>
-            )}
-
-            <p className="mt-2 text-sm text-slate-400">
-              Crea el primer expediente para comenzar la gestion documental.
+      {records.length === 0 ? (
+        <MotionCard index={0} className="mt-4 text-center py-12">
+          {query ? (
+            <p className="font-bold text-white text-lg">
+              No se encontraron expedientes para «{q}».
             </p>
-          </div>
-        ) : null}
-        </div>
-      </Reveal>
+          ) : (
+            <p className="font-bold text-white text-lg">
+              Todavía no hay expedientes.
+            </p>
+          )}
+
+          <p className="mt-2 text-sm text-slate-400">
+            Crea el primer expediente para comenzar la gestion documental.
+          </p>
+        </MotionCard>
+      ) : null}
     </AppShell>
   );
 }

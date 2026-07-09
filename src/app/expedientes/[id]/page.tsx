@@ -33,6 +33,8 @@ import { CronologiaExpediente } from './CronologiaExpediente';
 import { RadarPlazos } from './RadarPlazos';
 import { Tabs } from '@/components/ui/Tabs';
 import { Badge } from '@/components/ui/Badge';
+import { MotionCard } from '@/components/ui/MotionCard';
+import { MotionButton } from '@/components/ui/MotionButton';
 import type { CaseRecord } from '@/types/case';
 
 interface CaseDetailPageProps {
@@ -321,15 +323,15 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
     <AppShell>
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400/80">
             Detalle de expediente
           </p>
 
-          <h2 className="mt-2 text-3xl font-bold text-slate-950">
+          <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight text-gradient">
             {displayText(caseRecord.title, 'Expediente sin título')}
           </h2>
 
-          <p className="mt-2 text-sm text-slate-600">
+          <p className="mt-2 text-sm text-slate-400">
             Cliente: {displayText(caseRecord.client_name, 'Sin cliente asignado')} - Estado actual:{' '}
             {getCaseStatusLabel(caseRecord.status, industry)}
           </p>
@@ -351,8 +353,8 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                   puedeUsarIA={puedeUsarIA}
                 />
                 <RadarPlazos items={cronologia} caseId={caseRecord.id} />
-                <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-          <h3 className="text-lg font-bold text-slate-950">
+                <MotionCard index={0}>
+          <h3 className="font-display text-lg font-semibold text-white">
             Datos del expediente
           </h3>
 
@@ -492,9 +494,9 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
               <button className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-bold text-white transition-all hover:bg-slate-800">
                 Actualizar expediente
               </button>
-            </form>
+              </form>
           </details>
-        </section>
+        </MotionCard>
               </div>
             )
           },
@@ -502,8 +504,8 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
             id: 'documentos',
             label: '📄 Documentos',
             content: (
-              <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+              <MotionCard index={0}>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="text-lg font-bold text-white">
                   Documentos del expediente
@@ -557,7 +559,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                 Aún no hay documentos en este expediente.
               </div>
             )}
-          </section>
+          </MotionCard>
             )
           },
           {
@@ -566,8 +568,8 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
             content: (
               <div className="space-y-6">
                 <CronologiaExpediente items={cronologia} />
-                <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-            <h3 className="text-lg font-bold text-white">Línea de tiempo del expediente</h3>
+                <MotionCard index={0}>
+            <h3 className="font-display text-lg font-semibold text-white">Línea de tiempo del expediente</h3>
             <p className="mt-1 text-sm text-slate-400">Registro cronológico de actuaciones, audiencias y movimientos.</p>
             
             <form action={async (formData: FormData) => {
@@ -638,7 +640,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                 ))
               )}
             </div>
-          </section>
+          </MotionCard>
               </div>
             )
           },
@@ -646,8 +648,8 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
             id: 'checklist',
             label: '✅ Checklist',
             content: (
-          <aside className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-            <h3 className="text-lg font-bold text-white">
+          <MotionCard index={0}>
+            <h3 className="font-display text-lg font-semibold text-white">
               Checklist documental
             </h3>
             <p className="mt-1 text-sm text-slate-400">
@@ -841,7 +843,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                 Agregar
               </button>
             </form>
-          </aside>
+          </MotionCard>
             )
           }
         ]}

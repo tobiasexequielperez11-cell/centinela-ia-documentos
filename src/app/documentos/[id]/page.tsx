@@ -12,6 +12,8 @@ import { AnalyzeButton } from '../AnalyzeButton';
 import { PlazosDetectados } from './PlazosDetectados';
 import { FileSignature } from 'lucide-react';
 import { sugerirModeloPorTipo } from '@/lib/legal/modelos';
+import { MotionCard } from '@/components/ui/MotionCard';
+import { MotionButton } from '@/components/ui/MotionButton';
 import type { DocumentRecord } from '@/types/document';
 
 interface DocumentDetailPageProps {
@@ -146,7 +148,7 @@ function getRiskAssessment(
     return {
       label: 'Alto',
       score,
-      className: 'bg-amber-50 text-amber-800 border-amber-200',
+      className: 'border-amber-500/20 bg-amber-500/10 text-amber-200',
       barClassName: 'bg-amber-500',
       description:
         'Documento sensible. Requiere validación operativa, control de acceso y revisión de información personal o institucional.',
@@ -157,8 +159,8 @@ function getRiskAssessment(
     return {
       label: 'Medio',
       score,
-      className: 'bg-sky-50 text-sky-700 border-sky-200',
-      barClassName: 'bg-sky-500',
+      className: 'border-cyan-500/20 bg-cyan-500/10 text-cyan-200',
+      barClassName: 'bg-cyan-500',
       description:
         'Documento de sensibilidad moderada. Puede gestionarse con controles estándar y revisión documental básica.',
     };
@@ -167,11 +169,11 @@ function getRiskAssessment(
   return {
     label: 'Bajo',
     score,
-    className: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    className: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-200',
     barClassName: 'bg-emerald-500',
     description:
       'Documento de bajo riesgo operativo. Mantener clasificación y registro dentro de la bóveda documental.',
-  };
+    };
 }
 
 function buildSuggestedChecklist(
@@ -390,24 +392,24 @@ export default async function DocumentDetailPage({
     <AppShell>
       <div className="mb-8 flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400/80">
             Visor documental
           </p>
 
-          <h2 className="mt-2 text-3xl font-bold text-slate-950">
+          <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight text-gradient">
             {document.file_name}
           </h2>
 
           <div className="mt-3 flex flex-wrap gap-2 text-xs font-bold">
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-600">
+            <span className="rounded-full bg-white/10 px-3 py-1 text-slate-400">
               {document.file_mime_type ?? 'Formato desconocido'}
             </span>
 
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-600">
+            <span className="rounded-full bg-white/10 px-3 py-1 text-slate-400">
               {formatFileSize(document.file_size)}
             </span>
 
-            <span className="rounded-full bg-sky-50 px-3 py-1 text-sky-700">
+            <span className="rounded-full bg-cyan-500/10 px-3 py-1 text-cyan-400">
               IA: {aiStatus}
             </span>
 
@@ -416,7 +418,7 @@ export default async function DocumentDetailPage({
             </span>
           </div>
 
-          <p className="mt-3 text-sm text-slate-600">
+          <p className="mt-3 text-sm text-slate-400">
             Archivo privado con acceso temporal seguro.
           </p>
         </div>
@@ -425,12 +427,14 @@ export default async function DocumentDetailPage({
           <form action={analyzeDocument}>
             <input type="hidden" name="document_id" value={document.id} />
 
-            <AnalyzeButton label={analyzeButtonLabel} className="rounded-2xl bg-sky-500 px-5 py-3 text-sm font-bold text-white hover:bg-sky-600" />
+            <MotionButton className="w-full bg-gradient-to-r from-accent to-brandviolet px-5 py-3 text-sm font-bold text-white">
+              {analyzeButtonLabel}
+            </MotionButton>
           </form>
 
           <Link
             href="/documentos"
-            className="rounded-2xl border border-slate-200 px-5 py-3 text-center text-sm font-bold text-slate-700 hover:bg-slate-50"
+            className="rounded-2xl border border-white/10 px-5 py-3 text-center text-sm font-bold text-slate-300 hover:border-cyan-400 hover:text-cyan-400 transition-colors"
           >
             Volver a documentos
           </Link>
@@ -451,65 +455,65 @@ export default async function DocumentDetailPage({
 
       <div className="grid gap-6 xl:grid-cols-[0.78fr_1.22fr]">
         <section className="space-y-6">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <MotionCard index={0}>
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h3 className="text-lg font-bold text-slate-950">
+                <h3 className="font-display text-lg font-semibold text-white">
                   Datos del documento
                 </h3>
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-slate-400">
                   Estado operativo y clasificación manual del archivo.
                 </p>
               </div>
 
-              <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-bold text-sky-700">
+              <span className="rounded-full bg-cyan-500/10 px-3 py-1 text-xs font-bold text-cyan-400">
                 {aiStatus}
               </span>
             </div>
 
             <div className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
-              <div className="rounded-2xl bg-slate-50 p-4">
+              <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                   Tipo documental
                 </p>
-                <p className="mt-2 font-bold text-slate-950">
+                <p className="mt-2 font-bold text-white">
 {getDocumentTypeLabel(document.document_type)}
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-4">
+              <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                   Sensibilidad
                 </p>
-                <p className="mt-2 font-bold text-slate-950">
+                <p className="mt-2 font-bold text-white">
                   {sensitivityLabel(document.sensitivity_level)}
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-4">
+              <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                   Tamaño
                 </p>
-                <p className="mt-2 font-bold text-slate-950">
+                <p className="mt-2 font-bold text-white">
                   {formatFileSize(document.file_size)}
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-4">
+              <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                   MIME
                 </p>
-                <p className="mt-2 break-all font-bold text-slate-950">
+                <p className="mt-2 break-all font-bold text-white">
                   {document.file_mime_type ?? '-'}
                 </p>
               </div>
               
-              <div className="rounded-2xl bg-slate-50 p-4 sm:col-span-2">
+              <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 sm:col-span-2">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                   Vencimiento
                 </p>
                 <div className="mt-2 flex items-center gap-2">
-                  <p className="font-bold text-slate-950">
+                  <p className="font-bold text-white">
                     {formatExpiryDate(document.expires_at)}
                   </p>
                   {document.expires_at && (
@@ -527,7 +531,7 @@ export default async function DocumentDetailPage({
                   href={signedUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex justify-center rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800"
+                  className="quick-action justify-center border-white/20 bg-white/10 hover:border-cyan-400 hover:bg-cyan-500/20"
                 >
                   Abrir enlace temporal
                 </a>
@@ -536,12 +540,14 @@ export default async function DocumentDetailPage({
               <form action={analyzeDocument}>
                 <input type="hidden" name="document_id" value={document.id} />
 
-                <AnalyzeButton label={analyzeButtonLabel} className="w-full rounded-2xl bg-sky-500 px-5 py-3 text-sm font-bold text-white hover:bg-sky-600" />
+                <MotionButton className="w-full bg-gradient-to-r from-accent to-brandviolet text-sm font-bold text-white">
+                  {analyzeButtonLabel}
+                </MotionButton>
               </form>
             </div>
-          </div>
+          </MotionCard>
 
-          <div className={`rounded-3xl border p-6 shadow-sm ${risk.className}`}>
+          <MotionCard index={1} className={risk.className}>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.2em]">
@@ -579,14 +585,14 @@ Dictamen IA documental
             <p className="mt-3 text-sm leading-6">
               {risk.description}
             </p>
-          </div>
+          </MotionCard>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-600">
+          <MotionCard index={2}>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400/80">
               Control documental sugerido
             </p>
 
-            <h3 className="mt-2 text-xl font-bold text-slate-950">
+            <h3 className="mt-2 font-display text-xl font-semibold text-white">
               Checklist operativo
             </h3>
 
@@ -594,47 +600,47 @@ Dictamen IA documental
               {checklist.map((item) => (
                 <div
                   key={item}
-                  className="flex gap-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700"
+                  className="flex gap-3 rounded-2xl border border-white/5 bg-white/[0.02] p-4 text-sm text-slate-300"
                 >
-                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sky-100 text-xs font-bold text-sky-700">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-cyan-500/20 text-xs font-bold text-cyan-400">
                     ✓
                   </span>
-                  <p>{item}</p>
+                  <span>{item}</span>
                 </div>
               ))}
             </div>
-          </div>
+          </MotionCard>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-600">
+          <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-6 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-500">
               Revisión manual recomendada
             </p>
 
-            <h3 className="mt-2 text-xl font-bold text-slate-950">
+            <h3 className="mt-2 font-display text-xl font-bold text-white">
               Posibles faltantes o respaldos
             </h3>
 
-            <ul className="mt-5 space-y-3 text-sm text-slate-700">
+            <ul className="mt-5 space-y-3 text-sm text-slate-300">
               {missingDocuments.map((item) => (
-                <li key={item} className="rounded-2xl bg-amber-50 p-4">
+                <li key={item} className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
                   {item}
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+          <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-6 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
               Seguridad documental
             </p>
 
-            <h3 className="mt-2 text-xl font-bold text-slate-950">
+            <h3 className="mt-2 font-display text-xl font-bold text-white">
               Recomendaciones de acceso
             </h3>
 
-            <ul className="mt-5 space-y-3 text-sm text-slate-700">
+            <ul className="mt-5 space-y-3 text-sm text-slate-300">
               {securityRecommendations.map((item) => (
-                <li key={item} className="rounded-2xl bg-slate-50 p-4">
+                <li key={item} className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
                   {item}
                 </li>
               ))}
@@ -642,10 +648,10 @@ Dictamen IA documental
           </div>
 
           {aiResult ? (
-            <div className="rounded-3xl border border-sky-100 bg-sky-50 p-6 shadow-sm">
+            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-6 shadow-sm">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-sky-700">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-sky-400">
                     Último análisis IA
                   </p>
 
@@ -655,16 +661,16 @@ Dictamen IA documental
                   </p>
                 </div>
 
-                <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-sky-700">
+                <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-sky-400">
                   Última versión
                 </span>
               </div>
 
-              <p className="mt-4 text-sm font-semibold leading-6 text-slate-950">
+              <p className="mt-4 text-sm font-semibold leading-6 text-white">
                 {aiResult.resumen}
               </p>
 
-              <div className="mt-5 space-y-4 text-sm text-slate-700">
+              <div className="mt-5 space-y-4 text-sm text-slate-300">
                 <p>
                   <strong>Modo:</strong> {aiResult.modo ?? 'análisis documental'}
                 </p>
@@ -730,12 +736,12 @@ Dictamen IA documental
                   );
                   if (!modeloSugerido) return null;
                   return (
-                    <div className="mt-4 rounded-2xl border border-violet-100 bg-violet-50/60 p-4">
-                      <div className="flex items-center gap-2 text-sm font-semibold text-violet-900">
+                    <div className="mt-4 rounded-2xl border border-violet-500/20 bg-violet-900/20 p-4">
+                      <div className="flex items-center gap-2 text-sm font-semibold text-violet-200">
                         <FileSignature className="h-4 w-4" />
                         Escrito sugerido
                       </div>
-                      <p className="mt-1 text-sm text-violet-800">
+                      <p className="mt-1 text-sm text-violet-300">
                         Según el tipo detectado
                         {aiResult?.tipo_documental_detectado
                           ? ` (${aiResult.tipo_documental_detectado})`
@@ -754,11 +760,11 @@ Dictamen IA documental
                 })()}
 
                 {aiResult.texto_extraido_preview ? (
-                  <details className="rounded-2xl bg-white p-4">
+                  <details className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
                     <summary className="cursor-pointer font-bold">
                       Ver texto extraído parcial
                     </summary>
-                    <p className="mt-3 text-xs leading-6 text-slate-600">
+                    <p className="mt-3 text-xs leading-6 text-slate-400">
                       {aiResult.texto_extraido_preview}
                     </p>
                   </details>
@@ -766,31 +772,31 @@ Dictamen IA documental
               </div>
             </div>
           ) : (
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-              <p className="font-bold text-slate-950">
+            <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-6 shadow-sm">
+              <p className="font-bold text-white">
                 Este documento todavía no tiene análisis IA.
               </p>
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-slate-400">
                 Ejecutá el análisis IA para generar una primera lectura documental.
               </p>
             </div>
           )}
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-950">
+          <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-6 shadow-sm">
+            <h3 className="text-lg font-bold text-white">
               Historial de análisis IA
             </h3>
 
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-400">
               Cada reanálisis queda guardado como una nueva versión.
             </p>
 
             <div className="mt-5 space-y-3">
               {latestAiOutput ? (
-                <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4">
+                <div className="rounded-2xl border border-sky-500/20 bg-sky-900/10 p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="font-bold text-slate-950">
+                      <p className="font-bold text-white">
                         Última versión · Análisis #{aiHistory.length}
                       </p>
                       <p className="mt-1 text-xs text-slate-500">
@@ -798,12 +804,12 @@ Dictamen IA documental
                       </p>
                     </div>
 
-                    <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-sky-700">
+                    <span className="rounded-full bg-sky-500/10 px-3 py-1 text-xs font-bold text-sky-400">
                       {latestAiOutput.model_name ?? 'analisis-documental-beta-v1'}
                     </span>
                   </div>
 
-                  <p className="mt-3 text-sm leading-6 text-slate-600">
+                  <p className="mt-3 text-sm leading-6 text-slate-300">
                     {latestAiOutput.result_json?.resumen ??
                       'Análisis guardado sin resumen disponible.'}
                   </p>
@@ -812,7 +818,7 @@ Dictamen IA documental
 
               {previousAiOutputs.length > 0 ? (
                 <div className="pt-2">
-                  <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-400">
+                  <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-500">
                     Versiones anteriores
                   </p>
 
@@ -820,11 +826,11 @@ Dictamen IA documental
                     {previousAiOutputs.map((item, index) => (
                       <div
                         key={item.id}
-                        className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+                        className="rounded-2xl border border-white/5 bg-white/[0.02] p-4"
                       >
                         <div className="flex items-start justify-between gap-4">
                           <div>
-                            <p className="font-bold text-slate-950">
+                            <p className="font-bold text-slate-200">
                               Análisis #{previousAiOutputs.length - index}
                             </p>
                             <p className="mt-1 text-xs text-slate-500">
@@ -832,12 +838,12 @@ Dictamen IA documental
                             </p>
                           </div>
 
-                          <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-600">
+                          <span className="rounded-full bg-white/5 px-3 py-1 text-xs font-bold text-slate-400">
                             {item.model_name ?? 'analisis-documental-beta-v1'}
                           </span>
                         </div>
 
-                        <p className="mt-3 text-sm leading-6 text-slate-600">
+                        <p className="mt-3 text-sm leading-6 text-slate-400">
                           {item.result_json?.resumen ??
                             'Análisis guardado sin resumen disponible.'}
                         </p>
@@ -848,7 +854,7 @@ Dictamen IA documental
               ) : null}
 
               {aiHistory.length === 0 ? (
-                <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">
+                <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 text-sm text-slate-400">
                   Todavía no hay análisis guardados para este documento.
                 </div>
               ) : null}
@@ -856,13 +862,13 @@ Dictamen IA documental
           </div>
         </section>
 
-        <section className="min-h-[520px] rounded-3xl border border-slate-200 bg-white p-4 shadow-sm xl:sticky xl:top-6 xl:h-[calc(100vh-3rem)]">
+        <MotionCard index={3} className="min-h-[520px] xl:sticky xl:top-6 xl:h-[calc(100vh-3rem)]">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>
               <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
                 Vista previa
               </p>
-              <p className="text-sm font-bold text-slate-950">
+              <p className="text-sm font-bold text-white">
                 {document.file_name}
               </p>
             </div>
@@ -872,9 +878,9 @@ Dictamen IA documental
                 href={signedUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                className="rounded-full border border-white/10 px-3 py-1.5 text-xs font-bold text-cyan-400 hover:bg-cyan-500/10"
               >
-                Abrir
+                Abrir en pestaña nueva
               </a>
             ) : null}
           </div>
@@ -886,18 +892,18 @@ Dictamen IA documental
               className="h-[calc(100vh-9rem)] min-h-[520px] w-full rounded-2xl border border-slate-200"
             />
           ) : (
-            <div className="flex h-[520px] items-center justify-center rounded-2xl bg-slate-50 p-8 text-center">
+            <div className="flex h-[520px] items-center justify-center rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-center">
               <div>
-                <p className="font-bold text-slate-950">
+                <p className="font-bold text-white">
                   Vista previa no disponible.
                 </p>
-                <p className="mt-2 text-sm text-slate-500">
+                <p className="mt-2 text-sm text-slate-400">
                   Este formato puede abrirse mediante el enlace temporal.
                 </p>
               </div>
             </div>
           )}
-        </section>
+        </MotionCard>
       </div>
     </AppShell>
   );

@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { Lock } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { updateOrganizationIndustryType } from './actions';
 import {
@@ -10,12 +12,15 @@ import {
   normalizeIndustryType,
 } from '@/lib/industries/documentTypes';
 
-const panels = [
-  { name: 'Resumen operativo', href: '/configuracion/resumen', description: 'Visión general de la configuración de la organización.' },
-  { name: 'Entorno de trabajo', href: '/configuracion/entorno', description: 'Personalización y ajustes del espacio.' },
+const clientCards = [
   { name: 'Motor IA', href: '/configuracion/ia', description: 'Opciones de análisis y procesamiento documental.' },
   { name: 'Seguridad y acceso', href: '/configuracion/seguridad', description: 'Políticas, permisos y auditoría.' },
   { name: 'Documentación', href: '/configuracion/documentacion', description: 'Tipos documentales y reglas de almacenamiento.' },
+];
+
+const ownerCards = [
+  { name: 'Resumen operativo', href: '/configuracion/resumen', description: 'Visión general de la configuración de la organización.' },
+  { name: 'Entorno de trabajo', href: '/configuracion/entorno', description: 'Personalización y ajustes del espacio.' },
   { name: 'Estado beta', href: '/configuracion/estado-beta', description: 'Gestión del entorno controlado y experimental.' },
   { name: 'Roadmap', href: '/configuracion/roadmap', description: 'Próximas actualizaciones y lanzamientos.' },
 ];
@@ -38,6 +43,20 @@ export default async function ConfiguracionPage() {
     .single();
 
   const currentIndustry = normalizeIndustryType(org?.industry_type);
+
+  const admin = createAdminClient();
+  let isPlatformOwner = false;
+  
+  if (admin) {
+    const { data: owner } = await admin
+      .from('platform_admins')
+      .select('user_id, active')
+      .eq('user_id', user.id)
+      .eq('active', true)
+      .maybeSingle();
+      
+    isPlatformOwner = Boolean(owner);
+  }
 
   return (
     <AppShell>
@@ -93,9 +112,9 @@ export default async function ConfiguracionPage() {
           </section>
         </div>
 
-        <div>
+        <div className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-2">
-            {panels.map((panel) => (
+            {clientCards.map((panel) => (
               <Link
                 key={panel.href}
                 href={panel.href}
@@ -112,6 +131,35 @@ export default async function ConfiguracionPage() {
               </Link>
             ))}
           </div>
+
+          {isPlatformOwner && (
+            <section className="mt-8">
+              <div className="mb-4 flex items-center gap-2">
+                <Lock size={16} className="text-brandviolet-soft" />
+                <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-brandviolet-soft">
+                  Panel interno · solo plataforma
+                </h3>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {ownerCards.map((panel) => (
+                  <Link
+                    key={panel.href}
+                    href={panel.href}
+                    className="group flex flex-col justify-between rounded-2xl border border-brandviolet/20 bg-brandviolet/[0.03] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_16px_40px_-16px_rgba(0,0,0,0.7)] transition-colors hover:border-brandviolet/40"
+                  >
+                    <div>
+                      <h4 className="font-display text-base font-semibold text-white group-hover:text-brandviolet-soft">
+                        {panel.name}
+                      </h4>
+                      <p className="mt-1 text-sm text-slate-400">
+                        {panel.description}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </div>
     </AppShell>
