@@ -282,3 +282,26 @@ export function getAllowedCaseStatuses(industry: IndustryType): string[] {
     ...Object.keys(legacyCaseStatusLabels),
   ];
 }
+
+const legacyCaseTypeLabels: Record<string, string> = {
+  REAL_ESTATE_PURCHASE: 'Compraventa de inmueble',
+  RENTAL: 'Alquiler',
+  RESERVATION: 'Reserva',
+  GENERAL: 'General',
+  LAWSUIT: 'Demanda',
+  LEGAL_CASE: 'Caso jurídico',
+  EMPLOYEE_FILE: 'Legajo de empleado',
+};
+
+export function getCaseTypeLabel(type?: string | null): string {
+  if (!type) return 'General';
+  const value = type.trim();
+  if (!value) return 'General';
+  // Código legado conocido
+  if (legacyCaseTypeLabels[value]) return legacyCaseTypeLabels[value];
+  // Ya es una etiqueta legible (tiene minúsculas o espacios) -> dejar tal cual
+  if (/[a-z]/.test(value) || value.includes(' ')) return value;
+  // Fallback: convertir ENUM_ESTILO -> "Enum estilo"
+  const pretty = value.toLowerCase().replace(/_/g, ' ');
+  return pretty.charAt(0).toUpperCase() + pretty.slice(1);
+}

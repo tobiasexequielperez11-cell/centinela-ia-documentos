@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
-import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
+import { getCaseStatusLabel, getCaseTypeLabel } from '@/lib/industries/caseConfig';
 import { normalizeIndustryType } from '@/lib/industries/documentTypes';
 import { getIndustryTerms } from '@/lib/industries/uiLabels';
 import { summarizeChecklistStatuses } from '@/lib/checklist/progress';
@@ -128,7 +128,7 @@ export default async function CasesPage({
                   <div className="flex items-start justify-between gap-2">
                     <Badge tone="accent">{getCaseStatusLabel(item.status, organizationIndustry)}</Badge>
                     <span className="rounded-full bg-white/5 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">
-                      {item.case_type ?? 'General'}
+                      {getCaseTypeLabel(item.case_type)}
                     </span>
                   </div>
 
