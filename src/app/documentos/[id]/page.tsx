@@ -12,6 +12,8 @@ import { AnalyzeButton } from '../AnalyzeButton';
 import { PlazosDetectados } from './PlazosDetectados';
 import { FileSignature } from 'lucide-react';
 import { sugerirModeloPorTipo } from '@/lib/legal/modelos';
+import { Badge } from '@/components/ui/Badge';
+import { AnalyzeDetailButtonClient } from './AnalyzeDetailButtonClient';
 import { MotionCard } from '@/components/ui/MotionCard';
 import { MotionButton } from '@/components/ui/MotionButton';
 import type { DocumentRecord } from '@/types/document';
@@ -424,13 +426,7 @@ export default async function DocumentDetailPage({
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          <form action={analyzeDocument}>
-            <input type="hidden" name="document_id" value={document.id} />
-
-            <MotionButton className="w-full bg-gradient-to-r from-accent to-brandviolet px-5 py-3 text-sm font-bold text-white">
-              {analyzeButtonLabel}
-            </MotionButton>
-          </form>
+          <AnalyzeDetailButtonClient documentId={document.id} label={analyzeButtonLabel} />
 
           <Link
             href="/documentos"

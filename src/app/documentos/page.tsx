@@ -12,7 +12,7 @@ import { Banner } from '@/components/ui/Banner';
 import { Badge } from '@/components/ui/Badge';
 import { Reveal } from '@/components/ui/Reveal';
 import { MotionButton } from '@/components/ui/MotionButton';
-import { MotionTableRow } from '@/components/ui/MotionTableRow';
+import { DocumentRowClient } from './DocumentRowClient';
 import { analyzeDocument } from './actions';
 import { AnalyzeButton } from './AnalyzeButton';
 import type { DocumentRecord } from '@/types/document';
@@ -282,56 +282,21 @@ export default async function DocumentsPage({
               }
 
               return (
-                <MotionTableRow key={item.id} index={index} className="border-t border-white/5 transition-colors hover:bg-white/[0.03]">
-                  <td className="px-4 py-3 font-bold text-white">
-                    {item.file_name}
-                  </td>
-
-                  <td className="px-4 py-3 text-slate-300">
-                    {getDocumentTypeLabel(item.document_type)}
-                  </td>
-
-                  <td className="px-4 py-3 text-slate-300">
-                    <Badge tone={sensitivityLabel(item.sensitivity_level) === 'Crítico' || sensitivityLabel(item.sensitivity_level) === 'Alto' ? 'danger' : 'neutral'}>{sensitivityLabel(item.sensitivity_level)}</Badge>
-                  </td>
-
-                  <td className="px-4 py-3">
-                    <Badge tone={isPending ? 'neutral' : 'accent'}>{aiStatus.label}</Badge>
-                  </td>
-
-                  <td className="px-4 py-3">
-                    {expiryStatus === 'sin_vencimiento' ? (
-                      <span className="text-slate-500">—</span>
-                    ) : (
-                      <Badge tone={expiryStatus === 'vencido' ? 'danger' : 'warning'}>{expiryText}</Badge>
-                    )}
-                  </td>
-
-                  <td className="px-4 py-3 text-slate-300">
-                    {formatFileSize(item.file_size)}
-                  </td>
-
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link href={`/documentos/${item.id}`} className="rounded-lg border border-white/10 bg-transparent px-3 py-1.5 text-xs font-bold text-slate-300 transition-all hover:bg-white/5 hover:text-white">
-                        Ver
-                      </Link>
-                      {isPending && isAnalyzable ? (
-                        <form action={analyzeDocument}>
-                          <input type="hidden" name="document_id" value={item.id} />
-                          <button className="rounded-lg border border-white/10 bg-gradient-to-r from-cyan-500/20 to-brandviolet/20 px-3 py-1.5 text-xs font-bold text-white transition-all hover:from-cyan-500/30 hover:to-brandviolet/30">
-                            Analizar IA
-                          </button>
-                        </form>
-                      ) : null}
-                      {isPending && !isAnalyzable ? (
-                        <span className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-slate-400">
-                          Sin IA
-                        </span>
-                      ) : null}
-                    </div>
-                  </td>
-                </MotionTableRow>
+                <DocumentRowClient
+                  key={item.id}
+                  index={index}
+                  documentId={item.id}
+                  fileName={item.file_name}
+                  documentTypeLabel={getDocumentTypeLabel(item.document_type)}
+                  sensitivityLabel={sensitivityLabel(item.sensitivity_level)}
+                  isDangerSensitivity={sensitivityLabel(item.sensitivity_level) === 'Crítico' || sensitivityLabel(item.sensitivity_level) === 'Alto'}
+                  aiStatusLabel={aiStatus.label}
+                  isPendingAi={isPending}
+                  isAnalyzable={isAnalyzable}
+                  expiryStatus={expiryStatus}
+                  expiryText={expiryText}
+                  fileSizeLabel={formatFileSize(item.file_size)}
+                />
               );
             })}
           </tbody>
