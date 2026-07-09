@@ -319,14 +319,13 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
           </div>
 
           <div className="overflow-x-auto rounded-2xl border border-white/10">
-            <table className="w-full min-w-[900px] text-left text-sm">
+            <table className="w-full text-left text-sm">
               <thead className="bg-white/[0.05] text-xs uppercase tracking-wide text-slate-300">
                 <tr>
                   <th className="px-4 py-3">Usuario</th>
-                  <th className="px-4 py-3">Rol actual</th>
-                  <th className="px-4 py-3">Estado</th>
+                  <th className="px-4 py-3">Estado / Rol</th>
                   <th className="px-4 py-3">Actividad</th>
-                  <th className="px-4 py-3">Acceso</th>
+                  <th className="px-4 py-3">Gestión de Acceso</th>
                 </tr>
               </thead>
 
@@ -357,7 +356,7 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
                               ) : null}
                             </div>
 
-                            <p className="mt-1 text-xs text-slate-300">
+                            <p className="mt-1 truncate max-w-[140px] text-xs text-slate-300 sm:max-w-[200px] lg:max-w-[250px]" title={item.email ?? 'Sin email registrado'}>
                               {item.email ?? 'Sin email registrado'}
                             </p>
 
@@ -369,23 +368,22 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
                       </td>
 
                       <td className="px-4 py-4">
-                        <span
-                          className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${roleTone(
-                            item.role
-                          )}`}
-                        >
-                          {roleLabel(item.role)}
-                        </span>
-                      </td>
-
-                      <td className="px-4 py-4">
-                        <span
-                          className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${statusTone(
-                            item.status
-                          )}`}
-                        >
-                          {statusLabel(item.status)}
-                        </span>
+                        <div className="flex flex-col items-start gap-2">
+                          <span
+                            className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold ${roleTone(
+                              item.role
+                            )}`}
+                          >
+                            {roleLabel(item.role)}
+                          </span>
+                          <span
+                            className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold ${statusTone(
+                              item.status
+                            )}`}
+                          >
+                            {statusLabel(item.status)}
+                          </span>
+                        </div>
                       </td>
 
                       <td className="px-4 py-4">
@@ -422,7 +420,7 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
                             i
                           </span>
                         ) : (
-                          <form action={updateUserAccess} className="grid min-w-[220px] gap-2">
+                          <form action={updateUserAccess} className="grid w-full min-w-[180px] max-w-[220px] gap-2">
                             <input type="hidden" name="user_id" value={item.id} />
 
                             <div>

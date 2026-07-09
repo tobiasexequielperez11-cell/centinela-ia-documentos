@@ -312,18 +312,20 @@ export default async function DocumentsPage({
                   </td>
 
                   <td className="px-4 py-3">
-                    <div className="flex flex-col items-end gap-1.5">
-                      <Link href={`/documentos/${item.id}`} className="text-xs font-medium text-accent-soft hover:text-white">
+                    <div className="flex items-center justify-end gap-2">
+                      <Link href={`/documentos/${item.id}`} className="rounded-lg border border-white/10 bg-transparent px-3 py-1.5 text-xs font-bold text-slate-300 transition-all hover:bg-white/5 hover:text-white">
                         Ver
                       </Link>
                       {isPending && isAnalyzable ? (
                         <form action={analyzeDocument}>
                           <input type="hidden" name="document_id" value={item.id} />
-                          <button className="rounded-xl bg-slate-900 px-2.5 py-1 text-[10px] uppercase tracking-wide font-bold text-white hover:bg-slate-800">Analizar IA</button>
+                          <button className="rounded-lg border border-white/10 bg-gradient-to-r from-cyan-500/20 to-brandviolet/20 px-3 py-1.5 text-xs font-bold text-white transition-all hover:from-cyan-500/30 hover:to-brandviolet/30">
+                            Analizar IA
+                          </button>
                         </form>
                       ) : null}
                       {isPending && !isAnalyzable ? (
-                        <span className="rounded-xl border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold text-slate-400">
+                        <span className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-slate-400">
                           Sin IA
                         </span>
                       ) : null}
