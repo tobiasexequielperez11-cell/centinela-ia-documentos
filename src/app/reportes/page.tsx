@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { formatAuditActionLabel } from '@/lib/audit/actionLabels';
@@ -9,6 +12,8 @@ import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
 import { formatFileSize } from '@/lib/format/fileSize';
 import { analyzeDocument } from '../documentos/actions';
 import { getDocumentExpiryStatus, getDaysUntilExpiry, expiryStatusLabel, getExpiryBadgeStyles } from '@/lib/documents/expiry';
+import { MotionCard } from '@/components/ui/MotionCard';
+import { MotionButton } from '@/components/ui/MotionButton';
 
 type ReportView =
   | 'general'
@@ -705,11 +710,6 @@ if (
       value: totalCases,
       helper: `${activeCases} activos`,
     },
-{
-  label: 'Procesamientos IA',
-  value: aiOutputs.length,
-  helper: 'Análisis registrados',
-},
     {
       label: 'Análisis IA',
       value: aiOutputs.length,
@@ -831,15 +831,15 @@ if (
     <AppShell>
       <div className="mb-8 flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-400">
             Reportes
           </p>
 
-          <h2 className="mt-2 text-3xl font-bold text-slate-950">
+          <h2 className="mt-2 text-3xl font-bold text-white">
             Reporte operativo del sistema
           </h2>
 
-          <p className="mt-2 text-sm text-slate-600">
+          <p className="mt-2 text-sm text-slate-300">
             Análisis y visión de conjunto: métricas, cartera y auditoría para leer el panorama completo del estudio.
           </p>
         </div>
@@ -847,21 +847,21 @@ if (
         <div className="flex flex-wrap gap-3">
           <Link
             href="/usuarios/invitaciones"
-            className="rounded-2xl bg-sky-600 px-5 py-3 text-sm font-bold text-white hover:bg-sky-700"
+            className="rounded-xl bg-cyan-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.03] hover:bg-cyan-500 hover:shadow-cyan-500/40 active:scale-[0.97]"
           >
             Gestionar invitaciones
           </Link>
 
           <Link
             href="/documentos"
-            className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50"
+            className="rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 transition-all hover:scale-[1.03] hover:border-cyan-400/40 hover:text-cyan-200 active:scale-[0.97]"
           >
             Ver documentos
           </Link>
 
           <Link
             href="/documentos?ia=pendientes"
-            className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800"
+            className="rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 transition-all hover:scale-[1.03] hover:border-cyan-400/40 hover:text-cyan-200 active:scale-[0.97]"
           >
             Ver pendientes IA
           </Link>
@@ -873,10 +873,10 @@ if (
           <Link
             key={view.value}
             href={view.href}
-            className={`rounded-2xl px-4 py-2 text-sm font-bold ${
+            className={`rounded-xl px-4 py-2 text-sm font-bold transition-all hover:scale-[1.03] active:scale-[0.97] ${
               activeView === view.value
-                ? 'bg-slate-950 text-white'
-                : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/20'
+                : 'border border-white/10 bg-white/[0.04] text-slate-200 hover:border-cyan-400/40 hover:text-cyan-200'
             }`}
           >
             {view.label}
@@ -892,55 +892,56 @@ if (
         </div>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
-        {metrics.map((metric) => (
-          <div
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {metrics.map((metric, index) => (
+          <MotionCard
             key={metric.label}
-            className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
+            index={index}
+            className="p-5"
           >
-            <p className="text-sm font-semibold text-slate-500">{metric.label}</p>
+            <p className="text-sm font-semibold text-slate-400">{metric.label}</p>
 
-            <p className="mt-2 text-3xl font-bold text-slate-950">{metric.value}</p>
+            <p className="mt-2 text-3xl font-bold text-white">{metric.value}</p>
 
             <p className="mt-3 text-xs text-slate-500">{metric.helper}</p>
-          </div>
+          </MotionCard>
         ))}
       </div>
 
       {activeView === 'invitaciones' ? (
-        <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <MotionCard index={6} className="mt-8 p-6">
           <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-400">
                 Invitaciones
               </p>
 
-              <h3 className="mt-2 text-2xl font-bold text-slate-950">
-Control de invitaciones y accesos
+              <h3 className="mt-2 text-2xl font-bold text-white">
+                Control de invitaciones y accesos
               </h3>
 
-              <p className="mt-2 text-sm text-slate-600">
-Seguimiento de invitaciones, altas pendientes y accesos gestionados durante la beta operativa.
+              <p className="mt-2 text-sm text-slate-300">
+                Seguimiento de invitaciones, altas pendientes y accesos gestionados durante la beta operativa.
               </p>
             </div>
 
             <Link
               href="/usuarios/invitaciones"
-              className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800"
+              className="rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 transition-all hover:scale-[1.03] hover:border-cyan-400/40 hover:text-cyan-200 active:scale-[0.97]"
             >
               Abrir bandeja
             </Link>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-            {invitationCards.map((metric) => (
+            {invitationCards.map((metric, index) => (
               <div
                 key={metric.label}
-                className="rounded-2xl border border-slate-200 bg-slate-50 p-5"
+                className="rounded-2xl border border-white/10 bg-white/[0.04] p-5"
               >
-                <p className="text-sm font-semibold text-slate-500">{metric.label}</p>
+                <p className="text-sm font-semibold text-slate-400">{metric.label}</p>
 
-                <p className="mt-2 text-3xl font-bold text-slate-950">
+                <p className="mt-2 text-3xl font-bold text-white">
                   {metric.value}
                 </p>
 
@@ -953,13 +954,13 @@ Seguimiento de invitaciones, altas pendientes y accesos gestionados durante la b
             <div
               className={`rounded-2xl border p-5 ${
                 hasPendingExpiredInvitations
-                  ? 'border-amber-200 bg-amber-50'
-                  : 'border-emerald-200 bg-emerald-50'
+                  ? 'border-amber-900/30 bg-amber-950/20'
+                  : 'border-emerald-900/30 bg-emerald-950/20'
               }`}
             >
               <p
                 className={`text-sm font-bold ${
-                  hasPendingExpiredInvitations ? 'text-amber-950' : 'text-emerald-950'
+                  hasPendingExpiredInvitations ? 'text-amber-200' : 'text-emerald-200'
                 }`}
               >
                 Estado operativo
@@ -967,7 +968,7 @@ Seguimiento de invitaciones, altas pendientes y accesos gestionados durante la b
 
               <p
                 className={`mt-2 text-sm leading-6 ${
-                  hasPendingExpiredInvitations ? 'text-amber-800' : 'text-emerald-800'
+                  hasPendingExpiredInvitations ? 'text-amber-300' : 'text-emerald-300'
                 }`}
               >
                 {hasPendingExpiredInvitations
@@ -976,36 +977,36 @@ Seguimiento de invitaciones, altas pendientes y accesos gestionados durante la b
               </p>
 
               <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
-                <span className="rounded-full bg-white/70 px-3 py-1 text-slate-700">
+                <span className="rounded-full bg-white/10 px-3 py-1 text-slate-200">
                   {attentionInvitations} requieren atención
                 </span>
 
-                <span className="rounded-full bg-white/70 px-3 py-1 text-slate-700">
+                <span className="rounded-full bg-white/10 px-3 py-1 text-slate-200">
                   Última: {formatDate(lastInvitationCreatedAt)}
                 </span>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <p className="text-sm font-bold text-slate-950">
-Gestión recomendada de accesos
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+              <p className="text-sm font-bold text-white">
+                Gestión recomendada de accesos
               </p>
 
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-Las invitaciones permiten controlar altas, roles y estados de acceso dentro de la organización. Para la beta operativa, esta bandeja funciona como registro central de usuarios invitados, aceptados, vencidos o cancelados.
+              <p className="mt-2 text-sm leading-6 text-slate-400">
+                Las invitaciones permiten controlar altas, roles y estados de acceso dentro de la organización. Para la beta operativa, esta bandeja funciona como registro central de usuarios invitados, aceptados, vencidos o cancelados.
               </p>
 
               <div className="mt-4 flex flex-wrap gap-3">
                 <Link
                   href="/usuarios"
-                  className="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                  className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-bold text-slate-200 transition-all hover:bg-white/[0.08]"
                 >
                   Ver usuarios
                 </Link>
 
                 <Link
                   href="/reportes?vista=auditoria&tipo=invitaciones"
-                  className="rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700"
+                  className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white transition-all hover:bg-indigo-500"
                 >
                   Ver auditoría de invitaciones
                 </Link>
@@ -1013,9 +1014,9 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
             </div>
           </div>
 
-          <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200">
+          <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
             <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+              <thead className="border-b border-white/10 bg-white/[0.02] text-xs uppercase tracking-wide text-slate-400">
                 <tr>
                   <th className="px-4 py-3">Invitado</th>
                   <th className="px-4 py-3">Rol</th>
@@ -1025,11 +1026,11 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-slate-200">
+              <tbody className="divide-y divide-white/5">
                 {invitationsToDisplay.map((invitation) => (
-                  <tr key={invitation.id} className="align-top hover:bg-slate-50">
+                  <tr key={invitation.id} className="align-top hover:bg-white/[0.02]">
                     <td className="px-4 py-4">
-                      <p className="font-bold text-slate-950">
+                      <p className="font-bold text-white">
                         {invitation.email ?? 'Sin email'}
                       </p>
 
@@ -1038,7 +1039,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                       </p>
                     </td>
 
-                    <td className="px-4 py-4 text-slate-600">
+                    <td className="px-4 py-4 text-slate-300">
                       {invitationRoleLabel(invitation.role)}
                     </td>
 
@@ -1060,17 +1061,17 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
 
                     <td className="px-4 py-4">
                       {invitation.requires_attention ? (
-                        <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
+                        <span className="rounded-full bg-amber-950/50 px-3 py-1 text-xs font-bold text-amber-300">
                           Requiere seguimiento
                         </span>
                       ) : (
-                        <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+                        <span className="rounded-full bg-emerald-950/50 px-3 py-1 text-xs font-bold text-emerald-300">
                           Sin alerta
                         </span>
                       )}
                     </td>
 
-                    <td className="px-4 py-4 text-xs leading-5 text-slate-500">
+                    <td className="px-4 py-4 text-xs leading-5 text-slate-400">
                       <p>Creada: {formatDate(invitation.created_at)}</p>
                       <p>Vence: {formatDate(invitation.expires_at)}</p>
                       <p>Aceptada: {formatDate(invitation.accepted_at)}</p>
@@ -1087,164 +1088,164 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
               </div>
             ) : null}
           </div>
-        </section>
+        </MotionCard>
       ) : null}
 
       {activeView === 'general' || activeView === 'ia' ? (
         <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_0.8fr]">
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <MotionCard index={7} className="p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-400">
                   Cobertura IA
                 </p>
 
-                <h3 className="mt-2 text-2xl font-bold text-slate-950">
+                <h3 className="mt-2 text-2xl font-bold text-white">
                   Estado del análisis documental
                 </h3>
 
-                <p className="mt-2 text-sm text-slate-600">
+                <p className="mt-2 text-sm text-slate-300">
                   Medición de documentos analizados y pendientes.
                 </p>
               </div>
 
-              <span className="rounded-full bg-sky-50 px-4 py-2 text-sm font-bold text-sky-700">
+              <span className="rounded-full bg-cyan-950 px-4 py-2 text-sm font-bold text-cyan-300">
                 {coverage}%
               </span>
             </div>
 
             <div className="mt-6">
               <div className="mb-2 flex justify-between text-sm">
-                <span className="font-semibold text-slate-600">
+                <span className="font-semibold text-slate-400">
                   Progreso de cobertura
                 </span>
-                <span className="font-bold text-slate-950">
+                <span className="font-bold text-white">
                   {analyzedDocuments}/{totalDocuments}
                 </span>
               </div>
 
-              <div className="h-4 overflow-hidden rounded-full bg-slate-100">
+              <div className="h-4 overflow-hidden rounded-full bg-slate-800">
                 <div
-                  className="h-full rounded-full bg-sky-500"
+                  className="h-full rounded-full bg-cyan-500"
                   style={{ width: `${coverage}%` }}
                 />
               </div>
             </div>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl bg-slate-50 p-4">
+              <div className="rounded-2xl bg-white/[0.04] p-4">
                 <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
                   Analizados
                 </p>
-                <p className="mt-2 text-2xl font-bold text-slate-950">
+                <p className="mt-2 text-2xl font-bold text-white">
                   {analyzedDocuments}
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-4">
+              <div className="rounded-2xl bg-white/[0.04] p-4">
                 <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
                   Pendientes
                 </p>
-                <p className="mt-2 text-2xl font-bold text-slate-950">
+                <p className="mt-2 text-2xl font-bold text-white">
                   {pendingDocuments}
                 </p>
               </div>
             </div>
 
             {pendingDocuments > 0 ? (
-              <div className="mt-6 flex flex-col justify-between gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:flex-row sm:items-center">
+              <div className="mt-6 flex flex-col justify-between gap-4 rounded-2xl border border-amber-900/30 bg-amber-950/20 p-4 sm:flex-row sm:items-center">
                 <div>
-                  <p className="font-bold text-amber-950">
+                  <p className="font-bold text-amber-200">
                     Hay documentos pendientes de análisis.
                   </p>
-                  <p className="mt-1 text-sm text-amber-800">
+                  <p className="mt-1 text-sm text-amber-300/80">
                     Conviene completar la cobertura IA para mantener el control documental.
                   </p>
                 </div>
 
                 <Link
                   href="/documentos?ia=pendientes"
-                  className="rounded-2xl bg-amber-900 px-4 py-3 text-center text-sm font-bold text-white hover:bg-amber-950"
+                  className="rounded-xl bg-amber-600 px-4 py-3 text-center text-sm font-bold text-white hover:bg-amber-500"
                 >
                   Revisar pendientes
                 </Link>
               </div>
             ) : (
-              <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-                <p className="font-bold text-emerald-900">
+              <div className="mt-6 rounded-2xl border border-emerald-900/30 bg-emerald-950/20 p-4">
+                <p className="font-bold text-emerald-200">
                   Cobertura IA completa.
                 </p>
-                <p className="mt-1 text-sm text-emerald-800">
+                <p className="mt-1 text-sm text-emerald-300/80">
                   Todos los documentos cargados tienen al menos un análisis IA registrado.
                 </p>
               </div>
             )}
-          </section>
+          </MotionCard>
 
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+          <MotionCard index={8} className="p-6">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-400">
               Acciones rápidas
             </p>
 
-            <h3 className="mt-2 text-2xl font-bold text-slate-950">
+            <h3 className="mt-2 text-2xl font-bold text-white">
               Control operativo
             </h3>
 
-            <p className="mt-2 text-sm text-slate-600">
+            <p className="mt-2 text-sm text-slate-300">
               Accesos directos para continuar el flujo de revisión documental.
             </p>
 
             <div className="mt-6 grid gap-3">
               <Link
                 href="/documentos/subir"
-                className="rounded-2xl bg-sky-500 px-5 py-4 text-sm font-bold text-white hover:bg-sky-600"
+                className="rounded-xl bg-cyan-600 px-5 py-4 text-sm font-bold text-white hover:bg-cyan-500"
               >
                 Subir nuevo documento
               </Link>
 
               <Link
                 href="/documentos?ia=pendientes"
-                className="rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                className="rounded-xl border border-white/10 bg-white/[0.04] px-5 py-4 text-sm font-bold text-slate-200 hover:bg-white/[0.08]"
               >
                 Ver documentos pendientes IA
               </Link>
 
               <Link
                 href="/reportes?vista=invitaciones"
-                className="rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                className="rounded-xl border border-white/10 bg-white/[0.04] px-5 py-4 text-sm font-bold text-slate-200 hover:bg-white/[0.08]"
               >
                 Ver invitaciones operativas
               </Link>
 
               <Link
                 href="/reportes?vista=sensibilidad"
-                className="rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                className="rounded-xl border border-white/10 bg-white/[0.04] px-5 py-4 text-sm font-bold text-slate-200 hover:bg-white/[0.08]"
               >
                 Ver sensibilidad documental
               </Link>
 
               <Link
                 href="/reportes?vista=auditoria"
-                className="rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                className="rounded-xl border border-white/10 bg-white/[0.04] px-5 py-4 text-sm font-bold text-slate-200 hover:bg-white/[0.08]"
               >
                 Ver auditoría reciente
               </Link>
             </div>
-          </section>
+          </MotionCard>
         </div>
       ) : null}
 
       {activeView === 'general' || activeView === 'sensibilidad' ? (
-        <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+        <MotionCard index={9} className="mt-8 p-6">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-400">
             Sensibilidad
           </p>
 
-          <h3 className="mt-2 text-2xl font-bold text-slate-950">
+          <h3 className="mt-2 text-2xl font-bold text-white">
             Distribución documental
           </h3>
 
-          <p className="mt-2 text-sm text-slate-600">
+          <p className="mt-2 text-sm text-slate-300">
             Clasificación de documentos según sensibilidad asignada.
           </p>
 
@@ -1253,15 +1254,15 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
               const percentage = getPercentage(item.value, totalDocuments);
 
               return (
-                <div key={item.key} className="rounded-2xl bg-slate-50 p-4">
+                <div key={item.key} className="rounded-2xl bg-white/[0.04] p-4">
                   <div className="mb-3 flex justify-between text-sm">
-                    <span className="font-semibold text-slate-700">{item.label}</span>
-                    <span className="font-bold text-slate-950">
+                    <span className="font-semibold text-slate-300">{item.label}</span>
+                    <span className="font-bold text-white">
                       {item.value} · {percentage}%
                     </span>
                   </div>
 
-                  <div className="h-3 overflow-hidden rounded-full bg-slate-100">
+                  <div className="h-3 overflow-hidden rounded-full bg-slate-800">
                     <div
                       className={`h-full rounded-full ${item.className}`}
                       style={{ width: `${percentage}%` }}
@@ -1273,32 +1274,32 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
           </div>
 
           {sensitiveDocumentsList.length > 0 ? (
-            <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-              <p className="font-bold text-amber-950">
+            <div className="mt-6 rounded-2xl border border-amber-900/30 bg-amber-950/20 p-4">
+              <p className="font-bold text-amber-200">
                 Hay documentos de sensibilidad alta o crítica.
               </p>
 
-              <p className="mt-1 text-sm text-amber-800">
+              <p className="mt-1 text-sm text-amber-300/80">
                 Conviene revisarlos periódicamente y mantener controlados los accesos.
               </p>
             </div>
           ) : (
-            <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-              <p className="font-bold text-emerald-900">
+            <div className="mt-6 rounded-2xl border border-emerald-900/30 bg-emerald-950/20 p-4">
+              <p className="font-bold text-emerald-200">
                 No hay documentos marcados como alta sensibilidad.
               </p>
             </div>
           )}
-        </section>
+        </MotionCard>
       ) : null}
 
       {activeView === 'documentos' ||
       activeView === 'ia' ||
       activeView === 'sensibilidad' ? (
-        <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <MotionCard index={10} className="mt-8 p-6">
           <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
             <div>
-              <h3 className="text-xl font-bold text-slate-950">
+              <h3 className="text-xl font-bold text-white">
                 {activeView === 'ia'
                   ? 'Control de análisis IA por documento'
                   : activeView === 'sensibilidad'
@@ -1306,7 +1307,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                     : 'Inventario documental'}
               </h3>
 
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-slate-400">
                 {activeView === 'ia'
                   ? 'Listado operativo para revisar documentos pendientes y analizados.'
                   : activeView === 'sensibilidad'
@@ -1318,23 +1319,23 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/documentos"
-                className="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-bold text-slate-200 hover:bg-white/[0.08]"
               >
                 Ir a bóveda
               </Link>
 
               <Link
                 href="/documentos/subir"
-                className="rounded-2xl bg-slate-950 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800"
+                className="rounded-xl bg-cyan-600 px-4 py-2 text-sm font-bold text-white hover:bg-cyan-500"
               >
                 Subir documento
               </Link>
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200">
+          <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
             <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+              <thead className="border-b border-white/10 bg-white/[0.02] text-xs uppercase tracking-wide text-slate-400">
                 <tr>
                   <th className="px-4 py-3">Archivo</th>
                   <th className="px-4 py-3">Tipo</th>
@@ -1345,15 +1346,15 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-slate-200">
+              <tbody className="divide-y divide-white/5">
                 {focusDocuments.map((document) => {
                   const analysisCount = analysisCountByDocument.get(document.id) ?? 0;
 
                   return (
-                    <tr key={document.id} className="hover:bg-slate-50">
+                    <tr key={document.id} className="hover:bg-white/[0.02]">
                       <td className="px-4 py-3">
                         <Link href={`/documentos/${document.id}`}>
-                          <p className="font-bold text-slate-950 hover:text-sky-700">
+                          <p className="font-bold text-white hover:text-cyan-400">
                             {document.file_name}
                           </p>
                         </Link>
@@ -1363,11 +1364,11 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                         </p>
                       </td>
 
-                      <td className="px-4 py-3 text-slate-600">
+                      <td className="px-4 py-3 text-slate-300">
                         {getDocumentTypeLabel(document.document_type)}
                       </td>
 
-                      <td className="px-4 py-3 text-slate-600">
+                      <td className="px-4 py-3 text-slate-300">
                         {sensitivityLabel(document.sensitivity_level)}
                       </td>
 
@@ -1381,7 +1382,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                         </span>
                       </td>
 
-                      <td className="px-4 py-3 text-slate-600">
+                      <td className="px-4 py-3 text-slate-300">
                         {formatFileSize(document.file_size)}
                       </td>
 
@@ -1389,7 +1390,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                         <div className="flex flex-wrap gap-2">
                           <Link
                             href={`/documentos/${document.id}`}
-                            className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-white"
+                            className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold text-slate-200 hover:bg-white/[0.08]"
                           >
                             Ver
                           </Link>
@@ -1402,7 +1403,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                                 value={document.id}
                               />
 
-                              <button className="rounded-xl bg-slate-950 px-3 py-2 text-xs font-bold text-white hover:bg-slate-800">
+                              <button className="rounded-xl bg-cyan-600 px-3 py-2 text-xs font-bold text-white hover:bg-cyan-500">
                                 Analizar
                               </button>
                             </form>
@@ -1421,73 +1422,73 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
               </div>
             ) : null}
           </div>
-        </section>
+        </MotionCard>
       ) : null}
 
       {activeView === 'auditoria' ? (
-        <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <MotionCard index={11} className="mt-8 p-6">
           <div className="mb-6 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-400">
                 Trazabilidad
               </p>
 
-              <h3 className="mt-2 text-2xl font-bold text-slate-950">
+              <h3 className="mt-2 text-2xl font-bold text-white">
                 Centro de auditoría operativa
               </h3>
 
-              <p className="mt-2 text-sm text-slate-600">
+              <p className="mt-2 text-sm text-slate-300">
                 Control de acciones registradas por usuario, recurso, evento y fecha.
               </p>
             </div>
 
-            <span className="rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-600">
+            <span className="rounded-full bg-white/[0.04] px-4 py-2 text-sm font-bold text-slate-300">
               {auditLogs.length} eventos totales
             </span>
           </div>
 
           <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-            <div className="rounded-2xl bg-slate-50 p-4">
+            <div className="rounded-2xl bg-white/[0.04] p-4">
               <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
                 Eventos auditados
               </p>
-              <p className="mt-2 text-3xl font-bold text-slate-950">
+              <p className="mt-2 text-3xl font-bold text-white">
                 {auditLogs.length}
               </p>
             </div>
 
-            <div className="rounded-2xl bg-slate-50 p-4">
+            <div className="rounded-2xl bg-white/[0.04] p-4">
               <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
                 Eventos documentales
               </p>
-              <p className="mt-2 text-3xl font-bold text-slate-950">
+              <p className="mt-2 text-3xl font-bold text-white">
                 {documentAuditLogs.length}
               </p>
             </div>
 
-            <div className="rounded-2xl bg-slate-50 p-4">
+            <div className="rounded-2xl bg-white/[0.04] p-4">
               <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
                 Eventos IA
               </p>
-              <p className="mt-2 text-3xl font-bold text-slate-950">
+              <p className="mt-2 text-3xl font-bold text-white">
                 {iaAuditLogs.length}
               </p>
             </div>
 
-            <div className="rounded-2xl bg-slate-50 p-4">
+            <div className="rounded-2xl bg-white/[0.04] p-4">
               <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
                 Invitaciones
               </p>
-              <p className="mt-2 text-3xl font-bold text-slate-950">
+              <p className="mt-2 text-3xl font-bold text-white">
                 {invitationAuditLogs.length}
               </p>
             </div>
 
-            <div className="rounded-2xl bg-slate-50 p-4">
+            <div className="rounded-2xl bg-white/[0.04] p-4">
               <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
                 Usuarios detectados
               </p>
-              <p className="mt-2 text-3xl font-bold text-slate-950">
+              <p className="mt-2 text-3xl font-bold text-white">
                 {auditedUsers}
               </p>
             </div>
@@ -1498,10 +1499,10 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
               <Link
                 key={filter.value}
                 href={filter.href}
-                className={`rounded-2xl px-4 py-2 text-sm font-bold ${
+                className={`rounded-xl px-4 py-2 text-sm font-bold transition-all ${
                   activeAuditFilter === filter.value
-                    ? 'bg-slate-950 text-white'
-                    : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                    ? 'bg-cyan-600 text-white'
+                    : 'border border-white/10 bg-white/[0.04] text-slate-200 hover:bg-white/[0.08]'
                 }`}
               >
                 {filter.label} · {filter.count}
@@ -1509,9 +1510,9 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
             ))}
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200">
+          <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
             <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+              <thead className="border-b border-white/10 bg-white/[0.02] text-xs uppercase tracking-wide text-slate-400">
                 <tr>
                   <th className="w-72 px-4 py-3">Evento</th>
                   <th className="px-4 py-3">Usuario</th>
@@ -1521,11 +1522,11 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-slate-200">
+              <tbody className="divide-y divide-white/5">
                 {filteredAuditLogs.map((log) => (
-                  <tr key={log.id} className="align-top hover:bg-slate-50">
+                  <tr key={log.id} className="align-top hover:bg-white/[0.02]">
                     <td className="px-4 py-4 align-middle">
-                      <span className="inline-flex items-center gap-2 whitespace-nowrap text-xs font-bold text-slate-700">
+                      <span className="inline-flex items-center gap-2 whitespace-nowrap text-xs font-bold text-slate-200">
                         <span
                           className={`h-2.5 w-2.5 shrink-0 rounded-full ${actionDotTone(
                             log.action
@@ -1540,7 +1541,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                     </td>
 
                     <td className="px-4 py-4">
-                      <p className="font-bold text-slate-950">
+                      <p className="font-bold text-white">
                         {getActorLabel(log, profilesById)}
                       </p>
 
@@ -1550,7 +1551,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                     </td>
 
                     <td className="px-4 py-4">
-                      <p className="font-semibold text-slate-800">
+                      <p className="font-semibold text-slate-200">
                         {getResourceLabel(log, documentsById, casesById)}
                       </p>
 
@@ -1559,7 +1560,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                       </p>
                     </td>
 
-                    <td className="px-4 py-4 text-slate-600">
+                    <td className="px-4 py-4 text-slate-300">
                       {getAuditDetail(log)}
                     </td>
 
@@ -1577,26 +1578,26 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
               </div>
             ) : null}
           </div>
-        </section>
+        </MotionCard>
       ) : null}
 
       {activeView === 'general' ? (
         <div className="mt-8 grid gap-6 xl:grid-cols-2">
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <MotionCard index={12} className="p-6">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <h3 className="text-xl font-bold text-slate-950">
+                <h3 className="text-xl font-bold text-white">
                   Documentos recientes
                 </h3>
 
-                <p className="mt-2 text-sm text-slate-500">
+                <p className="mt-2 text-sm text-slate-400">
                   Últimos archivos cargados en la bóveda documental.
                 </p>
               </div>
 
               <Link
                 href="/reportes?vista=documentos"
-                className="text-sm font-bold text-sky-600 hover:text-sky-700"
+                className="text-sm font-bold text-cyan-400 hover:text-cyan-300"
               >
                 Ver inventario
               </Link>
@@ -1609,12 +1610,12 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                 return (
                   <div
                     key={document.id}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+                    className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"
                   >
                     <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
                       <div>
                         <Link href={`/documentos/${document.id}`}>
-                          <p className="font-bold text-slate-950 hover:text-sky-700">
+                          <p className="font-bold text-white hover:text-cyan-400">
                             {document.file_name}
                           </p>
                         </Link>
@@ -1634,7 +1635,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                       </span>
                     </div>
 
-                    <p className="mt-3 text-sm text-slate-600">
+                    <p className="mt-3 text-sm text-slate-300">
                       Tipo: {getDocumentTypeLabel(document.document_type)} · Sensibilidad:{' '}
                       {sensitivityLabel(document.sensitivity_level)}
                     </p>
@@ -1643,26 +1644,26 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
               })}
 
               {documents.length === 0 ? (
-                <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">
+                <div className="rounded-2xl bg-white/[0.04] p-4 text-sm text-slate-500">
                   Todavía no hay documentos cargados.
                 </div>
               ) : null}
             </div>
-          </section>
+          </MotionCard>
 
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <MotionCard index={13} className="p-6">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <h3 className="text-xl font-bold text-slate-950">
+                <h3 className="text-xl font-bold text-white">
                   Últimos análisis IA
                 </h3>
 
-                <p className="mt-2 text-sm text-slate-500">
+                <p className="mt-2 text-sm text-slate-400">
                   Historial reciente de análisis registrados.
                 </p>
               </div>
 
-              <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-bold text-sky-700">
+              <span className="rounded-full bg-cyan-950 px-3 py-1 text-xs font-bold text-cyan-300">
                 {aiOutputs.length} registros
               </span>
             </div>
@@ -1676,11 +1677,11 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                 return (
                   <div
                     key={output.id}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+                    className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="font-bold text-slate-950">
+                        <p className="font-bold text-white">
                           {output.result_json?.tipo_documental_detectado ??
                             relatedDocument?.file_name ??
                             'Análisis documental'}
@@ -1691,12 +1692,12 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                         </p>
                       </div>
 
-                      <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-600">
+                      <span className="rounded-full bg-white/5 px-3 py-1 text-xs font-bold text-slate-300">
                         {output.model_name ?? 'analisis-documental-beta-v1'}
                       </span>
                     </div>
 
-                    <p className="mt-3 text-sm leading-6 text-slate-600">
+                    <p className="mt-3 text-sm leading-6 text-slate-300">
                       {output.result_json?.resumen ??
                         'Análisis guardado sin resumen disponible.'}
                     </p>
@@ -1705,23 +1706,23 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
               })}
 
               {aiOutputs.length === 0 ? (
-                <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">
+                <div className="rounded-2xl bg-white/[0.04] p-4 text-sm text-slate-500">
                   Todavía no hay análisis IA guardados.
                 </div>
               ) : null}
             </div>
-          </section>
+          </MotionCard>
         </div>
       ) : null}
 
       {activeView === 'general' ? (
         <div className="mt-8 grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="text-xl font-bold text-slate-950">
+          <MotionCard index={14} className="p-6">
+            <h3 className="text-xl font-bold text-white">
               Expedientes recientes
             </h3>
 
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-400">
               Últimos expedientes registrados en la organización.
             </p>
 
@@ -1729,15 +1730,15 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
               {cases.slice(0, 5).map((caseItem) => (
                 <div
                   key={caseItem.id}
-                  className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+                  className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"
                 >
                   <Link href={`/expedientes/${caseItem.id}`}>
-                    <p className="font-bold text-slate-950 hover:text-sky-700">
+                    <p className="font-bold text-white hover:text-cyan-400">
                       {caseItem.title}
                     </p>
                   </Link>
 
-                  <p className="mt-1 text-sm text-slate-600">
+                  <p className="mt-1 text-sm text-slate-300">
                     Cliente: {caseItem.client_name ?? 'Sin cliente'}
                   </p>
 
@@ -1749,36 +1750,36 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
               ))}
 
               {cases.length === 0 ? (
-                <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">
+                <div className="rounded-2xl bg-white/[0.04] p-4 text-sm text-slate-500">
                   Todavía no hay expedientes registrados.
                 </div>
               ) : null}
             </div>
-          </section>
+          </MotionCard>
 
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <MotionCard index={15} className="p-6">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <h3 className="text-xl font-bold text-slate-950">
+                <h3 className="text-xl font-bold text-white">
                   Actividad auditada reciente
                 </h3>
 
-                <p className="mt-2 text-sm text-slate-500">
+                <p className="mt-2 text-sm text-slate-400">
                   Últimos eventos registrados en la tabla de auditoría.
                 </p>
               </div>
 
               <Link
                 href="/reportes?vista=auditoria"
-                className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600 hover:bg-slate-200"
+                className="rounded-full bg-white/[0.04] px-3 py-1 text-xs font-bold text-slate-300 hover:bg-white/[0.08]"
               >
                 Ver {auditLogs.length} eventos
               </Link>
             </div>
 
-            <div className="overflow-hidden rounded-2xl border border-slate-200">
+            <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                <thead className="border-b border-white/10 bg-white/[0.02] text-xs uppercase tracking-wide text-slate-400">
                   <tr>
                     <th className="w-72 px-4 py-3">Evento</th>
                     <th className="px-4 py-3">Usuario</th>
@@ -1787,11 +1788,11 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-slate-200">
+                <tbody className="divide-y divide-white/5">
                   {auditLogs.slice(0, 10).map((log) => (
-                    <tr key={log.id} className="hover:bg-slate-50">
+                    <tr key={log.id} className="hover:bg-white/[0.02]">
                       <td className="px-4 py-3 align-middle">
-                        <span className="inline-flex items-center gap-2 whitespace-nowrap text-xs font-bold text-slate-700">
+                        <span className="inline-flex items-center gap-2 whitespace-nowrap text-xs font-bold text-slate-200">
                           <span
                             className={`h-2.5 w-2.5 shrink-0 rounded-full ${actionDotTone(
                               log.action
@@ -1801,11 +1802,11 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                         </span>
                       </td>
 
-                      <td className="px-4 py-3 text-slate-600">
+                      <td className="px-4 py-3 text-slate-300">
                         {getActorLabel(log, profilesById)}
                       </td>
 
-                      <td className="px-4 py-3 text-slate-600">
+                      <td className="px-4 py-3 text-slate-300">
                         {getResourceLabel(log, documentsById, casesById)}
                       </td>
 
@@ -1823,52 +1824,52 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                 </div>
               ) : null}
             </div>
-          </section>
+          </MotionCard>
         </div>
       ) : null}
 
       {activeView === 'vencimientos' ? (
-        <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <MotionCard index={16} className="mt-8 p-6">
           <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-400">
                 Vencimientos
               </p>
-              <h3 className="mt-2 text-2xl font-bold text-slate-950">
+              <h3 className="mt-2 text-2xl font-bold text-white">
                 Control de vencimientos documentales
               </h3>
-              <p className="mt-2 text-sm text-slate-600">
+              <p className="mt-2 text-sm text-slate-300">
                 Seguimiento de documentos vigentes, por vencer y vencidos en entorno controlado.
               </p>
             </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <p className="text-sm font-semibold text-slate-500">Vencidos</p>
-              <p className="mt-2 text-3xl font-bold text-rose-600">{vencidos}</p>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+              <p className="text-sm font-semibold text-slate-400">Vencidos</p>
+              <p className="mt-2 text-3xl font-bold text-rose-400">{vencidos}</p>
               <p className="mt-3 text-xs text-slate-500">Documentos expirados</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <p className="text-sm font-semibold text-slate-500">Por vencer</p>
-              <p className="mt-2 text-3xl font-bold text-amber-500">{porVencer}</p>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+              <p className="text-sm font-semibold text-slate-400">Por vencer</p>
+              <p className="mt-2 text-3xl font-bold text-amber-400">{porVencer}</p>
               <p className="mt-3 text-xs text-slate-500">Próximos 30 días</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <p className="text-sm font-semibold text-slate-500">Vigentes</p>
-              <p className="mt-2 text-3xl font-bold text-emerald-600">{vigentes}</p>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+              <p className="text-sm font-semibold text-slate-400">Vigentes</p>
+              <p className="mt-2 text-3xl font-bold text-emerald-400">{vigentes}</p>
               <p className="mt-3 text-xs text-slate-500">En regla</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <p className="text-sm font-semibold text-slate-500">Sin fecha</p>
-              <p className="mt-2 text-3xl font-bold text-slate-950">{sinVencimiento}</p>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+              <p className="text-sm font-semibold text-slate-400">Sin fecha</p>
+              <p className="mt-2 text-3xl font-bold text-white">{sinVencimiento}</p>
               <p className="mt-3 text-xs text-slate-500">No aplica o no cargada</p>
             </div>
           </div>
 
-          <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200">
+          <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
             <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+              <thead className="border-b border-white/10 bg-white/[0.02] text-xs uppercase tracking-wide text-slate-400">
                 <tr>
                   <th className="px-4 py-3">Archivo</th>
                   <th className="px-4 py-3">Tipo</th>
@@ -1877,7 +1878,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                   <th className="px-4 py-3">Estado</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200">
+              <tbody className="divide-y divide-white/5">
                 {documentosConVencimiento.map((document) => {
                   const days = getDaysUntilExpiry(document.expires_at!) ?? 0;
                   const status = getDocumentExpiryStatus(document.expires_at);
@@ -1889,21 +1890,21 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
                   else if (days === 0) daysLabel = 'Vence hoy';
 
                   return (
-                    <tr key={document.id} className="hover:bg-slate-50">
+                    <tr key={document.id} className="hover:bg-white/[0.02]">
                       <td className="px-4 py-3">
                         <Link href={`/documentos/${document.id}`}>
-                          <p className="font-bold text-slate-950 hover:text-sky-700">
+                          <p className="font-bold text-white hover:text-cyan-400">
                             {document.file_name}
                           </p>
                         </Link>
                       </td>
-                      <td className="px-4 py-3 text-slate-600">
+                      <td className="px-4 py-3 text-slate-300">
                         {getDocumentTypeLabel(document.document_type)}
                       </td>
-                      <td className="px-4 py-3 text-slate-600">
+                      <td className="px-4 py-3 text-slate-300">
                         {formatExpiryDate(document.expires_at)}
                       </td>
-                      <td className="px-4 py-3 text-slate-600 font-medium">
+                      <td className="px-4 py-3 text-slate-300 font-medium">
                         {daysLabel}
                       </td>
                       <td className="px-4 py-3">
@@ -1922,57 +1923,57 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
               </div>
             ) : null}
           </div>
-        </section>
+        </MotionCard>
       ) : null}
 
       {activeView === 'estado_procesal' ? (
-        <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <MotionCard index={17} className="mt-8 p-6">
           <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-400">
                 Estado procesal
               </p>
-              <h3 className="mt-2 text-2xl font-bold text-slate-950">
+              <h3 className="mt-2 text-2xl font-bold text-white">
                 Cartera de expedientes por etapa procesal
               </h3>
-              <p className="mt-2 text-sm text-slate-600">
+              <p className="mt-2 text-sm text-slate-300">
                 Seguimiento del estado de avance de los expedientes jurídicos.
               </p>
             </div>
           </div>
 
           {!isLegal ? (
-            <div className="p-6 text-sm text-slate-500 rounded-2xl border border-slate-200 bg-slate-50">
+            <div className="p-6 text-sm text-slate-400 rounded-2xl border border-white/10 bg-white/[0.04]">
               Este reporte aplica al rubro jurídico.
             </div>
           ) : estadoProcesalStats.length === 0 ? (
-            <div className="p-6 text-sm text-slate-500 rounded-2xl border border-slate-200 bg-slate-50">
+            <div className="p-6 text-sm text-slate-400 rounded-2xl border border-white/10 bg-white/[0.04]">
               Todavía no hay expedientes para reportar.
             </div>
           ) : (
             <div className="space-y-6">
               {estadoProcesalStats.map((stat) => (
-                <div key={stat.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-sm font-bold text-slate-950">{stat.label}</h4>
-                      <p className="mt-1 text-xs text-slate-500">{stat.count} expedientes ({stat.percent}%)</p>
+                      <h4 className="text-sm font-bold text-white">{stat.label}</h4>
+                      <p className="mt-1 text-xs text-slate-400">{stat.count} expedientes ({stat.percent}%)</p>
                     </div>
                   </div>
-                  <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-200">
+                  <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white/5">
                     <div
-                      className="h-full bg-sky-500 transition-all duration-500"
+                      className="h-full bg-cyan-500 transition-all duration-500"
                       style={{ width: `${stat.percent}%` }}
                     />
                   </div>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                     {stat.items.map((c) => (
-                      <div key={c.id} className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-                        <Link href={`/expedientes/${c.id}`} className="block truncate font-bold text-sm text-slate-950 hover:text-sky-700">
+                      <div key={c.id} className="rounded-xl border border-white/10 bg-white/[0.04] p-3 shadow-sm">
+                        <Link href={`/expedientes/${c.id}`} className="block truncate font-bold text-sm text-white hover:text-cyan-400">
                           {c.title}
                         </Link>
                         {c.client_name && (
-                          <p className="mt-1 truncate text-xs text-slate-500">
+                          <p className="mt-1 truncate text-xs text-slate-400">
                             Cliente: {c.client_name}
                           </p>
                         )}
@@ -1983,7 +1984,7 @@ Las invitaciones permiten controlar altas, roles y estados de acceso dentro de l
               ))}
             </div>
           )}
-        </section>
+        </MotionCard>
       ) : null}
     </AppShell>
   );

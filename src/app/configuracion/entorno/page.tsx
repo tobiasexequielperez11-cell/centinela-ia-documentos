@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
+import { MotionCard } from '@/components/ui/MotionCard';;
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 
@@ -20,18 +21,18 @@ interface ChecklistItem {
 
 function getToneClasses(tone: VariableCardProps['tone'] = 'default') {
   if (tone === 'success') {
-    return 'border-emerald-200 bg-emerald-50 text-emerald-950';
+    return 'border-emerald-200 bg-emerald-500/10 text-emerald-200';
   }
 
   if (tone === 'warning') {
-    return 'border-amber-200 bg-amber-50 text-amber-950';
+    return 'border-amber-200 bg-amber-500/10 text-amber-200';
   }
 
   if (tone === 'danger') {
-    return 'border-rose-200 bg-rose-50 text-rose-950';
+    return 'border-rose-200 bg-rose-500/10 text-rose-200';
   }
 
-  return 'border-slate-200 bg-white text-slate-950';
+  return 'border-white/10 bg-white/[0.04] text-white';
 }
 
 function StatusPill({
@@ -42,10 +43,10 @@ function StatusPill({
   tone?: 'success' | 'warning' | 'danger' | 'default';
 }) {
   const classes = {
-    success: 'bg-emerald-50 text-emerald-700',
-    warning: 'bg-amber-50 text-amber-700',
-    danger: 'bg-rose-50 text-rose-700',
-    default: 'bg-slate-100 text-slate-700',
+    success: 'bg-emerald-500/20 text-emerald-300',
+    warning: 'bg-amber-500/20 text-amber-300',
+    danger: 'bg-rose-500/20 text-rose-300',
+    default: 'bg-slate-100 text-slate-200',
   };
 
   return (
@@ -84,7 +85,7 @@ function VariableCard({
 
       <p className="mt-4 text-sm leading-6 opacity-80">{description}</p>
 
-      <div className="mt-5 rounded-2xl border border-white/60 bg-white/60 p-4 text-sm">
+      <div className="mt-5 rounded-2xl border border-white/20 bg-white/[0.08] p-4 text-sm">
         <p className="font-black">Dónde se administra</p>
         <p className="mt-1 opacity-80">{environment}</p>
       </div>
@@ -239,32 +240,32 @@ name: 'CLAVE_PROVEEDOR_IA',
   return (
     <AppShell>
       <div className="space-y-8">
-        <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+        <MotionCard index={0} className="rounded-3xl border border-white/10 bg-white/[0.04] p-8 shadow-sm">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-sky-600">
                 Control interno
               </p>
 
-              <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-950">
+              <h1 className="mt-3 text-3xl font-black tracking-tight text-white">
                 Variables y entorno
               </h1>
 
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
                 Panel interno para revisar nombres de variables, estado del
                 entorno online, archivos protegidos y reglas para evitar exponer
                 claves privadas durante la Beta operativa comercial.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-950">
+            <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-5 py-4 text-sm text-emerald-950">
               <p className="font-black">Estado del entorno</p>
               <p className="mt-1">Beta online con variables protegidas</p>
             </div>
           </div>
-        </section>
+        </MotionCard>
 
-        <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <MotionCard index={1} className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {variables.map((variable) => (
             <VariableCard
               key={variable.name}
@@ -275,24 +276,24 @@ name: 'CLAVE_PROVEEDOR_IA',
               tone={variable.tone}
             />
           ))}
-        </section>
+        </MotionCard>
 
-        <section className="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <MotionCard index={2} className="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-sm">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <h2 className="text-xl font-black text-slate-950">
+                <h2 className="text-xl font-black text-white">
                   Archivos protegidos
                 </h2>
 
-                <p className="mt-1 text-sm text-slate-600">
+                <p className="mt-1 text-sm text-slate-300">
                   Archivos y carpetas que no deben subirse al repositorio.
                 </p>
               </div>
 
               <Link
                 href="/configuracion"
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-bold text-slate-200 hover:bg-white/[0.02]"
               >
                 Volver a configuración
               </Link>
@@ -302,12 +303,12 @@ name: 'CLAVE_PROVEEDOR_IA',
               {protectedFiles.map((item) => (
                 <div
                   key={item.file}
-                  className="rounded-2xl border border-slate-100 bg-slate-50 p-4"
+                  className="rounded-2xl border border-white/5 bg-white/[0.02] p-4"
                 >
-                  <p className="font-mono text-sm font-black text-slate-900">
+                  <p className="font-mono text-sm font-black text-white">
                     {item.file}
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                  <p className="mt-2 text-sm leading-6 text-slate-300">
                     {item.rule}
                   </p>
                 </div>
@@ -315,12 +316,12 @@ name: 'CLAVE_PROVEEDOR_IA',
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-black text-slate-950">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-sm">
+            <h2 className="text-xl font-black text-white">
               Checklist de entorno
             </h2>
 
-            <p className="mt-1 text-sm text-slate-600">
+            <p className="mt-1 text-sm text-slate-300">
               Estado actual del entorno local, GitHub y Vercel.
             </p>
 
@@ -330,7 +331,7 @@ name: 'CLAVE_PROVEEDOR_IA',
                   key={item.label}
                   className="flex items-center justify-between gap-4 py-4"
                 >
-                  <p className="text-sm font-semibold text-slate-800">
+                  <p className="text-sm font-semibold text-slate-200">
                     {item.label}
                   </p>
 
@@ -339,15 +340,15 @@ name: 'CLAVE_PROVEEDOR_IA',
               ))}
             </div>
           </div>
-        </section>
+        </MotionCard>
 
-        <section className="grid gap-6 xl:grid-cols-2">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-black text-slate-950">
+        <MotionCard index={3} className="grid gap-6 xl:grid-cols-2">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-sm">
+            <h2 className="text-xl font-black text-white">
               Entorno local
             </h2>
 
-            <p className="mt-3 text-sm leading-6 text-slate-600">
+            <p className="mt-3 text-sm leading-6 text-slate-300">
               El entorno local utiliza el archivo privado{' '}
               <span className="font-mono font-black">.env.local</span>. Este
               archivo debe permanecer fuera de GitHub. Sirve para desarrollo,
@@ -360,12 +361,12 @@ name: 'CLAVE_PROVEEDOR_IA',
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-black text-slate-950">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-sm">
+            <h2 className="text-xl font-black text-white">
               Entorno online
             </h2>
 
-            <p className="mt-3 text-sm leading-6 text-slate-600">
+            <p className="mt-3 text-sm leading-6 text-slate-300">
               El entorno online utiliza variables cargadas en Vercel. Los valores
               reales no se guardan en el repositorio. Cada push a GitHub genera
               un nuevo despliegue que utiliza esas variables configuradas.
@@ -376,9 +377,9 @@ name: 'CLAVE_PROVEEDOR_IA',
               funcional.
             </div>
           </div>
-        </section>
+        </MotionCard>
 
-        <section className="rounded-3xl border border-slate-200 bg-slate-950 p-6 text-white shadow-sm">
+        <MotionCard index={4} className="rounded-3xl border border-white/10 bg-white/10 p-6 text-white shadow-sm">
           <h2 className="text-xl font-black">
             Criterio operativo de entorno seguro
           </h2>
@@ -386,7 +387,7 @@ name: 'CLAVE_PROVEEDOR_IA',
           <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-300">
 La beta mantiene un entorno seguro mientras las claves privadas sigan fuera del repositorio, las variables se administren desde Vercel, el archivo .env.local permanezca ignorado y no se active una integración IA externa sin una decisión técnica y económica previa.
           </p>
-        </section>
+        </MotionCard>
       </div>
     </AppShell>
   );

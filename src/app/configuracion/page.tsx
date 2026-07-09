@@ -11,6 +11,8 @@ import {
   industryLabels,
   normalizeIndustryType,
 } from '@/lib/industries/documentTypes';
+import { MotionCard } from '@/components/ui/MotionCard';
+import { MotionButton } from '@/components/ui/MotionButton';
 
 const clientCards = [
   { name: 'Motor IA', href: '/configuracion/ia', description: 'Opciones de análisis y procesamiento documental.' },
@@ -74,7 +76,7 @@ export default async function ConfiguracionPage() {
 
       <div className="grid gap-6 lg:grid-cols-[1.5fr_2fr]">
         <div className="space-y-6">
-          <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_16px_40px_-16px_rgba(0,0,0,0.7)] transition-colors hover:border-accent/40">
+          <MotionCard index={0} className="border border-white/10 bg-white/[0.03] p-6 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_16px_40px_-16px_rgba(0,0,0,0.7)] transition-colors hover:border-accent/40">
             <div className="mb-6">
               <h3 className="font-display text-xl font-semibold text-white">Rubro de la organización</h3>
               <p className="mt-2 text-sm text-slate-400">
@@ -102,24 +104,24 @@ export default async function ConfiguracionPage() {
                   </option>
                 ))}
               </select>
-              <button
+              <MotionButton
                 type="submit"
-                className="w-full rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-accent-strong"
+                className="w-full bg-accent hover:bg-accent-strong"
               >
                 Guardar rubro
-              </button>
+              </MotionButton>
             </form>
-          </section>
+          </MotionCard>
         </div>
 
         <div className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-2">
-            {clientCards.map((panel) => (
+            {clientCards.map((panel, index) => (
               <Link
                 key={panel.href}
                 href={panel.href}
-                className="group flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.03] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_16px_40px_-16px_rgba(0,0,0,0.7)] transition-colors hover:border-accent/40"
               >
+                <MotionCard index={index + 1} className="group flex h-full flex-col justify-between border border-white/10 bg-white/[0.03] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_16px_40px_-16px_rgba(0,0,0,0.7)] transition-colors hover:border-accent/40">
                 <div>
                   <h4 className="font-display text-base font-semibold text-white group-hover:text-accent-soft">
                     {panel.name}
@@ -127,7 +129,7 @@ export default async function ConfiguracionPage() {
                   <p className="mt-1 text-sm text-slate-400">
                     {panel.description}
                   </p>
-                </div>
+                </MotionCard>
               </Link>
             ))}
           </div>
@@ -141,12 +143,12 @@ export default async function ConfiguracionPage() {
                 </h3>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                {ownerCards.map((panel) => (
+                {ownerCards.map((panel, index) => (
                   <Link
                     key={panel.href}
                     href={panel.href}
-                    className="group flex flex-col justify-between rounded-2xl border border-brandviolet/20 bg-brandviolet/[0.03] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_16px_40px_-16px_rgba(0,0,0,0.7)] transition-colors hover:border-brandviolet/40"
                   >
+                    <MotionCard index={index + 4} className="group flex h-full flex-col justify-between border border-brandviolet/20 bg-brandviolet/[0.03] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_16px_40px_-16px_rgba(0,0,0,0.7)] transition-colors hover:border-brandviolet/40">
                     <div>
                       <h4 className="font-display text-base font-semibold text-white group-hover:text-brandviolet-soft">
                         {panel.name}
@@ -154,7 +156,7 @@ export default async function ConfiguracionPage() {
                       <p className="mt-1 text-sm text-slate-400">
                         {panel.description}
                       </p>
-                    </div>
+                    </MotionCard>
                   </Link>
                 ))}
               </div>

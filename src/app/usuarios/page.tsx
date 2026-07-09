@@ -6,6 +6,8 @@ import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { formatAuditActionLabel } from '@/lib/audit/actionLabels';
 import { roleOptions, roleLabel, roleDescription, roleTone } from '@/lib/permissions/roleDisplay';
 import { updateUserAccess } from './actions';
+import { MotionCard } from '@/components/ui/MotionCard';
+import { MotionButton } from '@/components/ui/MotionButton';
 
 interface UsuariosPageProps {
   searchParams: Promise<{
@@ -235,7 +237,7 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
     <AppShell>
       <div className="mb-8 flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-400">
             Usuarios
           </p>
 
@@ -247,21 +249,21 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
         <div className="flex flex-wrap gap-3">
           <Link
             href="/usuarios/invitaciones"
-            className="rounded-2xl bg-sky-600 px-5 py-3 text-sm font-bold text-white hover:bg-sky-700"
+            className="rounded-xl bg-cyan-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.03] hover:bg-cyan-500 hover:shadow-cyan-500/40 active:scale-[0.97]"
           >
             Gestionar invitaciones
           </Link>
 
           <Link
             href="/reportes?vista=auditoria"
-            className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 hover:border-sky-400/40 hover:text-sky-200"
+            className="rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 transition-all hover:scale-[1.03] hover:border-cyan-400/40 hover:text-cyan-200 active:scale-[0.97]"
           >
             Ver auditoría
           </Link>
 
           <Link
             href="/documentos"
-            className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 hover:border-sky-400/40 hover:text-sky-200"
+            className="rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 transition-all hover:scale-[1.03] hover:border-cyan-400/40 hover:text-cyan-200 active:scale-[0.97]"
           >
             Ver documentos
           </Link>
@@ -282,26 +284,27 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
 
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {metrics.map((metric) => (
-          <div
+        {metrics.map((metric, idx) => (
+          <MotionCard
             key={metric.label}
-            className="rounded-3xl border border-white/10 bg-white/[0.04] p-5"
+            index={idx}
+            className="p-5"
           >
             <p className="text-sm font-semibold text-slate-300">{metric.label}</p>
 
             <p className="mt-2 text-3xl font-bold text-white">{metric.value}</p>
 
             <p className="mt-3 text-xs text-slate-400">{metric.helper}</p>
-          </div>
+          </MotionCard>
         ))}
       </div>
 
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <section className="min-w-0 rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+        <MotionCard index={4} className="min-w-0 p-6">
           <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-300">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-300">
                 Directorio
               </p>
 
@@ -458,12 +461,12 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
                               </select>
                             </div>
 
-                            <button
+                            <MotionButton
                               type="submit"
-                              className="w-full rounded-xl bg-sky-600 px-4 py-2 text-xs font-bold text-white hover:bg-sky-700"
+                              className="w-full bg-cyan-600 hover:bg-cyan-500"
                             >
                               Actualizar acceso
-                            </button>
+                            </MotionButton>
                           </form>
                         )}
                       </td>
@@ -479,11 +482,11 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
               </div>
             ) : null}
           </div>
-        </section>
+        </MotionCard>
 
         <section className="space-y-4 lg:w-[300px] lg:max-w-[300px]">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">
+          <MotionCard index={5} className="p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">
               Roles
             </p>
 
@@ -528,9 +531,9 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
                 </span>
               </div>
             </div>
-          </div>
+          </MotionCard>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+          <MotionCard index={6} className="p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">
               Seguridad
             </p>
@@ -538,10 +541,10 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
             <h3 className="mt-2 text-lg font-bold text-white">
               Administración protegida
             </h3>
-          </div>
+          </MotionCard>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">
+          <MotionCard index={7} className="p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">
               Gestión de accesos
             </p>
 
@@ -551,18 +554,18 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
 
             <Link
               href="/usuarios/invitaciones"
-              className="mt-4 inline-flex rounded-2xl bg-sky-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-sky-700"
+              className="mt-4 inline-flex rounded-xl bg-cyan-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.03] hover:bg-cyan-500 hover:shadow-cyan-500/40 active:scale-[0.97]"
             >
               Revisar invitaciones
             </Link>
-          </div>
+          </MotionCard>
         </section>
       </div>
 
-      <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+      <MotionCard index={8} className="mt-8 p-6">
         <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-300">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-300">
               Trazabilidad
             </p>
 
@@ -635,7 +638,7 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
             </div>
           ) : null}
         </div>
-      </section>
+      </MotionCard>
     </AppShell>
   );
 }

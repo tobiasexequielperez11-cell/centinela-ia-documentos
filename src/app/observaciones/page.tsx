@@ -8,6 +8,7 @@ import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles, getDa
 import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
 import { isSensitiveDocument } from '@/lib/documents/sensitivity';
 import { formatPlazoDate } from '@/lib/format/date';
+import { MotionCard } from '@/components/ui/MotionCard';
 
 
 export default async function ObservacionesPage() {
@@ -110,218 +111,218 @@ export default async function ObservacionesPage() {
     <AppShell>
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-400">
             Observaciones
           </p>
-          <h2 className="mt-2 text-3xl font-bold text-slate-950">
+          <h2 className="mt-2 text-3xl font-bold text-white">
             Centro de atención operativa
           </h2>
-          <p className="mt-2 text-sm text-slate-600">
+          <p className="mt-2 text-sm text-slate-400">
             Lo que requiere tu acción ahora: pendientes operativos del día a día — documentos sensibles, vencimientos, checklist incompleto y plazos.
           </p>
         </div>
       </div>
 
       <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-500">Doc. sensibles</p>
-          <p className={`mt-2 text-3xl font-bold ${sensiblesAll.length > 0 ? 'text-rose-600' : 'text-slate-950'}`}>
+        <MotionCard index={0} className="p-5">
+          <p className="text-sm font-semibold text-slate-400">Doc. sensibles</p>
+          <p className={`mt-2 text-3xl font-bold ${sensiblesAll.length > 0 ? 'text-rose-400' : 'text-white'}`}>
             {sensiblesAll.length}
           </p>
-        </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-500">Vencimientos</p>
-          <p className={`mt-2 text-3xl font-bold ${vencimientosAll.length > 0 ? 'text-amber-500' : 'text-slate-950'}`}>
+        </MotionCard>
+        <MotionCard index={1} className="p-5">
+          <p className="text-sm font-semibold text-slate-400">Vencimientos</p>
+          <p className={`mt-2 text-3xl font-bold ${vencimientosAll.length > 0 ? 'text-amber-400' : 'text-white'}`}>
             {vencimientosAll.length}
           </p>
-        </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-500">Exp. incompletos</p>
-          <p className={`mt-2 text-3xl font-bold ${incompletosAll.length > 0 ? 'text-amber-500' : 'text-slate-950'}`}>
+        </MotionCard>
+        <MotionCard index={2} className="p-5">
+          <p className="text-sm font-semibold text-slate-400">Exp. incompletos</p>
+          <p className={`mt-2 text-3xl font-bold ${incompletosAll.length > 0 ? 'text-amber-400' : 'text-white'}`}>
             {incompletosAll.length}
           </p>
-        </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-500">IA pendiente</p>
-          <p className={`mt-2 text-3xl font-bold ${iaPendientesAll.length > 0 ? 'text-sky-600' : 'text-slate-950'}`}>
+        </MotionCard>
+        <MotionCard index={3} className="p-5">
+          <p className="text-sm font-semibold text-slate-400">IA pendiente</p>
+          <p className={`mt-2 text-3xl font-bold ${iaPendientesAll.length > 0 ? 'text-cyan-400' : 'text-white'}`}>
             {iaPendientesAll.length}
           </p>
-        </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-500">Sin clasificar</p>
-          <p className={`mt-2 text-3xl font-bold ${sinClasificarAll.length > 0 ? 'text-slate-600' : 'text-slate-950'}`}>
+        </MotionCard>
+        <MotionCard index={4} className="p-5">
+          <p className="text-sm font-semibold text-slate-400">Sin clasificar</p>
+          <p className={`mt-2 text-3xl font-bold ${sinClasificarAll.length > 0 ? 'text-slate-300' : 'text-white'}`}>
             {sinClasificarAll.length}
           </p>
-        </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-500">Plazos</p>
-          <p className={`mt-2 text-3xl font-bold ${plazosAll.length > 0 ? 'text-amber-500' : 'text-slate-950'}`}>
+        </MotionCard>
+        <MotionCard index={5} className="p-5">
+          <p className="text-sm font-semibold text-slate-400">Plazos</p>
+          <p className={`mt-2 text-3xl font-bold ${plazosAll.length > 0 ? 'text-amber-400' : 'text-white'}`}>
             {plazosAll.length}
           </p>
-        </div>
+        </MotionCard>
       </div>
 
       {totalObservaciones === 0 ? (
-        <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-8 text-center shadow-sm">
-          <p className="text-lg font-bold text-emerald-900">No hay observaciones pendientes. Todo en orden. ✅</p>
-          <p className="mt-2 text-sm text-emerald-800">El entorno controlado no detecta tareas operativas críticas en este momento.</p>
-        </div>
+        <MotionCard index={6} className="border-emerald-500/20 bg-emerald-500/10 p-8 text-center">
+          <p className="text-lg font-bold text-emerald-400">No hay observaciones pendientes. Todo en orden. ✅</p>
+          <p className="mt-2 text-sm text-emerald-200/70">El entorno controlado no detecta tareas operativas críticas en este momento.</p>
+        </MotionCard>
       ) : (
         <div className="grid gap-6 xl:grid-cols-2">
           {/* 1. Documentos sensibles */}
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-950">Documentos sensibles</h3>
-            <p className="mt-1 text-sm text-slate-500">Archivos marcados con alta criticidad.</p>
+          <MotionCard index={6} className="p-6">
+            <h3 className="text-lg font-bold text-white">Documentos sensibles</h3>
+            <p className="mt-1 text-sm text-slate-400">Archivos marcados con alta criticidad.</p>
             <div className="mt-4 space-y-3">
               {sensibles.length > 0 ? sensibles.map((doc) => (
-                <Link key={doc.id} href={`/documentos/${doc.id}`} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3 cursor-pointer transition hover:bg-slate-50">
+                <Link key={doc.id} href={`/documentos/${doc.id}`} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.02] p-3 cursor-pointer transition hover:bg-white/[0.04]">
                   <div className="overflow-hidden">
-                    <p className="truncate font-bold text-slate-950">{doc.file_name}</p>
-                    <p className="truncate text-xs text-slate-500">{getDocumentTypeLabel(doc.document_type)}</p>
+                    <p className="truncate font-bold text-slate-200">{doc.file_name}</p>
+                    <p className="truncate text-xs text-slate-400">{getDocumentTypeLabel(doc.document_type)}</p>
                   </div>
                   <div className="ml-3 flex shrink-0 items-center gap-3">
-                    <span className="rounded-full bg-rose-100 px-2 py-1 text-xs font-bold text-rose-700">Sensible</span>
-                    <span className="text-xs font-semibold text-sky-600">Revisar ›</span>
+                    <span className="rounded-full bg-rose-500/20 px-2 py-1 text-xs font-bold text-rose-400">Sensible</span>
+                    <span className="text-xs font-semibold text-cyan-400">Revisar ›</span>
                   </div>
                 </Link>
               )) : (
-                <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800">Sin documentos sensibles.</div>
+                <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-200/70">Sin documentos sensibles.</div>
               )}
-              {sensiblesAll.length > 8 && <Link href="/reportes?vista=sensibilidad" className="block text-sm font-bold text-sky-600 hover:text-sky-700">Ver todos los sensibles ({sensiblesAll.length})</Link>}
+              {sensiblesAll.length > 8 && <Link href="/reportes?vista=sensibilidad" className="block text-sm font-bold text-cyan-400 hover:text-cyan-300">Ver todos los sensibles ({sensiblesAll.length})</Link>}
             </div>
-          </section>
+          </MotionCard>
 
 
           {/* 2. Vencimientos a revisar */}
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-950">Vencimientos a revisar</h3>
-            <p className="mt-1 text-sm text-slate-500">Documentos próximos a vencer o vencidos.</p>
+          <MotionCard index={7} className="p-6">
+            <h3 className="text-lg font-bold text-white">Vencimientos a revisar</h3>
+            <p className="mt-1 text-sm text-slate-400">Documentos próximos a vencer o vencidos.</p>
             <div className="mt-4 space-y-3">
               {vencimientos.length > 0 ? vencimientos.map((doc) => {
                 const status = getDocumentExpiryStatus(doc.expires_at!);
                 const badgeStyles = getExpiryBadgeStyles(status);
                 const label = expiryStatusLabel(status);
                 return (
-                  <Link key={doc.id} href={`/documentos/${doc.id}`} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3 cursor-pointer transition hover:bg-slate-50">
+                  <Link key={doc.id} href={`/documentos/${doc.id}`} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.02] p-3 cursor-pointer transition hover:bg-white/[0.04]">
                     <div className="overflow-hidden">
-                      <p className="truncate font-bold text-slate-950">{doc.file_name}</p>
-                      <p className="truncate text-xs text-slate-500">{formatPlazoDate(doc.expires_at)}</p>
+                      <p className="truncate font-bold text-slate-200">{doc.file_name}</p>
+                      <p className="truncate text-xs text-slate-400">{formatPlazoDate(doc.expires_at)}</p>
                     </div>
                     <div className="ml-3 flex shrink-0 items-center gap-3">
                       <span className={`rounded-full px-2 py-1 text-xs font-bold ${badgeStyles}`}>{label}</span>
-                      <span className="text-xs font-semibold text-sky-600">Revisar ›</span>
+                      <span className="text-xs font-semibold text-cyan-400">Revisar ›</span>
                     </div>
                   </Link>
                 );
               }) : (
-                <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800">Sin vencimientos próximos.</div>
+                <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-200/70">Sin vencimientos próximos.</div>
               )}
-              {vencimientosAll.length > 8 && <Link href="/reportes?vista=vencimientos" className="block text-sm font-bold text-sky-600 hover:text-sky-700">Ver todos los vencimientos ({vencimientosAll.length})</Link>}
+              {vencimientosAll.length > 8 && <Link href="/reportes?vista=vencimientos" className="block text-sm font-bold text-cyan-400 hover:text-cyan-300">Ver todos los vencimientos ({vencimientosAll.length})</Link>}
             </div>
-          </section>
+          </MotionCard>
 
           {/* 3. Expedientes incompletos */}
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-950">Expedientes incompletos</h3>
-            <p className="mt-1 text-sm text-slate-500">Checklist documental sugerido, aún sin completar.</p>
+          <MotionCard index={8} className="p-6">
+            <h3 className="text-lg font-bold text-white">Expedientes incompletos</h3>
+            <p className="mt-1 text-sm text-slate-400">Checklist documental sugerido, aún sin completar.</p>
             <div className="mt-4 space-y-3">
               {incompletos.length > 0 ? incompletos.map((c) => (
-                <Link key={c.id} href={`/expedientes/${c.id}`} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3 cursor-pointer transition hover:bg-slate-50">
+                <Link key={c.id} href={`/expedientes/${c.id}`} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.02] p-3 cursor-pointer transition hover:bg-white/[0.04]">
                   <div className="overflow-hidden">
-                    <p className="truncate font-bold text-slate-950">{c.title || 'Expediente sin título'}</p>
+                    <p className="truncate font-bold text-slate-200">{c.title || 'Expediente sin título'}</p>
                   </div>
                   <div className="ml-3 flex shrink-0 items-center gap-3">
-                    <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">
+                    <span className="rounded-full bg-white/10 px-2 py-1 text-xs font-bold text-slate-300">
                       Sugeridos {c.summary.total - c.summary.missing}/{c.summary.total}
                     </span>
-                    <span className="text-xs font-semibold text-sky-600">Completar ›</span>
+                    <span className="text-xs font-semibold text-cyan-400">Completar ›</span>
                   </div>
                 </Link>
               )) : (
-                <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800">Todos los expedientes están completos.</div>
+                <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-200/70">Todos los expedientes están completos.</div>
               )}
-              {incompletosAll.length > 8 && <Link href="/expedientes" className="block text-sm font-bold text-sky-600 hover:text-sky-700">Ver todos los expedientes</Link>}
+              {incompletosAll.length > 8 && <Link href="/expedientes" className="block text-sm font-bold text-cyan-400 hover:text-cyan-300">Ver todos los expedientes</Link>}
             </div>
-          </section>
+          </MotionCard>
 
           {/* 4. Análisis IA pendientes */}
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-950">Análisis IA pendientes</h3>
-            <p className="mt-1 text-sm text-slate-500">Documentos que no han sido procesados por la IA.</p>
+          <MotionCard index={9} className="p-6">
+            <h3 className="text-lg font-bold text-white">Análisis IA pendientes</h3>
+            <p className="mt-1 text-sm text-slate-400">Documentos que no han sido procesados por la IA.</p>
             <div className="mt-4 space-y-3">
               {iaPendientes.length > 0 ? iaPendientes.map((doc) => {
                 const isPdf = doc.file_mime_type === 'application/pdf';
                 return (
-                  <Link key={doc.id} href={`/documentos/${doc.id}`} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3 cursor-pointer transition hover:bg-slate-50">
+                  <Link key={doc.id} href={`/documentos/${doc.id}`} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.02] p-3 cursor-pointer transition hover:bg-white/[0.04]">
                     <div className="overflow-hidden">
-                      <p className="truncate font-bold text-slate-950">{doc.file_name}</p>
+                      <p className="truncate font-bold text-slate-200">{doc.file_name}</p>
                     </div>
                     <div className="ml-3 flex shrink-0 items-center gap-3">
                       {isPdf ? (
-                        <span className="rounded-full bg-sky-100 px-2 py-1 text-xs font-bold text-sky-700">IA pendiente</span>
+                        <span className="rounded-full bg-cyan-500/20 px-2 py-1 text-xs font-bold text-cyan-400">IA pendiente</span>
                       ) : (
-                        <span className="rounded-full bg-slate-200 px-2 py-1 text-xs font-bold text-slate-600">Solo PDF</span>
+                        <span className="rounded-full bg-white/10 px-2 py-1 text-xs font-bold text-slate-300">Solo PDF</span>
                       )}
-                      <span className="text-xs font-semibold text-sky-600">Revisar ›</span>
+                      <span className="text-xs font-semibold text-cyan-400">Revisar ›</span>
                     </div>
                   </Link>
                 );
               }) : (
-                <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800">Análisis IA al día.</div>
+                <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-200/70">Análisis IA al día.</div>
               )}
-              {iaPendientesAll.length > 8 && <Link href="/documentos?ia=pendientes" className="block text-sm font-bold text-sky-600 hover:text-sky-700">Ver todos los pendientes ({iaPendientesAll.length})</Link>}
+              {iaPendientesAll.length > 8 && <Link href="/documentos?ia=pendientes" className="block text-sm font-bold text-cyan-400 hover:text-cyan-300">Ver todos los pendientes ({iaPendientesAll.length})</Link>}
             </div>
-          </section>
+          </MotionCard>
 
           {/* 5. Documentos sin clasificar */}
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm xl:col-span-2">
-            <h3 className="text-lg font-bold text-slate-950">Documentos sin clasificar</h3>
-            <p className="mt-1 text-sm text-slate-500">Documentos que no tienen un tipo asignado.</p>
+          <MotionCard index={10} className="p-6 xl:col-span-2">
+            <h3 className="text-lg font-bold text-white">Documentos sin clasificar</h3>
+            <p className="mt-1 text-sm text-slate-400">Documentos que no tienen un tipo asignado.</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {sinClasificar.length > 0 ? sinClasificar.map((doc) => (
-                <Link key={doc.id} href={`/documentos/${doc.id}`} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3 cursor-pointer transition hover:bg-slate-50">
+                <Link key={doc.id} href={`/documentos/${doc.id}`} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.02] p-3 cursor-pointer transition hover:bg-white/[0.04]">
                   <div className="overflow-hidden">
-                    <p className="truncate font-bold text-slate-950">{doc.file_name}</p>
+                    <p className="truncate font-bold text-slate-200">{doc.file_name}</p>
                   </div>
                   <div className="ml-3 flex shrink-0 items-center gap-3">
-                    <span className="rounded-full bg-slate-200 px-2 py-1 text-xs font-bold text-slate-600">Sin clasificar</span>
-                    <span className="text-xs font-semibold text-sky-600">Clasificar ›</span>
+                    <span className="rounded-full bg-white/10 px-2 py-1 text-xs font-bold text-slate-300">Sin clasificar</span>
+                    <span className="text-xs font-semibold text-cyan-400">Clasificar ›</span>
                   </div>
                 </Link>
               )) : (
-                <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800 sm:col-span-2">Todos los documentos están clasificados.</div>
+                <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-200/70 sm:col-span-2">Todos los documentos están clasificados.</div>
               )}
             </div>
-            {sinClasificarAll.length > 8 && <Link href="/documentos" className="mt-3 block text-sm font-bold text-sky-600 hover:text-sky-700">Ver todos los documentos</Link>}
-          </section>
+            {sinClasificarAll.length > 8 && <Link href="/documentos" className="mt-3 block text-sm font-bold text-cyan-400 hover:text-cyan-300">Ver todos los documentos</Link>}
+          </MotionCard>
 
           {/* 6. Plazos procesales / fechas clave */}
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-950">Plazos procesales / fechas clave</h3>
-            <p className="mt-1 text-sm text-slate-500">Expedientes con audiencia o plazo próximo o vencido.</p>
+          <MotionCard index={11} className="p-6">
+            <h3 className="text-lg font-bold text-white">Plazos procesales / fechas clave</h3>
+            <p className="mt-1 text-sm text-slate-400">Expedientes con audiencia o plazo próximo o vencido.</p>
             <div className="mt-4 space-y-3">
               {plazos.length > 0 ? plazos.map((item) => {
                 const status = getDocumentExpiryStatus(item.fecha);
                 const badgeStyles = getExpiryBadgeStyles(status);
                 const label = expiryStatusLabel(status);
                 return (
-                  <Link key={item.id} href={`/expedientes/${item.id}`} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3 cursor-pointer transition hover:bg-slate-50">
+                  <Link key={item.id} href={`/expedientes/${item.id}`} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.02] p-3 cursor-pointer transition hover:bg-white/[0.04]">
                     <div className="overflow-hidden">
-                      <p className="truncate font-bold text-slate-950">{item.title || 'Expediente sin título'}</p>
-                      <p className="truncate text-xs text-slate-500">{formatPlazoDate(item.fecha)}</p>
+                      <p className="truncate font-bold text-slate-200">{item.title || 'Expediente sin título'}</p>
+                      <p className="truncate text-xs text-slate-400">{formatPlazoDate(item.fecha)}</p>
                     </div>
                     <div className="ml-3 flex shrink-0 items-center gap-3">
                       <span className={`rounded-full px-2 py-1 text-xs font-bold ${badgeStyles}`}>{label}</span>
-                      <span className="text-xs font-semibold text-sky-600">Revisar ›</span>
+                      <span className="text-xs font-semibold text-cyan-400">Revisar ›</span>
                     </div>
                   </Link>
                 );
               }) : (
-                <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800">Sin plazos próximos.</div>
+                <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-200/70">Sin plazos próximos.</div>
               )}
-              {plazosAll.length > 8 && <Link href="/expedientes" className="block text-sm font-bold text-sky-600 hover:text-sky-700">Ver todos ({plazosAll.length})</Link>}
+              {plazosAll.length > 8 && <Link href="/expedientes" className="block text-sm font-bold text-cyan-400 hover:text-cyan-300">Ver todos ({plazosAll.length})</Link>}
             </div>
-          </section>
+          </MotionCard>
         </div>
       )}
     </AppShell>

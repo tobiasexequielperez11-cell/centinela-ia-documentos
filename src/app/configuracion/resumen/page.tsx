@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
+import { MotionCard } from '@/components/ui/MotionCard';;
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -22,18 +23,18 @@ interface StatusItem {
 
 function getToneClasses(tone: SummaryCardProps['tone'] = 'default') {
   if (tone === 'success') {
-    return 'border-emerald-200 bg-emerald-50 text-emerald-950';
+    return 'border-emerald-200 bg-emerald-500/10 text-emerald-200';
   }
 
   if (tone === 'warning') {
-    return 'border-amber-200 bg-amber-50 text-amber-950';
+    return 'border-amber-200 bg-amber-500/10 text-amber-200';
   }
 
   if (tone === 'danger') {
-    return 'border-rose-200 bg-rose-50 text-rose-950';
+    return 'border-rose-200 bg-rose-500/10 text-rose-200';
   }
 
-  return 'border-slate-200 bg-white text-slate-950';
+  return 'border-white/10 bg-white/[0.04] text-white';
 }
 
 function StatusPill({
@@ -44,10 +45,10 @@ function StatusPill({
   tone?: 'success' | 'warning' | 'danger' | 'default';
 }) {
   const classes = {
-    success: 'bg-emerald-50 text-emerald-700',
-    warning: 'bg-amber-50 text-amber-700',
-    danger: 'bg-rose-50 text-rose-700',
-    default: 'bg-slate-100 text-slate-700',
+    success: 'bg-emerald-500/20 text-emerald-300',
+    warning: 'bg-amber-500/20 text-amber-300',
+    danger: 'bg-rose-500/20 text-rose-300',
+    default: 'bg-slate-100 text-slate-200',
   };
 
   return (
@@ -80,10 +81,10 @@ function SummaryCard({
 
 function StatusRow({ item }: { item: StatusItem }) {
   const content = (
-    <div className="grid gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm md:grid-cols-[1fr_160px] md:items-center">
+    <div className="grid gap-3 rounded-2xl border border-white/5 bg-white/[0.02] p-4 text-sm md:grid-cols-[1fr_160px] md:items-center">
       <div>
-        <p className="font-black text-slate-900">{item.label}</p>
-        <p className="mt-1 leading-6 text-slate-600">{item.description}</p>
+        <p className="font-black text-white">{item.label}</p>
+        <p className="mt-1 leading-6 text-slate-300">{item.description}</p>
       </div>
 
       <div className="md:text-right">
@@ -351,32 +352,32 @@ const nextActions = [
   return (
     <AppShell>
       <div className="space-y-8">
-        <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+        <MotionCard index={0} className="rounded-3xl border border-white/10 bg-white/[0.04] p-8 shadow-sm">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.35em] text-sky-600">
                 Control interno
               </p>
 
-              <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-950">
+              <h1 className="mt-3 text-3xl font-black tracking-tight text-white">
                 Resumen general del sistema
               </h1>
 
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
                 Vista ejecutiva interna para revisar en una sola pantalla el
 estado actual del MVP, módulos activos, módulos protegidos,
 próximos pasos comerciales, beta operativa comercial, IA, seguridad y despliegue.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-950">
+            <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-5 py-4 text-sm text-emerald-950">
               <p className="font-black">Estado general</p>
               <p className="mt-1">Beta operativa comercial online</p>
             </div>
           </div>
-        </section>
+        </MotionCard>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <MotionCard index={1} className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <SummaryCard
             title="Usuarios"
             value={totalProfiles}
@@ -429,15 +430,15 @@ próximos pasos comerciales, beta operativa comercial, IA, seguridad y despliegu
   description="La beta no consume servicios externos de IA."
   tone="success"
 />
-        </section>
+        </MotionCard>
 
-        <section className="grid gap-6 xl:grid-cols-2">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-black text-slate-950">
+        <MotionCard index={2} className="grid gap-6 xl:grid-cols-2">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-sm">
+            <h2 className="text-xl font-black text-white">
               Módulos activos
             </h2>
 
-            <p className="mt-2 text-sm leading-6 text-slate-600">
+            <p className="mt-2 text-sm leading-6 text-slate-300">
               Partes funcionales del sistema actual.
             </p>
 
@@ -448,12 +449,12 @@ próximos pasos comerciales, beta operativa comercial, IA, seguridad y despliegu
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-black text-slate-950">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-sm">
+            <h2 className="text-xl font-black text-white">
               Módulos protegidos
             </h2>
 
-            <p className="mt-2 text-sm leading-6 text-slate-600">
+            <p className="mt-2 text-sm leading-6 text-slate-300">
               Áreas restringidas para evitar acciones administrativas desde un tester employee.
             </p>
 
@@ -463,15 +464,15 @@ próximos pasos comerciales, beta operativa comercial, IA, seguridad y despliegu
               ))}
             </div>
           </div>
-        </section>
+        </MotionCard>
 
-        <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-black text-slate-950">
+        <MotionCard index={3} className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-sm">
+            <h2 className="text-xl font-black text-white">
               Salud operativa del sistema
             </h2>
 
-            <p className="mt-2 text-sm leading-6 text-slate-600">
+            <p className="mt-2 text-sm leading-6 text-slate-300">
 Estado resumido de los componentes principales de la beta operativa comercial.
             </p>
 
@@ -482,12 +483,12 @@ Estado resumido de los componentes principales de la beta operativa comercial.
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-black text-slate-950">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-sm">
+            <h2 className="text-xl font-black text-white">
               Módulos pendientes
             </h2>
 
-            <p className="mt-2 text-sm leading-6 text-slate-600">
+            <p className="mt-2 text-sm leading-6 text-slate-300">
               Próximos módulos necesarios para acercar el MVP a una versión comercial seria.
             </p>
 
@@ -497,15 +498,15 @@ Estado resumido de los componentes principales de la beta operativa comercial.
               ))}
             </div>
           </div>
-        </section>
+        </MotionCard>
 
-        <section className="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-black text-slate-950">
+        <MotionCard index={4} className="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-sm">
+            <h2 className="text-xl font-black text-white">
               Próximas acciones recomendadas
             </h2>
 
-            <p className="mt-2 text-sm leading-6 text-slate-600">
+            <p className="mt-2 text-sm leading-6 text-slate-300">
               Orden recomendado para continuar sin romper la beta actual.
             </p>
 
@@ -513,7 +514,7 @@ Estado resumido de los componentes principales de la beta operativa comercial.
               {nextActions.map((action) => (
                 <div
                   key={action}
-                  className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm font-medium leading-6 text-slate-700"
+                  className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 text-sm font-medium leading-6 text-slate-200"
                 >
                   {action}
                 </div>
@@ -521,7 +522,7 @@ Estado resumido de los componentes principales de la beta operativa comercial.
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-slate-950 p-6 text-white shadow-sm">
+          <div className="rounded-3xl border border-white/10 bg-white/10 p-6 text-white shadow-sm">
   <h2 className="text-xl font-black">
   Diagnóstico ejecutivo
 </h2>
@@ -540,23 +541,23 @@ Estado resumido de los componentes principales de la beta operativa comercial.
   Estado actual: Sprint 15 — Bloque 6 — contacto comercial real y primeras demos
 </div>
           </div>
-        </section>
+        </MotionCard>
 
-        <section className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row">
+        <MotionCard index={5} className="flex flex-col gap-3 rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-sm sm:flex-row">
           <Link
             href="/configuracion"
-            className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-center text-sm font-bold text-slate-700 hover:bg-slate-50"
+            className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-center text-sm font-bold text-slate-200 hover:bg-white/[0.02]"
           >
             Volver a configuración
           </Link>
 
           <Link
             href="/configuracion/roadmap"
-            className="rounded-2xl bg-slate-950 px-5 py-3 text-center text-sm font-bold text-white hover:bg-slate-800"
+            className="rounded-2xl bg-white/10 px-5 py-3 text-center text-sm font-bold text-white hover:bg-white/20"
           >
             Ver roadmap interno
           </Link>
-        </section>
+        </MotionCard>
       </div>
     </AppShell>
   );
