@@ -3,6 +3,8 @@
 import { useState, type ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { CalendarClock, Coins, Scale, AlertTriangle, CalendarPlus, Check, Loader2, Briefcase, TrendingUp, Users, Gavel, Hourglass, Siren, HeartPulse, MapPin, Percent } from 'lucide-react';
+import { MotionCard } from '@/components/ui/MotionCard';
+import { MotionButton } from '@/components/ui/MotionButton';
 import { guardarPlazoEnAgenda } from './actions';
 import { UMA_VALOR, UMA_VIGENCIA, TASA_JUSTICIA_PORCENTAJE, UHOM_VALOR, JUS_BA_MEDIACION, JUS_CORRIENTES } from '@/lib/legal/config';
 import { parseISODate, sumarDiasCorridos, sumarDiasHabiles } from '@/lib/legal/plazos';
@@ -28,24 +30,24 @@ const formatDateLarga = (d: Date) =>
   new Intl.DateTimeFormat('es-AR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).format(d);
 
 const inputClass =
-  'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-950 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100';
+  'w-full rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2 text-sm text-white outline-none placeholder-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400';
 const btnClass =
-  'mt-5 inline-flex items-center gap-2 rounded-lg bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800';
+  'mt-5 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent to-brandviolet px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed';
 
-function Card({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
+function Card({ title, subtitle, children, index = 0 }: { title: string; subtitle?: string; children: ReactNode; index?: number }) {
   return (
-    <section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-      <h2 className="text-base font-semibold text-slate-950">{title}</h2>
-      {subtitle && <p className="mt-1 text-sm text-slate-600">{subtitle}</p>}
+    <MotionCard index={index} className="p-6">
+      <h2 className="text-base font-semibold text-white">{title}</h2>
+      {subtitle && <p className="mt-1 text-sm text-slate-400">{subtitle}</p>}
       <div className="mt-4">{children}</div>
-    </section>
+    </MotionCard>
   );
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-semibold text-slate-600">{label}</span>
+      <span className="mb-1 block text-xs font-semibold text-slate-400">{label}</span>
       {children}
     </label>
   );
@@ -57,7 +59,7 @@ function RadioPill({ active, onClick, label }: { active: boolean; onClick: () =>
       type="button"
       onClick={onClick}
       className={`rounded-lg border px-3 py-2 text-sm font-semibold transition ${
-        active ? 'border-sky-500 bg-sky-50 text-sky-700' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+        active ? 'border-cyan-400/50 bg-cyan-400/10 text-cyan-400' : 'border-white/10 bg-transparent text-slate-400 hover:bg-white/[0.04]'
       }`}
     >
       {label}
@@ -77,10 +79,10 @@ function ResultBox({
   highlight?: boolean;
 }) {
   return (
-    <div className={`rounded-xl border p-4 ${highlight ? 'border-emerald-100 bg-emerald-50/60' : 'border-slate-100 bg-slate-50'}`}>
+    <div className={`rounded-xl border p-4 ${highlight ? 'border-cyan-400/30 bg-cyan-400/10' : 'border-white/10 bg-white/[0.02]'}`}>
       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-      <p className={`mt-1 text-lg font-semibold ${highlight ? 'text-emerald-700' : 'text-slate-950'}`}>{value}</p>
-      {subtitle && <p className="mt-1 text-xs text-slate-500">{subtitle}</p>}
+      <p className={`mt-1 text-lg font-semibold ${highlight ? 'text-cyan-400' : 'text-white'}`}>{value}</p>
+      {subtitle && <p className="mt-1 text-xs text-slate-400">{subtitle}</p>}
     </div>
   );
 }
@@ -146,15 +148,15 @@ function PlazosCalc() {
         <RadioPill active={tipo === 'corridos'} onClick={() => setTipo('corridos')} label="Días corridos" />
       </div>
 
-      <button type="button" onClick={calcular} className={btnClass}>Calcular vencimiento</button>
+      <MotionButton type="button" onClick={calcular} className={btnClass}>Calcular vencimiento</MotionButton>
 
       {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
 
       {resultado && (
-        <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50/60 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Vencimiento</p>
-          <p className="mt-1 text-lg font-semibold capitalize text-slate-950">{formatDateLarga(resultado.vencimiento)}</p>
-          <p className="mt-1 text-xs text-slate-600">
+        <div className="mt-4 rounded-xl border border-cyan-400/30 bg-cyan-400/10 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-cyan-400">Vencimiento</p>
+          <p className="mt-1 text-lg font-semibold capitalize text-white">{formatDateLarga(resultado.vencimiento)}</p>
+          <p className="mt-1 text-xs text-slate-400">
             Contados {resultado.texto}
             {tipo === 'habiles' ? ' (sin fines de semana, feriados ni feria judicial).' : '.'}
           </p>
@@ -167,15 +169,15 @@ function PlazosCalc() {
               placeholder="Referencia (ej. carátula o trámite)"
               className={inputClass}
             />
-            <button
+            <MotionButton
               type="button"
               onClick={cargarAgenda}
               disabled={guardando}
-              className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+              className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-cyan-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-cyan-500 disabled:opacity-60"
             >
               {guardando ? <Loader2 className="h-4 w-4 animate-spin" /> : <CalendarPlus className="h-4 w-4" />}
               Cargar a la agenda
-            </button>
+            </MotionButton>
             {guardado && (
               <p className={`mt-2 text-center text-[11px] font-medium ${guardado.startsWith('✓') ? 'text-emerald-700' : 'text-amber-700'}`}>
                 {guardado}
@@ -294,7 +296,7 @@ function HonorariosCalc() {
         confirma; 30–40% si se revoca. Apoderado sin patrocinio = 140%; procurador = 40% (art. 20).
       </p>
 
-      <button onClick={calcular} className={btnClass}>Calcular honorarios</button>
+      <MotionButton onClick={calcular} className={btnClass}>Calcular honorarios</MotionButton>
 
       {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
 
@@ -346,7 +348,7 @@ function TasaCalc() {
         <Field label="Monto del proceso ($)">
           <input type="text" inputMode="decimal" value={montoTasa} onChange={(e) => setMontoTasa(e.target.value)} placeholder="Ej: 1.000.000" className={inputClass} />
         </Field>
-        <button type="button" onClick={calcularTasa} className={btnClass}>Calcular tasa</button>
+        <MotionButton type="button" onClick={calcularTasa} className={btnClass}>Calcular tasa</MotionButton>
         {tasaRes !== null && (
           <div className="mt-4">
             <ResultBox label={`Tasa de justicia (${TASA_JUSTICIA_PORCENTAJE}%)`} value={currency(tasaRes)} highlight />
@@ -366,7 +368,7 @@ function TasaCalc() {
             <input type="number" min={0} value={diasInteres} onChange={(e) => setDiasInteres(e.target.value)} className={inputClass} />
           </Field>
         </div>
-        <button type="button" onClick={calcularInteres} className={btnClass}>Calcular intereses</button>
+        <MotionButton type="button" onClick={calcularInteres} className={btnClass}>Calcular intereses</MotionButton>
         {intRes && (
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <ResultBox label="Interés" value={currency(intRes.interes)} />
@@ -446,7 +448,7 @@ function LiquidacionLaboralCalc() {
         </Field>
       </div>
 
-      <button onClick={calcular} className={btnClass}>Calcular liquidación</button>
+      <MotionButton onClick={calcular} className={btnClass}>Calcular liquidación</MotionButton>
 
       {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
 
@@ -519,7 +521,7 @@ function InteresesJudicialesCalc() {
         </p>
       </div>
 
-      <button onClick={calcular} className={btnClass}>Calcular intereses</button>
+      <MotionButton onClick={calcular} className={btnClass}>Calcular intereses</MotionButton>
 
       {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
 
@@ -567,7 +569,7 @@ function CuotaAlimentariaCalc() {
         Referencia orientativa: la jurisprudencia suele ubicar la cuota entre el 20% y 30% para un hijo/a, aumentando con la cantidad de hijos/as y las necesidades acreditadas.
       </p>
 
-      <button onClick={calcular} className={btnClass}>Calcular cuota</button>
+      <MotionButton onClick={calcular} className={btnClass}>Calcular cuota</MotionButton>
 
       {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
 
@@ -616,7 +618,7 @@ function DanosCalc() {
         <Field label="Interés sobre subtotal (%) — opcional"><input value={interes} onChange={(e) => setInteres(e.target.value)} placeholder="Ej: 15" className={inputClass} /></Field>
       </div>
 
-      <button onClick={calcular} className={btnClass}>Calcular total</button>
+      <MotionButton onClick={calcular} className={btnClass}>Calcular total</MotionButton>
 
       {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
 
@@ -663,7 +665,7 @@ function CaducidadInstanciaCalc() {
         <RadioPill active={instancia === 'incidente'} onClick={() => setInstancia('incidente')} label="Incidentes (1 mes)" />
       </div>
 
-      <button onClick={calcular} className={btnClass}>Calcular fecha de caducidad</button>
+      <MotionButton onClick={calcular} className={btnClass}>Calcular fecha de caducidad</MotionButton>
 
       {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
 
@@ -702,7 +704,7 @@ function DanosPunitivosCalc() {
 			<Field label="Probabilidad de condena Pc (%)">
 				<input className={inputClass} inputMode="decimal" placeholder="Ej: 80" value={prob} onChange={(e) => setProb(e.target.value)} />
 			</Field>
-			<button className={btnClass} onClick={calcular}>Calcular daño punitivo</button>
+			<MotionButton className={btnClass} onClick={calcular}>Calcular daño punitivo</MotionButton>
 			{res && (
 				<div className="mt-4 space-y-2">
 					<ResultBox label="Daño punitivo estimado" value={currency(res.punitivo)} highlight />
@@ -754,7 +756,7 @@ function IncapacidadCalc() {
 			<Field label="% de incapacidad">
 				<input className={inputClass} inputMode="decimal" placeholder="Ej: 30" value={incap} onChange={(e) => setIncap(e.target.value)} />
 			</Field>
-			<button className={btnClass} onClick={calcular}>Calcular indemnización</button>
+			<MotionButton className={btnClass} onClick={calcular}>Calcular indemnización</MotionButton>
 			{res && (
 				<div className="mt-4 space-y-2">
 					<ResultBox label="Capital indemnizatorio" value={currency(res.capital)} highlight />
@@ -790,7 +792,7 @@ function AmpliacionDistanciaCalc() {
 			<Field label="Distancia (km)">
 				<input className={inputClass} inputMode="decimal" placeholder="Ej: 650" value={km} onChange={(e) => setKm(e.target.value)} />
 			</Field>
-			<button className={btnClass} onClick={calcular}>Calcular ampliación</button>
+			<MotionButton className={btnClass} onClick={calcular}>Calcular ampliación</MotionButton>
 			{res && (
 				<div className="mt-4 space-y-2">
 					<ResultBox label="Días adicionales por distancia" value={`${res.adicionales} días`} />
@@ -826,7 +828,7 @@ function ProrrateoCalc() {
 			<Field label="Suma total de honorarios regulados">
 				<input className={inputClass} inputMode="decimal" placeholder="Ej: 3.500.000" value={honorarios} onChange={(e) => setHonorarios(e.target.value)} />
 			</Field>
-			<button className={btnClass} onClick={calcular}>Calcular prorrateo</button>
+			<MotionButton className={btnClass} onClick={calcular}>Calcular prorrateo</MotionButton>
 			{res && (
 				<div className="mt-4 space-y-2">
 					<ResultBox label="Tope legal (25%)" value={currency(res.tope)} highlight />
@@ -1095,18 +1097,18 @@ export function CalculadorasClient() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-sky-600">Herramientas jurídicas</p>
-        <h1 className="mt-1 text-2xl font-semibold text-slate-950">Calculadoras</h1>
-        <p className="mt-1 text-sm text-slate-600">Cálculos orientativos para Justicia Nacional / Federal.</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-cyan-400">Herramientas jurídicas</p>
+        <h1 className="mt-1 text-2xl font-bold text-white">Calculadoras</h1>
+        <p className="mt-1 text-sm text-slate-400">Cálculos orientativos para Justicia Nacional / Federal.</p>
       </div>
 
-      <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
-        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
-        <p className="text-xs text-amber-800">
+      <MotionCard index={0} className="flex items-start gap-3 border-amber-500/20 bg-amber-500/10 p-4">
+        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" />
+        <p className="text-xs text-amber-200">
           Resultados <strong>estimativos y no vinculantes</strong>. Verificá siempre plazos, feriados, valor de la UMA y
           aranceles con las fuentes oficiales antes de presentar.
         </p>
-      </div>
+      </MotionCard>
 
       <div className="flex flex-wrap gap-2">
         {tabs.map((t) => {
@@ -1117,8 +1119,8 @@ export function CalculadorasClient() {
               key={t.id}
               type="button"
               onClick={() => setTab(t.id)}
-              className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition ${
-                active ? 'border-slate-950 bg-slate-950 text-white' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+              className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition ${
+                active ? 'border-cyan-400/50 bg-cyan-400/10 text-cyan-400' : 'border-white/10 bg-white/[0.02] text-slate-400 hover:bg-white/[0.04]'
               }`}
             >
               <Icon className="h-4 w-4" />

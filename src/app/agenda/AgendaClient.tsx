@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight, FileText, FolderKanban, CalendarClock, CalendarPlus, Plus, X } from 'lucide-react';
+import { MotionCard } from '@/components/ui/MotionCard';
+import { MotionButton } from '@/components/ui/MotionButton';
 import { guardarEventoManual } from './actions';
 import { FERIADOS, FERIAS_JUDICIALES } from '@/lib/legal/config';
 
@@ -100,47 +102,47 @@ export function AgendaClient({ eventos, cases }: { eventos: AgendaEvento[]; case
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-sky-600">Herramientas jurídicas</p>
-          <h1 className="mt-1 text-2xl font-semibold text-slate-950">Agenda</h1>
-          <p className="mt-1 text-sm text-slate-600">Feriados, feria judicial y vencimientos de tus documentos y expedientes.</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-cyan-400">Herramientas jurídicas</p>
+          <h1 className="mt-1 text-2xl font-bold text-white">Agenda</h1>
+          <p className="mt-1 text-sm text-slate-400">Feriados, feria judicial y vencimientos de tus documentos y expedientes.</p>
         </div>
-        <button
+        <MotionButton
           type="button"
           onClick={() => setShowForm(!showForm)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-700"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-accent to-brandviolet px-4 py-2 text-sm font-semibold text-white shadow-sm transition disabled:opacity-50"
         >
           {showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
           Nuevo evento
-        </button>
+        </MotionButton>
       </div>
 
       {showForm && (
-        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm max-w-lg">
+        <MotionCard index={0} className="p-5 max-w-lg">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-slate-950">Cargar evento manual</h2>
-            <button type="button" onClick={() => setShowForm(false)} className="text-slate-400 hover:text-slate-600">
+            <h2 className="text-base font-semibold text-white">Cargar evento manual</h2>
+            <button type="button" onClick={() => setShowForm(false)} className="text-slate-400 hover:text-white">
               <X className="h-5 w-5" />
             </button>
           </div>
           <div className="space-y-4">
             <label className="block">
-              <span className="mb-1 block text-xs font-semibold text-slate-600">Fecha</span>
-              <input type="date" value={nuevaFecha} onChange={(e) => setNuevaFecha(e.target.value)} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-950 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100" />
+              <span className="mb-1 block text-xs font-semibold text-slate-400">Fecha</span>
+              <input type="date" value={nuevaFecha} onChange={(e) => setNuevaFecha(e.target.value)} className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2 text-sm text-white outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400" />
             </label>
             <label className="block">
-              <span className="mb-1 block text-xs font-semibold text-slate-600">Título</span>
-              <input type="text" value={nuevoTitulo} onChange={(e) => setNuevoTitulo(e.target.value)} placeholder="Ej: Presentar escrito - Pérez c/ García" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-950 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100" />
+              <span className="mb-1 block text-xs font-semibold text-slate-400">Título</span>
+              <input type="text" value={nuevoTitulo} onChange={(e) => setNuevoTitulo(e.target.value)} placeholder="Ej: Presentar escrito - Pérez c/ García" className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2 text-sm text-white outline-none placeholder-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400" />
             </label>
             <label className="block">
-              <span className="mb-1 block text-xs font-semibold text-slate-600">Detalle (opcional)</span>
-              <input type="text" value={nuevoDetalle} onChange={(e) => setNuevoDetalle(e.target.value)} placeholder="Descripción adicional" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-950 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100" />
+              <span className="mb-1 block text-xs font-semibold text-slate-400">Detalle (opcional)</span>
+              <input type="text" value={nuevoDetalle} onChange={(e) => setNuevoDetalle(e.target.value)} placeholder="Descripción adicional" className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2 text-sm text-white outline-none placeholder-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400" />
             </label>
             <label className="block">
-              <span className="mb-1 block text-xs font-medium text-slate-500">Expediente (opcional)</span>
+              <span className="mb-1 block text-xs font-medium text-slate-400">Expediente (opcional)</span>
               <select
                 value={nuevoCaseId}
                 onChange={(e) => setNuevoCaseId(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-950 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+                className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2 text-sm text-white outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400"
               >
                 <option value="">Sin expediente</option>
                 {cases.map((c) => (
@@ -148,17 +150,17 @@ export function AgendaClient({ eventos, cases }: { eventos: AgendaEvento[]; case
                 ))}
               </select>
             </label>
-            <button
+            <MotionButton
               type="button"
               onClick={crearEvento}
               disabled={guardando}
-              className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+              className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-cyan-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-cyan-500 disabled:opacity-60"
             >
               {guardando ? 'Guardando…' : 'Guardar'}
-            </button>
-            {aviso && <p className="text-center text-[11px] font-medium text-amber-700">{aviso}</p>}
+            </MotionButton>
+            {aviso && <p className="text-center text-[11px] font-medium text-amber-500">{aviso}</p>}
           </div>
-        </div>
+        </MotionCard>
       )}
 
       <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600">
@@ -171,13 +173,13 @@ export function AgendaClient({ eventos, cases }: { eventos: AgendaEvento[]; case
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <section className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm lg:col-span-2">
+        <MotionCard index={1} className="p-5 lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-base font-semibold capitalize text-slate-950">{MESES[month]} {year}</h2>
+            <h2 className="text-base font-semibold capitalize text-white">{MESES[month]} {year}</h2>
             <div className="flex items-center gap-1">
-              <button type="button" onClick={() => irMes(-1)} className="rounded-lg border border-slate-200 p-1.5 text-slate-600 hover:bg-slate-50"><ChevronLeft className="h-4 w-4" /></button>
-              <button type="button" onClick={irHoy} className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">Hoy</button>
-              <button type="button" onClick={() => irMes(1)} className="rounded-lg border border-slate-200 p-1.5 text-slate-600 hover:bg-slate-50"><ChevronRight className="h-4 w-4" /></button>
+              <button type="button" onClick={() => irMes(-1)} className="rounded-lg border border-white/10 p-1.5 text-slate-400 hover:bg-white/[0.04]"><ChevronLeft className="h-4 w-4" /></button>
+              <button type="button" onClick={irHoy} className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-white/[0.04]">Hoy</button>
+              <button type="button" onClick={() => irMes(1)} className="rounded-lg border border-white/10 p-1.5 text-slate-400 hover:bg-white/[0.04]"><ChevronRight className="h-4 w-4" /></button>
             </div>
           </div>
 
@@ -187,24 +189,24 @@ export function AgendaClient({ eventos, cases }: { eventos: AgendaEvento[]; case
 
           <div className="mt-1 grid grid-cols-7 gap-1">
             {celdas.map((dia, idx) => {
-              if (dia === null) return <div key={`e-${idx}`} className="min-h-[76px] rounded-lg" />;
+              if (dia === null) return <div key={`e-${idx}`} className="min-h-[76px] rounded-xl" />;
               const fechaIso = iso(year, month, dia);
               const esFeriado = feriadosSet.has(fechaIso);
               const feria = feriaDe(fechaIso);
               const evs = eventosPorDia.get(fechaIso) ?? [];
               const esHoy = fechaIso === hoyIso;
-              const bg = esFeriado ? 'bg-amber-50 border-amber-200' : feria ? 'bg-slate-50 border-slate-200' : 'bg-white border-slate-100';
+              const bg = esFeriado ? 'bg-amber-500/10 border-amber-500/20' : feria ? 'bg-white/[0.04] border-white/10' : 'bg-transparent border-white/5';
 
               return (
-                <div key={fechaIso} className={`min-h-[76px] rounded-lg border p-1.5 text-left ${bg}`}>
-                  <span className={`text-xs font-semibold ${esHoy ? 'flex h-5 w-5 items-center justify-center rounded-full bg-sky-600 text-white' : 'text-slate-600'}`}>{dia}</span>
-                  {esFeriado && <p className="mt-0.5 truncate text-[10px] font-medium text-amber-700">Feriado</p>}
+                <div key={fechaIso} className={`min-h-[76px] rounded-xl border p-1.5 text-left ${bg}`}>
+                  <span className={`text-xs font-semibold ${esHoy ? 'flex h-5 w-5 items-center justify-center rounded-full bg-cyan-500 text-white shadow-sm shadow-cyan-500/50' : 'text-slate-400'}`}>{dia}</span>
+                  {esFeriado && <p className="mt-0.5 truncate text-[10px] font-medium text-amber-400">Feriado</p>}
                   {!esFeriado && feria && <p className="mt-0.5 truncate text-[10px] font-medium text-slate-500">Feria</p>}
                   <div className="mt-0.5 space-y-0.5">
                     {evs.slice(0, 3).map((ev) => {
-                      const bgColor = ev.tipo === 'documento' ? 'bg-sky-500' : ev.tipo === 'evento' ? 'bg-emerald-500' : 'bg-violet-500';
+                      const bgColor = ev.tipo === 'documento' ? 'bg-sky-500/80 text-white' : ev.tipo === 'evento' ? 'bg-emerald-500/80 text-white' : 'bg-violet-500/80 text-white';
                       const content = ev.titulo;
-                      const className = `block truncate rounded px-1 py-0.5 text-[10px] font-medium text-white ${bgColor}`;
+                      const className = `block truncate rounded px-1 py-0.5 text-[10px] font-medium ${bgColor}`;
                       if ((ev.tipo === 'plazo' || ev.tipo === 'evento') && ev.href === '/agenda') {
                         return <div key={ev.id} title={ev.titulo} className={className}>{content}</div>;
                       }
@@ -214,20 +216,20 @@ export function AgendaClient({ eventos, cases }: { eventos: AgendaEvento[]; case
                         </Link>
                       );
                     })}
-                    {evs.length > 3 && <span className="block text-[10px] text-slate-400">+{evs.length - 3} más</span>}
+                    {evs.length > 3 && <span className="block text-[10px] text-slate-500">+{evs.length - 3} más</span>}
                   </div>
                 </div>
               );
             })}
           </div>
-        </section>
+        </MotionCard>
 
-        <section className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-          <h2 className="text-base font-semibold capitalize text-slate-950">Eventos de {MESES[month]}</h2>
+        <MotionCard index={2} className="p-5">
+          <h2 className="text-base font-semibold capitalize text-white">Eventos de {MESES[month]}</h2>
           <div className="mt-3 space-y-2">
             {eventosMes.length === 0 && <p className="text-sm text-slate-500">No hay vencimientos ni fechas cargadas este mes.</p>}
             {eventosMes.map((ev) => {
-              const iconBg = ev.tipo === 'documento' ? 'bg-sky-50 text-sky-600' : ev.tipo === 'evento' ? 'bg-emerald-50 text-emerald-600' : 'bg-violet-50 text-violet-600';
+              const iconBg = ev.tipo === 'documento' ? 'bg-sky-500/20 text-sky-400' : ev.tipo === 'evento' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-violet-500/20 text-violet-400';
               const Icon = ev.tipo === 'documento' ? FileText : ev.tipo === 'plazo' ? CalendarClock : ev.tipo === 'evento' ? CalendarPlus : FolderKanban;
               const typeLabel = ev.tipo === 'documento' ? 'Vence documento' : ev.tipo === 'plazo' ? 'Plazo procesal' : ev.tipo === 'evento' ? 'Recordatorio' : 'Expediente';
               const content = (
@@ -236,13 +238,13 @@ export function AgendaClient({ eventos, cases }: { eventos: AgendaEvento[]; case
                     <Icon className="h-3.5 w-3.5" />
                   </span>
                   <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium text-slate-900">{ev.titulo}</span>
+                    <span className="block truncate text-sm font-medium text-slate-200">{ev.titulo}</span>
                     <span className="block text-xs text-slate-500">{ev.fecha.split('-').reverse().join('/')} · {typeLabel}</span>
-                    {ev.expedienteNombre && <span className="block truncate text-[11px] text-slate-400">{ev.expedienteNombre}</span>}
+                    {ev.expedienteNombre && <span className="block truncate text-[11px] text-slate-600">{ev.expedienteNombre}</span>}
                   </span>
                 </>
               );
-              const className = "flex items-start gap-2 rounded-lg border border-slate-100 p-2.5 transition hover:bg-slate-50";
+              const className = "flex items-start gap-2 rounded-xl border border-white/10 p-2.5 transition hover:bg-white/[0.04]";
               if ((ev.tipo === 'plazo' || ev.tipo === 'evento') && ev.href === '/agenda') {
                 return <div key={ev.id} className={className}>{content}</div>;
               }
@@ -253,7 +255,7 @@ export function AgendaClient({ eventos, cases }: { eventos: AgendaEvento[]; case
               );
             })}
           </div>
-        </section>
+        </MotionCard>
       </div>
     </div>
   );
