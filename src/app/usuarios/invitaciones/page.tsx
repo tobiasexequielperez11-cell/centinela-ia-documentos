@@ -316,12 +316,16 @@ Registrar invitación
             </div>
           )}
 
-          <div className="mt-6 rounded-2xl border border-sky-100 bg-sky-50 p-4">
-            <p className="font-bold text-sky-900">Control operativo</p>
-
-            <p className="mt-2 text-sm leading-6 text-sky-800">
-Las invitaciones permiten ordenar accesos, roles y trazabilidad durante la beta operativa.
-            </p>
+          <div className="mt-6 flex gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5 shadow-sm">
+            <div className="mt-0.5 text-sky-400">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </div>
+            <div>
+              <p className="font-bold text-white">Control operativo</p>
+              <p className="mt-1 text-sm leading-6 text-slate-300">
+                Las invitaciones permiten ordenar accesos, roles y trazabilidad durante la beta operativa.
+              </p>
+            </div>
           </div>
         </section>
 

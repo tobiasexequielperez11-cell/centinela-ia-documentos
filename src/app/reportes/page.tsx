@@ -247,8 +247,8 @@ function getDocumentAiLabel(count: number) {
 }
 
 function getDocumentAiClass(count: number) {
-  if (count <= 0) return 'bg-slate-100 text-slate-600';
-  return 'bg-sky-50 text-sky-700';
+  if (count <= 0) return 'border border-white/10 bg-white/[0.06] text-slate-300 whitespace-nowrap';
+  return 'border border-accent/30 bg-accent/[0.10] text-accent-soft whitespace-nowrap';
 }
 
 function isValidView(value?: string): value is ReportView {
@@ -1384,10 +1384,10 @@ if (
                       </td>
 
                       <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex items-center gap-2">
                           <Link
                             href={`/documentos/${document.id}`}
-                            className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold text-slate-200 hover:bg-white/[0.08]"
+                            className="rounded-lg border border-white/10 bg-transparent px-3 py-1.5 text-xs font-bold text-slate-300 transition-all hover:bg-white/5 hover:text-white"
                           >
                             Ver
                           </Link>
@@ -1400,8 +1400,8 @@ if (
                                 value={document.id}
                               />
 
-                              <button className="rounded-xl bg-cyan-600 px-3 py-2 text-xs font-bold text-white hover:bg-cyan-500">
-                                Analizar
+                              <button className="rounded-lg border border-white/10 bg-gradient-to-r from-cyan-500/20 to-brandviolet/20 px-3 py-1.5 text-xs font-bold text-white transition-all hover:from-cyan-500/30 hover:to-brandviolet/30">
+                                Analizar IA
                               </button>
                             </form>
                           ) : null}
