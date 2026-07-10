@@ -21,6 +21,20 @@ export function getNavItemLabel(
   return navLabelOverrides[industry]?.[item.href] ?? item.name;
 }
 
+const navDescriptionOverrides: Partial<Record<IndustryType, Record<string, string>>> = {
+  escribania: {
+    '/expedientes': 'Gestión operativa de legajos vinculados.',
+    '/buscar': 'Búsqueda avanzada de legajos y documentos.',
+  },
+};
+
+export function getNavItemDescription(
+  item: { href: string; description?: string },
+  industry: IndustryType
+): string {
+  return navDescriptionOverrides[industry]?.[item.href] ?? item.description ?? '';
+}
+
 // --- Terminología de entidades, por rubro (para pantallas internas) ---
 export type IndustryTerms = {
   expedienteSingular: string;

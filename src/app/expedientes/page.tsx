@@ -106,7 +106,7 @@ export default async function CasesPage({
           type="search"
           name="q"
           defaultValue={q ?? ''}
-          placeholder="Buscar por expediente, cliente o tipo…"
+          placeholder={`Buscar por ${terms.expedienteSingular.toLowerCase()}, cliente o tipo…`}
           className="w-full max-w-md rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:border-accent focus:ring-1 focus:ring-accent"
         />
         <MotionButton type="submit" className="bg-white/10 text-white hover:bg-white/20">

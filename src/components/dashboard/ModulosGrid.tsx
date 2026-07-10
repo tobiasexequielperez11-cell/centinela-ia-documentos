@@ -6,6 +6,8 @@ import { Star } from 'lucide-react';
 import { MotionCard } from '@/components/ui/MotionCard';
 import type { NavItem } from '@/config/navigation';
 import { navigation } from '@/config/navigation';
+import { getNavItemLabel, getNavItemDescription } from '@/lib/industries/uiLabels';
+import type { IndustryType } from '@/lib/industries/documentTypes';
 
 export function ModulosGrid({ role, industry }: { role: string; industry: string }) {
   const modules = navigation.filter(
@@ -17,6 +19,7 @@ export function ModulosGrid({ role, industry }: { role: string; industry: string
   const [q, setQ] = useState('');
   const [favs, setFavs] = useState<string[]>([]);
   const [mounted, setMounted] = useState(false);
+  const label = (m: NavItem) => getNavItemLabel(m, industry as IndustryType);
 
   useEffect(() => {
     setMounted(true);
@@ -43,16 +46,16 @@ export function ModulosGrid({ role, industry }: { role: string; industry: string
 
   // Filter by query and sort: favorites first
   const filtered = modules
-    .filter((m) => m.name.toLowerCase().includes(q.toLowerCase()))
+    .filter((m) => label(m).toLowerCase().includes(q.toLowerCase()))
     .sort((a, b) => {
       const aFav = favs.includes(a.href) ? 1 : 0;
       const bFav = favs.includes(b.href) ? 1 : 0;
       if (aFav !== bFav) return bFav - aFav;
-      return a.name.localeCompare(b.name);
+      return label(a).localeCompare(label(b));
     });
 
   // Since favs rely on localStorage, prevent hydration mismatch by not rendering sorted favs until mounted
-  const displayModules = mounted ? filtered : modules.filter((m) => m.name.toLowerCase().includes(q.toLowerCase()));
+  const displayModules = mounted ? filtered : modules.filter((m) => label(m).toLowerCase().includes(q.toLowerCase()));
 
   return (
     <section>
@@ -86,8 +89,8 @@ export function ModulosGrid({ role, industry }: { role: string; industry: string
                     <Star className={`h-4 w-4 ${isFav ? 'fill-amber-400 text-amber-400 opacity-100' : 'text-slate-400'}`} />
                   </button>
                 </div>
-                <h3 className="mt-4 font-display text-base font-semibold text-white group-hover:text-accent-soft">{m.name}</h3>
-                <p className="mt-1 text-sm text-slate-400">{m.description}</p>
+                <h3 className="mt-4 font-display text-base font-semibold text-white group-hover:text-accent-soft">{label(m)}</h3>
+                <p className="mt-1 text-sm text-slate-400">{getNavItemDescription(m, industry as IndustryType)}</p>
               </MotionCard>
             </Link>
           );

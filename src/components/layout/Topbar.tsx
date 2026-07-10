@@ -4,10 +4,23 @@ import { BackButton } from './BackButton';
 import { signOut } from '@/app/login/actions';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { canUploadDocument, isUserRole } from '@/lib/permissions/roles';
+import { createClient } from '@/lib/supabase/server';
+import { normalizeIndustryType } from '@/lib/industries/documentTypes';
+import { getIndustryTerms } from '@/lib/industries/uiLabels';
 
 export async function Topbar() {
   const { profile } = await getUserProfile();
   const canUpload = isUserRole(profile?.role) && canUploadDocument(profile.role);
+
+  const supabase = await createClient();
+  const { data: organization } = await supabase
+    .from('organizations')
+    .select('industry_type')
+    .eq('id', profile?.organization_id)
+    .maybeSingle();
+
+  const industry = normalizeIndustryType(organization?.industry_type);
+  const terms = getIndustryTerms(industry);
 
   return (
     <header className="sticky top-0 z-10 border-b border-white/10 bg-[#0A1830]/92 backdrop-blur-xl">
@@ -17,7 +30,7 @@ export async function Topbar() {
           <div className="hidden items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.055] px-4 py-2 shadow-[0_12px_30px_rgba(0,0,0,0.16)] lg:flex">
             <Search className="h-4 w-4 text-[#29C5FF]" />
             <span className="text-sm text-[#C2CCD9]">
-              Buscar expediente, documento o cliente...
+              Buscar {terms.expedienteSingular.toLowerCase()}, documento o cliente...
             </span>
           </div>
         </div>
