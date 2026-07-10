@@ -88,6 +88,14 @@ export function ModelosClient({
 
   const seleccionado = MODELOS.find((m) => m.id === seleccionadoId) ?? null;
 
+  const esEscribania = industria === 'escribania';
+  const placeholderIA = esEscribania
+    ? 'Contale a la IA qué necesitás. Ej: escritura de compraventa entre Juan Pérez (vendedor) y Ana Gómez (compradora) sobre el inmueble de calle Falsa 123, por un valor de USD 100.000…'
+    : 'Contale a la IA qué necesitás. Ej: demanda por despido sin causa, reclama indemnización art. 245 LCT; ingresó el 01/2020, categoría vendedor…';
+  const textoDisclaimer = esEscribania
+    ? 'Modelos orientativos y editables. Revisá y adaptá cada instrumento a tu jurisdicción, normativa notarial y registral y a cada caso antes de otorgarlo.'
+    : 'Modelos orientativos y editables. Revisá y adaptá cada escrito a tu jurisdicción, fuero y caso antes de presentarlo.';
+
   const categorias = useMemo(() => {
     const filtro = busqueda.trim().toLowerCase();
     const filtrados = MODELOS.filter((m) => {
@@ -347,7 +355,7 @@ export function ModelosClient({
                     value={instruccion}
                     onChange={(e) => setInstruccion(e.target.value)}
                     rows={3}
-                    placeholder="Contale a la IA qué necesitás. Ej: demanda por despido sin causa, reclama indemnización art. 245 LCT; ingresó el 01/2020, categoría vendedor…"
+                    placeholder={placeholderIA}
                     className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2 text-sm text-white placeholder-slate-500 outline-none focus:border-brandviolet focus:ring-1 focus:ring-brandviolet"
                   />
                   <MotionButton
@@ -407,7 +415,7 @@ export function ModelosClient({
 
           <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-4">
             <p className="text-xs text-amber-200">
-              ⚠️ Modelos <strong>orientativos y editables</strong>. Revisá y adaptá cada escrito a tu jurisdicción, fuero y caso antes de presentarlo.
+              ⚠️ {textoDisclaimer}
             </p>
           </div>
         </div>

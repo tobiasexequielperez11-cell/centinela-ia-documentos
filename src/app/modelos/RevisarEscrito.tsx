@@ -24,7 +24,13 @@ function Bloque({ icon, titulo, items, tono }: { icon: ReactNode; titulo: string
   );
 }
 
-export function RevisarEscrito() {
+export function RevisarEscrito({ industria = 'legal' }: { industria?: string }) {
+  const esEscribania = industria === 'escribania';
+  const tituloRevision = esEscribania ? 'Revisión de instrumentos con IA' : 'Revisión de escritos con IA';
+  const subtituloRevision = esEscribania
+    ? 'Pegá un instrumento (escritura, poder, acta, certificación, minuta…) y la IA lo audita: qué le falta, errores, datos sin completar y sugerencias. Borrador orientativo, revisá siempre antes de otorgar.'
+    : 'Pegá un escrito (demanda, contestación, recurso, carta…) y la IA lo audita: qué le falta, errores, datos sin completar y sugerencias. Borrador orientativo, revisá siempre antes de presentar.';
+
   const [texto, setTexto] = useState('');
   const [estado, setEstado] = useState<'idle' | 'loading' | 'error' | 'sin_key' | 'sin_texto'>('idle');
   const [rev, setRev] = useState<RevisionEscrito | null>(null);
@@ -49,9 +55,9 @@ export function RevisarEscrito() {
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="text-base font-semibold text-slate-800">✍️ Revisión de escritos con IA</h2>
+      <h2 className="text-base font-semibold text-slate-800">✍️ {tituloRevision}</h2>
       <p className="mt-1 text-sm text-slate-500">
-        Pegá un escrito (demanda, contestación, recurso, carta…) y la IA lo audita: qué le falta, errores, datos sin completar y sugerencias. Borrador orientativo, revisá siempre antes de presentar.
+        {subtituloRevision}
       </p>
 
       <textarea
