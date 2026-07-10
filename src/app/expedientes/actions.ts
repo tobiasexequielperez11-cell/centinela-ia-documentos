@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createAuditLog } from '@/lib/audit/createAuditLog';
-import { generarResumenConIA } from '@/lib/ai/copiloto';
+import { generarResumenConIA, cotejarDocumentosConIA } from '@/lib/ai/copiloto';
 import { canUseAi } from '@/lib/permissions/roles';
 import {
   getAllowedCaseStatuses,
@@ -697,6 +697,97 @@ export async function generarResumenExpediente(caseId: string) {
     resourceType: 'case',
     resourceId: caseId,
     metadata: { documentos: documentos.length, eventos: eventos.length },
+  });
+
+  revalidatePath(`/expedientes/${caseId}`);
+}
+
+export async function cotejarExpediente(caseId: string) {
+  const { user, profile } = await getUserProfile();
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+  if (!isUserRole(profile.role) || !canUseAi(profile.role)) {
+    revalidatePath(`/expedientes/${caseId}`);
+    return;
+  }
+
+  const supabase = await createClient();
+
+  const { data: caseRecord } = await supabase
+    .from('cases')
+    .select('id, title, case_type')
+    .eq('id', caseId)
+    .eq('organization_id', profile.organization_id)
+    .maybeSingle();
+  if (!caseRecord) {
+    revalidatePath(`/expedientes/${caseId}`);
+    return;
+  }
+
+  const { data: docsData } = await supabase
+    .from('documents')
+    .select('id, file_name, document_type')
+    .eq('case_id', caseId)
+    .eq('organization_id', profile.organization_id);
+  const docs = docsData ?? [];
+
+  const { data: outputsData } = await supabase
+    .from('ai_outputs')
+    .select('document_id, result_json, created_at')
+    .eq('case_id', caseId)
+    .eq('organization_id', profile.organization_id)
+    .eq('output_type', 'document_analysis')
+    .order('created_at', { ascending: false });
+
+  const latestByDoc = new Map<string, any>();
+  for (const o of outputsData ?? []) {
+    if (o.document_id && !latestByDoc.has(o.document_id)) latestByDoc.set(o.document_id, o.result_json);
+  }
+
+  const documentos = docs.map((d) => {
+    const r = latestByDoc.get(d.id) || {};
+    return {
+      nombre: d.file_name,
+      tipo: String(r.tipo_documental_detectado || d.document_type || 'Documento'),
+      resumen: String(r.resumen || 'Sin análisis de IA todavía.'),
+      alertas: Array.isArray(r.alertas) ? r.alertas.map(String) : [],
+      datos: Array.isArray(r.datos_clave)
+        ? r.datos_clave.map(String)
+        : Array.isArray(r.datos_relevantes)
+          ? r.datos_relevantes.map(String)
+          : [],
+    };
+  });
+
+  const result = await cotejarDocumentosConIA({
+    titulo: caseRecord.title || 'Legajo',
+    tipo: caseRecord.case_type || '',
+    documentos,
+  });
+
+  if (!result.ok) {
+    revalidatePath(`/expedientes/${caseId}`);
+    return;
+  }
+
+  await supabase.from('ai_outputs').insert({
+    organization_id: profile.organization_id,
+    case_id: caseId,
+    document_id: null,
+    output_type: 'case_cotejo',
+    content: result.cotejo.veredicto,
+    model_name: result.model,
+    result_json: result.cotejo,
+    created_by: user.id,
+  });
+
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: user.id,
+    action: 'case_cotejo_generated',
+    resourceType: 'case',
+    resourceId: caseId,
+    metadata: { documentos: documentos.length },
   });
 
   revalidatePath(`/expedientes/${caseId}`);

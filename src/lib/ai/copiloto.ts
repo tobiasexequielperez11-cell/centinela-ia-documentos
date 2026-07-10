@@ -87,3 +87,94 @@ export async function generarResumenConIA(input: {
     };
   } catch (e) { console.error('Copiloto parse error:', e); return { ok: false, motivo: 'error' }; }
 }
+
+export type CotejoNotarial = {
+  veredicto: string;
+  coincidencias: string[];
+  discrepancias: string[];
+  faltantes: string[];
+  alertas_vigencia: string[];
+};
+
+export async function cotejarDocumentosConIA(input: {
+  titulo: string;
+  tipo: string;
+  documentos: DocInput[];
+}): Promise<
+  | { ok: false; motivo: 'sin_api_key' | 'sin_datos' | 'error' }
+  | { ok: true; cotejo: CotejoNotarial; model: string }
+> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return { ok: false, motivo: 'sin_api_key' };
+  if (input.documentos.length < 2) return { ok: false, motivo: 'sin_datos' };
+
+  const modelo = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+
+  const docsTexto = input.documentos
+    .map(
+      (d, i) =>
+        `Documento ${i + 1}: ${d.nombre} (${d.tipo})\nResumen: ${d.resumen}\nDatos clave: ${d.datos.join('; ') || '-'}\nAlertas: ${d.alertas.join('; ') || '-'}`
+    )
+    .join('\n\n');
+
+  const prompt = [
+    'Sos un escribano argentino experto en estudio de títulos y control de documentación registral. Vas a COTEJAR (cruzar) los documentos ya analizados de un mismo legajo para verificar si son coherentes entre sí antes de otorgar un acto.',
+    'Compará especialmente: identidad y datos de las partes/comparecientes (nombres, DNI/CUIT), datos del inmueble (nomenclatura catastral, matrícula, superficie, ubicación), montos y precios, y vigencia de certificados (dominio, inhibiciones, libre deuda).',
+    'Respondé SOLO un objeto JSON válido (sin texto adicional) con esta forma exacta:',
+    '{',
+    '  "veredicto": "1-2 oraciones con el estado general del cotejo (coherente / con observaciones / con discrepancias serias)",',
+    '  "coincidencias": ["datos que coinciden correctamente entre documentos"],',
+    '  "discrepancias": ["diferencias o contradicciones entre documentos, indicando qué documento y qué dato"],',
+    '  "faltantes": ["documentos o datos que faltarían para completar el acto"],',
+    '  "alertas_vigencia": ["certificados vencidos o próximos a vencer, con la fecha si surge"]',
+    '}',
+    'Reglas: NO inventes datos. Si algo no surge de la información aportada, devolvé un array vacío. Basate SOLO en lo aportado. Respondé en español rioplatense.',
+    '',
+    `LEGAJO: ${input.titulo}`,
+    `Tipo de acto: ${input.tipo || '-'}`,
+    '',
+    'DOCUMENTOS ANALIZADOS A COTEJAR:',
+    docsTexto || '(sin documentos analizados)',
+  ].join('\n');
+
+  try {
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.2, responseMimeType: 'application/json' },
+        }),
+      }
+    );
+    if (!resp.ok) {
+      console.error('Cotejo Gemini error:', resp.status, await resp.text());
+      return { ok: false, motivo: 'error' };
+    }
+    const data = await resp.json();
+    const raw: string =
+      data?.candidates?.[0]?.content?.parts
+        ?.map((p: { text?: string }) => p.text ?? '')
+        .join('') ?? '';
+    if (!raw.trim()) return { ok: false, motivo: 'error' };
+    const parsed = JSON.parse(raw);
+    const arr = (v: unknown): string[] => (Array.isArray(v) ? v.map((x) => String(x)) : []);
+    return {
+      ok: true,
+      model: `cotejo-${modelo}`,
+      cotejo: {
+        veredicto: String(parsed.veredicto ?? ''),
+        coincidencias: arr(parsed.coincidencias),
+        discrepancias: arr(parsed.discrepancias),
+        faltantes: arr(parsed.faltantes),
+        alertas_vigencia: arr(parsed.alertas_vigencia),
+      },
+    };
+  } catch (e) {
+    console.error('Cotejo parse error:', e);
+    return { ok: false, motivo: 'error' };
+  }
+}
+

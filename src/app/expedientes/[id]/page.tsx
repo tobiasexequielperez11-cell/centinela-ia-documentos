@@ -32,6 +32,7 @@ import {
 } from '../actions';
 import { canUseAi } from '@/lib/permissions/roles';
 import { CopilotoExpediente } from './CopilotoExpediente';
+import { CotejoExpediente } from './CotejoExpediente';
 import { CronologiaExpediente } from './CronologiaExpediente';
 import { RadarPlazos } from './RadarPlazos';
 import { Tabs } from '@/components/ui/Tabs';
@@ -255,6 +256,16 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
     .limit(1)
     .maybeSingle();
 
+  const { data: cotejoData } = await supabase
+    .from('ai_outputs')
+    .select('result_json, created_at')
+    .eq('case_id', caseRecord.id)
+    .eq('organization_id', profile.organization_id)
+    .eq('output_type', 'case_cotejo')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
   const { data: analisisData } = await supabase
     .from('ai_outputs')
     .select('document_id, result_json, created_at')
@@ -379,6 +390,15 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                   puedeUsarIA={puedeUsarIA}
                   terms={terms}
                 />
+                {industry === 'escribania' && (
+                  <CotejoExpediente
+                    caseId={caseRecord.id}
+                    cotejo={(cotejoData?.result_json as any) ?? null}
+                    generadoEl={cotejoData?.created_at ?? null}
+                    documentosAnalizados={documentosAnalizados}
+                    puedeUsarIA={puedeUsarIA}
+                  />
+                )}
                 <RadarPlazos
                   items={cronologia}
                   caseId={caseRecord.id}
