@@ -4,14 +4,14 @@ import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createAuditLog } from '@/lib/audit/createAuditLog';
-import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
+import { getDocumentTypeLabel, normalizeIndustryType } from '@/lib/industries/documentTypes';
 import { formatFileSize } from '@/lib/format/fileSize';
 import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles } from '@/lib/documents/expiry';
 import { esPlazoAccionable } from '@/lib/plazos/plazos';
 
 import { PlazosDetectados } from './PlazosDetectados';
 import { FileSignature } from 'lucide-react';
-import { sugerirModeloPorTipo } from '@/lib/legal/modelos';
+import { sugerirModeloPorTipo, sugerirModeloNotarialPorTipo } from '@/lib/legal/modelos';
 import { Badge } from '@/components/ui/Badge';
 import { AnalyzeDetailButtonClient } from './AnalyzeDetailButtonClient';
 import { MotionCard } from '@/components/ui/MotionCard';
@@ -363,6 +363,13 @@ export default async function DocumentDetailPage({
   if (!data) notFound();
 
   const document = data as DocumentRecord;
+
+  const { data: orgRow } = await supabase
+    .from('organizations')
+    .select('industry_type')
+    .eq('id', profile.organization_id)
+    .maybeSingle();
+  const industria = normalizeIndustryType(orgRow?.industry_type);
 
   const { data: signedUrlData } = await supabase.storage
     .from('documents')
@@ -751,9 +758,10 @@ Dictamen IA documental
                 })()}
 
                 {(() => {
-                  const modeloSugerido = sugerirModeloPorTipo(
-                    aiResult?.tipo_documental_detectado
-                  );
+                  const modeloSugerido =
+                    industria === 'escribania'
+                      ? sugerirModeloNotarialPorTipo(aiResult?.tipo_documental_detectado)
+                      : sugerirModeloPorTipo(aiResult?.tipo_documental_detectado);
                   if (!modeloSugerido) return null;
                   return (
                     <div className="mt-4 rounded-2xl border border-violet-500/20 bg-violet-900/20 p-4">

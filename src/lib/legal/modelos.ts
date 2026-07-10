@@ -2059,3 +2059,32 @@ export function sugerirModeloPorTipo(
 
   return null;
 }
+
+export function sugerirModeloNotarialPorTipo(tipo?: string): ModeloEscrito | null {
+  const t = (tipo ?? '').toLowerCase();
+  if (!t) return null;
+
+  let id: string | null = null;
+
+  if (
+    t.includes('compraventa') ||
+    t.includes('escritura') ||
+    t.includes('dominio') ||
+    t.includes('titulo') ||
+    t.includes('título') ||
+    t.includes('inmueble')
+  ) {
+    id = 'notarial-compraventa-inmueble';
+  } else if (t.includes('autorizaci') || t.includes('viaje')) {
+    id = 'notarial-autorizacion-viaje-menor';
+  } else if (t.includes('poder')) {
+    id = 'notarial-poder-general-amplio';
+  } else if (t.includes('certificaci') || t.includes('firma')) {
+    id = 'notarial-certificacion-firmas';
+  } else if (t.includes('acta')) {
+    id = 'notarial-acta-constatacion';
+  }
+
+  if (!id) return null;
+  return MODELOS.find((m) => m.id === id) ?? null;
+}
