@@ -111,7 +111,7 @@ const darkOptionStyle = { backgroundColor: '#0C2340', color: '#FFFFFF' };
 
 function modeloSugeridoPorTipoLegajo(caseType?: string | null): string | null {
 	const t = (caseType ?? '').toLowerCase();
-	if (t.includes('compraventa') || t.includes('escritura')) return 'notarial-compraventa-inmueble';
+	if (t.includes('compraventa') || t.includes('escritura') || t.includes('real_estate') || t.includes('purchase')) return 'notarial-compraventa-inmueble';
 	if (t.includes('poder')) return 'notarial-poder-general-amplio';
 	if (t.includes('certificaci')) return 'notarial-certificacion-firmas';
 	if (t.includes('acta')) return 'notarial-acta-constatacion';
@@ -173,9 +173,16 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
     .maybeSingle();
 
   const industry = normalizeIndustryType(organization?.industry_type);
+  const textoTipoLegajo = [
+    caseRecord.case_type,
+    getCaseTypeLabel(caseRecord.case_type),
+    caseRecord.title,
+  ]
+    .filter(Boolean)
+    .join(' ');
   const modeloSugerido =
     industry === 'escribania'
-      ? modeloSugeridoPorTipoLegajo(caseRecord.case_type)
+      ? modeloSugeridoPorTipoLegajo(textoTipoLegajo)
       : null;
   const terms = getIndustryTerms(industry);
   const caseFields = getCaseFields(industry);
