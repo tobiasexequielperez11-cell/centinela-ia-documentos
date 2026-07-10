@@ -109,6 +109,16 @@ function getEventTypeBadgeColor(type: string): "warning" | "success" | "accent" 
 
 const darkOptionStyle = { backgroundColor: '#0C2340', color: '#FFFFFF' };
 
+function modeloSugeridoPorTipoLegajo(caseType?: string | null): string | null {
+	const t = (caseType ?? '').toLowerCase();
+	if (t.includes('compraventa') || t.includes('escritura')) return 'notarial-compraventa-inmueble';
+	if (t.includes('poder')) return 'notarial-poder-general-amplio';
+	if (t.includes('certificaci')) return 'notarial-certificacion-firmas';
+	if (t.includes('acta')) return 'notarial-acta-constatacion';
+	if (t.includes('autorizaci') || t.includes('viaje')) return 'notarial-autorizacion-viaje-menor';
+	return null;
+}
+
 function displayText(value?: string | null, fallback = 'Sin definir') {
   const cleanValue = value?.trim();
 
@@ -163,6 +173,10 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
     .maybeSingle();
 
   const industry = normalizeIndustryType(organization?.industry_type);
+  const modeloSugerido =
+    industry === 'escribania'
+      ? modeloSugeridoPorTipoLegajo(caseRecord.case_type)
+      : null;
   const terms = getIndustryTerms(industry);
   const caseFields = getCaseFields(industry);
   const caseStatuses = getCaseStatuses(industry);
@@ -364,6 +378,26 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                   titulo={terms.radarTitulo}
                   subtitulo={terms.radarSubtitulo}
                 />
+                {industry === 'escribania' && (
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <div>
+                        <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
+                          ✒️ Redactar documento notarial
+                        </h3>
+                        <p className="mt-1 text-sm text-slate-400">
+                          Abrí el modelo sugerido para este legajo y completá los datos, o elegí otro de la biblioteca.
+                        </p>
+                      </div>
+                      <Link
+                        href={modeloSugerido ? `/modelos?modelo=${modeloSugerido}` : '/modelos'}
+                        className="shrink-0 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+                      >
+                        {modeloSugerido ? 'Redactar con el modelo sugerido' : 'Ir a Modelos'}
+                      </Link>
+                    </div>
+                  </div>
+                )}
                 <MotionCard index={0}>
           <h3 className="font-display text-lg font-semibold text-white">
             {terms.datosTitulo}
