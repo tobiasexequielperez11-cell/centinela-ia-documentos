@@ -32,8 +32,11 @@ type Nivel = {
   border: string;
 };
 
+// No mostrar vencimientos de hace más de estos días (evita fechas viejísimas de antecedentes, etc.).
+const PISO_VENCIDO_DIAS = 90;
+
 const NIVELES: Nivel[] = [
-  { id: 'vencido', label: 'Vencido', test: (n) => n < 0, dot: 'bg-rose-500', chip: 'bg-rose-500/20 text-rose-300', icon: '🔴', border: 'border-l-rose-500' },
+  { id: 'vencido', label: 'Vencido', test: (n) => n < 0 && n >= -PISO_VENCIDO_DIAS, dot: 'bg-rose-500', chip: 'bg-rose-500/20 text-rose-300', icon: '🔴', border: 'border-l-rose-500' },
   { id: 'urgente', label: '≤ 7 días', test: (n) => n >= 0 && n <= 7, dot: 'bg-orange-500', chip: 'bg-orange-500/20 text-orange-300', icon: '🟠', border: 'border-l-orange-500' },
   { id: 'proximo', label: '≤ 15 días', test: (n) => n > 7 && n <= 15, dot: 'bg-amber-400', chip: 'bg-amber-500/20 text-amber-300', icon: '🟡', border: 'border-l-amber-400' },
   { id: 'agenda', label: '≤ 30 días', test: (n) => n > 15 && n <= 30, dot: 'bg-emerald-500', chip: 'bg-emerald-500/20 text-emerald-300', icon: '🟢', border: 'border-l-emerald-500' },
@@ -45,7 +48,17 @@ function nivelDe(n: number): Nivel | null {
 
 type PlazoRadar = { item: ItemCronologia; dias: number; nivel: Nivel };
 
-export function RadarPlazos({ items, caseId }: { items: ItemCronologia[]; caseId: string }) {
+export function RadarPlazos({
+  items,
+  caseId,
+  titulo = 'Radar de plazos',
+  subtitulo = 'Plazos vencidos y próximos (hasta 30 días), ordenados por urgencia.',
+}: {
+  items: ItemCronologia[];
+  caseId: string;
+  titulo?: string;
+  subtitulo?: string;
+}) {
   const [estados, setEstados] = useState<Record<string, 'idle' | 'loading' | 'ok' | 'error'>>({});
 
   const plazos: PlazoRadar[] = items
@@ -72,7 +85,7 @@ export function RadarPlazos({ items, caseId }: { items: ItemCronologia[]; caseId
   if (plazos.length === 0) {
     return (
       <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 shadow-sm">
-        <h2 className="text-base font-semibold text-white">🚦 Radar de plazos</h2>
+        <h2 className="text-base font-semibold text-white">🚦 {titulo}</h2>
         <p className="mt-2 text-sm text-slate-300">
           No hay plazos vencidos ni próximos (30 días). Se alimenta de las actuaciones futuras y de las fechas detectadas por la IA en los documentos.
         </p>
@@ -87,7 +100,7 @@ export function RadarPlazos({ items, caseId }: { items: ItemCronologia[]; caseId
   return (
     <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 shadow-sm">
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="text-base font-semibold text-white">🚦 Radar de plazos</h2>
+        <h2 className="text-base font-semibold text-white">🚦 {titulo}</h2>
         {conteo.map((c) => (
           <span key={c.nivel.id} className={`rounded-full px-2 py-0.5 text-xs font-medium ${c.nivel.chip}`}>
             {c.nivel.icon} {c.n} {c.nivel.label}
@@ -95,7 +108,7 @@ export function RadarPlazos({ items, caseId }: { items: ItemCronologia[]; caseId
         ))}
       </div>
       <p className="mt-1 text-sm text-slate-300">
-        Plazos vencidos y próximos (hasta 30 días), ordenados por urgencia.
+        {subtitulo}
       </p>
 
       <ul className="mt-4 space-y-2">

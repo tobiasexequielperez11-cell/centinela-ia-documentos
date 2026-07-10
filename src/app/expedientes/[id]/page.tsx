@@ -358,7 +358,12 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                   puedeUsarIA={puedeUsarIA}
                   terms={terms}
                 />
-                <RadarPlazos items={cronologia} caseId={caseRecord.id} />
+                <RadarPlazos
+                  items={cronologia}
+                  caseId={caseRecord.id}
+                  titulo={terms.radarTitulo}
+                  subtitulo={terms.radarSubtitulo}
+                />
                 <MotionCard index={0}>
           <h3 className="font-display text-lg font-semibold text-white">
             {terms.datosTitulo}

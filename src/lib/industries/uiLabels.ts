@@ -61,6 +61,9 @@ export type IndustryTerms = {
   resumenVacio: string;
   // --- Dashboard ---
   dashboardSubtitulo: string;
+  // --- Radar de plazos / vigencias ---
+  radarTitulo: string;
+  radarSubtitulo: string;
 };
 
 const defaultTerms: IndustryTerms = {
@@ -86,6 +89,8 @@ const defaultTerms: IndustryTerms = {
   copilotoSubtitulo: 'Panorama ejecutivo del caso generado por IA a partir de los documentos analizados y las actuaciones.',
   resumenVacio: 'Todavía no hay documentos analizados en este expediente. Analizá al menos un documento con IA para poder generar el resumen.',
   dashboardSubtitulo: 'Tu panel operativo de expedientes, documentos e IA.',
+  radarTitulo: 'Radar de plazos',
+  radarSubtitulo: 'Plazos vencidos y próximos (hasta 30 días), ordenados por urgencia.',
 };
 
 const termsByIndustry: Partial<Record<IndustryType, IndustryTerms>> = {
@@ -112,6 +117,8 @@ const termsByIndustry: Partial<Record<IndustryType, IndustryTerms>> = {
     copilotoSubtitulo: 'Panorama ejecutivo del legajo generado por IA a partir de los documentos analizados y las actuaciones.',
     resumenVacio: 'Todavía no hay documentos analizados en este legajo. Analizá al menos un documento con IA para poder generar el resumen.',
     dashboardSubtitulo: 'Tu panel operativo de legajos, documentos e IA.',
+    radarTitulo: 'Radar de vigencias',
+    radarSubtitulo: 'Vigencias de certificados y plazos próximos (hasta 30 días), ordenados por urgencia.',
   },
 };
 
