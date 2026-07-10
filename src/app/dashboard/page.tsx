@@ -18,6 +18,7 @@ import {
   getDashboardCards,
   type DashboardCardKey,
 } from '@/lib/industries/caseConfig';
+import { getIndustryTerms, type IndustryTerms } from '@/lib/industries/uiLabels';
 import { analyzeDocument } from '../documentos/actions';
 import { canViewAudit, isUserRole } from '@/lib/permissions/roles';
 import { getDocumentExpiryStatus } from '@/lib/documents/expiry';
@@ -81,12 +82,13 @@ function buildMetricCard(
     sensitiveDocuments: number;
     expiringDocuments: number;
     proximosPlazos?: number;
-  }
+  },
+  terms: IndustryTerms
 ) {
   switch (card) {
     case 'expedientes_activos':
       return {
-        label: 'Expedientes activos',
+        label: `${terms.expedientePlural} activos`,
         value: String(values.activeCases),
         helper: 'Estado Activo',
       };
@@ -182,6 +184,7 @@ export default async function DashboardPage() {
   ]);
 
   const industry = normalizeIndustryType(organizationResult.data?.industry_type);
+  const terms = getIndustryTerms(industry);
   const dashboardCards = getDashboardCards(industry);
   const cases = (casesResult.data ?? []) as any[];
   const documents = (documentsResult.data ?? []) as DashboardDocument[];
@@ -244,7 +247,7 @@ export default async function DashboardPage() {
         sensitiveDocuments: sensitiveDocuments.length,
         expiringDocuments,
         proximosPlazos,
-      })
+      }, terms)
     )
     .filter((card): card is NonNullable<typeof card> => Boolean(card));
 
@@ -271,11 +274,11 @@ export default async function DashboardPage() {
           Bienvenido, <span className="text-gradient">{profile.full_name}</span>
         </h1>
         <p className="mt-2 text-sm text-slate-400">
-          Tu panel operativo de expedientes, documentos e IA.
+          {terms.dashboardSubtitulo}
         </p>
 
         <div className="mt-5 flex flex-wrap gap-3">
-          <Link href="/expedientes/nuevo" className="quick-action">＋ Nuevo expediente</Link>
+          <Link href="/expedientes/nuevo" className="quick-action">＋ {terms.nuevoCta}</Link>
           <Link href="/documentos/subir" className="quick-action">⬆ Subir documento</Link>
           <Link href="/buscar" className="quick-action">🔍 Buscar</Link>
         </div>

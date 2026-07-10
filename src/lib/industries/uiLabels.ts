@@ -45,6 +45,8 @@ export type IndustryTerms = {
   copilotoTitulo: string;
   copilotoSubtitulo: string;
   resumenVacio: string;
+  // --- Dashboard ---
+  dashboardSubtitulo: string;
 };
 
 const defaultTerms: IndustryTerms = {
@@ -69,6 +71,7 @@ const defaultTerms: IndustryTerms = {
   copilotoTitulo: 'Copiloto — Resumen del expediente',
   copilotoSubtitulo: 'Panorama ejecutivo del caso generado por IA a partir de los documentos analizados y las actuaciones.',
   resumenVacio: 'Todavía no hay documentos analizados en este expediente. Analizá al menos un documento con IA para poder generar el resumen.',
+  dashboardSubtitulo: 'Tu panel operativo de expedientes, documentos e IA.',
 };
 
 const termsByIndustry: Partial<Record<IndustryType, IndustryTerms>> = {
@@ -94,6 +97,7 @@ const termsByIndustry: Partial<Record<IndustryType, IndustryTerms>> = {
     copilotoTitulo: 'Copiloto — Resumen del legajo',
     copilotoSubtitulo: 'Panorama ejecutivo del legajo generado por IA a partir de los documentos analizados y las actuaciones.',
     resumenVacio: 'Todavía no hay documentos analizados en este legajo. Analizá al menos un documento con IA para poder generar el resumen.',
+    dashboardSubtitulo: 'Tu panel operativo de legajos, documentos e IA.',
   },
 };
 
