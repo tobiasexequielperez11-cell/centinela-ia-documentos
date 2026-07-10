@@ -26,6 +26,7 @@ const navDescriptionOverrides: Partial<Record<IndustryType, Record<string, strin
     '/expedientes': 'Gestión operativa de legajos vinculados.',
     '/buscar': 'Búsqueda avanzada de legajos y documentos.',
     '/calculadoras': 'Sellos, ITI, honorarios y aportes notariales.',
+    '/modelos': 'Escrituras, poderes, actas y autorizaciones notariales.',
   },
 };
 

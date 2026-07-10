@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
+import { normalizeIndustryType } from '@/lib/industries/documentTypes';
 import { ModelosClient, type ExpedienteLite } from './ModelosClient';
 import { canUseAi } from '@/lib/permissions/roles';
 import { RevisarEscrito } from './RevisarEscrito';
@@ -26,6 +27,13 @@ export default async function ModelosPage({
 
   const expedientes = (cases ?? []) as ExpedienteLite[];
 
+  const { data: org } = await supabase
+    .from('organizations')
+    .select('industry_type')
+    .eq('id', profile.organization_id)
+    .maybeSingle();
+  const industria = normalizeIndustryType(org?.industry_type);
+
   const sp = await searchParams;
   const modeloInicialId = typeof sp.modelo === 'string' ? sp.modelo : null;
 
@@ -34,7 +42,7 @@ export default async function ModelosPage({
   return (
     <AppShell>
       <div className="space-y-6">
-        <ModelosClient expedientes={expedientes} modeloInicialId={modeloInicialId} />
+        <ModelosClient expedientes={expedientes} modeloInicialId={modeloInicialId} industria={industria} />
         {puedeIA && <RevisarEscrito />}
       </div>
     </AppShell>

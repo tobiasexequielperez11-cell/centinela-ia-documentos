@@ -65,9 +65,11 @@ function provinciaDeModelo(m: ModeloEscrito): 'Nacional' | 'Corrientes' | 'Bueno
 export function ModelosClient({
   expedientes,
   modeloInicialId = null,
+  industria = 'legal',
 }: {
   expedientes: ExpedienteLite[];
   modeloInicialId?: string | null;
+  industria?: string;
 }) {
   const idInicial =
     modeloInicialId && MODELOS.some((m) => m.id === modeloInicialId)
@@ -96,7 +98,8 @@ export function ModelosClient({
         m.categoria.toLowerCase().includes(filtro);
       const coincideProvincia =
         provincia === 'todas' || provinciaDeModelo(m) === provincia;
-      return coincideTexto && coincideProvincia;
+      const coincideIndustria = (m.industries ?? ['legal']).includes(industria);
+      return coincideTexto && coincideProvincia && coincideIndustria;
     });
     const grupos = new Map<string, ModeloEscrito[]>();
     for (const m of filtrados) {
@@ -209,8 +212,12 @@ export function ModelosClient({
   return (
     <div className="space-y-6">
       <MotionCard index={0} className="p-6">
-        <p className="text-xs font-semibold uppercase tracking-wide text-cyan-400">Herramientas jurídicas</p>
-        <h1 className="mt-1 text-2xl font-semibold text-white">Modelos de escritos</h1>
+        <p className="text-xs font-semibold uppercase tracking-wide text-cyan-400">
+          {industria === 'escribania' ? 'Herramientas notariales' : 'Herramientas jurídicas'}
+        </p>
+        <h1 className="mt-1 text-2xl font-semibold text-white">
+          {industria === 'escribania' ? 'Modelos notariales' : 'Modelos de escritos'}
+        </h1>
         <p className="mt-1 text-sm text-slate-400">Elegí un modelo, completá los datos y copialo o descargalo.</p>
       </MotionCard>
 
@@ -226,26 +233,28 @@ export function ModelosClient({
             />
           </div>
 
-          <div className="mt-3 flex flex-wrap gap-2">
-            {([
-              { id: 'todas', label: 'Todas' },
-              { id: 'Nacional', label: 'Nacional' },
-              { id: 'Corrientes', label: 'Corrientes' },
-              { id: 'Buenos Aires', label: 'Buenos Aires' },
-            ] as { id: ProvinciaFiltro; label: string }[]).map((p) => (
-              <button
-                key={p.id}
-                onClick={() => setProvincia(p.id)}
-                className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
-                  provincia === p.id
-                    ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
-                    : 'border border-white/10 bg-white/[0.02] text-slate-400 hover:bg-white/[0.04]'
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
+          {industria === 'legal' && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {([
+                { id: 'todas', label: 'Todas' },
+                { id: 'Nacional', label: 'Nacional' },
+                { id: 'Corrientes', label: 'Corrientes' },
+                { id: 'Buenos Aires', label: 'Buenos Aires' },
+              ] as { id: ProvinciaFiltro; label: string }[]).map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => setProvincia(p.id)}
+                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                    provincia === p.id
+                      ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                      : 'border border-white/10 bg-white/[0.02] text-slate-400 hover:bg-white/[0.04]'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          )}
 
           {categorias.length === 0 && <p className="text-sm text-slate-500">No encontramos modelos para “{busqueda}”.</p>}
 

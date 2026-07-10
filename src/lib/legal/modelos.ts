@@ -8,6 +8,7 @@ export type ModeloEscrito = {
   categoria: string;
   descripcion: string;
   cuerpo: string;
+  industries?: string[];
 };
 
 export const MODELOS: ModeloEscrito[] = [
@@ -1828,6 +1829,143 @@ Proveer de conformidad, SERÁ JUSTICIA.
 
 {{localidad}}, {{fecha}}.`,
   },
+	// ✒️ MODELOS NOTARIALES (rubro escribanía)
+	{
+		id: 'notarial-compraventa-inmueble',
+		titulo: 'Escritura de compraventa de inmueble',
+		categoria: 'Escrituras',
+		descripcion: 'Minuta base: comparecientes, inmueble, precio, antecedentes y cláusulas.',
+		industries: ['escribania'],
+		cuerpo: `ESCRITURA NÚMERO numero_escritura.
+
+En la Ciudad de ciudad, a fecha, ante mí, escribano, Titular/Adscripto del Registro Notarial N° registro de jurisdiccion, COMPARECEN:
+
+Por una parte, como PARTE VENDEDORA: vendedor, nacionalidad_vendedor, DNI dni_vendedor, CUIT/CUIL cuit_vendedor, estado civil estado_civil_vendedor, con domicilio en domicilio_vendedor.
+
+Y por la otra, como PARTE COMPRADORA: comprador, nacionalidad_comprador, DNI dni_comprador, CUIT/CUIL cuit_comprador, estado civil estado_civil_comprador, con domicilio en domicilio_comprador.
+
+Los comparecientes son personas hábiles y de mi conocimiento (o justifican identidad conforme art. 306 CCyC), y DICEN:
+
+PRIMERO — OBJETO. La PARTE VENDEDORA VENDE a la PARTE COMPRADORA, que ADQUIERE, el inmueble ubicado en ubicacion_inmueble, Nomenclatura Catastral nomenclatura_catastral, Matrícula matricula del Registro de la Propiedad Inmueble de jurisdiccion, con una superficie de superficie, según título que se relaciona.
+
+SEGUNDO — PRECIO. El precio total y convenido es de precio (precio_letras), que la PARTE VENDEDORA declara recibir en este acto de conformidad, sirviendo la presente de eficaz recibo y carta de pago.
+
+TERCERO — ANTECEDENTES DE DOMINIO. Corresponde el dominio a la PARTE VENDEDORA por titulo_antecedente.
+
+CUARTO — LIBRE DE GRAVÁMENES. Se relacionan los certificados de dominio e inhibiciones expedidos por el Registro, de los que surge que el inmueble se encuentra libre de gravámenes, embargos e inhibiciones, y al día en impuestos, tasas y contribuciones, conforme certificados que se agregan.
+
+QUINTO — POSESIÓN. La PARTE VENDEDORA transmite la posesión en este acto, obligándose por evicción y saneamiento conforme a derecho.
+
+LEÍDA que les fue, los comparecientes la ratifican y firman ante mí, doy fe.
+
+vendedor        comprador
+
+Ante mí: escribano`,
+	},
+	{
+		id: 'notarial-poder-general-amplio',
+		titulo: 'Poder general amplio de administración y disposición',
+		categoria: 'Poderes',
+		descripcion: 'Facultades amplias de administración y disposición a favor de un apoderado.',
+		industries: ['escribania'],
+		cuerpo: `ESCRITURA NÚMERO numero_escritura. PODER GENERAL AMPLIO.
+
+En ciudad, a fecha, ante mí, escribano, del Registro Notarial N° registro de jurisdiccion, COMPARECE: poderdante, DNI dni_poderdante, CUIT/CUIL cuit_poderdante, estado civil estado_civil_poderdante, con domicilio en domicilio_poderdante, persona hábil y de mi conocimiento, y DICE:
+
+Que confiere PODER GENERAL AMPLIO DE ADMINISTRACIÓN Y DISPOSICIÓN a favor de apoderado, DNI dni_apoderado, con domicilio en domicilio_apoderado, con las siguientes facultades:
+
+1) Administrar bienes muebles e inmuebles, celebrar y rescindir locaciones y todo acto de administración.
+2) Comprar, vender, permutar, hipotecar, gravar y disponer de bienes muebles e inmuebles, fijando precios, plazos y condiciones.
+3) Operar con entidades bancarias y financieras: abrir y cerrar cuentas, librar y endosar cheques, tomar y otorgar créditos.
+4) Representarlo/a ante organismos nacionales, provinciales y municipales (AFIP, Rentas, Registros, etc.).
+5) Estar en juicio como actor/a o demandado/a, otorgar y revocar poderes judiciales.
+6) Realizar todo otro acto necesario para el mejor desempeño del mandato, aun cuando no esté expresamente previsto.
+
+El presente poder es de carácter caracter_poder y regirá hasta su revocación expresa.
+
+LEÍDA y ratificada, firma ante mí, doy fe.
+
+poderdante
+
+Ante mí: escribano`,
+	},
+	{
+		id: 'notarial-poder-especial',
+		titulo: 'Poder especial',
+		categoria: 'Poderes',
+		descripcion: 'Poder acotado a un acto o gestión determinada.',
+		industries: ['escribania'],
+		cuerpo: `ESCRITURA NÚMERO numero_escritura. PODER ESPECIAL.
+
+En ciudad, a fecha, ante mí, escribano, del Registro Notarial N° registro, COMPARECE: poderdante, DNI dni_poderdante, con domicilio en domicilio_poderdante, persona hábil y de mi conocimiento, y DICE:
+
+Que confiere PODER ESPECIAL a favor de apoderado, DNI dni_apoderado, para que en su nombre realice el siguiente acto: objeto_poder, con las facultades necesarias para: facultades.
+
+El presente poder se limita estrictamente al objeto indicado y caduca una vez cumplido el acto o al vencimiento.
+
+LEÍDA y ratificada, firma ante mí, doy fe.
+
+poderdante
+
+Ante mí: escribano`,
+	},
+	{
+		id: 'notarial-autorizacion-viaje-menor',
+		titulo: 'Autorización de viaje de menor al exterior',
+		categoria: 'Autorizaciones',
+		descripcion: 'Autorización de viaje de niñas, niños o adolescentes a fines migratorios.',
+		industries: ['escribania'],
+		cuerpo: `AUTORIZACIÓN DE VIAJE DE MENOR DE EDAD.
+
+En ciudad, a fecha, ante mí, escribano, del Registro Notarial N° registro, COMPARECE/N: autorizante, DNI dni_autorizante, en su carácter de caracter_autorizante del/de la menor menor, DNI dni_menor, nacido/a el fecha_nacimiento_menor, y DICE/N:
+
+Que AUTORIZA/N a menor a viajar al exterior con destino a destino, entre el fecha_salida y el fecha_regreso, en compañía de acompanante, DNI dni_acompanante (o sin acompañante, según corresponda).
+
+La presente se otorga a fines migratorios conforme la normativa vigente de la Dirección Nacional de Migraciones, comprendiendo la salida y el reingreso al país.
+
+LEÍDA y ratificada, firma/n ante mí, doy fe.
+
+autorizante
+
+Ante mí: escribano`,
+	},
+	{
+		id: 'notarial-acta-constatacion',
+		titulo: 'Acta de constatación notarial',
+		categoria: 'Actas',
+		descripcion: 'Deja constancia fehaciente de hechos percibidos por el escribano.',
+		industries: ['escribania'],
+		cuerpo: `ACTA NÚMERO numero_acta. CONSTATACIÓN.
+
+En ciudad, a fecha, siendo las hora, yo, escribano, del Registro Notarial N° registro, a requerimiento de requirente, DNI dni_requirente, con domicilio en domicilio_requirente, me constituyo en lugar_constatacion a fin de constatar los siguientes hechos:
+
+CONSTATO: hechos_constatados.
+
+Dejo constancia de que lo relacionado es fiel reflejo de lo percibido por mis sentidos en el lugar y momento indicados. observaciones
+
+Con lo que se dio por terminado el acto, firmando el/la requirente ante mí, doy fe.
+
+requirente
+
+Ante mí: escribano`,
+	},
+	{
+		id: 'notarial-certificacion-firmas',
+		titulo: 'Certificación de firmas',
+		categoria: 'Certificaciones',
+		descripcion: 'Nota de certificación notarial de firma e identidad en documento privado.',
+		industries: ['escribania'],
+		cuerpo: `CERTIFICACIÓN DE FIRMAS. Acta N° numero_acta.
+
+En ciudad, a fecha, CERTIFICO que la/s firma/s que obra/n en el documento adjunto, cuyo objeto es objeto_documento, ha/n sido puesta/s en mi presencia por:
+
+firmante, DNI dni_firmante, con domicilio en domicilio_firmante, a quien identifico conforme al art. 306 del Código Civil y Comercial.
+
+Doy fe de la autenticidad de la/s firma/s y de la identidad del/de los firmante/s. No emito juicio sobre el contenido ni la validez del acto instrumentado.
+
+escribano
+Registro Notarial N° registro de jurisdiccion`,
+	},
 ];
 
 // 🔗 Sugiere el modelo de escrito más adecuado según el tipo de documento
