@@ -25,6 +25,7 @@ const navDescriptionOverrides: Partial<Record<IndustryType, Record<string, strin
   escribania: {
     '/expedientes': 'Gestión operativa de legajos vinculados.',
     '/buscar': 'Búsqueda avanzada de legajos y documentos.',
+    '/calculadoras': 'Sellos, ITI, honorarios y aportes notariales.',
   },
 };
 
