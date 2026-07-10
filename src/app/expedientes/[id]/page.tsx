@@ -18,6 +18,7 @@ import { summarizeChecklistStatuses } from '@/lib/checklist/progress';
 import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles, getDaysUntilExpiry } from '@/lib/documents/expiry';
 import { sensitivityLabel } from '@/lib/documents/sensitivity';
 import { formatPlazoDate } from '@/lib/format/date';
+import { esPlazoAccionable } from '@/lib/plazos/plazos';
 import {
   linkChecklistItemDocument,
   toggleChecklistItem,
@@ -279,6 +280,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
     for (const fp of fechas) {
       const f = String(fp?.fecha || '').slice(0, 10);
       if (!/^\d{4}-\d{2}-\d{2}$/.test(f)) continue;
+      if (!esPlazoAccionable(fp)) continue;
       cronologia.push({
         fecha: f,
         titulo: String(fp?.descripcion || 'Fecha detectada'),

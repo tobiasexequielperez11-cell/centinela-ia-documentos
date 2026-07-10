@@ -7,6 +7,7 @@ import { createAuditLog } from '@/lib/audit/createAuditLog';
 import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
 import { formatFileSize } from '@/lib/format/fileSize';
 import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles } from '@/lib/documents/expiry';
+import { esPlazoAccionable } from '@/lib/plazos/plazos';
 
 import { PlazosDetectados } from './PlazosDetectados';
 import { FileSignature } from 'lucide-react';
@@ -733,7 +734,12 @@ Dictamen IA documental
 
                 {(() => {
                   const plazosSeguros = (aiResult.fechas_plazos ?? []).filter(
-                    (f) => f && typeof f.descripcion === 'string' && typeof f.fecha === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(f.fecha)
+                    (f) =>
+                      f &&
+                      typeof f.descripcion === 'string' &&
+                      typeof f.fecha === 'string' &&
+                      /^\d{4}-\d{2}-\d{2}$/.test(f.fecha) &&
+                      esPlazoAccionable(f)
                   );
                   if (!plazosSeguros.length) return null;
                   return (
