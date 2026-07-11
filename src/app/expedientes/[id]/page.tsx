@@ -266,6 +266,22 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
     .limit(1)
     .maybeSingle();
 
+  const accionesSugeridas: string[] = [];
+  const pushAccion = (s: unknown) => {
+    const t = String(s ?? '').trim();
+    if (t && !accionesSugeridas.some((a) => a.toLowerCase() === t.toLowerCase())) {
+      accionesSugeridas.push(t);
+    }
+  };
+  const resumenJson = (resumenData?.result_json as any) ?? null;
+  if (Array.isArray(resumenJson?.proximas_acciones)) {
+    resumenJson.proximas_acciones.forEach(pushAccion);
+  }
+  const cotejoJson = (cotejoData?.result_json as any) ?? null;
+  if (Array.isArray(cotejoJson?.faltantes)) {
+    cotejoJson.faltantes.forEach(pushAccion);
+  }
+
   const { data: analisisData } = await supabase
     .from('ai_outputs')
     .select('document_id, result_json, created_at')
@@ -398,6 +414,36 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                     documentosAnalizados={documentosAnalizados}
                     puedeUsarIA={puedeUsarIA}
                   />
+                )}
+                {industry === 'escribania' && accionesSugeridas.length > 0 && (
+                  <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
+                    <h2 className="text-lg font-semibold text-white">🧭 Copiloto de acciones notariales</h2>
+                    <p className="mt-1 text-sm text-slate-400">
+                      Pasos sugeridos por la IA a partir del resumen y el cotejo. Sumalos al checklist con un toque.
+                    </p>
+                    <ul className="mt-4 space-y-2">
+                      {accionesSugeridas.slice(0, 12).map((accion, i) => (
+                        <li
+                          key={i}
+                          className="flex items-start justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3"
+                        >
+                          <span className="text-sm text-slate-200">{accion}</span>
+                          {puedeUsarIA && (
+                            <form action={addChecklistItem} className="shrink-0">
+                              <input type="hidden" name="case_id" value={caseRecord.id} />
+                              <input type="hidden" name="title" value={accion} />
+                              <button
+                                type="submit"
+                                className="rounded-lg border border-cyan-500/20 bg-cyan-500/10 px-3 py-1.5 text-xs font-semibold text-cyan-300 transition hover:bg-cyan-500/20"
+                              >
+                                ➕ Al checklist
+                              </button>
+                            </form>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
                 <RadarPlazos
                   items={cronologia}
