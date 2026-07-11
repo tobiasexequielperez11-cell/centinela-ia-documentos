@@ -33,6 +33,7 @@ import {
 import { canUseAi } from '@/lib/permissions/roles';
 import { CopilotoExpediente } from './CopilotoExpediente';
 import { CotejoExpediente } from './CotejoExpediente';
+import { RedactarEscrituraButton } from './RedactarEscrituraButton';
 import { CronologiaExpediente } from './CronologiaExpediente';
 import { RadarPlazos } from './RadarPlazos';
 import { Tabs } from '@/components/ui/Tabs';
@@ -282,6 +283,20 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
     cotejoJson.faltantes.forEach(pushAccion);
   }
 
+  const { data: escrituraData } = await supabase
+    .from('ai_outputs')
+    .select('content, result_json, created_at')
+    .eq('case_id', caseRecord.id)
+    .eq('organization_id', profile.organization_id)
+    .eq('output_type', 'case_escritura')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const borradorEscritura = (escrituraData?.result_json ?? null) as
+    | { titulo: string; cuerpo: string; datos_faltantes: string[]; advertencias: string[] }
+    | null;
+
   const { data: analisisData } = await supabase
     .from('ai_outputs')
     .select('document_id, result_json, created_at')
@@ -444,6 +459,39 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                       ))}
                     </ul>
                   </div>
+                )}
+                {industry === 'escribania' && (
+                  <section className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <h3 className="text-sm font-semibold text-white">✍️ Borrador de escritura (IA)</h3>
+                      <RedactarEscrituraButton caseId={caseRecord.id} yaGenerada={!!borradorEscritura} />
+                    </div>
+                    {borradorEscritura ? (
+                      <div className="mt-4 space-y-3">
+                        <p className="text-xs uppercase tracking-wide text-white/40">{borradorEscritura.titulo}</p>
+                        <pre className="whitespace-pre-wrap rounded-lg bg-black/30 p-4 text-sm leading-relaxed text-white/80">{borradorEscritura.cuerpo}</pre>
+                        {borradorEscritura.datos_faltantes.length > 0 && (
+                          <div>
+                            <p className="text-xs font-medium text-amber-300">Datos a completar</p>
+                            <ul className="mt-1 list-disc pl-5 text-sm text-white/70">
+                              {borradorEscritura.datos_faltantes.map((d, i) => <li key={i}>{d}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                        {borradorEscritura.advertencias.length > 0 && (
+                          <div>
+                            <p className="text-xs font-medium text-red-300">Advertencias</p>
+                            <ul className="mt-1 list-disc pl-5 text-sm text-white/70">
+                              {borradorEscritura.advertencias.map((a, i) => <li key={i}>{a}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                        <p className="text-xs text-white/40">Borrador generado por IA. Revisalo y completalo antes de otorgar.</p>
+                      </div>
+                    ) : (
+                      <p className="mt-3 text-sm text-white/50">Generá un borrador de escritura a partir de los datos del legajo y los documentos analizados.</p>
+                    )}
+                  </section>
                 )}
                 <RadarPlazos
                   items={cronologia}
