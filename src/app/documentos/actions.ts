@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createAuditLog } from '@/lib/audit/createAuditLog';
 import { indexarDocumento } from '@/lib/ai/indexarDocumento';
+import { analizarPoderConIA } from '@/lib/ai/poderes';
 import { normalizeIndustryType, type IndustryType } from '@/lib/industries/documentTypes';
 import { getAnalysisSystemPrompt } from '@/lib/industries/aiConfig';
 import {
@@ -881,4 +882,72 @@ await createAuditLog({
   revalidatePath(`/documentos/${documentId}`);
 
   redirect(`/documentos/${documentId}?analysis=beta&idx=${encodeURIComponent(idxInfo)}`);
+}
+
+export async function analizarPoderEstatuto(formData: FormData) {
+  const { user, profile } = await getUserProfile();
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+  if (!isUserRole(profile.role) || !canUseAi(profile.role)) {
+    denyDocumentAction('analizar');
+  }
+
+  const documentId = String(formData.get('document_id') || '');
+  if (!documentId) redirect('/documentos?error=missing_document');
+
+  const supabase = await createClient();
+
+  const { data: documentRecord, error: documentError } = await supabase
+    .from('documents')
+    .select('*')
+    .eq('id', documentId)
+    .eq('organization_id', profile.organization_id)
+    .single();
+
+  if (documentError || !documentRecord) {
+    redirect('/documentos?error=document_not_found');
+  }
+
+  const AI_INLINE_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
+  const MAX_INLINE_SIZE = 15 * 1024 * 1024;
+
+  if (!AI_INLINE_MIME_TYPES.includes(documentRecord.file_mime_type)) {
+    redirect(`/documentos/${documentId}?error=formato_no_soportado`);
+  }
+
+  const { data: fileBlob, error: downloadError } = await supabase.storage
+    .from('documents')
+    .download(documentRecord.file_path);
+
+  if (downloadError || !fileBlob) {
+    console.error('Download error (poder):', downloadError);
+    redirect(`/documentos/${documentId}?error=download_failed`);
+  }
+
+  const arrayBuffer = await fileBlob.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  if (buffer.length > MAX_INLINE_SIZE) {
+    redirect(`/documentos/${documentId}?error=analisis_no_disponible`);
+  }
+
+  const base64 = buffer.toString('base64');
+  const result = await analizarPoderConIA(base64, documentRecord.file_mime_type);
+
+  if (!result.ok) {
+    redirect(`/documentos/${documentId}?error=analisis_no_disponible`);
+  }
+
+  await supabase.from('ai_outputs').insert({
+    organization_id: profile.organization_id,
+    document_id: documentRecord.id,
+    case_id: documentRecord.case_id,
+    output_type: 'document_poder',
+    content: result.analisis.tipo_instrumento || 'Análisis de poder/estatuto',
+    model_name: result.model,
+    result_json: result.analisis,
+    created_by: user.id,
+  });
+
+  redirect(`/documentos/${documentId}`);
 }

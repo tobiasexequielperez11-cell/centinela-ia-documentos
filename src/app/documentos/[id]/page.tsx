@@ -14,6 +14,7 @@ import { FileSignature } from 'lucide-react';
 import { sugerirModeloPorTipo, sugerirModeloNotarialPorTipo } from '@/lib/legal/modelos';
 import { Badge } from '@/components/ui/Badge';
 import { AnalyzeDetailButtonClient } from './AnalyzeDetailButtonClient';
+import { AnalizarPoderButton } from './AnalizarPoderButton';
 import { MotionCard } from '@/components/ui/MotionCard';
 import { MotionButton } from '@/components/ui/MotionButton';
 import type { DocumentRecord } from '@/types/document';
@@ -402,6 +403,16 @@ export default async function DocumentDetailPage({
   const previousAiOutputs = aiHistory.slice(1);
   const aiResult = latestAiOutput?.result_json ?? null;
 
+  const { data: poderData } = await supabase
+    .from('ai_outputs')
+    .select('result_json, created_at')
+    .eq('document_id', document.id)
+    .eq('organization_id', profile.organization_id)
+    .eq('output_type', 'document_poder')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
   const risk = getRiskAssessment(document, aiResult);
   const checklist = buildSuggestedChecklist(document, aiResult);
   const missingDocuments = buildMissingDocuments(document, aiResult);
@@ -756,6 +767,79 @@ Dictamen IA documental
                     />
                   );
                 })()}
+
+                {industria === 'escribania' && (
+                  <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 mb-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <h2 className="text-lg font-semibold text-white">⚖️ Análisis de poder / estatuto</h2>
+                        <p className="mt-1 text-sm text-slate-400">
+                          Revisión notarial del instrumento: facultades, vigencia y representación.
+                        </p>
+                      </div>
+                      <AnalizarPoderButton documentId={document.id} yaAnalizado={!!poderData} />
+                    </div>
+
+                    {poderData?.result_json ? (
+                      (() => {
+                        const p = poderData.result_json as any;
+                        const renderBloque = (titulo: string, items: unknown) =>
+                          Array.isArray(items) && items.length > 0 ? (
+                            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                              <p className="text-sm font-semibold text-white">{titulo}</p>
+                              <ul className="mt-2 space-y-1">
+                                {items.map((it: unknown, i: number) => (
+                                  <li key={i} className="text-sm text-slate-300">• {String(it)}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          ) : null;
+                        return (
+                          <div className="mt-4 space-y-3">
+                            <div className="flex flex-wrap gap-2 text-sm text-slate-200">
+                              {p.tipo_instrumento && (
+                                <span className="rounded-lg border border-violet-500/25 bg-violet-500/10 px-3 py-1 text-violet-200">
+                                  {p.tipo_instrumento}
+                                </span>
+                              )}
+                              {p.otorgante && (
+                                <span className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1">
+                                  Otorgante: {p.otorgante}
+                                </span>
+                              )}
+                            </div>
+                            {renderBloque('👤 Apoderado / Representante', p.apoderado_representante)}
+                            {renderBloque('✅ Facultades', p.facultades)}
+                            {renderBloque('🚫 Límites / Exclusiones', p.limites_exclusiones)}
+                            {p.vigencia && (
+                              <div className="rounded-2xl border border-amber-400/25 bg-amber-400/[0.06] p-4">
+                                <p className="text-sm font-semibold text-white">⏳ Vigencia</p>
+                                <p className="mt-1 text-sm text-slate-300">{p.vigencia}</p>
+                              </div>
+                            )}
+                            {p.representacion && (
+                              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                                <p className="text-sm font-semibold text-white">🏛️ Representación</p>
+                                <p className="mt-1 text-sm text-slate-300">{p.representacion}</p>
+                              </div>
+                            )}
+                            {renderBloque('⚠️ Alertas', p.alertas)}
+                            {renderBloque('📌 Apto para', p.apto_para)}
+                            {poderData.created_at && (
+                              <p className="text-xs text-slate-500">
+                                Analizado el {new Date(poderData.created_at).toLocaleString('es-AR')} · Borrador orientativo, revisá antes de otorgar.
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })()
+                    ) : (
+                      <p className="mt-4 text-sm text-slate-400">
+                        Si este documento es un poder o un estatuto, tocá “Analizar poder/estatuto con IA” para extraer facultades, vigencia y representación.
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 {(() => {
                   const modeloSugerido =
