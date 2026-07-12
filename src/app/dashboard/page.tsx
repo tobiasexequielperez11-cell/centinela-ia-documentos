@@ -8,8 +8,6 @@ import { MetricCard } from '@/components/dashboard/MetricCard';
 import { Reveal } from '@/components/ui/Reveal';
 import { MotionCard } from '@/components/ui/MotionCard';
 import { MotionButton } from '@/components/ui/MotionButton';
-import { ModulosGrid } from '@/components/dashboard/ModulosGrid';
-import { navigation } from '@/config/navigation';
 import {
   getDocumentTypeLabel,
   normalizeIndustryType,
@@ -298,10 +296,6 @@ export default async function DashboardPage() {
         {metricCards.map((metric, i) => (
           <MetricCard key={metric.label} index={i} label={metric.label} value={metric.value} helper={metric.helper} href={metric.href} />
         ))}
-      </div>
-
-      <div className="mt-8">
-        <ModulosGrid role={role ?? 'client'} industry={industry} />
       </div>
 
       <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_0.8fr]">
