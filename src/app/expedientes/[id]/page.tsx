@@ -35,6 +35,7 @@ import { CopilotoExpediente } from './CopilotoExpediente';
 import { CotejoExpediente } from './CotejoExpediente';
 import { RedactarEscrituraButton } from './RedactarEscrituraButton';
 import { AnalizarUifButton } from './AnalizarUifButton';
+import { RosDraftButton } from './RosDraftButton';
 import type { AnalisisUIF } from '@/lib/ai/uif';
 import { CronologiaExpediente } from './CronologiaExpediente';
 import { RadarPlazos } from './RadarPlazos';
@@ -517,7 +518,21 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                   <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
                     <div className="flex items-center justify-between gap-3">
                       <h3 className="flex items-center gap-2 text-sm font-semibold text-white">🛡️ Análisis UIF / PLA (IA)</h3>
-                      <AnalizarUifButton caseId={caseRecord.id} yaGenerada={!!analisisUif} />
+                      <div className="flex flex-wrap items-center gap-2">
+                        {analisisUif && (
+                          <RosDraftButton
+                            analisis={analisisUif}
+                            legajo={{
+                              titulo: caseRecord.title || '',
+                              comparecientes: (caseRecord.metadata?.comparecientes as string) || caseRecord.client_name || '',
+                              tipoActo: (caseRecord.metadata?.tipo_acto as string) || caseRecord.case_type || '',
+                              fecha: (caseRecord.metadata?.fecha_otorgamiento as string) || '',
+                              resumen: '',
+                            }}
+                          />
+                        )}
+                        <AnalizarUifButton caseId={caseRecord.id} yaGenerada={!!analisisUif} />
+                      </div>
                     </div>
                     {analisisUif ? (
                       <div className="mt-4 space-y-4">
