@@ -34,6 +34,8 @@ import { canUseAi } from '@/lib/permissions/roles';
 import { CopilotoExpediente } from './CopilotoExpediente';
 import { CotejoExpediente } from './CotejoExpediente';
 import { RedactarEscrituraButton } from './RedactarEscrituraButton';
+import { AnalizarUifButton } from './AnalizarUifButton';
+import type { AnalisisUIF } from '@/lib/ai/uif';
 import { CronologiaExpediente } from './CronologiaExpediente';
 import { RadarPlazos } from './RadarPlazos';
 import { Tabs } from '@/components/ui/Tabs';
@@ -297,6 +299,17 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
     | { titulo: string; cuerpo: string; datos_faltantes: string[]; advertencias: string[] }
     | null;
 
+  const { data: uifData } = await supabase
+    .from('ai_outputs')
+    .select('result_json, created_at')
+    .eq('case_id', caseRecord.id)
+    .eq('organization_id', profile.organization_id)
+    .eq('output_type', 'case_uif')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const analisisUif = (uifData?.result_json as AnalisisUIF | null) ?? null;
+
   const { data: analisisData } = await supabase
     .from('ai_outputs')
     .select('document_id, result_json, created_at')
@@ -499,6 +512,57 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                       </p>
                     )}
                   </section>
+                )}
+                {industry === 'escribania' && (
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <h3 className="flex items-center gap-2 text-sm font-semibold text-white">🛡️ Análisis UIF / PLA (IA)</h3>
+                      <AnalizarUifButton caseId={caseRecord.id} yaGenerada={!!analisisUif} />
+                    </div>
+                    {analisisUif ? (
+                      <div className="mt-4 space-y-4">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${
+                            analisisUif.nivel_riesgo === 'alto' ? 'bg-rose-500/15 text-rose-300'
+                            : analisisUif.nivel_riesgo === 'medio' ? 'bg-amber-500/15 text-amber-300'
+                            : 'bg-emerald-500/15 text-emerald-300'}`}>
+                            Riesgo {analisisUif.nivel_riesgo.toUpperCase()}
+                          </span>
+                          {analisisUif.requiere_ros && (
+                            <span className="rounded-full bg-rose-500/20 px-3 py-1 text-xs font-semibold text-rose-200">Evaluar ROS</span>
+                          )}
+                        </div>
+                        {analisisUif.fundamento && <p className="text-sm text-white/70">{analisisUif.fundamento}</p>}
+                        {analisisUif.factores_riesgo.length > 0 && (
+                          <div>
+                            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-white/40">Factores de riesgo</p>
+                            <ul className="list-disc space-y-1 pl-5 text-sm text-white/70">
+                              {analisisUif.factores_riesgo.map((f, i) => <li key={i}>{f}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                        {analisisUif.senales_alerta.length > 0 && (
+                          <div>
+                            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-rose-300/70">Señales de alerta</p>
+                            <ul className="list-disc space-y-1 pl-5 text-sm text-rose-200/80">
+                              {analisisUif.senales_alerta.map((s, i) => <li key={i}>{s}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                        {analisisUif.verificaciones_pendientes.length > 0 && (
+                          <div>
+                            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-white/40">Verificaciones pendientes</p>
+                            <ul className="list-disc space-y-1 pl-5 text-sm text-white/70">
+                              {analisisUif.verificaciones_pendientes.map((v, i) => <li key={i}>{v}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                        <p className="text-xs text-white/30">Apoyo al criterio profesional del escribano. No reemplaza su análisis ni constituye asesoramiento legal.</p>
+                      </div>
+                    ) : (
+                      <p className="mt-3 text-sm text-white/50">Generá un análisis de riesgo PLA/FT del legajo con IA.</p>
+                    )}
+                  </div>
                 )}
                 <RadarPlazos
                   items={cronologia}
