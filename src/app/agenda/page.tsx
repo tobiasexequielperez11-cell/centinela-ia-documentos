@@ -25,7 +25,7 @@ export default async function AgendaPage() {
       .neq('status', 'Archivado'),
     supabase
       .from('agenda_plazos')
-      .select('id, titulo, fecha, detalle, categoria, case_id')
+      .select('id, titulo, fecha, hora, detalle, categoria, case_id')
       .eq('organization_id', profile.organization_id),
   ]);
 
@@ -63,13 +63,20 @@ export default async function AgendaPage() {
 
   for (const p of plazos) {
     if (!p.fecha) continue;
-    const esManual = (p as { categoria?: string }).categoria === 'manual';
+    const categoria = (p as { categoria?: string }).categoria ?? 'plazo';
     const cid = (p as { case_id?: string | null }).case_id ?? null;
+    const hora = (p as { hora?: string | null }).hora ?? null;
+    const tipo =
+      categoria === 'manual' ? 'evento'
+      : categoria === 'turno' ? 'turno'
+      : categoria === 'firma' ? 'firma'
+      : 'plazo';
     eventos.push({
-      id: `${esManual ? 'evento' : 'plazo'}-${p.id}`,
+      id: `${tipo}-${p.id}`,
       fecha: String(p.fecha).slice(0, 10),
-      titulo: p.titulo ?? (esManual ? 'Evento' : 'Plazo procesal'),
-      tipo: esManual ? 'evento' : 'plazo',
+      hora: hora ?? undefined,
+      titulo: p.titulo ?? (tipo === 'evento' ? 'Evento' : tipo === 'turno' ? 'Turno' : tipo === 'firma' ? 'Firma' : 'Plazo procesal'),
+      tipo,
       href: cid ? `/expedientes/${cid}` : '/agenda',
       expedienteNombre: cid ? caseTitleById.get(cid) : undefined,
     });

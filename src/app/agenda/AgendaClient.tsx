@@ -3,17 +3,18 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, ChevronRight, FileText, FolderKanban, CalendarClock, CalendarPlus, Plus, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, FileText, FolderKanban, CalendarClock, CalendarPlus, Plus, X, FileSignature } from 'lucide-react';
 import { MotionCard } from '@/components/ui/MotionCard';
 import { MotionButton } from '@/components/ui/MotionButton';
-import { guardarEventoManual } from './actions';
+import { guardarEventoManual, guardarTurno } from './actions';
 import { FERIADOS, FERIAS_JUDICIALES } from '@/lib/legal/config';
 
 export type AgendaEvento = {
   id: string;
   fecha: string; // 'YYYY-MM-DD'
+  hora?: string; // 'HH:MM'
   titulo: string;
-  tipo: 'documento' | 'expediente' | 'plazo' | 'evento';
+  tipo: 'documento' | 'expediente' | 'plazo' | 'evento' | 'turno' | 'firma';
   href: string;
   expedienteNombre?: string;
 };
@@ -41,6 +42,8 @@ export function AgendaClient({ eventos, cases }: { eventos: AgendaEvento[]; case
   const [nuevoCaseId, setNuevoCaseId] = useState('');
   const [guardando, setGuardando] = useState(false);
   const [aviso, setAviso] = useState('');
+  const [nuevoTipo, setNuevoTipo] = useState<'evento' | 'turno' | 'firma'>('evento');
+  const [nuevaHora, setNuevaHora] = useState('');
 
   const crearEvento = async () => {
     if (!nuevoTitulo.trim() || !nuevaFecha) {
@@ -49,10 +52,12 @@ export function AgendaClient({ eventos, cases }: { eventos: AgendaEvento[]; case
     }
     setGuardando(true);
     setAviso('');
-    const res = await guardarEventoManual({ titulo: nuevoTitulo, fecha: nuevaFecha, detalle: nuevoDetalle, caseId: nuevoCaseId || undefined });
+    const res = nuevoTipo === 'evento'
+      ? await guardarEventoManual({ titulo: nuevoTitulo, fecha: nuevaFecha, detalle: nuevoDetalle, caseId: nuevoCaseId || undefined })
+      : await guardarTurno({ titulo: nuevoTitulo, fecha: nuevaFecha, hora: nuevaHora || undefined, tipo: nuevoTipo, detalle: nuevoDetalle, caseId: nuevoCaseId || undefined });
     setGuardando(false);
     if (res.ok) {
-      setNuevoTitulo(''); setNuevaFecha(''); setNuevoDetalle(''); setNuevoCaseId('');
+      setNuevoTitulo(''); setNuevaFecha(''); setNuevoDetalle(''); setNuevoCaseId(''); setNuevaHora(''); setNuevoTipo('evento');
       setShowForm(false);
       router.refresh();
     } else {
@@ -125,10 +130,33 @@ export function AgendaClient({ eventos, cases }: { eventos: AgendaEvento[]; case
             </button>
           </div>
           <div className="space-y-4">
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-slate-400">Tipo</label>
+              <select
+                value={nuevoTipo}
+                onChange={(e) => setNuevoTipo(e.target.value as 'evento' | 'turno' | 'firma')}
+                className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2 text-sm text-white outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400"
+              >
+                <option value="evento">Recordatorio</option>
+                <option value="turno">Turno</option>
+                <option value="firma">Firma</option>
+              </select>
+            </div>
             <label className="block">
               <span className="mb-1 block text-xs font-semibold text-slate-400">Fecha</span>
               <input type="date" value={nuevaFecha} onChange={(e) => setNuevaFecha(e.target.value)} className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2 text-sm text-white outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400" />
             </label>
+            {nuevoTipo !== 'evento' && (
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-slate-400">Hora (opcional)</label>
+                <input
+                  type="time"
+                  value={nuevaHora}
+                  onChange={(e) => setNuevaHora(e.target.value)}
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2 text-sm text-white outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400"
+                />
+              </div>
+            )}
             <label className="block">
               <span className="mb-1 block text-xs font-semibold text-slate-400">Título</span>
               <input type="text" value={nuevoTitulo} onChange={(e) => setNuevoTitulo(e.target.value)} placeholder="Ej: Presentar escrito - Pérez c/ García" className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2 text-sm text-white outline-none placeholder-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400" />
@@ -170,6 +198,8 @@ export function AgendaClient({ eventos, cases }: { eventos: AgendaEvento[]; case
         <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-violet-500" /> Fecha de expediente</span>
         <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-violet-500" /> Plazo procesal</span>
         <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-emerald-500" /> Recordatorio</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-teal-500" /> Turno</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-rose-500" /> Firma</span>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -204,10 +234,14 @@ export function AgendaClient({ eventos, cases }: { eventos: AgendaEvento[]; case
                   {!esFeriado && feria && <p className="mt-0.5 truncate text-[10px] font-medium text-slate-500">Feria</p>}
                   <div className="mt-0.5 space-y-0.5">
                     {evs.slice(0, 3).map((ev) => {
-                      const bgColor = ev.tipo === 'documento' ? 'bg-sky-500/80 text-white' : ev.tipo === 'evento' ? 'bg-emerald-500/80 text-white' : 'bg-violet-500/80 text-white';
+                      const bgColor = ev.tipo === 'documento' ? 'bg-sky-500/80 text-white'
+                        : ev.tipo === 'evento' ? 'bg-emerald-500/80 text-white'
+                        : ev.tipo === 'turno' ? 'bg-teal-500/80 text-white'
+                        : ev.tipo === 'firma' ? 'bg-rose-500/80 text-white'
+                        : 'bg-violet-500/80 text-white';
                       const content = ev.titulo;
                       const className = `block truncate rounded px-1 py-0.5 text-[10px] font-medium ${bgColor}`;
-                      if ((ev.tipo === 'plazo' || ev.tipo === 'evento') && ev.href === '/agenda') {
+                      if (['plazo', 'evento', 'turno', 'firma'].includes(ev.tipo) && ev.href === '/agenda') {
                         return <div key={ev.id} title={ev.titulo} className={className}>{content}</div>;
                       }
                       return (
@@ -229,9 +263,23 @@ export function AgendaClient({ eventos, cases }: { eventos: AgendaEvento[]; case
           <div className="mt-3 space-y-2">
             {eventosMes.length === 0 && <p className="text-sm text-slate-500">No hay vencimientos ni fechas cargadas este mes.</p>}
             {eventosMes.map((ev) => {
-              const iconBg = ev.tipo === 'documento' ? 'bg-sky-500/20 text-sky-400' : ev.tipo === 'evento' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-violet-500/20 text-violet-400';
-              const Icon = ev.tipo === 'documento' ? FileText : ev.tipo === 'plazo' ? CalendarClock : ev.tipo === 'evento' ? CalendarPlus : FolderKanban;
-              const typeLabel = ev.tipo === 'documento' ? 'Vence documento' : ev.tipo === 'plazo' ? 'Plazo procesal' : ev.tipo === 'evento' ? 'Recordatorio' : 'Expediente';
+              const iconBg = ev.tipo === 'documento' ? 'bg-sky-500/20 text-sky-400'
+                : ev.tipo === 'evento' ? 'bg-emerald-500/20 text-emerald-400'
+                : ev.tipo === 'turno' ? 'bg-teal-500/20 text-teal-400'
+                : ev.tipo === 'firma' ? 'bg-rose-500/20 text-rose-400'
+                : 'bg-violet-500/20 text-violet-400';
+              const Icon = ev.tipo === 'documento' ? FileText
+                : ev.tipo === 'plazo' ? CalendarClock
+                : ev.tipo === 'evento' ? CalendarPlus
+                : ev.tipo === 'turno' ? CalendarClock
+                : ev.tipo === 'firma' ? FileSignature
+                : FolderKanban;
+              const typeLabel = ev.tipo === 'documento' ? 'Vence documento'
+                : ev.tipo === 'plazo' ? 'Plazo procesal'
+                : ev.tipo === 'evento' ? 'Recordatorio'
+                : ev.tipo === 'turno' ? 'Turno'
+                : ev.tipo === 'firma' ? 'Firma'
+                : 'Expediente';
               const content = (
                 <>
                   <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${iconBg}`}>
@@ -239,13 +287,13 @@ export function AgendaClient({ eventos, cases }: { eventos: AgendaEvento[]; case
                   </span>
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-medium text-slate-200">{ev.titulo}</span>
-                    <span className="block text-xs text-slate-500">{ev.fecha.split('-').reverse().join('/')} · {typeLabel}</span>
+                    <span className="block text-xs text-slate-500">{ev.fecha.split('-').reverse().join('/')}{ev.hora ? ` · ${ev.hora}` : ''} · {typeLabel}</span>
                     {ev.expedienteNombre && <span className="block truncate text-[11px] text-slate-600">{ev.expedienteNombre}</span>}
                   </span>
                 </>
               );
               const className = "flex items-start gap-2 rounded-xl border border-white/10 p-2.5 transition hover:bg-white/[0.04]";
-              if ((ev.tipo === 'plazo' || ev.tipo === 'evento') && ev.href === '/agenda') {
+              if (['plazo', 'evento', 'turno', 'firma'].includes(ev.tipo) && ev.href === '/agenda') {
                 return <div key={ev.id} className={className}>{content}</div>;
               }
               return (
