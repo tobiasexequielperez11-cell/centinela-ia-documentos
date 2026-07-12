@@ -11,6 +11,7 @@ import {
   ScanLine,
   Search,
   Settings,
+  BookText,
 } from 'lucide-react';
 import { type IndustryType } from '@/lib/industries/documentTypes';
 
@@ -32,6 +33,7 @@ export const navigation: NavItem[] = [
   { name: 'Observaciones', href: '/observaciones', icon: AlertCircle, roles: ['admin', 'employee', 'auditor', 'client'], group: 'Gestión', description: 'Panel de observaciones y tareas pendientes.' },
   { name: 'Calculadoras', href: '/calculadoras', icon: Calculator, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['legal', 'escribania'], group: 'Herramientas jurídicas', description: 'Herramientas de cálculo para plazos y montos.' },
   { name: 'Modelos', href: '/modelos', icon: FileSignature, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['legal', 'escribania'], group: 'Herramientas jurídicas', description: 'Plantillas y modelos de documentos.' },
+  { name: 'Índice / Repertorio', href: '/protocolo', icon: BookText, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['escribania'], group: 'Herramientas jurídicas', description: 'Registro correlativo de escrituras y actos, con índice por mes.' },
   { name: 'Agenda', href: '/agenda', icon: CalendarDays, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['legal', 'escribania'], group: 'Herramientas jurídicas', description: 'Calendario de vencimientos y plazos.' },
   { name: 'Herramientas', href: '/herramientas', icon: ScanLine, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['legal', 'escribania'], group: 'Utilidades', description: 'Utilidades extra para gestión documental.' },
   { name: 'Usuarios', href: '/usuarios', icon: Users, roles: ['admin'], group: 'Gestión', description: 'Administración de usuarios e invitaciones.' },
