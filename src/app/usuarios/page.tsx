@@ -93,19 +93,6 @@ function statusTone(status?: string | null) {
   return 'bg-slate-100 text-slate-600';
 }
 
-function resourceLabel(value?: string | null) {
-  const labels: Record<string, string> = {
-    document: 'Documento',
-    case: 'Expediente',
-    organization: 'Organización',
-    user: 'Usuario',
-    user_invitation: 'Invitación de usuario',
-    invitation: 'Invitación',
-  };
-
-  return labels[value ?? ''] ?? value ?? 'Sistema';
-}
-
 function countUserEvents(userId: string, auditLogs: AuditLogRecord[]) {
   return auditLogs.filter((item) => item.user_id === userId).length;
 }
@@ -204,8 +191,6 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
   const auditorUsers = getUsersByRole(users, 'auditor');
   const clientUsers = getUsersByRole(users, 'client');
 
-  const recentUserActivity = auditLogs.filter((item) => item.user_id).slice(0, 10);
-
   const canManageAccess = profile.role === 'admin';
 
 
@@ -265,7 +250,7 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
             href="/documentos"
             className="rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 transition-all hover:scale-[1.03] hover:border-cyan-400/40 hover:text-cyan-200 active:scale-[0.97]"
           >
-            Ver documentos
+            Ir a la Bóveda
           </Link>
         </div>
       </div>
@@ -559,84 +544,6 @@ export default async function UsuariosPage({ searchParams }: UsuariosPageProps) 
           </MotionCard>
         </section>
       </div>
-
-      <MotionCard index={8} className="mt-8 p-6">
-        <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-300">
-              Trazabilidad
-            </p>
-
-            <h3 className="mt-2 text-2xl font-bold text-white">
-              Actividad reciente por usuarios
-            </h3>
-          </div>
-
-          <Link
-            href="/reportes?vista=auditoria"
-            className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 hover:border-sky-400/40 hover:text-sky-200"
-          >
-            Abrir centro de auditoría
-          </Link>
-        </div>
-
-        <div className="overflow-x-auto rounded-2xl border border-white/10">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-white/[0.05] text-xs uppercase tracking-wide text-slate-300">
-              <tr>
-                <th className="px-4 py-3">Evento</th>
-                <th className="px-4 py-3">Usuario</th>
-                <th className="px-4 py-3">Recurso</th>
-                <th className="px-4 py-3">Fecha</th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-white/10">
-              {recentUserActivity.map((event) => {
-                const actor = users.find((item) => item.id === event.user_id);
-
-                return (
-                  <tr key={event.id} className="hover:bg-white/[0.03]">
-                    <td className="px-4 py-3">
-                      <p className="font-bold text-white">
-                        {formatAuditActionLabel(event.action)}
-                      </p>
-
-                      <p className="mt-1 text-xs text-slate-400">
-                        {event.action}
-                      </p>
-                    </td>
-
-                    <td className="px-4 py-3">
-                      <p className="font-semibold text-slate-100">
-                        {actor?.full_name ?? actor?.email ?? 'Usuario no identificado'}
-                      </p>
-
-                      <p className="mt-1 text-xs text-slate-400">
-                        {roleLabel(actor?.role)}
-                      </p>
-                    </td>
-
-                    <td className="px-4 py-3 text-slate-300">
-                      {resourceLabel(event.resource_type)}
-                    </td>
-
-                    <td className="px-4 py-3 text-slate-400">
-                      {formatDate(event.created_at)}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-
-          {recentUserActivity.length === 0 ? (
-            <div className="p-6 text-sm text-slate-400">
-              Todavía no hay actividad auditada vinculada a usuarios.
-            </div>
-          ) : null}
-        </div>
-      </MotionCard>
     </AppShell>
   );
 }
