@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { BookText, Plus, X, Trash2 } from 'lucide-react';
+import { BookText, Plus, X, Trash2, FileDown } from 'lucide-react';
 import { registrarEscritura, eliminarEscritura } from './actions';
 
 export type EscrituraProtocolo = {
@@ -20,6 +20,9 @@ export type EscrituraProtocolo = {
 };
 
 const MESES = ['Todos','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+const escapeHtml = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 export function ProtocoloClient({ escrituras, cases }: { escrituras: EscrituraProtocolo[]; cases: { id: string; title: string }[] }) {
   const router = useRouter();
@@ -80,6 +83,49 @@ export function ProtocoloClient({ escrituras, cases }: { escrituras: EscrituraPr
     if (!confirm('¿Eliminar esta escritura del protocolo?')) return;
     await eliminarEscritura(id);
     router.refresh();
+  };
+
+  const exportarIndicePDF = () => {
+    const mesLabel = MESES[mes];
+    const filas = filtradas.map((e) => `
+      <tr>
+        <td style="text-align:center;font-weight:bold;">${e.numero}</td>
+        <td>${e.fecha_otorgamiento ? e.fecha_otorgamiento.split('-').reverse().join('/') : '-'}</td>
+        <td>${escapeHtml(e.tipo_acto || '-')}</td>
+        <td>${escapeHtml(e.comparecientes || '-')}</td>
+        <td>${escapeHtml(e.objeto || '-')}</td>
+        <td>${e.folio_desde || e.folio_hasta ? `${escapeHtml(e.folio_desde || '?')} – ${escapeHtml(e.folio_hasta || '?')}` : '-'}</td>
+      </tr>`).join('');
+
+    const html = `<!doctype html><html lang="es"><head><meta charset="utf-8" />
+      <title>Indice de escrituras ${anio}${mes ? ' - ' + mesLabel : ''}</title>
+      <style>
+        * { font-family: Arial, sans-serif; }
+        body { margin: 32px; color: #111; }
+        h1 { font-size: 18px; margin: 0 0 4px; }
+        .sub { font-size: 12px; color: #555; margin: 0 0 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; vertical-align: top; }
+        th { background: #f3f3f3; }
+        .foot { margin-top: 24px; font-size: 10px; color: #888; }
+        @media print { body { margin: 12mm; } }
+      </style></head>
+      <body>
+        <h1>Índice / Repertorio de Escrituras</h1>
+        <p class="sub">Año ${anio}${mes ? ' — Mes: ' + mesLabel : ' — Todos los meses'} · ${filtradas.length} escritura(s)</p>
+        <table>
+          <thead><tr><th>N°</th><th>Fecha</th><th>Tipo de acto</th><th>Comparecientes</th><th>Objeto</th><th>Folios</th></tr></thead>
+          <tbody>${filas || '<tr><td colspan="6" style="text-align:center;color:#888;">Sin escrituras</td></tr>'}</tbody>
+        </table>
+        <p class="foot">Generado el ${new Date().toLocaleString('es-AR')} · Centinela IA</p>
+      </body></html>`;
+
+    const win = window.open('', '_blank');
+    if (!win) { alert('Permití las ventanas emergentes para exportar el PDF.'); return; }
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 300);
   };
 
   return (
@@ -150,6 +196,9 @@ export function ProtocoloClient({ escrituras, cases }: { escrituras: EscrituraPr
           {MESES.map((m, i) => <option key={i} value={i}>{m}</option>)}
         </select>
         <span className="text-sm text-white/50">{filtradas.length} escritura(s)</span>
+        <button onClick={exportarIndicePDF} className="ml-auto inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2 text-sm text-white hover:bg-white/[0.06]">
+          <FileDown className="h-4 w-4" /> Exportar PDF
+        </button>
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-white/10">
