@@ -464,7 +464,11 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                   <section className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
                     <div className="flex items-center justify-between gap-3">
                       <h3 className="text-sm font-semibold text-white">✍️ Borrador de escritura (IA)</h3>
-                      <RedactarEscrituraButton caseId={caseRecord.id} yaGenerada={!!borradorEscritura} />
+                      {documentosAnalizados > 0 ? (
+                        <RedactarEscrituraButton caseId={caseRecord.id} yaGenerada={!!borradorEscritura} />
+                      ) : (
+                        <span className="text-xs text-white/40">Analizá al menos 1 documento para habilitarlo</span>
+                      )}
                     </div>
                     {borradorEscritura ? (
                       <div className="mt-4 space-y-3">
@@ -489,7 +493,10 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                         <p className="text-xs text-white/40">Borrador generado por IA. Revisalo y completalo antes de otorgar.</p>
                       </div>
                     ) : (
-                      <p className="mt-3 text-sm text-white/50">Generá un borrador de escritura a partir de los datos del legajo y los documentos analizados.</p>
+                      <p className="mt-3 text-sm text-white/50">
+                        Generá un borrador de escritura a partir de los documentos analizados del legajo.
+                        {documentosAnalizados === 0 && ' Primero analizá al menos un documento con IA.'}
+                      </p>
                     )}
                   </section>
                 )}
