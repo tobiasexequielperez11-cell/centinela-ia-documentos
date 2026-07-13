@@ -15,12 +15,12 @@ import { MotionCard } from '@/components/ui/MotionCard';
 import { MotionButton } from '@/components/ui/MotionButton';
 
 const clientCards = [
-  { name: 'Motor IA', href: '/configuracion/ia', description: 'Opciones de análisis y procesamiento documental.' },
   { name: 'Seguridad y acceso', href: '/configuracion/seguridad', description: 'Políticas, permisos y auditoría.' },
   { name: 'Documentación', href: '/configuracion/documentacion', description: 'Tipos documentales y reglas de almacenamiento.' },
 ];
 
 const ownerCards = [
+  { name: 'Motor IA', href: '/configuracion/ia', description: 'Opciones de análisis y procesamiento documental.' },
   { name: 'Resumen operativo', href: '/configuracion/resumen', description: 'Visión general de la configuración de la organización.' },
   { name: 'Entorno de trabajo', href: '/configuracion/entorno', description: 'Personalización y ajustes del espacio.' },
   { name: 'Estado beta', href: '/configuracion/estado-beta', description: 'Gestión del entorno controlado y experimental.' },
@@ -80,37 +80,53 @@ export default async function ConfiguracionPage() {
             <div className="mb-6">
               <h3 className="font-display text-xl font-semibold text-white">Rubro de la organización</h3>
               <p className="mt-2 text-sm text-slate-400">
-                Como administrador de la plataforma podés cambiar de rubro para testear; un cliente solo puede elegirlo una vez.
+                {isPlatformOwner
+                  ? "Como administrador de la plataforma podés cambiar de rubro para testear."
+                  : org?.industry_type
+                    ? "El rubro define la estructura de legajos y documentos. Está configurado de forma permanente."
+                    : "Elegí el rubro de tu organización. Esta acción se realiza una sola vez para estructurar el sistema."}
               </p>
             </div>
 
-            <form action={updateOrganizationIndustryType} className="space-y-4">
-              <input type="hidden" name="organization_id" value={profile.organization_id} />
-              
-              <div className="mb-2">
-                <label className="text-sm text-slate-400">
-                  Rubro actual: <span className="font-semibold text-white">{industryLabels[currentIndustry]}</span>
-                </label>
-              </div>
+            {isPlatformOwner || !org?.industry_type ? (
+              <form action={updateOrganizationIndustryType} className="space-y-4">
+                <input type="hidden" name="organization_id" value={profile.organization_id} />
+                
+                <div className="mb-2">
+                  <label className="text-sm text-slate-400">
+                    Rubro actual: <span className="font-semibold text-white">{industryLabels[currentIndustry]}</span>
+                  </label>
+                </div>
 
-              <select
-                name="industry_type"
-                defaultValue={currentIndustry}
-                className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none focus:border-accent focus:ring-1 focus:ring-accent"
-              >
-                {ACTIVE_INDUSTRY_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {industryLabels[t]}
-                  </option>
-                ))}
-              </select>
-              <MotionButton
-                type="submit"
-                className="w-full bg-accent hover:bg-accent-strong"
-              >
-                Guardar rubro
-              </MotionButton>
-            </form>
+                <select
+                  name="industry_type"
+                  defaultValue={currentIndustry}
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none focus:border-accent focus:ring-1 focus:ring-accent"
+                >
+                  {ACTIVE_INDUSTRY_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {industryLabels[t]}
+                    </option>
+                  ))}
+                </select>
+                <MotionButton
+                  type="submit"
+                  className="w-full bg-accent hover:bg-accent-strong"
+                >
+                  Guardar rubro
+                </MotionButton>
+              </form>
+            ) : (
+              <div className="space-y-4">
+                <div className="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-4">
+                  <label className="text-sm text-slate-400 block mb-1">Rubro actual:</label>
+                  <span className="font-semibold text-white text-lg">{industryLabels[currentIndustry]}</span>
+                </div>
+                <p className="text-xs text-slate-500">
+                  El rubro se define una vez al configurar la organización. Para cambiarlo, contactá al soporte de la plataforma.
+                </p>
+              </div>
+            )}
           </MotionCard>
         </div>
 
