@@ -81,31 +81,6 @@ interface ProfileRecordForReport {
   role?: string | null;
 }
 
-interface InvitationMetricsRecord {
-  total_invitations?: number | null;
-  pending_invitations?: number | null;
-  accepted_invitations?: number | null;
-  cancelled_invitations?: number | null;
-  expired_invitations?: number | null;
-  last_invitation_created_at?: string | null;
-}
-
-interface InvitationReportRecord {
-  id: string;
-  organization_id?: string | null;
-  email?: string | null;
-  role?: string | null;
-  status?: string | null;
-  invited_by?: string | null;
-  created_at?: string | null;
-  expires_at?: string | null;
-  accepted_at?: string | null;
-  cancelled_at?: string | null;
-  operational_status?: string | null;
-  is_expired?: boolean | null;
-  requires_attention?: boolean | null;
-}
-
 function formatDate(value?: string | null) {
   if (!value) return '-';
 
@@ -436,14 +411,6 @@ function filterAuditLogs(logs: AuditLogRecordForReport[], filter: AuditFilter) {
   return logs;
 }
 
-function isInvitationExpired(invitation: InvitationReportRecord) {
-  return (
-    invitation.is_expired === true ||
-    invitation.status === 'expired' ||
-    invitation.operational_status === 'Vencida'
-  );
-}
-
 export default async function ReportsPage({ searchParams }: ReportsPageProps) {
   const query = await searchParams;
   const activeView: ReportView = isValidView(query.vista) ? query.vista : 'general';
@@ -483,8 +450,6 @@ if (
     aiOutputsResult,
     auditLogsResult,
     profilesResult,
-    invitationMetricsResult,
-    invitationsResult,
   ] = await Promise.all([
     supabase
       .from('cases')
@@ -520,22 +485,6 @@ if (
       .from('profiles')
       .select('id, full_name, email, role')
       .eq('organization_id', profile.organization_id),
-
-    supabase
-      .from('invitation_operational_metrics')
-      .select(
-        'total_invitations, pending_invitations, accepted_invitations, cancelled_invitations, expired_invitations, last_invitation_created_at'
-      )
-      .maybeSingle(),
-
-    supabase
-      .from('invitation_operational_report')
-      .select(
-        'id, organization_id, email, role, status, invited_by, created_at, expires_at, accepted_at, cancelled_at, operational_status, is_expired, requires_attention'
-      )
-      .eq('organization_id', profile.organization_id)
-      .order('created_at', { ascending: false })
-      .limit(80),
   ]);
 
   const cases = (casesResult.data ?? []) as CaseRecord[];
@@ -543,9 +492,6 @@ if (
   const aiOutputs = (aiOutputsResult.data ?? []) as AiOutputRecordForReport[];
   const auditLogs = (auditLogsResult.data ?? []) as AuditLogRecordForReport[];
   const profiles = (profilesResult.data ?? []) as ProfileRecordForReport[];
-  const invitationMetrics =
-    (invitationMetricsResult.data as InvitationMetricsRecord | null) ?? null;
-  const invitations = (invitationsResult.data ?? []) as InvitationReportRecord[];
 
   const documentsById = new Map(documents.map((document) => [document.id, document]));
   const casesById = new Map(cases.map((caseItem) => [caseItem.id, caseItem]));
@@ -620,57 +566,6 @@ if (
     return daysA - daysB;
   });
 
-  const pendingInvitationsFromRows = invitations.filter(
-    (item) => item.status === 'pending' && !isInvitationExpired(item)
-  );
-  const acceptedInvitationsFromRows = invitations.filter(
-    (item) => item.status === 'accepted' || item.operational_status === 'Aceptada'
-  );
-  const cancelledInvitationsFromRows = invitations.filter(
-    (item) => item.status === 'cancelled' || item.operational_status === 'Cancelada'
-  );
-  const expiredInvitationsFromRows = invitations.filter(isInvitationExpired);
-  const attentionInvitationsFromRows = invitations.filter(
-    (item) => item.requires_attention === true
-  );
-
-  const hasInvitationRows = invitations.length > 0;
-
-  const totalInvitations = hasInvitationRows
-    ? invitations.length
-    : getMetricValue(invitationMetrics?.total_invitations);
-
-  const pendingInvitations = hasInvitationRows
-    ? pendingInvitationsFromRows.length
-    : getMetricValue(invitationMetrics?.pending_invitations);
-
-  const acceptedInvitations = hasInvitationRows
-    ? acceptedInvitationsFromRows.length
-    : getMetricValue(invitationMetrics?.accepted_invitations);
-
-  const cancelledInvitations = hasInvitationRows
-    ? cancelledInvitationsFromRows.length
-    : getMetricValue(invitationMetrics?.cancelled_invitations);
-
-  const expiredInvitations = hasInvitationRows
-    ? expiredInvitationsFromRows.length
-    : getMetricValue(invitationMetrics?.expired_invitations);
-
-  const attentionInvitations = hasInvitationRows
-    ? attentionInvitationsFromRows.length
-    : pendingInvitations;
-
-  const lastInvitationCreatedAt =
-    invitations[0]?.created_at ?? invitationMetrics?.last_invitation_created_at ?? null;
-
-  const hasInvitationReadError = Boolean(
-    invitationMetricsResult.error || invitationsResult.error
-  );
-
-  const hasPendingExpiredInvitations = expiredInvitations > 0;
-  const invitationsToDisplay =
-    activeView === 'invitaciones' ? invitations : invitations.slice(0, 5);
-
   const sensitivityStats = [
     {
       key: 'low',
@@ -724,34 +619,6 @@ if (
     },
   ];
 
-  const invitationCards = [
-    {
-      label: 'Invitaciones totales',
-      value: totalInvitations,
-      helper: 'Altas operativas registradas',
-    },
-    {
-      label: 'Pendientes',
-      value: pendingInvitations,
-      helper: 'Esperando activación',
-    },
-    {
-      label: 'Aceptadas',
-      value: acceptedInvitations,
-      helper: 'Completadas o validadas',
-    },
-    {
-      label: 'Canceladas',
-      value: cancelledInvitations,
-      helper: 'Sin continuidad operativa',
-    },
-    {
-      label: 'Vencidas',
-      value: expiredInvitations,
-      helper: 'Fuera de plazo',
-    },
-  ];
-
   const ORDEN_ESTADO_PROCESAL = [
     'Etapa prejudicial / Mediación','Inicio de demanda','Traslado / Notificación',
     'Contestación de demanda','Etapa de prueba','Alegatos','Sentencia (1ª instancia)',
@@ -782,7 +649,6 @@ if (
     ...(isLegal ? [{ label: 'Estado procesal', value: 'estado_procesal' as ReportView, href: '/reportes?vista=estado_procesal' }] : []),
     { label: 'IA documental', value: 'ia', href: '/reportes?vista=ia' },
     { label: 'Sensibilidad', value: 'sensibilidad', href: '/reportes?vista=sensibilidad' },
-    { label: 'Invitaciones', value: 'invitaciones', href: '/reportes?vista=invitaciones' },
     { label: 'Auditoría', value: 'auditoria', href: '/reportes?vista=auditoria' },
   ];
 
@@ -840,29 +706,6 @@ if (
             Análisis y visión de conjunto: métricas, cartera y auditoría para leer el panorama completo del estudio.
           </p>
         </div>
-
-        <div className="flex flex-wrap gap-3">
-          <Link
-            href="/usuarios/invitaciones"
-            className="rounded-xl bg-cyan-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.03] hover:bg-cyan-500 hover:shadow-cyan-500/40 active:scale-[0.97]"
-          >
-            Gestionar invitaciones
-          </Link>
-
-          <Link
-            href="/documentos"
-            className="rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 transition-all hover:scale-[1.03] hover:border-cyan-400/40 hover:text-cyan-200 active:scale-[0.97]"
-          >
-            Ver documentos
-          </Link>
-
-          <Link
-            href="/documentos?ia=pendientes"
-            className="rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 transition-all hover:scale-[1.03] hover:border-cyan-400/40 hover:text-cyan-200 active:scale-[0.97]"
-          >
-            Ver pendientes IA
-          </Link>
-        </div>
       </div>
 
       <div className="mb-6 flex flex-wrap gap-3">
@@ -881,14 +724,6 @@ if (
         ))}
       </div>
 
-      {hasInvitationReadError ? (
-        <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-semibold text-amber-800">
-          No se pudieron leer completamente las vistas operativas de invitaciones.
-          Verificá que existan public.invitation_operational_metrics y
-          public.invitation_operational_report.
-        </div>
-      ) : null}
-
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric, index) => (
           <MotionCard
@@ -904,189 +739,6 @@ if (
           </MotionCard>
         ))}
       </div>
-
-      {activeView === 'invitaciones' ? (
-        <MotionCard index={6} className="mt-8 p-6">
-          <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-400">
-                Invitaciones
-              </p>
-
-              <h3 className="mt-2 text-2xl font-bold text-white">
-                Control de invitaciones y accesos
-              </h3>
-
-              <p className="mt-2 text-sm text-slate-300">
-                Seguimiento de invitaciones, altas pendientes y accesos gestionados durante la beta operativa.
-              </p>
-            </div>
-
-            <Link
-              href="/usuarios/invitaciones"
-              className="rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-slate-200 transition-all hover:scale-[1.03] hover:border-cyan-400/40 hover:text-cyan-200 active:scale-[0.97]"
-            >
-              Abrir bandeja
-            </Link>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-            {invitationCards.map((metric, index) => (
-              <div
-                key={metric.label}
-                className="rounded-2xl border border-white/10 bg-white/[0.04] p-5"
-              >
-                <p className="text-sm font-semibold text-slate-400">{metric.label}</p>
-
-                <p className="mt-2 text-3xl font-bold text-white">
-                  {metric.value}
-                </p>
-
-                <p className="mt-3 text-xs text-slate-500">{metric.helper}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-5 grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-            <div
-              className={`rounded-2xl border p-5 ${
-                hasPendingExpiredInvitations
-                  ? 'border-amber-900/30 bg-amber-950/20'
-                  : 'border-emerald-900/30 bg-emerald-950/20'
-              }`}
-            >
-              <p
-                className={`text-sm font-bold ${
-                  hasPendingExpiredInvitations ? 'text-amber-200' : 'text-emerald-200'
-                }`}
-              >
-                Estado operativo
-              </p>
-
-              <p
-                className={`mt-2 text-sm leading-6 ${
-                  hasPendingExpiredInvitations ? 'text-amber-300' : 'text-emerald-300'
-                }`}
-              >
-                {hasPendingExpiredInvitations
-                  ? 'Hay invitaciones vencidas. Conviene cancelarlas o recrearlas para mantener limpio el control de accesos.'
-                  : 'No se detectan invitaciones vencidas. El control operativo de accesos se mantiene estable.'}
-              </p>
-
-              <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
-                <span className="rounded-full bg-white/10 px-3 py-1 text-slate-200">
-                  {attentionInvitations} requieren atención
-                </span>
-
-                <span className="rounded-full bg-white/10 px-3 py-1 text-slate-200">
-                  Última: {formatDate(lastInvitationCreatedAt)}
-                </span>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-              <p className="text-sm font-bold text-white">
-                Gestión recomendada de accesos
-              </p>
-
-              <p className="mt-2 text-sm leading-6 text-slate-400">
-                Las invitaciones permiten controlar altas, roles y estados de acceso dentro de la organización. Para la beta operativa, esta bandeja funciona como registro central de usuarios invitados, aceptados, vencidos o cancelados.
-              </p>
-
-              <div className="mt-4 flex flex-wrap gap-3">
-                <Link
-                  href="/usuarios"
-                  className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-bold text-slate-200 transition-all hover:bg-white/[0.08]"
-                >
-                  Ver usuarios
-                </Link>
-
-                <Link
-                  href="/reportes?vista=auditoria&tipo=invitaciones"
-                  className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white transition-all hover:bg-indigo-500"
-                >
-                  Ver auditoría de invitaciones
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-white/10 bg-white/[0.02] text-xs uppercase tracking-wide text-slate-400">
-                <tr>
-                  <th className="px-4 py-3">Invitado</th>
-                  <th className="px-4 py-3">Rol</th>
-                  <th className="px-4 py-3">Estado</th>
-                  <th className="px-4 py-3">Atención</th>
-                  <th className="px-4 py-3">Fechas</th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-white/5">
-                {invitationsToDisplay.map((invitation) => (
-                  <tr key={invitation.id} className="align-top hover:bg-white/[0.02]">
-                    <td className="px-4 py-4">
-                      <p className="font-bold text-white">
-                        {invitation.email ?? 'Sin email'}
-                      </p>
-
-                      <p className="mt-1 text-xs text-slate-500">
-                        ID: {invitation.id.slice(0, 8)}...
-                      </p>
-                    </td>
-
-                    <td className="px-4 py-4 text-slate-300">
-                      {invitationRoleLabel(invitation.role)}
-                    </td>
-
-                    <td className="px-4 py-4">
-                      <span
-                        className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${invitationStatusTone(
-                          invitation.status,
-                          invitation.is_expired
-                        )}`}
-                      >
-                        {invitation.operational_status ??
-                          invitationStatusLabel(invitation.status)}
-                      </span>
-
-                      <p className="mt-2 text-xs text-slate-500">
-                        Estado técnico: {invitation.status ?? 'sin_estado'}
-                      </p>
-                    </td>
-
-                    <td className="px-4 py-4">
-                      {invitation.requires_attention ? (
-                        <span className="rounded-full bg-amber-950/50 px-3 py-1 text-xs font-bold text-amber-300">
-                          Requiere seguimiento
-                        </span>
-                      ) : (
-                        <span className="rounded-full bg-emerald-950/50 px-3 py-1 text-xs font-bold text-emerald-300">
-                          Sin alerta
-                        </span>
-                      )}
-                    </td>
-
-                    <td className="px-4 py-4 text-xs leading-5 text-slate-400">
-                      <p>Creada: {formatDate(invitation.created_at)}</p>
-                      <p>Vence: {formatDate(invitation.expires_at)}</p>
-                      <p>Aceptada: {formatDate(invitation.accepted_at)}</p>
-                      <p>Cancelada: {formatDate(invitation.cancelled_at)}</p>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {invitationsToDisplay.length === 0 ? (
-              <div className="p-6 text-sm text-slate-500">
-                Todavía no hay invitaciones registradas para esta organización.
-              </div>
-            ) : null}
-          </div>
-        </MotionCard>
-      ) : null}
 
       {activeView === 'general' || activeView === 'ia' ? (
         <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_0.8fr]">
@@ -1753,75 +1405,6 @@ if (
               ) : null}
             </div>
           </MotionCard>
-
-          <MotionCard index={15} className="p-6">
-            <div className="mb-5 flex items-start justify-between gap-4">
-              <div>
-                <h3 className="text-xl font-bold text-white">
-                  Actividad auditada reciente
-                </h3>
-
-                <p className="mt-2 text-sm text-slate-400">
-                  Últimos eventos registrados en la tabla de auditoría.
-                </p>
-              </div>
-
-              <Link
-                href="/reportes?vista=auditoria"
-                className="rounded-full bg-white/[0.04] px-3 py-1 text-xs font-bold text-slate-300 hover:bg-white/[0.08]"
-              >
-                Ver {auditLogs.length} eventos
-              </Link>
-            </div>
-
-            <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
-              <table className="w-full text-left text-sm">
-                <thead className="border-b border-white/10 bg-white/[0.02] text-xs uppercase tracking-wide text-slate-400">
-                  <tr>
-                    <th className="w-72 px-4 py-3">Evento</th>
-                    <th className="px-4 py-3">Usuario</th>
-                    <th className="px-4 py-3">Recurso</th>
-                    <th className="px-4 py-3">Fecha</th>
-                  </tr>
-                </thead>
-
-                <tbody className="divide-y divide-white/5">
-                  {auditLogs.slice(0, 10).map((log) => (
-                    <tr key={log.id} className="hover:bg-white/[0.02]">
-                      <td className="px-4 py-3 align-middle">
-                        <span className="inline-flex items-center gap-2 whitespace-nowrap text-xs font-bold text-slate-200">
-                          <span
-                            className={`h-2.5 w-2.5 shrink-0 rounded-full ${actionDotTone(
-                              log.action
-                            )}`}
-                          />
-                          {formatAuditActionLabel(log.action)}
-                        </span>
-                      </td>
-
-                      <td className="px-4 py-3 text-slate-300">
-                        {getActorLabel(log, profilesById)}
-                      </td>
-
-                      <td className="px-4 py-3 text-slate-300">
-                        {getResourceLabel(log, documentsById, casesById)}
-                      </td>
-
-                      <td className="px-4 py-3 text-slate-500">
-                        {formatDate(log.created_at)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              {auditLogs.length === 0 ? (
-                <div className="p-6 text-sm text-slate-500">
-                  Todavía no hay eventos auditados.
-                </div>
-              ) : null}
-            </div>
-          </MotionCard>
         </div>
       ) : null}
 
@@ -1923,7 +1506,7 @@ if (
         </MotionCard>
       ) : null}
 
-      {activeView === 'estado_procesal' ? (
+      {isLegal && activeView === 'estado_procesal' ? (
         <MotionCard index={17} className="mt-8 p-6">
           <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
             <div>
@@ -1939,11 +1522,7 @@ if (
             </div>
           </div>
 
-          {!isLegal ? (
-            <div className="p-6 text-sm text-slate-400 rounded-2xl border border-white/10 bg-white/[0.04]">
-              Este reporte aplica al rubro jurídico.
-            </div>
-          ) : estadoProcesalStats.length === 0 ? (
+          {estadoProcesalStats.length === 0 ? (
             <div className="p-6 text-sm text-slate-400 rounded-2xl border border-white/10 bg-white/[0.04]">
               Todavía no hay expedientes para reportar.
             </div>
