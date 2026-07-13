@@ -4,6 +4,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { MotionCard } from '@/components/ui/MotionCard';;
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
+import { isPlatformOwner as checkPlatformOwner } from '@/lib/permissions/platformOwner';
 
 interface RoadmapSprint {
   sprint: string;
@@ -97,6 +98,10 @@ export default async function RoadmapPage() {
 
   if (profile.role !== 'admin') {
     redirect('/acceso-denegado?motivo=rol');
+  }
+
+  if (!(await checkPlatformOwner(user.id))) {
+    redirect('/acceso-denegado');
   }
 
   const admin = createAdminClient();

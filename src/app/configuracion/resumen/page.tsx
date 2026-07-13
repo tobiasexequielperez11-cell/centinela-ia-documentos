@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { MotionCard } from '@/components/ui/MotionCard';;
 import { getUserProfile } from '@/lib/auth/getUserProfile';
+import { isPlatformOwner as checkPlatformOwner } from '@/lib/permissions/platformOwner';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
@@ -147,6 +148,10 @@ export default async function ResumenSistemaPage() {
 
   if (profile.role !== 'admin') {
     redirect('/acceso-denegado?motivo=rol');
+  }
+
+  if (!(await checkPlatformOwner(user.id))) {
+    redirect('/acceso-denegado');
   }
 
   const admin = createAdminClient();
