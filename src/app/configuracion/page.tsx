@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Lock } from 'lucide-react';
+import { Lock, Building2 } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { isPlatformOwner as checkPlatformOwner } from '@/lib/permissions/platformOwner';
-import { updateOrganizationIndustryType, updateOrganizationName } from './actions';
+import { updateOrganizationIndustryType, updateOrganizationName, updateOrganizationLogo } from './actions';
 import {
   ACTIVE_INDUSTRY_TYPES,
   industryLabels,
@@ -37,7 +37,7 @@ export default async function ConfiguracionPage() {
   const supabase = await createClient();
   const { data: org } = await supabase
     .from('organizations')
-    .select('name, industry_type')
+    .select('name, industry_type, logo_url')
     .eq('id', profile.organization_id)
     .single();
 
@@ -69,6 +69,34 @@ export default async function ConfiguracionPage() {
                   ? "Como administrador de la plataforma podés editar los datos del estudio para testear."
                   : "Configuración y datos básicos de tu organización."}
               </p>
+            </div>
+
+            <div className="mb-8 flex items-center gap-6 rounded-xl border border-white/10 bg-white/[0.02] p-4">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/[0.05] border border-white/10">
+                {org?.logo_url ? (
+                  <img src={org.logo_url} alt="Logo" className="h-full w-full object-cover" />
+                ) : (
+                  <Building2 size={24} className="text-slate-400" />
+                )}
+              </div>
+              <form action={updateOrganizationLogo} className="flex flex-1 flex-col sm:flex-row items-end gap-4">
+                <input type="hidden" name="organization_id" value={profile.organization_id} />
+                <div className="flex-1 space-y-1 w-full">
+                  <label className="text-sm text-slate-400">Logo de la organización</label>
+                  <input
+                    type="file"
+                    name="logo"
+                    accept="image/*"
+                    className="block w-full text-sm text-slate-400 file:mr-4 file:rounded-full file:border-0 file:bg-white/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-white/20 outline-none"
+                  />
+                </div>
+                <MotionButton
+                  type="submit"
+                  className="w-full sm:w-auto bg-white/10 hover:bg-white/20"
+                >
+                  Subir logo
+                </MotionButton>
+              </form>
             </div>
 
             <form action={updateOrganizationName} className="mb-8 space-y-4 rounded-xl border border-white/10 bg-white/[0.02] p-4">

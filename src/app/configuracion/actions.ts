@@ -177,3 +177,97 @@ export async function updateOrganizationName(formData: FormData) {
   revalidatePath('/configuracion');
   redirect('/configuracion?success=name_updated');
 }
+
+export async function updateOrganizationLogo(formData: FormData) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect('/login');
+
+  const organizationId = String(formData.get('organization_id') || '');
+  const file = formData.get('logo') as File | null;
+
+  if (!organizationId || !file || file.size === 0) {
+    redirect('/configuracion?error=logo_invalid');
+  }
+
+  const validTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
+  if (!validTypes.includes(file.type) || file.size > 2 * 1024 * 1024) {
+    redirect('/configuracion?error=logo_invalid');
+  }
+
+  const admin = createAdminClient();
+
+  if (!admin) {
+    redirect('/configuracion?error=platform_unavailable');
+  }
+
+  const { data: owner } = await admin
+    .from('platform_admins')
+    .select('user_id, active')
+    .eq('user_id', user.id)
+    .eq('active', true)
+    .maybeSingle();
+
+  const isPlatformOwner = Boolean(owner);
+
+  const { data: actingProfile } = await admin
+    .from('profiles')
+    .select('role, organization_id, status')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  const isOrgAdmin =
+    actingProfile?.role === 'admin' &&
+    actingProfile?.status === 'active' &&
+    actingProfile?.organization_id === organizationId;
+
+  const canChange = isPlatformOwner || isOrgAdmin;
+
+  if (!canChange) {
+    redirect('/configuracion?error=logo_locked');
+  }
+
+  const ext = file.type.split('/')[1] === 'svg+xml' ? 'svg' : file.type.split('/')[1];
+  const path = `${organizationId}/logo-${Date.now()}.${ext}`;
+
+  const { error: uploadError } = await admin.storage
+    .from('branding')
+    .upload(path, file, { upsert: true, contentType: file.type });
+
+  if (uploadError) {
+    console.error('Logo upload failed:', uploadError);
+    redirect('/configuracion?error=logo_upload_failed');
+  }
+
+  const { data: publicUrlData } = admin.storage.from('branding').getPublicUrl(path);
+  const publicUrl = publicUrlData.publicUrl;
+
+  const { error: updateError } = await admin
+    .from('organizations')
+    .update({ logo_url: publicUrl })
+    .eq('id', organizationId);
+
+  if (updateError) {
+    console.error('Organization logo update failed:', updateError);
+    redirect('/configuracion?error=logo_update_failed');
+  }
+
+  const { error: auditError } = await admin.from('audit_logs').insert({
+    organization_id: organizationId,
+    user_id: user.id,
+    action: 'organization_logo_updated',
+    resource_type: 'organization',
+    resource_id: organizationId,
+  });
+
+  if (auditError) {
+    console.error('Organization logo audit log failed:', auditError);
+  }
+
+  revalidatePath('/configuracion');
+  redirect('/configuracion?success=logo_updated');
+}
+
