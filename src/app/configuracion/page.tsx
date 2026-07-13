@@ -184,6 +184,20 @@ export default async function ConfiguracionPage() {
               </p>
             </div>
           </MotionCard>
+
+          <Link href="/configuracion/seguridad-cuenta" className="block">
+            <MotionCard index={1} className="group flex flex-col justify-between border border-white/10 bg-white/[0.03] p-6 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_16px_40px_-16px_rgba(0,0,0,0.7)] transition-colors hover:border-accent/40">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                  <Lock size={20} />
+                </div>
+                <div>
+                  <h3 className="font-display text-lg font-semibold text-white group-hover:text-accent transition-colors">Seguridad de la cuenta</h3>
+                  <p className="mt-1 text-sm text-slate-400">Protegé tu acceso con verificación en dos pasos (2FA).</p>
+                </div>
+              </div>
+            </MotionCard>
+          </Link>
         </div>
 
         <div className="space-y-6">
