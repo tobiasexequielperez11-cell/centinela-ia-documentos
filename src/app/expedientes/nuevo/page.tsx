@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { getCaseFields, getCaseStatuses, getCaseTypes } from '@/lib/industries/caseConfig';
 import { normalizeIndustryType } from '@/lib/industries/documentTypes';
+import { getIndustryTerms } from '@/lib/industries/uiLabels';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createClient } from '@/lib/supabase/server';
 import { createCase } from '../actions';
@@ -20,6 +21,7 @@ export default async function NewCasePage() {
     .maybeSingle();
 
   const industry = normalizeIndustryType(organization?.industry_type);
+  const terms = getIndustryTerms(industry);
   const caseFields = getCaseFields(industry);
   const caseStatuses = getCaseStatuses(industry);
   const caseTypes = getCaseTypes(industry);
@@ -29,15 +31,15 @@ export default async function NewCasePage() {
       <div className="mx-auto max-w-2xl">
         <div className="mb-8">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
-            Nuevo expediente
+            {terms.listaEyebrow}
           </p>
 
           <h2 className="mt-2 text-3xl font-bold text-slate-950">
-            Crear carpeta de trabajo
+            {terms.nuevoCta}
           </h2>
 
           <p className="mt-2 text-sm text-slate-600">
-            Este expediente agrupará documentos, checklist, reportes y actividad.
+            Vas a agrupar documentos, checklist, reportes y actividad.
           </p>
         </div>
 
@@ -48,7 +50,7 @@ export default async function NewCasePage() {
           <div className="grid gap-5">
             <div>
               <label className="text-sm font-semibold text-slate-700">
-                Título del expediente
+                Título
               </label>
               <input
                 name="title"
@@ -71,7 +73,7 @@ export default async function NewCasePage() {
 
             <div>
               <label className="text-sm font-semibold text-slate-700">
-                Tipo de expediente
+                {`Tipo de ${terms.expedienteSingular.toLowerCase()}`}
               </label>
               <select
                 name="case_type"
@@ -142,7 +144,7 @@ export default async function NewCasePage() {
           </div>
 
           <button className="mt-6 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800">
-            Crear expediente
+            {`Crear ${terms.expedienteSingular.toLowerCase()}`}
           </button>
         </form>
       </div>
