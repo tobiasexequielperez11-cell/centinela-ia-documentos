@@ -14,6 +14,8 @@ import { MotionCard } from '@/components/ui/MotionCard';
 import { MotionButton } from '@/components/ui/MotionButton';
 import type { CaseRecord } from '@/types/case';
 import { Calendar, User, FileText, ArrowRight } from 'lucide-react';
+import { isUserRole, canArchiveCase, canDeleteCase } from '@/lib/permissions/roles';
+import { CaseCardMenu } from './CaseCardMenu';
 
 function displayText(value?: string | null, fallback = 'Sin definir') {
   const cleanValue = value?.trim();
@@ -83,6 +85,9 @@ export default async function CasesPage({
     }, {});
   }
 
+  const canArchive = isUserRole(profile.role) && canArchiveCase(profile.role);
+  const canDelete = isUserRole(profile.role) && canDeleteCase(profile.role);
+
   return (
     <AppShell>
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -100,7 +105,7 @@ export default async function CasesPage({
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Link
             href={estado === 'archivadas' ? '/expedientes' : '/expedientes?estado=archivadas'}
             className={`rounded-2xl border px-4 py-2 text-sm font-bold transition-all ${
@@ -140,17 +145,18 @@ export default async function CasesPage({
           const plazoStatus = plazo ? getDocumentExpiryStatus(plazo) : null;
 
           return (
-            <Link key={item.id} href={`/expedientes/${item.id}`}>
-              <MotionCard index={i} className="group flex h-full flex-col justify-between cursor-pointer">
-                <div>
-                  <div className="flex items-start justify-between gap-2">
-                    <Badge tone="accent">{getCaseStatusLabel(item.status, organizationIndustry)}</Badge>
-                    <span className="rounded-full bg-white/5 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">
-                      {getCaseTypeLabel(item.case_type)}
-                    </span>
-                  </div>
+            <div key={item.id} className="relative h-full">
+              <Link href={`/expedientes/${item.id}`} className="block h-full">
+                <MotionCard index={i} className="group relative flex h-full flex-col justify-between cursor-pointer">
+                  <div>
+                    <div className="mr-8 flex flex-wrap items-start justify-between gap-2">
+                      <Badge tone="accent">{getCaseStatusLabel(item.status, organizationIndustry)}</Badge>
+                      <span className="min-w-0 max-w-full shrink truncate break-words rounded-full bg-white/5 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                        {getCaseTypeLabel(item.case_type)}
+                      </span>
+                    </div>
 
-                  <h3 className="mt-4 font-display text-lg font-semibold text-white group-hover:text-cyan-400">
+                    <h3 className="mt-4 pr-6 font-display text-lg font-semibold text-white group-hover:text-cyan-400">
                     {displayText(item.title, terms.itemSinTitulo)}
                   </h3>
 
@@ -191,6 +197,15 @@ export default async function CasesPage({
                 </div>
               </MotionCard>
             </Link>
+            {(canArchive || canDelete) && (
+              <CaseCardMenu
+                caseId={item.id}
+                isArchived={item.status === 'archived' || item.status === 'Archivado'}
+                canArchive={canArchive}
+                canDelete={canDelete}
+              />
+            )}
+          </div>
           );
         })}
       </div>
