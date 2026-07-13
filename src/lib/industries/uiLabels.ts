@@ -12,6 +12,7 @@ export function getNavGroupLabel(group: string, industry: IndustryType): string 
 // --- Nombre de ítems del sidebar, por rubro (clave = href) ---
 const navLabelOverrides: Partial<Record<IndustryType, Record<string, string>>> = {
   escribania: { '/expedientes': 'Legajos' },
+  inmobiliaria: { '/expedientes': 'Operaciones' },
 };
 
 export function getNavItemLabel(
@@ -121,6 +122,32 @@ const termsByIndustry: Partial<Record<IndustryType, IndustryTerms>> = {
     dashboardSubtitulo: 'Tu panel operativo de legajos, documentos e IA.',
     radarTitulo: 'Radar de vigencias',
     radarSubtitulo: 'Vigencias de certificados y plazos próximos (hasta 30 días), ordenados por urgencia.',
+  },
+  inmobiliaria: {
+    expedienteSingular: 'Operación',
+    expedientePlural: 'Operaciones',
+    partes: 'Partes',
+    listaEyebrow: 'OPERACIONES',
+    listaTitulo: 'Gestión de Operaciones',
+    listaSubtitulo: 'Todas tus operaciones, clientes, estados y documentación asociada en un único panel.',
+    nuevoCta: 'Nueva operación',
+    itemSinTitulo: 'Operación sin título',
+    vacioSinResultados: 'No se encontraron operaciones para',
+    vacioSinDatos: 'Todavía no hay operaciones.',
+    vacioAyuda: 'Creá la primera operación para comenzar la gestión documental.',
+    detalleEyebrow: 'DETALLE DE OPERACIÓN',
+    datosTitulo: 'Datos de la operación',
+    editarDatos: 'Editar datos de la operación',
+    actualizarCta: 'Actualizar operación',
+    docsTitulo: 'Documentos de la operación',
+    docsSubtitulo: 'Documentos cargados en la bóveda y asociados a esta operación.',
+    docsVacio: 'Aún no hay documentos en esta operación.',
+    copilotoTitulo: 'Copiloto — Resumen de la operación',
+    copilotoSubtitulo: 'Panorama ejecutivo de la operación generado por IA a partir de los documentos analizados y las actuaciones.',
+    resumenVacio: 'Todavía no hay documentos analizados en esta operación. Analizá al menos un documento con IA para poder generar el resumen.',
+    dashboardSubtitulo: 'Tu panel operativo de operaciones, documentos e IA.',
+    radarTitulo: 'Radar de vencimientos',
+    radarSubtitulo: 'Vencimientos de documentos y plazos próximos (hasta 30 días), ordenados por urgencia.',
   },
 };
 
