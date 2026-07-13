@@ -30,6 +30,7 @@ export const navigation: NavItem[] = [
   { name: 'Inicio', href: '/dashboard', icon: BarChart3, roles: ['admin', 'employee', 'auditor', 'client'], group: 'Operación', description: 'Panel principal y acceso rápido a módulos.' },
   { name: 'Expedientes', href: '/expedientes', icon: FolderKanban, roles: ['admin', 'employee', 'auditor', 'client'], group: 'Operación', description: 'Gestión operativa de expedientes vinculados.' },
   { name: 'Propiedades', href: '/propiedades', icon: Building2, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['inmobiliaria'], group: 'Operación', description: 'Gestión y catálogo de propiedades.' },
+  { name: 'Clientes', href: '/clientes', icon: Users, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['inmobiliaria'], group: 'Operación', description: 'Gestión de clientes y búsqueda inmobiliaria.' },
   { name: 'Documentos', href: '/documentos', icon: FileText, roles: ['admin', 'employee', 'auditor', 'client'], group: 'Operación', description: 'Bóveda documental y análisis en modo beta.' },
   { name: 'Buscar', href: '/buscar', icon: Search, roles: ['admin', 'employee'], group: 'Utilidades', description: 'Búsqueda avanzada de expedientes y documentos.' },
   { name: 'Observaciones', href: '/observaciones', icon: AlertCircle, roles: ['admin', 'employee', 'auditor', 'client'], group: 'Gestión', description: 'Panel de observaciones y tareas pendientes.' },

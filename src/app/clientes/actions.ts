@@ -1,0 +1,151 @@
+'use server';
+
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
+import { getUserProfile } from '@/lib/auth/getUserProfile';
+import { createAuditLog } from '@/lib/audit/createAuditLog';
+import { canManageClient, isUserRole } from '@/lib/permissions/roles';
+
+export async function createClientRecord(formData: FormData) {
+  const { user, profile } = await getUserProfile();
+  if (!user || !profile || !isUserRole(profile.role) || !canManageClient(profile.role)) {
+    redirect('/acceso-denegado?motivo=rol&accion=crear');
+  }
+
+  const supabase = await createClient();
+
+  const name = String(formData.get('name') || '').trim();
+  const email = String(formData.get('email') || '').trim();
+  const phone = String(formData.get('phone') || '').trim();
+  const client_type = String(formData.get('client_type') || '');
+  const status = String(formData.get('status') || '');
+  const operation_interest = String(formData.get('operation_interest') || '');
+  const desired_property_type = String(formData.get('desired_property_type') || '');
+  const zone = String(formData.get('zone') || '').trim();
+  const budget_min_raw = formData.get('budget_min');
+  const budget_max_raw = formData.get('budget_max');
+  const currency = String(formData.get('currency') || '');
+  const min_rooms_raw = formData.get('min_rooms');
+  const notes = String(formData.get('notes') || '').trim();
+
+  const budget_min = budget_min_raw ? Number(budget_min_raw) : null;
+  const budget_max = budget_max_raw ? Number(budget_max_raw) : null;
+  const min_rooms = min_rooms_raw ? Number(min_rooms_raw) : null;
+
+  if (!name) {
+    throw new Error('El nombre es requerido');
+  }
+
+  const { data, error } = await supabase
+    .from('clients')
+    .insert({
+      organization_id: profile.organization_id,
+      name,
+      email: email || null,
+      phone: phone || null,
+      client_type: client_type || null,
+      status: status || null,
+      operation_interest: operation_interest || null,
+      desired_property_type: desired_property_type || null,
+      zone: zone || null,
+      budget_min,
+      budget_max,
+      currency: currency || null,
+      min_rooms,
+      notes: notes || null,
+      created_by: user.id,
+    })
+    .select('id')
+    .single();
+
+  if (error) {
+    console.error('Error creando cliente:', error);
+    throw new Error('No se pudo crear el cliente');
+  }
+
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: profile.id,
+    action: 'client_created',
+    resourceType: 'client',
+    resourceId: data.id,
+  });
+
+  revalidatePath('/clientes');
+  redirect('/clientes');
+}
+
+export async function updateClientRecord(formData: FormData) {
+  const { user, profile } = await getUserProfile();
+  if (!user || !profile || !isUserRole(profile.role) || !canManageClient(profile.role)) {
+    redirect('/acceso-denegado?motivo=rol&accion=editar');
+  }
+
+  const id = String(formData.get('client_id') || '');
+  if (!id) {
+    throw new Error('ID de cliente requerido');
+  }
+
+  const supabase = await createClient();
+
+  const name = String(formData.get('name') || '').trim();
+  const email = String(formData.get('email') || '').trim();
+  const phone = String(formData.get('phone') || '').trim();
+  const client_type = String(formData.get('client_type') || '');
+  const status = String(formData.get('status') || '');
+  const operation_interest = String(formData.get('operation_interest') || '');
+  const desired_property_type = String(formData.get('desired_property_type') || '');
+  const zone = String(formData.get('zone') || '').trim();
+  const budget_min_raw = formData.get('budget_min');
+  const budget_max_raw = formData.get('budget_max');
+  const currency = String(formData.get('currency') || '');
+  const min_rooms_raw = formData.get('min_rooms');
+  const notes = String(formData.get('notes') || '').trim();
+
+  const budget_min = budget_min_raw ? Number(budget_min_raw) : null;
+  const budget_max = budget_max_raw ? Number(budget_max_raw) : null;
+  const min_rooms = min_rooms_raw ? Number(min_rooms_raw) : null;
+
+  if (!name) {
+    throw new Error('El nombre es requerido');
+  }
+
+  const { error } = await supabase
+    .from('clients')
+    .update({
+      name,
+      email: email || null,
+      phone: phone || null,
+      client_type: client_type || null,
+      status: status || null,
+      operation_interest: operation_interest || null,
+      desired_property_type: desired_property_type || null,
+      zone: zone || null,
+      budget_min,
+      budget_max,
+      currency: currency || null,
+      min_rooms,
+      notes: notes || null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', id)
+    .eq('organization_id', profile.organization_id);
+
+  if (error) {
+    console.error('Error actualizando cliente:', error);
+    throw new Error('No se pudo actualizar el cliente');
+  }
+
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: profile.id,
+    action: 'client_updated',
+    resourceType: 'client',
+    resourceId: id,
+  });
+
+  revalidatePath('/clientes');
+  revalidatePath(`/clientes/${id}`);
+  redirect(`/clientes/${id}`);
+}

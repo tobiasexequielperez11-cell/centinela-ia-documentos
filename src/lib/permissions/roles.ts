@@ -66,3 +66,7 @@ export function canDeleteDocument(role: UserRole) {
 export function canManageProperty(role: UserRole) {
   return role === 'admin' || role === 'employee';
 }
+
+export function canManageClient(role: UserRole) {
+  return role === 'admin' || role === 'employee';
+}
