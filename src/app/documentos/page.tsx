@@ -279,13 +279,13 @@ export default async function DocumentsPage({
           <table className="w-full text-left text-sm">
             <thead className="bg-white/[0.04] text-[11px] font-semibold uppercase tracking-wide text-slate-400">
             <tr>
-              <th className="px-3 py-3">Archivo</th>
-              <th className="px-3 py-3">Tipo</th>
-              <th className="px-3 py-3">Sensibilidad</th>
-              <th className="px-3 py-3">Estado IA</th>
-              <th className="px-3 py-3">Vencimiento</th>
-              <th className="px-3 py-3">Tamaño</th>
-              <th className="px-3 py-3">Acción</th>
+              <th className="px-2 py-3">Archivo</th>
+              <th className="px-2 py-3">Tipo</th>
+              <th className="px-2 py-3">Sensibilidad</th>
+              <th className="px-2 py-3">Estado IA</th>
+              <th className="px-2 py-3 hidden md:table-cell">Vencimiento</th>
+              <th className="px-2 py-3 hidden md:table-cell">Tamaño</th>
+              <th className="px-2 py-3 text-right">Acción</th>
             </tr>
           </thead>
 
