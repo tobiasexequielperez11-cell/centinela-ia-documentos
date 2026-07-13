@@ -206,11 +206,11 @@ export const caseStatusesByIndustry: Record<IndustryType, CaseStatusDef[]> = {
   ],
   gestoria: [],
   inmobiliaria: [
-    { value: 'new', label: 'Nueva operación' },
-    { value: 'active', label: 'En gestión' },
-    { value: 'in_review', label: 'En firma' },
-    { value: 'waiting_client', label: 'Esperando cliente' },
-    { value: 'archived', label: 'Cerrada' },
+    { value: 'new', label: 'En captación' },
+    { value: 'active', label: 'Disponible / Publicada' },
+    { value: 'in_review', label: 'En reserva' },
+    { value: 'waiting_client', label: 'En cierre / Escrituración' },
+    { value: 'archived', label: 'Cerrada / Archivada' },
   ],
   empresa: [
     { value: 'new', label: 'Nuevo' },
