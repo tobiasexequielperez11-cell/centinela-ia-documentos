@@ -154,6 +154,7 @@ export async function createCase(formData: FormData) {
   const clientName = String(formData.get('client_name') || '').trim();
   const caseType = String(formData.get('case_type') || 'general');
   const requestedStatus = String(formData.get('status') || '');
+  const propertyId = String(formData.get('property_id') || '');
   const { metadata } = collectCaseMetadata(formData);
 
   if (!title) {
@@ -172,6 +173,7 @@ export async function createCase(formData: FormData) {
       client_name: clientName || null,
       case_type: caseType,
       status,
+      property_id: propertyId || null,
       metadata,
       assigned_to: user.id,
       created_by: user.id,
@@ -207,8 +209,60 @@ export async function createCase(formData: FormData) {
 
   revalidatePath('/dashboard');
   revalidatePath('/expedientes');
-
   redirect(`/expedientes/${data.id}`);
+}
+
+export async function vincularPropiedadOperacion(formData: FormData) {
+  const { profile } = await requireCaseAccess('update');
+  
+  const caseId = String(formData.get('case_id') || '');
+  const propertyId = String(formData.get('property_id') || '');
+
+  if (!caseId) {
+    redirect('/expedientes');
+  }
+
+  const supabase = await createClient();
+
+  if (propertyId) {
+    // Validar que la propiedad pertenezca a la misma organización
+    const { data: property, error: propertyError } = await supabase
+      .from('properties')
+      .select('id')
+      .eq('id', propertyId)
+      .eq('organization_id', profile.organization_id)
+      .single();
+
+    if (propertyError || !property) {
+      throw new Error('Propiedad no encontrada o sin acceso');
+    }
+  }
+
+  const { error } = await supabase
+    .from('cases')
+    .update({ property_id: propertyId || null })
+    .eq('id', caseId)
+    .eq('organization_id', profile.organization_id);
+
+  if (error) {
+    console.error('Update case property_id error:', error);
+    throw new Error('No se pudo vincular la propiedad');
+  }
+
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: profile.id,
+    action: propertyId ? 'case_property_linked' : 'case_property_unlinked',
+    resourceType: 'case',
+    resourceId: caseId,
+    metadata: { property_id: propertyId || null },
+  });
+
+  revalidatePath(`/expedientes/${caseId}`);
+  if (propertyId) {
+    revalidatePath(`/propiedades/${propertyId}`);
+  }
+  redirect(`/expedientes/${caseId}`);
 }
 
 export async function updateCaseStatus(formData: FormData) {

@@ -11,6 +11,8 @@ import { FormSubmitButton } from '@/components/ui/FormSubmitButton';
 import { PropertyAiAssistant } from './PropertyAiAssistant';
 import { Badge } from '@/components/ui/Badge';
 import type { PropertyRecord } from '@/types/property';
+import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
+import { normalizeIndustryType } from '@/lib/industries/documentTypes';
 
 interface PropertyDetailPageProps {
   params: Promise<{ id: string }>;
@@ -45,10 +47,25 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
     .select('id, file_name')
     .eq('organization_id', profile.organization_id)
     .is('archived_at', null)
-    .order('created_at', { ascending: false })
     .limit(50);
 
   const documents = documentsData || [];
+
+  const { data: organization } = await supabase
+    .from('organizations')
+    .select('industry_type')
+    .eq('id', profile.organization_id)
+    .maybeSingle();
+  const industry = normalizeIndustryType(organization?.industry_type);
+
+  const { data: operationsData } = await supabase
+    .from('cases')
+    .select('id, title, status')
+    .eq('property_id', record.id)
+    .eq('organization_id', profile.organization_id)
+    .order('created_at', { ascending: false });
+
+  const operations = operationsData || [];
 
   return (
     <AppShell>
@@ -334,6 +351,35 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
                 </div>
               </li>
             </ul>
+          </div>
+
+          <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-6 mt-6">
+            <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+              🤝 Operaciones de esta propiedad
+            </h3>
+            {operations.length > 0 ? (
+              <ul className="space-y-3">
+                {operations.map((op) => (
+                  <li key={op.id}>
+                    <Link
+                      href={`/expedientes/${op.id}`}
+                      className="group flex items-center justify-between rounded-xl border border-white/10 bg-[#0C2340] px-4 py-3 transition hover:border-cyan-500/50 hover:bg-cyan-500/10"
+                    >
+                      <span className="font-semibold text-white group-hover:text-cyan-400 transition-colors">
+                        {op.title}
+                      </span>
+                      <Badge tone={op.status === 'new' ? 'neutral' : op.status === 'archived' ? 'neutral' : op.status === 'waiting_client' ? 'warning' : 'success'}>
+                        {getCaseStatusLabel(op.status, industry)}
+                      </Badge>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-slate-400">
+                Todavía no hay operaciones vinculadas a esta propiedad.
+              </p>
+            )}
           </div>
         </div>
       </div>

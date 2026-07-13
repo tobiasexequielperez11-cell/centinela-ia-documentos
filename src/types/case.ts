@@ -14,6 +14,7 @@ export interface CaseRecord {
   client_name: string | null;
   case_type: string | null;
   status: CaseStatus;
+  property_id: string | null;
   metadata?: Record<string, string> | null;
   assigned_to: string | null;
   created_by: string | null;

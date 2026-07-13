@@ -32,8 +32,12 @@ import {
   archiveCase,
   unarchiveCase,
   deleteCase,
+  vincularPropiedadOperacion,
 } from '../actions';
-import { canUseAi, canArchiveCase, canDeleteCase } from '@/lib/permissions/roles';
+import { canUseAi, canArchiveCase, canDeleteCase, canUpdateCase } from '@/lib/permissions/roles';
+import { getPropertyStatusLabel, getPropertyTypeLabel } from '@/lib/properties/labels';
+import { FormSubmitButton } from '@/components/ui/FormSubmitButton';
+import { MapPin } from 'lucide-react';
 import { DeleteCaseButton } from './DeleteCaseButton';
 import { CopilotoExpediente } from './CopilotoExpediente';
 import { CotejoExpediente } from './CotejoExpediente';
@@ -247,6 +251,29 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
   const availableDocuments = (availableDocumentsData ??
     []) as ChecklistDocumentOptionRecord[];
   const eventos = (caseEventsData ?? []) as CaseEventRecord[];
+
+  let propertyRecord: any = null;
+  let allProperties: any[] = [];
+  
+  if (industry === 'inmobiliaria') {
+    if (caseRecord.property_id) {
+      const { data } = await supabase
+        .from('properties')
+        .select('id, name, address, status, property_type')
+        .eq('id', caseRecord.property_id)
+        .eq('organization_id', profile.organization_id)
+        .single();
+      propertyRecord = data;
+    }
+
+    const { data: allPropsData } = await supabase
+      .from('properties')
+      .select('id, name, address')
+      .eq('organization_id', profile.organization_id)
+      .is('archived_at', null)
+      .order('created_at', { ascending: false });
+    allProperties = allPropsData || [];
+  }
     
   const checklistStatuses = checklistItems.map((item) => item.status);
   const checklistProgress = summarizeChecklistStatuses(checklistStatuses);
@@ -609,7 +636,64 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                     </div>
                   </div>
                 )}
-                <MotionCard index={0}>
+
+                {industry === 'inmobiliaria' && (
+                  <MotionCard index={0} className="mb-6">
+                    <h3 className="font-display text-lg font-semibold text-white flex items-center gap-2">
+                      🏘️ Propiedad asociada
+                    </h3>
+                    <div className="mt-4">
+                      {propertyRecord ? (
+                        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h4 className="text-lg font-bold text-white">{propertyRecord.name}</h4>
+                              <p className="mt-1 text-sm text-slate-400 flex items-center gap-1">
+                                <MapPin className="h-4 w-4" /> {propertyRecord.address || 'Sin dirección'}
+                              </p>
+                              <div className="mt-3 flex gap-2">
+                                <Badge tone={propertyRecord.status === 'disponible' ? 'success' : propertyRecord.status === 'reservada' ? 'warning' : 'neutral'}>
+                                  {getPropertyStatusLabel(propertyRecord.status)}
+                                </Badge>
+                                <span className="rounded-full bg-white/5 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                                  {getPropertyTypeLabel(propertyRecord.property_type)}
+                                </span>
+                              </div>
+                            </div>
+                            <Link href={`/propiedades/${propertyRecord.id}`} className="shrink-0 rounded-xl bg-cyan-500/10 px-4 py-2 text-sm font-bold text-cyan-400 transition hover:bg-cyan-500/20">
+                              Ver ficha
+                            </Link>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-slate-400">Sin propiedad asociada.</p>
+                      )}
+
+                      {canUpdateCase(profile.role) && (
+                        <form action={vincularPropiedadOperacion} className="mt-4 border-t border-white/10 pt-4">
+                          <input type="hidden" name="case_id" value={caseRecord.id} />
+                          <div className="flex flex-col sm:flex-row gap-3">
+                            <select
+                              name="property_id"
+                              defaultValue={propertyRecord?.id || ''}
+                              className="flex-1 rounded-xl border border-white/10 bg-[#0C2340] px-4 py-2.5 text-sm text-white outline-none focus:ring-2 focus:ring-cyan-400"
+                            >
+                              <option value="">Sin propiedad asociada (desvincular)</option>
+                              {allProperties.map(p => (
+                                <option key={p.id} value={p.id}>
+                                  {p.name} {p.address ? `— ${p.address}` : ''}
+                                </option>
+                              ))}
+                            </select>
+                            <FormSubmitButton label="Guardar propiedad" loadingLabel="Guardando..." />
+                          </div>
+                        </form>
+                      )}
+                    </div>
+                  </MotionCard>
+                )}
+
+                <MotionCard index={industry === 'inmobiliaria' ? 1 : 0}>
           <h3 className="font-display text-lg font-semibold text-white">
             {terms.datosTitulo}
           </h3>
