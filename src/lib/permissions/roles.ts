@@ -62,3 +62,7 @@ export function canArchiveDocument(role: UserRole) {
 export function canDeleteDocument(role: UserRole) {
   return role === 'admin';
 }
+
+export function canManageProperty(role: UserRole) {
+  return role === 'admin' || role === 'employee';
+}
