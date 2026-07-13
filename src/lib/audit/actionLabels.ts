@@ -23,6 +23,17 @@ const auditActionLabels: Record<string, string> = {
   user_role_updated: 'Rol actualizado',
   case_event_added: 'Actuación registrada',
   case_event_removed: 'Actuación eliminada',
+  checklist_item_added: 'Ítem de checklist agregado',
+  checklist_item_marked: 'Ítem de checklist marcado',
+  checklist_item_removed: 'Ítem de checklist eliminado',
+  case_uif_generated: 'Análisis UIF/PLA generado',
+  case_escritura_generated: 'Borrador de escritura generado',
+  case_cotejo_generated: 'Cotejo documental generado',
+  document_poder_generated: 'Análisis de poder/estatuto generado',
+  case_summary_generated: 'Resumen de expediente generado',
+  organization_name_updated: 'Nombre de organización actualizado',
+  organization_logo_updated: 'Logo de organización actualizado',
+  invitation_accepted_account_created: 'Invitación aceptada y cuenta creada',
 };
 
 export function formatAuditActionLabel(action?: string | null): string {

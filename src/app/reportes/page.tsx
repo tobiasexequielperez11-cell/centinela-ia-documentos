@@ -4,7 +4,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { formatAuditActionLabel } from '@/lib/audit/actionLabels';
-import { normalizeIndustryType } from '@/lib/industries/documentTypes';
+import { normalizeIndustryType, industryLabels } from '@/lib/industries/documentTypes';
 import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
 import { getDocumentExpiryStatus } from '@/lib/documents/expiry';
 import { MotionCard } from '@/components/ui/MotionCard';
@@ -335,7 +335,15 @@ function getAuditDetail(log: AuditLogRecordForReport) {
 
   if (model) details.push(`Modelo: ${model}`);
   if (outputType) details.push(`Salida: ${outputType}`);
-  if (statusFrom || statusTo) details.push(`Estado: ${statusFrom ?? '-'} â†’ ${statusTo ?? '-'}`);
+  if (statusFrom || statusTo) {
+    if (log.action === 'organization_industry_updated') {
+      const fromLabel = statusFrom ? (industryLabels[normalizeIndustryType(statusFrom)] || statusFrom) : '-';
+      const toLabel = statusTo ? (industryLabels[normalizeIndustryType(statusTo)] || statusTo) : '-';
+      details.push(`Rubro: ${fromLabel} → ${toLabel}`);
+    } else {
+      details.push(`Estado: ${statusFrom ?? '-'} → ${statusTo ?? '-'}`);
+    }
+  }
   if (documentType) details.push(`Tipo: ${documentType}`);
   if (sensitivity) details.push(`Sensibilidad: ${sensitivityLabel(sensitivity)}`);
   if (fileName && !details.some((item) => item.includes(fileName))) {
