@@ -81,14 +81,23 @@ export default async function ConfiguracionPage() {
               </div>
               <form action={updateOrganizationLogo} className="flex flex-1 flex-col sm:flex-row items-end gap-4">
                 <input type="hidden" name="organization_id" value={profile.organization_id} />
-                <div className="flex-1 space-y-1 w-full">
-                  <label className="text-sm text-slate-400">Logo de la organización</label>
-                  <input
-                    type="file"
-                    name="logo"
-                    accept="image/*"
-                    className="block w-full text-sm text-slate-400 file:mr-4 file:rounded-full file:border-0 file:bg-white/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-white/20 outline-none"
-                  />
+                <div className="flex-1 space-y-2 w-full">
+                  <label className="text-sm text-slate-400 block">Logo de la organización</label>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <input
+                      type="file"
+                      id="logo-input"
+                      name="logo"
+                      accept="image/*"
+                      className="sr-only"
+                    />
+                    <label
+                      htmlFor="logo-input"
+                      className="cursor-pointer rounded-xl bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/20 text-center block"
+                    >
+                      Seleccionar imagen
+                    </label>
+                  </div>
                 </div>
                 <MotionButton
                   type="submit"

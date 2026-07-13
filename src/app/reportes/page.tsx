@@ -994,7 +994,7 @@ if (
                       </p>
                     </td>
 
-                    <td className="px-4 py-4 text-slate-300">
+                    <td className="px-4 py-4 text-slate-300 break-words whitespace-normal max-w-[200px] sm:max-w-[300px]">
                       {getAuditDetail(log)}
                     </td>
 
