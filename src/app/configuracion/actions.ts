@@ -94,3 +94,86 @@ export async function updateOrganizationIndustryType(formData: FormData) {
   revalidatePath('/documentos/subir');
   redirect('/configuracion?success=industry_updated');
 }
+
+export async function updateOrganizationName(formData: FormData) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect('/login');
+
+  const organizationId = String(formData.get('organization_id') || '');
+  const name = String(formData.get('name') || '').trim();
+
+  if (!organizationId || !name || name.length > 120) {
+    redirect('/configuracion?error=name_invalid');
+  }
+
+  const admin = createAdminClient();
+
+  if (!admin) {
+    redirect('/configuracion?error=platform_unavailable');
+  }
+
+  const { data: owner } = await admin
+    .from('platform_admins')
+    .select('user_id, active')
+    .eq('user_id', user.id)
+    .eq('active', true)
+    .maybeSingle();
+
+  const isPlatformOwner = Boolean(owner);
+
+  const { data: actingProfile } = await admin
+    .from('profiles')
+    .select('role, organization_id, status')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  const isOrgAdmin =
+    actingProfile?.role === 'admin' &&
+    actingProfile?.status === 'active' &&
+    actingProfile?.organization_id === organizationId;
+
+  const canChange = isPlatformOwner || isOrgAdmin;
+
+  if (!canChange) {
+    redirect('/configuracion?error=name_locked');
+  }
+
+  const { data: currentOrganization } = await admin
+    .from('organizations')
+    .select('name')
+    .eq('id', organizationId)
+    .maybeSingle();
+
+  const { error } = await admin
+    .from('organizations')
+    .update({ name })
+    .eq('id', organizationId);
+
+  if (error) {
+    console.error('Organization name update failed:', error);
+    redirect('/configuracion?error=name_update_failed');
+  }
+
+  const { error: auditError } = await admin.from('audit_logs').insert({
+    organization_id: organizationId,
+    user_id: user.id,
+    action: 'organization_name_updated',
+    resource_type: 'organization',
+    resource_id: organizationId,
+    metadata: {
+      from: currentOrganization?.name ?? null,
+      to: name,
+    },
+  });
+
+  if (auditError) {
+    console.error('Organization name audit log failed:', auditError);
+  }
+
+  revalidatePath('/configuracion');
+  redirect('/configuracion?success=name_updated');
+}

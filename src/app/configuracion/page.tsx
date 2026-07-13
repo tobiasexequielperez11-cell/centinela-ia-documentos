@@ -5,7 +5,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { isPlatformOwner as checkPlatformOwner } from '@/lib/permissions/platformOwner';
-import { updateOrganizationIndustryType } from './actions';
+import { updateOrganizationIndustryType, updateOrganizationName } from './actions';
 import {
   ACTIVE_INDUSTRY_TYPES,
   industryLabels,
@@ -37,7 +37,7 @@ export default async function ConfiguracionPage() {
   const supabase = await createClient();
   const { data: org } = await supabase
     .from('organizations')
-    .select('industry_type')
+    .select('name, industry_type')
     .eq('id', profile.organization_id)
     .single();
 
@@ -63,10 +63,38 @@ export default async function ConfiguracionPage() {
         <div className="space-y-6">
           <MotionCard index={0} className="border border-white/10 bg-white/[0.03] p-6 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_16px_40px_-16px_rgba(0,0,0,0.7)] transition-colors hover:border-accent/40">
             <div className="mb-6">
-              <h3 className="font-display text-xl font-semibold text-white">Rubro de la organización</h3>
+              <h3 className="font-display text-xl font-semibold text-white">Datos de la organización</h3>
               <p className="mt-2 text-sm text-slate-400">
                 {isPlatformOwner
-                  ? "Como administrador de la plataforma podés cambiar de rubro para testear."
+                  ? "Como administrador de la plataforma podés editar los datos del estudio para testear."
+                  : "Configuración y datos básicos de tu organización."}
+              </p>
+            </div>
+
+            <form action={updateOrganizationName} className="mb-8 space-y-4 rounded-xl border border-white/10 bg-white/[0.02] p-4">
+              <input type="hidden" name="organization_id" value={profile.organization_id} />
+              <div className="space-y-1">
+                <label className="text-sm text-slate-400">Nombre del estudio / organización</label>
+                <input
+                  type="text"
+                  name="name"
+                  defaultValue={org?.name ?? ''}
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white outline-none focus:border-accent focus:ring-1 focus:ring-accent"
+                />
+              </div>
+              <MotionButton
+                type="submit"
+                className="w-full bg-accent hover:bg-accent-strong"
+              >
+                Guardar nombre
+              </MotionButton>
+            </form>
+
+            <div className="mb-4">
+              <h4 className="font-semibold text-white">Rubro de la organización</h4>
+              <p className="text-sm text-slate-400">
+                {isPlatformOwner
+                  ? "Como administrador podés cambiar de rubro libremente."
                   : org?.industry_type
                     ? "El rubro define la estructura de legajos y documentos. Está configurado de forma permanente."
                     : "Elegí el rubro de tu organización. Esta acción se realiza una sola vez para estructurar el sistema."}
@@ -112,6 +140,12 @@ export default async function ConfiguracionPage() {
                 </p>
               </div>
             )}
+
+            <div className="mt-8 border-t border-white/10 pt-6">
+              <p className="text-sm text-slate-400">
+                Plan: <span className="font-semibold text-white">Beta operativa comercial</span>
+              </p>
+            </div>
           </MotionCard>
         </div>
 
