@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
+import { normalizeIndustryType } from '@/lib/industries/documentTypes';
+import { getAgendaLabels } from '@/lib/industries/uiLabels';
 import { AgendaClient, type AgendaEvento } from './AgendaClient';
 
 export default async function AgendaPage() {
@@ -11,7 +13,7 @@ export default async function AgendaPage() {
 
   const supabase = await createClient();
 
-  const [documentsResult, casesResult, plazosResult] = await Promise.all([
+  const [documentsResult, casesResult, plazosResult, orgResult] = await Promise.all([
     supabase
       .from('documents')
       .select('id, file_name, expires_at')
@@ -27,7 +29,15 @@ export default async function AgendaPage() {
       .from('agenda_plazos')
       .select('id, titulo, fecha, hora, detalle, categoria, case_id')
       .eq('organization_id', profile.organization_id),
+    supabase
+      .from('organizations')
+      .select('industry_type')
+      .eq('id', profile.organization_id)
+      .single(),
   ]);
+
+  const industry = normalizeIndustryType(orgResult.data?.industry_type);
+  const agendaLabels = getAgendaLabels(industry);
 
   const documents = documentsResult.data ?? [];
   const cases = casesResult.data ?? [];
@@ -75,7 +85,7 @@ export default async function AgendaPage() {
       id: `${tipo}-${p.id}`,
       fecha: String(p.fecha).slice(0, 10),
       hora: hora ?? undefined,
-      titulo: p.titulo ?? (tipo === 'evento' ? 'Evento' : tipo === 'turno' ? 'Turno' : tipo === 'firma' ? 'Firma' : 'Plazo procesal'),
+      titulo: p.titulo ?? (tipo === 'evento' ? 'Evento' : tipo === 'turno' ? 'Turno' : tipo === 'firma' ? 'Firma' : agendaLabels.plazoLabel),
       tipo,
       href: cid ? `/expedientes/${cid}` : '/agenda',
       expedienteNombre: cid ? caseTitleById.get(cid) : undefined,
@@ -84,7 +94,7 @@ export default async function AgendaPage() {
 
   return (
     <AppShell>
-      <AgendaClient eventos={eventos} cases={cases.map((c) => ({ id: c.id, title: c.title || 'Expediente sin título' }))} />
+      <AgendaClient industry={industry} eventos={eventos} cases={cases.map((c) => ({ id: c.id, title: c.title || 'Expediente sin título' }))} />
     </AppShell>
   );
 }

@@ -8,6 +8,8 @@ import { MotionCard } from '@/components/ui/MotionCard';
 import { MotionButton } from '@/components/ui/MotionButton';
 import { guardarEventoManual, guardarTurno } from './actions';
 import { FERIADOS, FERIAS_JUDICIALES } from '@/lib/legal/config';
+import type { IndustryType } from '@/lib/industries/documentTypes';
+import { getAgendaLabels, getIndustryTerms } from '@/lib/industries/uiLabels';
 
 export type AgendaEvento = {
   id: string;
@@ -33,7 +35,9 @@ function feriaDe(fecha: string): string | null {
   return f ? f.nombre : null;
 }
 
-export function AgendaClient({ eventos, cases }: { eventos: AgendaEvento[]; cases: { id: string; title: string }[] }) {
+export function AgendaClient({ eventos, cases, industry }: { eventos: AgendaEvento[]; cases: { id: string; title: string }[]; industry: IndustryType }) {
+  const agendaLabels = getAgendaLabels(industry);
+  const terms = getIndustryTerms(industry);
   const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [nuevoTitulo, setNuevoTitulo] = useState('');
@@ -107,9 +111,9 @@ export function AgendaClient({ eventos, cases }: { eventos: AgendaEvento[]; case
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-cyan-400">Herramientas jurídicas</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-cyan-400">{agendaLabels.eyebrow}</p>
           <h1 className="mt-1 text-2xl font-bold text-white">Agenda</h1>
-          <p className="mt-1 text-sm text-slate-400">Feriados, feria judicial y vencimientos de tus documentos y expedientes.</p>
+          <p className="mt-1 text-sm text-slate-400">{agendaLabels.subtitulo}</p>
         </div>
         <MotionButton
           type="button"
@@ -193,10 +197,10 @@ export function AgendaClient({ eventos, cases }: { eventos: AgendaEvento[]; case
 
       <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600">
         <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-amber-400" /> Feriado</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-slate-400" /> Feria judicial</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-slate-400" /> {agendaLabels.feriaLabel}</span>
         <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-sky-500" /> Vencimiento documento</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-violet-500" /> Fecha de expediente</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-violet-500" /> Plazo procesal</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-violet-500" /> Fecha de {terms.expedienteSingular.toLowerCase()}</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-violet-500" /> {agendaLabels.plazoLabel}</span>
         <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-emerald-500" /> Recordatorio</span>
         <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-teal-500" /> Turno</span>
         <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-rose-500" /> Firma</span>
@@ -275,11 +279,11 @@ export function AgendaClient({ eventos, cases }: { eventos: AgendaEvento[]; case
                 : ev.tipo === 'firma' ? FileSignature
                 : FolderKanban;
               const typeLabel = ev.tipo === 'documento' ? 'Vence documento'
-                : ev.tipo === 'plazo' ? 'Plazo procesal'
+                : ev.tipo === 'plazo' ? agendaLabels.plazoLabel
                 : ev.tipo === 'evento' ? 'Recordatorio'
                 : ev.tipo === 'turno' ? 'Turno'
                 : ev.tipo === 'firma' ? 'Firma'
-                : 'Expediente';
+                : terms.expedienteSingular;
               const content = (
                 <>
                   <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${iconBg}`}>

@@ -127,3 +127,47 @@ const termsByIndustry: Partial<Record<IndustryType, IndustryTerms>> = {
 export function getIndustryTerms(industry: IndustryType): IndustryTerms {
   return termsByIndustry[industry] ?? defaultTerms;
 }
+
+export type AgendaLabels = {
+  eyebrow: string;
+  subtitulo: string;
+  plazoLabel: string;
+  feriaLabel: string;
+};
+
+const agendaLabelsByIndustry: Partial<Record<IndustryType, AgendaLabels>> = {
+  legal: {
+    eyebrow: 'Herramientas jurídicas',
+    subtitulo: 'Feriados, feria judicial y vencimientos de tus documentos y expedientes.',
+    plazoLabel: 'Plazo procesal',
+    feriaLabel: 'Feria judicial',
+  },
+  escribania: {
+    eyebrow: 'Herramientas notariales',
+    subtitulo: 'Feriados, turnos, firmas y vencimientos de certificados y legajos.',
+    plazoLabel: 'Plazo / vencimiento',
+    feriaLabel: 'Feria judicial',
+  },
+  inmobiliaria: {
+    eyebrow: 'Herramientas inmobiliarias',
+    subtitulo: 'Feriados, vencimientos de documentos y fechas clave de tus operaciones.',
+    plazoLabel: 'Plazo',
+    feriaLabel: 'Feriado extendido',
+  },
+  empresa: {
+    eyebrow: 'Herramientas de gestión',
+    subtitulo: 'Feriados, vencimientos de documentos y fechas clave de la organización.',
+    plazoLabel: 'Plazo',
+    feriaLabel: 'Feriado extendido',
+  },
+  general: {
+    eyebrow: 'Herramientas',
+    subtitulo: 'Feriados, vencimientos de documentos y fechas clave.',
+    plazoLabel: 'Plazo',
+    feriaLabel: 'Feria',
+  },
+};
+
+export function getAgendaLabels(industry: IndustryType): AgendaLabels {
+  return agendaLabelsByIndustry[industry] ?? agendaLabelsByIndustry.legal!;
+}
