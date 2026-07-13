@@ -4,23 +4,12 @@ import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { formatAuditActionLabel } from '@/lib/audit/actionLabels';
-import { getDocumentTypeLabel, normalizeIndustryType } from '@/lib/industries/documentTypes';
+import { normalizeIndustryType } from '@/lib/industries/documentTypes';
 import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
-import { formatFileSize } from '@/lib/format/fileSize';
-import { analyzeDocument } from '../documentos/actions';
-import { getDocumentExpiryStatus, getDaysUntilExpiry, expiryStatusLabel, getExpiryBadgeStyles } from '@/lib/documents/expiry';
+import { getDocumentExpiryStatus } from '@/lib/documents/expiry';
 import { MotionCard } from '@/components/ui/MotionCard';
-import { MotionButton } from '@/components/ui/MotionButton';
 
-type ReportView =
-  | 'general'
-  | 'documentos'
-  | 'ia'
-  | 'sensibilidad'
-  | 'auditoria'
-  | 'invitaciones'
-  | 'vencimientos'
-  | 'estado_procesal';
+type ReportView = 'general' | 'auditoria';
 
 type AuditFilter = 'todos' | 'documentos' | 'ia' | 'expedientes' | 'invitaciones';
 
@@ -216,27 +205,10 @@ function getAnalysisCountByDocument(aiOutputs: AiOutputRecordForReport[]) {
   return map;
 }
 
-function getDocumentAiLabel(count: number) {
-  if (count <= 0) return 'Pendiente';
-  return 'Analizado IA';
-}
 
-function getDocumentAiClass(count: number) {
-  if (count <= 0) return 'border border-white/10 bg-white/[0.06] text-slate-300 whitespace-nowrap';
-  return 'border border-accent/30 bg-accent/[0.10] text-accent-soft whitespace-nowrap';
-}
 
 function isValidView(value?: string): value is ReportView {
-  return (
-    value === 'general' ||
-    value === 'documentos' ||
-    value === 'ia' ||
-    value === 'sensibilidad' ||
-    value === 'auditoria' ||
-    value === 'invitaciones' ||
-    value === 'vencimientos' ||
-    value === 'estado_procesal'
-  );
+  return value === 'general' || value === 'auditoria';
 }
 
 function isValidAuditFilter(value?: string): value is AuditFilter {
@@ -423,9 +395,6 @@ const { user, profile } = await getUserProfile();
 if (!user) redirect("/login");
 if (!profile) redirect("/onboarding");
 
-if (activeView === "invitaciones" && profile.role !== "admin") {
-  redirect("/acceso-denegado");
-}
 
 if (
   activeView === "auditoria" &&
@@ -514,28 +483,10 @@ if (
     (item) => (analysisCountByDocument.get(item.id) ?? 0) === 0
   );
 
-  const sensitiveDocumentsList = documents
-    .filter((item) => sensitivityRank(item.sensitivity_level) >= 3)
-    .sort(
-      (a, b) => sensitivityRank(b.sensitivity_level) - sensitivityRank(a.sensitivity_level)
-    );
-
   const analyzedDocuments = analyzedDocumentsList.length;
   const pendingDocuments = pendingDocumentsList.length;
 
   const coverage = getPercentage(analyzedDocuments, totalDocuments);
-
-  const iaFocusDocuments = uniqueDocuments([
-    ...pendingDocumentsList,
-    ...analyzedDocumentsList,
-  ]);
-
-  const focusDocuments =
-    activeView === 'ia'
-      ? iaFocusDocuments
-      : activeView === 'sensibilidad'
-        ? sensitiveDocumentsList
-        : documents;
 
   const documentAuditLogs = auditLogs.filter(isDocumentAudit);
   const iaAuditLogs = auditLogs.filter(isAiAudit);
@@ -550,20 +501,15 @@ if (
   let vencidos = 0;
   let sinVencimiento = 0;
 
-  const documentosConVencimiento = documents.filter((doc) => {
+  documents.forEach((doc) => {
     if (!doc.expires_at) {
       sinVencimiento++;
-      return false;
+      return;
     }
     const status = getDocumentExpiryStatus(doc.expires_at);
     if (status === 'vigente') vigentes++;
     else if (status === 'por_vencer') porVencer++;
     else if (status === 'vencido') vencidos++;
-    return true;
-  }).sort((a, b) => {
-    const daysA = getDaysUntilExpiry(a.expires_at!) ?? 0;
-    const daysB = getDaysUntilExpiry(b.expires_at!) ?? 0;
-    return daysA - daysB;
   });
 
   const sensitivityStats = [
@@ -619,36 +565,8 @@ if (
     },
   ];
 
-  const ORDEN_ESTADO_PROCESAL = [
-    'Etapa prejudicial / Mediación','Inicio de demanda','Traslado / Notificación',
-    'Contestación de demanda','Etapa de prueba','Alegatos','Sentencia (1ª instancia)',
-    'Apelación / 2ª instancia','Ejecución de sentencia','Archivado','Otro'
-  ];
-  const casesByEstadoProcesal = new Map<string, CaseRecord[]>();
-  for (const c of cases) {
-    const ep = metadataText(c.metadata, 'estado_procesal') || 'Sin definir';
-    if (!casesByEstadoProcesal.has(ep)) casesByEstadoProcesal.set(ep, []);
-    casesByEstadoProcesal.get(ep)!.push(c);
-  }
-  const estadoProcesalStats = [];
-  for (const label of ORDEN_ESTADO_PROCESAL) {
-    if (casesByEstadoProcesal.has(label)) {
-      const items = casesByEstadoProcesal.get(label)!;
-      estadoProcesalStats.push({ label, items, count: items.length, percent: getPercentage(items.length, totalCases) });
-    }
-  }
-  if (casesByEstadoProcesal.has('Sin definir')) {
-    const items = casesByEstadoProcesal.get('Sin definir')!;
-    estadoProcesalStats.push({ label: 'Sin definir', items, count: items.length, percent: getPercentage(items.length, totalCases) });
-  }
-
   const views: Array<{ label: string; value: ReportView; href: string }> = [
     { label: 'General', value: 'general', href: '/reportes' },
-    { label: 'Documentos', value: 'documentos', href: '/reportes?vista=documentos' },
-    { label: 'Vencimientos', value: 'vencimientos', href: '/reportes?vista=vencimientos' },
-    ...(isLegal ? [{ label: 'Estado procesal', value: 'estado_procesal' as ReportView, href: '/reportes?vista=estado_procesal' }] : []),
-    { label: 'IA documental', value: 'ia', href: '/reportes?vista=ia' },
-    { label: 'Sensibilidad', value: 'sensibilidad', href: '/reportes?vista=sensibilidad' },
     { label: 'Auditoría', value: 'auditoria', href: '/reportes?vista=auditoria' },
   ];
 
@@ -740,7 +658,7 @@ if (
         ))}
       </div>
 
-      {activeView === 'general' || activeView === 'ia' ? (
+      {activeView === 'general' ? (
         <div className="mt-8">
           <MotionCard index={7} className="p-6">
             <div className="flex items-start justify-between gap-4">
@@ -833,9 +751,10 @@ if (
         </div>
       ) : null}
 
-      {activeView === 'general' || activeView === 'sensibilidad' ? (
-        <MotionCard index={9} className="mt-8 p-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-400">
+      {activeView === 'general' ? (
+        <>
+          <MotionCard index={9} className="mt-8 p-6">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-400">
             Sensibilidad
           </p>
 
@@ -871,7 +790,7 @@ if (
             })}
           </div>
 
-          {sensitiveDocumentsList.length > 0 ? (
+          {(sensitivityStats[2].value + sensitivityStats[3].value) > 0 ? (
             <div className="mt-6 rounded-2xl border border-amber-900/30 bg-amber-950/20 p-4">
               <p className="font-bold text-amber-200">
                 Hay documentos de sensibilidad alta o crítica.
@@ -889,139 +808,48 @@ if (
             </div>
           )}
         </MotionCard>
-      ) : null}
-
-      {activeView === 'documentos' ||
-      activeView === 'ia' ||
-      activeView === 'sensibilidad' ? (
-        <MotionCard index={10} className="mt-8 p-6">
-          <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
-            <div>
-              <h3 className="text-xl font-bold text-white">
-                {activeView === 'ia'
-                  ? 'Control de análisis IA por documento'
-                  : activeView === 'sensibilidad'
-                    ? 'Documentos sensibles'
-                    : 'Inventario documental'}
-              </h3>
-
-              <p className="mt-2 text-sm text-slate-400">
-                {activeView === 'ia'
-                  ? 'Listado operativo para revisar documentos pendientes y analizados.'
-                  : activeView === 'sensibilidad'
-                    ? 'Documentos con sensibilidad alta o crítica.'
-                    : 'Listado general de documentos cargados en la bóveda.'}
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="/documentos"
-                className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-bold text-slate-200 hover:bg-white/[0.08]"
-              >
-                Ir a bóveda
-              </Link>
-
-              <Link
-                href="/documentos/subir"
-                className="rounded-xl bg-cyan-600 px-4 py-2 text-sm font-bold text-white hover:bg-cyan-500"
-              >
-                Subir documento
-              </Link>
-            </div>
-          </div>
-
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-white/10 bg-white/[0.02] text-xs uppercase tracking-wide text-slate-400">
-                <tr>
-                  <th className="px-4 py-3">Archivo</th>
-                  <th className="px-4 py-3">Tipo</th>
-                  <th className="px-4 py-3">Sensibilidad</th>
-                  <th className="px-4 py-3">IA</th>
-                  <th className="px-4 py-3">Tamaño</th>
-                  <th className="px-4 py-3">Acción</th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-white/5">
-                {focusDocuments.map((document) => {
-                  const analysisCount = analysisCountByDocument.get(document.id) ?? 0;
-
-                  return (
-                    <tr key={document.id} className="hover:bg-white/[0.02]">
-                      <td className="px-4 py-3">
-                        <Link href={`/documentos/${document.id}`}>
-                          <p className="font-bold text-white hover:text-cyan-400">
-                            {document.file_name}
-                          </p>
-                        </Link>
-
-                        <p className="mt-1 text-xs text-slate-500">
-                          {formatDate(document.created_at)}
-                        </p>
-                      </td>
-
-                      <td className="px-4 py-3 text-slate-300">
-                        {getDocumentTypeLabel(document.document_type)}
-                      </td>
-
-                      <td className="px-4 py-3 text-slate-300">
-                        {sensitivityLabel(document.sensitivity_level)}
-                      </td>
-
-                      <td className="px-4 py-3">
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-bold ${getDocumentAiClass(
-                            analysisCount
-                          )}`}
-                        >
-                          {getDocumentAiLabel(analysisCount)}
-                        </span>
-                      </td>
-
-                      <td className="px-4 py-3 text-slate-300">
-                        {formatFileSize(document.file_size)}
-                      </td>
-
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <Link
-                            href={`/documentos/${document.id}`}
-                            className="rounded-lg border border-white/10 bg-transparent px-3 py-1.5 text-xs font-bold text-slate-300 transition-all hover:bg-white/5 hover:text-white"
-                          >
-                            Ver
-                          </Link>
-
-                          {analysisCount === 0 ? (
-                            <form action={analyzeDocument}>
-                              <input
-                                type="hidden"
-                                name="document_id"
-                                value={document.id}
-                              />
-
-                              <button className="rounded-lg border border-white/10 bg-gradient-to-r from-cyan-500/20 to-brandviolet/20 px-3 py-1.5 text-xs font-bold text-white transition-all hover:from-cyan-500/30 hover:to-brandviolet/30">
-                                Analizar IA
-                              </button>
-                            </form>
-                          ) : null}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-
-            {focusDocuments.length === 0 ? (
-              <div className="p-6 text-sm text-slate-500">
-                No hay documentos para esta vista.
+          <MotionCard index={10} className="p-6">
+            <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-400">
+                  Vencimientos
+                </p>
+                <h3 className="mt-2 text-2xl font-bold text-white">
+                  Control de vencimientos documentales
+                </h3>
+                <p className="mt-2 text-sm text-slate-300">
+                  Seguimiento de documentos vigentes, por vencer y vencidos en entorno controlado.
+                </p>
               </div>
-            ) : null}
-          </div>
-        </MotionCard>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                <p className="text-sm font-semibold text-slate-400">Vencidos</p>
+                <p className="mt-2 text-3xl font-bold text-rose-400">{vencidos}</p>
+                <p className="mt-3 text-xs text-slate-500">Documentos expirados</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                <p className="text-sm font-semibold text-slate-400">Por vencer</p>
+                <p className="mt-2 text-3xl font-bold text-amber-400">{porVencer}</p>
+                <p className="mt-3 text-xs text-slate-500">Próximos 30 días</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                <p className="text-sm font-semibold text-slate-400">Vigentes</p>
+                <p className="mt-2 text-3xl font-bold text-emerald-400">{vigentes}</p>
+                <p className="mt-3 text-xs text-slate-500">En regla</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                <p className="text-sm font-semibold text-slate-400">Sin fecha</p>
+                <p className="mt-2 text-3xl font-bold text-white">{sinVencimiento}</p>
+                <p className="mt-3 text-xs text-slate-500">No aplica o no cargada</p>
+              </div>
+            </div>
+          </MotionCard>
+        </>
       ) : null}
+
+
 
       {activeView === 'auditoria' ? (
         <MotionCard index={11} className="mt-8 p-6">
@@ -1179,160 +1007,7 @@ if (
         </MotionCard>
       ) : null}
 
-      {activeView === 'vencimientos' ? (
-        <MotionCard index={16} className="mt-8 p-6">
-          <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-400">
-                Vencimientos
-              </p>
-              <h3 className="mt-2 text-2xl font-bold text-white">
-                Control de vencimientos documentales
-              </h3>
-              <p className="mt-2 text-sm text-slate-300">
-                Seguimiento de documentos vigentes, por vencer y vencidos en entorno controlado.
-              </p>
-            </div>
-          </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-              <p className="text-sm font-semibold text-slate-400">Vencidos</p>
-              <p className="mt-2 text-3xl font-bold text-rose-400">{vencidos}</p>
-              <p className="mt-3 text-xs text-slate-500">Documentos expirados</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-              <p className="text-sm font-semibold text-slate-400">Por vencer</p>
-              <p className="mt-2 text-3xl font-bold text-amber-400">{porVencer}</p>
-              <p className="mt-3 text-xs text-slate-500">Próximos 30 días</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-              <p className="text-sm font-semibold text-slate-400">Vigentes</p>
-              <p className="mt-2 text-3xl font-bold text-emerald-400">{vigentes}</p>
-              <p className="mt-3 text-xs text-slate-500">En regla</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-              <p className="text-sm font-semibold text-slate-400">Sin fecha</p>
-              <p className="mt-2 text-3xl font-bold text-white">{sinVencimiento}</p>
-              <p className="mt-3 text-xs text-slate-500">No aplica o no cargada</p>
-            </div>
-          </div>
-
-          <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-white/10 bg-white/[0.02] text-xs uppercase tracking-wide text-slate-400">
-                <tr>
-                  <th className="px-4 py-3">Archivo</th>
-                  <th className="px-4 py-3">Tipo</th>
-                  <th className="px-4 py-3">Fecha de vencimiento</th>
-                  <th className="px-4 py-3">Días restantes</th>
-                  <th className="px-4 py-3">Estado</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {documentosConVencimiento.map((document) => {
-                  const days = getDaysUntilExpiry(document.expires_at!) ?? 0;
-                  const status = getDocumentExpiryStatus(document.expires_at);
-                  const badgeStyles = getExpiryBadgeStyles(status);
-                  const label = expiryStatusLabel(status);
-                  
-                  let daysLabel = `${days} días`;
-                  if (days < 0) daysLabel = `Vencido hace ${Math.abs(days)} días`;
-                  else if (days === 0) daysLabel = 'Vence hoy';
-
-                  return (
-                    <tr key={document.id} className="hover:bg-white/[0.02]">
-                      <td className="px-4 py-3">
-                        <Link href={`/documentos/${document.id}`}>
-                          <p className="font-bold text-white hover:text-cyan-400">
-                            {document.file_name}
-                          </p>
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3 text-slate-300">
-                        {getDocumentTypeLabel(document.document_type)}
-                      </td>
-                      <td className="px-4 py-3 text-slate-300">
-                        {formatExpiryDate(document.expires_at)}
-                      </td>
-                      <td className="px-4 py-3 text-slate-300 font-medium">
-                        {daysLabel}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`rounded-full px-3 py-1 text-xs font-bold ${badgeStyles}`}>
-                          {label}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            {documentosConVencimiento.length === 0 ? (
-              <div className="p-6 text-sm text-slate-500">
-                No hay documentos con fecha de vencimiento cargada.
-              </div>
-            ) : null}
-          </div>
-        </MotionCard>
-      ) : null}
-
-      {isLegal && activeView === 'estado_procesal' ? (
-        <MotionCard index={17} className="mt-8 p-6">
-          <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-400">
-                Estado procesal
-              </p>
-              <h3 className="mt-2 text-2xl font-bold text-white">
-                Cartera de expedientes por etapa procesal
-              </h3>
-              <p className="mt-2 text-sm text-slate-300">
-                Seguimiento del estado de avance de los expedientes jurídicos.
-              </p>
-            </div>
-          </div>
-
-          {estadoProcesalStats.length === 0 ? (
-            <div className="p-6 text-sm text-slate-400 rounded-2xl border border-white/10 bg-white/[0.04]">
-              Todavía no hay expedientes para reportar.
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {estadoProcesalStats.map((stat) => (
-                <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-bold text-white">{stat.label}</h4>
-                      <p className="mt-1 text-xs text-slate-400">{stat.count} expedientes ({stat.percent}%)</p>
-                    </div>
-                  </div>
-                  <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white/5">
-                    <div
-                      className="h-full bg-cyan-500 transition-all duration-500"
-                      style={{ width: `${stat.percent}%` }}
-                    />
-                  </div>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                    {stat.items.map((c) => (
-                      <div key={c.id} className="rounded-xl border border-white/10 bg-white/[0.04] p-3 shadow-sm">
-                        <Link href={`/expedientes/${c.id}`} className="block truncate font-bold text-sm text-white hover:text-cyan-400">
-                          {c.title}
-                        </Link>
-                        {c.client_name && (
-                          <p className="mt-1 truncate text-xs text-slate-400">
-                            Cliente: {c.client_name}
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </MotionCard>
-      ) : null}
     </AppShell>
   );
 }
