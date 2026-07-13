@@ -18,6 +18,8 @@ import { normalizeIndustryType } from '@/lib/industries/documentTypes';
 import {
   canCreateCase,
   canUpdateCase,
+  canArchiveCase,
+  canDeleteCase,
   isUserRole,
 } from '@/lib/permissions/roles';
 
@@ -990,4 +992,173 @@ export async function analizarUifExpediente(caseId: string) {
   });
 
   revalidatePath(`/expedientes/${caseId}`);
+}
+
+export async function archiveCase(formData: FormData) {
+  const { user, profile } = await getUserProfile();
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+  if (!isUserRole(profile.role) || !canArchiveCase(profile.role)) {
+    redirect('/acceso-denegado?motivo=rol&accion=expedientes');
+  }
+
+  const caseId = formData.get('case_id') as string;
+  if (!caseId) redirect('/expedientes');
+
+  const supabase = await createClient();
+  await supabase
+    .from('cases')
+    .update({ status: 'archived' })
+    .eq('id', caseId)
+    .eq('organization_id', profile.organization_id);
+
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: user.id,
+    action: 'case_archived' as any,
+    resourceType: 'case',
+    resourceId: caseId,
+  });
+
+  revalidatePath('/dashboard');
+  revalidatePath('/expedientes');
+  revalidatePath(`/expedientes/${caseId}`);
+}
+
+export async function unarchiveCase(formData: FormData) {
+  const { user, profile } = await getUserProfile();
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+  if (!isUserRole(profile.role) || !canArchiveCase(profile.role)) {
+    redirect('/acceso-denegado?motivo=rol&accion=expedientes');
+  }
+
+  const caseId = formData.get('case_id') as string;
+  if (!caseId) redirect('/expedientes');
+
+  const supabase = await createClient();
+  
+  const { data: organization } = await supabase
+    .from('organizations')
+    .select('industry_type')
+    .eq('id', profile.organization_id)
+    .maybeSingle();
+    
+  const industry = normalizeIndustryType(organization?.industry_type);
+  const statuses = getCaseStatuses(industry);
+  const firstActiveStatus = statuses[0]?.value ?? 'active';
+
+  await supabase
+    .from('cases')
+    .update({ status: firstActiveStatus })
+    .eq('id', caseId)
+    .eq('organization_id', profile.organization_id);
+
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: user.id,
+    action: 'case_unarchived' as any,
+    resourceType: 'case',
+    resourceId: caseId,
+  });
+
+  revalidatePath('/dashboard');
+  revalidatePath('/expedientes');
+  revalidatePath(`/expedientes/${caseId}`);
+}
+
+export async function deleteCase(formData: FormData) {
+  const { user, profile } = await getUserProfile();
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+  if (!isUserRole(profile.role) || !canDeleteCase(profile.role)) {
+    redirect('/acceso-denegado?motivo=rol&accion=expedientes');
+  }
+
+  const caseId = formData.get('case_id') as string;
+  if (!caseId) redirect('/expedientes');
+
+  const supabase = await createClient();
+  const { data: caseData } = await supabase
+    .from('cases')
+    .select('id, title')
+    .eq('id', caseId)
+    .eq('organization_id', profile.organization_id)
+    .maybeSingle();
+
+  if (!caseData) redirect('/expedientes');
+
+  // 1. DESVINCULAR documentos (NO borrarlos)
+  await supabase
+    .from('documents')
+    .update({ case_id: null })
+    .eq('case_id', caseId)
+    .eq('organization_id', profile.organization_id);
+
+  // 2. Borrar SOLO los análisis a nivel expediente
+  await supabase
+    .from('ai_outputs')
+    .delete()
+    .eq('case_id', caseId)
+    .eq('organization_id', profile.organization_id)
+    .is('document_id', null);
+
+  // 3. DELETE FROM case_events
+  await supabase
+    .from('case_events')
+    .delete()
+    .eq('case_id', caseId)
+    .eq('organization_id', profile.organization_id);
+
+  // 4. DELETE FROM agenda_plazos (si existe)
+  const { error: deleteAgendaError } = await supabase
+    .from('agenda_plazos')
+    .delete()
+    .eq('case_id', caseId)
+    .eq('organization_id', profile.organization_id);
+    
+  if (deleteAgendaError && deleteAgendaError.code !== '42P01') {
+    console.error('Error deleting agenda_plazos:', deleteAgendaError);
+  }
+
+  // 5. Borrar checklist_items de los checklists de la operación, luego los checklists
+  const { data: checklists } = await supabase
+    .from('checklists')
+    .select('id')
+    .eq('case_id', caseId)
+    .eq('organization_id', profile.organization_id);
+
+  if (checklists && checklists.length > 0) {
+    const checklistIds = checklists.map((c) => c.id);
+    await supabase
+      .from('checklist_items')
+      .delete()
+      .in('checklist_id', checklistIds);
+
+    await supabase
+      .from('checklists')
+      .delete()
+      .eq('case_id', caseId)
+      .eq('organization_id', profile.organization_id);
+  }
+
+  // 6. DELETE FROM cases
+  await supabase
+    .from('cases')
+    .delete()
+    .eq('id', caseId)
+    .eq('organization_id', profile.organization_id);
+
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: user.id,
+    action: 'case_deleted' as any,
+    resourceType: 'case',
+    resourceId: caseId,
+    metadata: { title: caseData.title },
+  });
+
+  revalidatePath('/dashboard');
+  revalidatePath('/expedientes');
+  redirect('/expedientes');
 }

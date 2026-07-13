@@ -46,3 +46,11 @@ export function canViewAudit(role: UserRole) {
 export function isReadOnlyRole(role: UserRole) {
   return role === 'auditor' || role === 'client';
 }
+
+export function canArchiveCase(role: UserRole) {
+  return role === 'admin' || role === 'employee';
+}
+
+export function canDeleteCase(role: UserRole) {
+  return role === 'admin';
+}

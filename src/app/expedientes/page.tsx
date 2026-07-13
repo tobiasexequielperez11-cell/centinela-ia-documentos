@@ -24,9 +24,9 @@ function displayText(value?: string | null, fallback = 'Sin definir') {
 export default async function CasesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; estado?: string }>;
 }) {
-  const { q } = await searchParams;
+  const { q, estado } = await searchParams;
   const { user, profile } = await getUserProfile();
 
   if (!user) redirect('/login');
@@ -34,13 +34,19 @@ export default async function CasesPage({
 
   const supabase = await createClient();
 
-  const { data: cases } = await supabase
+  let queryBuilder = supabase
     .from('cases')
     .select('*')
     .eq('organization_id', profile.organization_id)
-    .neq('status', 'archived')
-    .neq('status', 'Archivado')
     .order('created_at', { ascending: false });
+
+  if (estado === 'archivadas') {
+    queryBuilder = queryBuilder.in('status', ['archived', 'Archivado']);
+  } else {
+    queryBuilder = queryBuilder.not('status', 'in', '("archived","Archivado")');
+  }
+
+  const { data: cases } = await queryBuilder;
 
   const { data: organization } = await supabase
     .from('organizations')
@@ -94,11 +100,23 @@ export default async function CasesPage({
           </p>
         </div>
 
-        <Link href="/expedientes/nuevo">
-          <MotionButton className="bg-gradient-to-r from-accent to-brandviolet text-white">
-            ＋ {terms.nuevoCta}
-          </MotionButton>
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href={estado === 'archivadas' ? '/expedientes' : '/expedientes?estado=archivadas'}
+            className={`rounded-2xl border px-4 py-2 text-sm font-bold transition-all ${
+              estado === 'archivadas' 
+                ? 'border-sky-400 bg-sky-400/10 text-sky-400' 
+                : 'border-white/10 bg-white/[0.025] text-slate-300 hover:bg-white/[0.05]'
+            }`}
+          >
+            {estado === 'archivadas' ? 'Ver activas' : 'Ver archivadas'}
+          </Link>
+          <Link href="/expedientes/nuevo">
+            <MotionButton className="bg-gradient-to-r from-accent to-brandviolet text-white">
+              ＋ {terms.nuevoCta}
+            </MotionButton>
+          </Link>
+        </div>
       </div>
 
       <form method="get" className="mb-6 flex gap-2">

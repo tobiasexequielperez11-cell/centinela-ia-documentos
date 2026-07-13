@@ -29,8 +29,12 @@ import {
   createCaseEvent,
   deleteCaseEvent,
   generarResumenExpediente,
+  archiveCase,
+  unarchiveCase,
+  deleteCase,
 } from '../actions';
-import { canUseAi } from '@/lib/permissions/roles';
+import { canUseAi, canArchiveCase, canDeleteCase } from '@/lib/permissions/roles';
+import { DeleteCaseButton } from './DeleteCaseButton';
 import { CopilotoExpediente } from './CopilotoExpediente';
 import { CotejoExpediente } from './CotejoExpediente';
 import { RedactarEscrituraButton } from './RedactarEscrituraButton';
@@ -1100,6 +1104,41 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
           }
         ]}
       />
+
+      {/* Zona de administración */}
+      {(canArchiveCase(profile.role) || canDeleteCase(profile.role)) && (
+        <div className="mt-12 rounded-3xl border border-rose-500/10 bg-rose-500/5 p-6">
+          <h3 className="mb-4 text-sm font-semibold uppercase tracking-widest text-rose-400">
+            Zona de administración
+          </h3>
+          <div className="flex flex-wrap items-center gap-4">
+            {canArchiveCase(profile.role) && (
+              caseRecord.status !== 'archived' ? (
+                <form action={archiveCase}>
+                  <input type="hidden" name="case_id" value={caseRecord.id} />
+                  <button type="submit" className="rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-bold text-white transition-all hover:bg-white/10">
+                    Archivar operación
+                  </button>
+                </form>
+              ) : (
+                <form action={unarchiveCase}>
+                  <input type="hidden" name="case_id" value={caseRecord.id} />
+                  <button type="submit" className="rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-bold text-white transition-all hover:bg-white/10">
+                    Desarchivar
+                  </button>
+                </form>
+              )
+            )}
+            
+            {canDeleteCase(profile.role) && (
+              <form action={deleteCase}>
+                <input type="hidden" name="case_id" value={caseRecord.id} />
+                <DeleteCaseButton />
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }
