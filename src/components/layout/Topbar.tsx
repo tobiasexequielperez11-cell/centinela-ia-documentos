@@ -27,12 +27,12 @@ export async function Topbar() {
       <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-4">
           <BackButton />
-          <div className="hidden items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.055] px-4 py-2 shadow-[0_12px_30px_rgba(0,0,0,0.16)] lg:flex">
+          <Link href="/buscar" className="hidden cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.055] px-4 py-2 shadow-[0_12px_30px_rgba(0,0,0,0.16)] transition-colors hover:bg-white/10 lg:flex">
             <Search className="h-4 w-4 text-[#29C5FF]" />
             <span className="text-sm text-[#C2CCD9]">
               Buscar {terms.expedienteSingular.toLowerCase()}, documento o cliente...
             </span>
-          </div>
+          </Link>
         </div>
 
         <div className="flex items-center gap-3 lg:ml-auto">
