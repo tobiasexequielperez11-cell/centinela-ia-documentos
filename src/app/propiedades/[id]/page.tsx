@@ -4,10 +4,11 @@ import { AppShell } from '@/components/layout/AppShell';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { getPropertyStatusLabel, getPropertyTypeLabel } from '@/lib/properties/labels';
-import { canManageProperty, isUserRole } from '@/lib/permissions/roles';
+import { canManageProperty, isUserRole, canUseAi } from '@/lib/permissions/roles';
 import { updateProperty } from '../actions';
 import { ArrowLeft, Building2, MapPin, DollarSign, Home, Tag, Info, ScrollText, Users } from 'lucide-react';
 import { FormSubmitButton } from '@/components/ui/FormSubmitButton';
+import { PropertyAiAssistant } from './PropertyAiAssistant';
 import { Badge } from '@/components/ui/Badge';
 import type { PropertyRecord } from '@/types/property';
 
@@ -37,6 +38,17 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
 
   const record = property as PropertyRecord;
   const canManage = isUserRole(profile.role) && canManageProperty(profile.role);
+  const useAi = isUserRole(profile.role) && canUseAi(profile.role);
+
+  const { data: documentsData } = await supabase
+    .from('documents')
+    .select('id, file_name')
+    .eq('organization_id', profile.organization_id)
+    .is('archived_at', null)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  const documents = documentsData || [];
 
   return (
     <AppShell>
@@ -71,6 +83,10 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
+          {useAi && (
+            <PropertyAiAssistant propertyId={record.id} documents={documents} />
+          )}
+
           {canManage ? (
             <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-6 sm:p-8">
               <div className="mb-6">

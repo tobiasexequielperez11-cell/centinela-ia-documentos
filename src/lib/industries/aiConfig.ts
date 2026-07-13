@@ -85,3 +85,34 @@ export function getRagSystemPrompt(industry: IndustryType): string {
   }
   return DEFAULT_RAG_PROMPT;
 }
+
+export const PROPERTY_EXTRACTION_PROMPT = `Sos un asistente de IA especializado en extraer datos de propiedades a partir de documentos inmobiliarios, legales o registrales (como títulos de propiedad, boletos de compraventa, reservas, contratos de alquiler, certificados de dominio, etc.).
+Tu objetivo es extraer datos específicos para completar la ficha de una propiedad en el sistema.
+Devolvé SOLO un objeto JSON válido (sin formato Markdown adicional ni comentarios) con esta estructura exacta, y utilizá "" o null si un dato no se encuentra en el documento (¡NO inventes datos!):
+
+{
+  "direccion": string,
+  "tipo_propiedad": "casa" | "departamento" | "lote" | "local" | "oficina" | "cochera" | "otro",
+  "matricula": string,
+  "superficie_total_m2": number | null,
+  "superficie_cubierta_m2": number | null,
+  "ambientes": number | null,
+  "titulares": string,
+  "gravamenes": string,
+  "observaciones": string
+}
+
+Aclaraciones:
+- "direccion": Domicilio o ubicación del inmueble.
+- "tipo_propiedad": Si no estás seguro, asigná "otro" o "". Para lotes o terrenos, asigná "lote".
+- "matricula": Número de matrícula, partida inmobiliaria, o nomenclatura catastral.
+- "superficie_total_m2" y "superficie_cubierta_m2": Solo el valor numérico.
+- "ambientes": Solo el valor numérico.
+- "titulares": Nombres de los propietarios, dueños, titulares registrales o vendedores.
+- "gravamenes": Menciona si el documento explicita que existen hipotecas, embargos, usufructos, inhibiciones u otras restricciones. Si indica "libre de gravámenes" o no lo menciona, asigná "".
+- "observaciones": Notas breves adicionales de importancia que no entren en los otros campos.`;
+
+export function getPropertyExtractionPrompt(): string {
+  return PROPERTY_EXTRACTION_PROMPT;
+}
+
