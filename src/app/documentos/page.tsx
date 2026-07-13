@@ -16,9 +16,10 @@ import { DocumentRowClient } from './DocumentRowClient';
 import { analyzeDocument } from './actions';
 import { AnalyzeButton } from './AnalyzeButton';
 import type { DocumentRecord } from '@/types/document';
+import { isUserRole, canArchiveDocument, canDeleteDocument } from '@/lib/permissions/roles';
 
 interface DocumentsPageProps {
-  searchParams: Promise<{ ia?: string; q?: string }>;
+  searchParams: Promise<{ ia?: string; q?: string; estado?: string }>;
 }
 
 type IaFilter = 'todos' | 'pendientes' | 'analizados';
@@ -54,6 +55,7 @@ export default async function DocumentsPage({
   const activeFilter = normalizeIaFilter(query.ia);
   const searchTerm = (query.q ?? '').trim();
   const normalizedTerm = searchTerm.toLowerCase();
+  const estado = query.estado;
 
   const { user, profile } = await getUserProfile();
 
@@ -62,11 +64,22 @@ export default async function DocumentsPage({
 
   const supabase = await createClient();
 
-  const { data: documents } = await supabase
+  const canArchive = isUserRole(profile.role) && canArchiveDocument(profile.role);
+  const canDelete  = isUserRole(profile.role) && canDeleteDocument(profile.role);
+
+  let queryBuilder = supabase
     .from('documents')
     .select('*')
     .eq('organization_id', profile.organization_id)
     .order('created_at', { ascending: false });
+
+  if (estado === 'archivadas') {
+    queryBuilder = queryBuilder.not('archived_at', 'is', null);
+  } else {
+    queryBuilder = queryBuilder.is('archived_at', null);
+  }
+
+  const { data: documents } = await queryBuilder;
 
   const { data: aiOutputs } = await supabase
     .from('ai_outputs')
@@ -170,11 +183,23 @@ export default async function DocumentsPage({
             </p>
           </div>
 
-          <Link href="/documentos/subir">
-            <MotionButton className="bg-gradient-to-r from-accent to-brandviolet text-white">
-              ⬆ Subir documento
-            </MotionButton>
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href={estado === 'archivadas' ? '/documentos' : '/documentos?estado=archivadas'}
+              className={`rounded-2xl border px-4 py-2 text-sm font-bold transition-all ${
+                estado === 'archivadas' 
+                  ? 'border-sky-400 bg-sky-400/10 text-sky-400' 
+                  : 'border-white/10 bg-white/[0.025] text-slate-300 hover:bg-white/[0.05]'
+              }`}
+            >
+              {estado === 'archivadas' ? 'Ver activas' : 'Ver archivadas'}
+            </Link>
+            <Link href="/documentos/subir">
+              <MotionButton className="bg-gradient-to-r from-accent to-brandviolet text-white">
+                ⬆ Subir documento
+              </MotionButton>
+            </Link>
+          </div>
         </div>
 
         <div className="mb-6 grid gap-4 sm:grid-cols-3">
@@ -287,6 +312,9 @@ export default async function DocumentsPage({
                   index={index}
                   documentId={item.id}
                   fileName={item.file_name}
+                  isArchived={item.archived_at != null}
+                  canArchive={canArchive}
+                  canDelete={canDelete}
                   documentTypeLabel={getDocumentTypeLabel(item.document_type)}
                   sensitivityLabel={sensitivityLabel(item.sensitivity_level)}
                   isDangerSensitivity={sensitivityLabel(item.sensitivity_level) === 'Crítico' || sensitivityLabel(item.sensitivity_level) === 'Alto'}

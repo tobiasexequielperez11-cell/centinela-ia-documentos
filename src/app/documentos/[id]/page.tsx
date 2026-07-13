@@ -10,7 +10,10 @@ import { getDocumentExpiryStatus, expiryStatusLabel, getExpiryBadgeStyles } from
 import { esPlazoAccionable } from '@/lib/plazos/plazos';
 
 import { PlazosDetectados } from './PlazosDetectados';
-import { FileSignature } from 'lucide-react';
+import { FileSignature, Archive, ArchiveRestore } from 'lucide-react';
+import { archiveDocument, unarchiveDocument, deleteDocument } from '../actions';
+import { canArchiveDocument, canDeleteDocument, isUserRole } from '@/lib/permissions/roles';
+import { DocumentDeleteButton } from './DocumentDeleteButton';
 import { sugerirModeloPorTipo, sugerirModeloNotarialPorTipo } from '@/lib/legal/modelos';
 import { Badge } from '@/components/ui/Badge';
 import { AnalyzeDetailButtonClient } from './AnalyzeDetailButtonClient';
@@ -389,6 +392,12 @@ export default async function DocumentDetailPage({
   });
 
   const signedUrl = signedUrlData?.signedUrl ?? null;
+  if (!document) {
+    notFound();
+  }
+
+  const canArchive = isUserRole(profile.role) && canArchiveDocument(profile.role);
+  const canDelete  = isUserRole(profile.role) && canDeleteDocument(profile.role);
 
   const { data: aiOutputs } = await supabase
     .from('ai_outputs')
@@ -971,6 +980,63 @@ Dictamen IA documental
                 </div>
               ) : null}
             </div>
+
+            {(canArchive || canDelete) && (
+              <div className="mt-8 rounded-3xl border border-white/5 bg-white/[0.02] p-8">
+                <div className="mb-6">
+                  <h3 className="font-display text-xl font-semibold text-white">Zona de administración</h3>
+                  <p className="mt-2 text-sm text-slate-400">Acciones reservadas para administradores y personal autorizado.</p>
+                </div>
+                
+                <div className="space-y-4">
+                  {canArchive && (
+                    <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+                      <div>
+                        <p className="font-bold text-white">Estado del documento</p>
+                        <p className="text-sm text-slate-400">
+                          {document.archived_at ? 'Actualmente archivado y oculto por defecto.' : 'Actualmente activo y visible.'}
+                        </p>
+                      </div>
+                      
+                      {document.archived_at ? (
+                        <form action={unarchiveDocument}>
+                          <input type="hidden" name="document_id" value={document.id} />
+                          <button
+                            type="submit"
+                            className="flex items-center gap-2 rounded-2xl border border-sky-500/20 bg-sky-500/10 px-4 py-2 text-sm font-bold text-sky-400 transition-all hover:bg-sky-500/20"
+                          >
+                            <ArchiveRestore className="h-4 w-4" /> Desarchivar
+                          </button>
+                        </form>
+                      ) : (
+                        <form action={archiveDocument}>
+                          <input type="hidden" name="document_id" value={document.id} />
+                          <button
+                            type="submit"
+                            className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-slate-300 transition-all hover:bg-white/10"
+                          >
+                            <Archive className="h-4 w-4" /> Archivar
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  )}
+
+                  {canDelete && (
+                    <div className="flex items-center justify-between rounded-2xl border border-red-500/20 bg-red-500/5 p-4">
+                      <div>
+                        <p className="font-bold text-red-500">Borrar definitivamente</p>
+                        <p className="text-sm text-slate-400">Elimina el documento, sus análisis y archivos asociados.</p>
+                      </div>
+                      <form action={deleteDocument}>
+                        <input type="hidden" name="document_id" value={document.id} />
+                        <DocumentDeleteButton />
+                      </form>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </section>
 

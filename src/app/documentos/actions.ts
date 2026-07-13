@@ -13,6 +13,8 @@ import { getAnalysisSystemPrompt } from '@/lib/industries/aiConfig';
 import {
   canUploadDocument,
   canUseAi,
+  canArchiveDocument,
+  canDeleteDocument,
   isUserRole,
 } from '@/lib/permissions/roles';
 
@@ -950,4 +952,131 @@ export async function analizarPoderEstatuto(formData: FormData) {
   });
 
   redirect(`/documentos/${documentId}`);
+}
+
+export async function archiveDocument(formData: FormData) {
+  const { user, profile } = await getUserProfile();
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+  if (!isUserRole(profile.role) || !canArchiveDocument(profile.role)) {
+    redirect('/acceso-denegado?motivo=rol&accion=subir');
+  }
+
+  const documentId = formData.get('document_id') as string;
+  if (!documentId) redirect('/documentos');
+
+  const supabase = await createClient();
+  await supabase
+    .from('documents')
+    .update({ archived_at: new Date().toISOString() })
+    .eq('id', documentId)
+    .eq('organization_id', profile.organization_id);
+
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: user.id,
+    action: 'document_archived' as any,
+    resourceType: 'document',
+    resourceId: documentId,
+  });
+
+  revalidatePath('/documentos');
+  revalidatePath(`/documentos/${documentId}`);
+  revalidatePath('/dashboard');
+}
+
+export async function unarchiveDocument(formData: FormData) {
+  const { user, profile } = await getUserProfile();
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+  if (!isUserRole(profile.role) || !canArchiveDocument(profile.role)) {
+    redirect('/acceso-denegado?motivo=rol&accion=subir');
+  }
+
+  const documentId = formData.get('document_id') as string;
+  if (!documentId) redirect('/documentos');
+
+  const supabase = await createClient();
+  await supabase
+    .from('documents')
+    .update({ archived_at: null })
+    .eq('id', documentId)
+    .eq('organization_id', profile.organization_id);
+
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: user.id,
+    action: 'document_unarchived' as any,
+    resourceType: 'document',
+    resourceId: documentId,
+  });
+
+  revalidatePath('/documentos');
+  revalidatePath(`/documentos/${documentId}`);
+  revalidatePath('/dashboard');
+}
+
+export async function deleteDocument(formData: FormData) {
+  const { user, profile } = await getUserProfile();
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+  if (!isUserRole(profile.role) || !canDeleteDocument(profile.role)) {
+    redirect('/acceso-denegado?motivo=rol&accion=subir');
+  }
+
+  const documentId = formData.get('document_id') as string;
+  if (!documentId) redirect('/documentos');
+
+  const supabase = await createClient();
+  const { data: docData } = await supabase
+    .from('documents')
+    .select('id, file_path, file_name')
+    .eq('id', documentId)
+    .eq('organization_id', profile.organization_id)
+    .maybeSingle();
+
+  if (!docData) redirect('/documentos');
+
+  // 1. Borrar el archivo del Storage
+  await supabase.storage.from('documents').remove([docData.file_path]);
+
+  // 2. DELETE FROM document_chunks
+  await supabase
+    .from('document_chunks')
+    .delete()
+    .eq('document_id', documentId)
+    .eq('organization_id', profile.organization_id);
+
+  // 3. DELETE FROM ai_outputs
+  await supabase
+    .from('ai_outputs')
+    .delete()
+    .eq('document_id', documentId)
+    .eq('organization_id', profile.organization_id);
+
+  // 4. Desvincular de checklists
+  await supabase
+    .from('checklist_items')
+    .update({ document_id: null, status: 'pending' })
+    .eq('document_id', documentId);
+
+  // 5. DELETE FROM documents
+  await supabase
+    .from('documents')
+    .delete()
+    .eq('id', documentId)
+    .eq('organization_id', profile.organization_id);
+
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: user.id,
+    action: 'document_deleted' as any,
+    resourceType: 'document',
+    resourceId: documentId,
+    metadata: { file_name: docData.file_name },
+  });
+
+  revalidatePath('/documentos');
+  revalidatePath('/dashboard');
+  redirect('/documentos');
 }

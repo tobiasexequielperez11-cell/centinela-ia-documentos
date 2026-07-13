@@ -54,3 +54,11 @@ export function canArchiveCase(role: UserRole) {
 export function canDeleteCase(role: UserRole) {
   return role === 'admin';
 }
+
+export function canArchiveDocument(role: UserRole) {
+  return role === 'admin' || role === 'employee';
+}
+
+export function canDeleteDocument(role: UserRole) {
+  return role === 'admin';
+}

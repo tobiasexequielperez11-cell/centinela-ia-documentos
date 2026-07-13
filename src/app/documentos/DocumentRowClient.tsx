@@ -1,10 +1,11 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useTransition, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { MotionTableRow } from '@/components/ui/MotionTableRow';
 import { Badge } from '@/components/ui/Badge';
-import { analyzeDocument } from './actions';
+import { MoreVertical } from 'lucide-react';
+import { analyzeDocument, archiveDocument, unarchiveDocument, deleteDocument } from './actions';
 
 interface Props {
   index: number;
@@ -19,6 +20,9 @@ interface Props {
   expiryStatus: string;
   expiryText: string;
   fileSizeLabel: string;
+  isArchived: boolean;
+  canArchive: boolean;
+  canDelete: boolean;
 }
 
 export function DocumentRowClient({
@@ -34,8 +38,27 @@ export function DocumentRowClient({
   expiryStatus,
   expiryText,
   fileSizeLabel,
+  isArchived,
+  canArchive,
+  canDelete,
 }: Props) {
   const [isPending, startTransition] = useTransition();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    }
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isMenuOpen]);
 
   const handleAnalyze = () => {
     startTransition(async () => {
@@ -119,6 +142,63 @@ export function DocumentRowClient({
               Sin IA
             </span>
           ) : null}
+
+          {(canArchive || canDelete) && (
+            <div className="relative ml-2 flex items-center" ref={menuRef}>
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900/50 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </button>
+
+              {isMenuOpen && (
+                <div className="absolute right-0 top-10 z-50 w-48 overflow-hidden rounded-xl border border-slate-700 bg-slate-800 shadow-xl">
+                  <div className="flex flex-col py-1">
+                    {canArchive && !isArchived && (
+                      <form action={archiveDocument} className="w-full">
+                        <input type="hidden" name="document_id" value={documentId} />
+                        <button
+                          type="submit"
+                          className="w-full px-4 py-2 text-left text-sm text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+                        >
+                          Archivar
+                        </button>
+                      </form>
+                    )}
+
+                    {canArchive && isArchived && (
+                      <form action={unarchiveDocument} className="w-full">
+                        <input type="hidden" name="document_id" value={documentId} />
+                        <button
+                          type="submit"
+                          className="w-full px-4 py-2 text-left text-sm text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+                        >
+                          Desarchivar
+                        </button>
+                      </form>
+                    )}
+
+                    {canDelete && (
+                      <form action={deleteDocument} className="w-full" onSubmit={(e) => {
+                        if (!window.confirm("Vas a borrar este documento de forma permanente: se elimina el archivo, sus análisis de IA y sus datos de búsqueda. Esta acción no se puede deshacer. ¿Continuar?")) {
+                          e.preventDefault();
+                        }
+                      }}>
+                        <input type="hidden" name="document_id" value={documentId} />
+                        <button
+                          type="submit"
+                          className="w-full px-4 py-2 text-left text-sm font-semibold text-rose-500 transition-colors hover:bg-rose-500/10"
+                        >
+                          Eliminar
+                        </button>
+                      </form>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </td>
     </MotionTableRow>
