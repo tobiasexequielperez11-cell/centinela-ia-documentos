@@ -9,7 +9,7 @@ import { Plus, KeyRound, CalendarClock, Activity, TrendingUp } from 'lucide-reac
 import { Badge } from '@/components/ui/Badge';
 import { MotionCard } from '@/components/ui/MotionCard';
 import type { RentalContract } from '@/types/rental';
-import { getIndexTypeLabel, getRentalStatusLabel, calcularProximoAjuste } from '@/lib/rentals/labels';
+import { getIndexTypeLabel, getRentalStatusLabel, calcularProximoAjuste, estadoVencimiento } from '@/lib/rentals/labels';
 
 export default async function RentalsPage() {
   const { user, profile } = await getUserProfile();
@@ -37,6 +37,27 @@ export default async function RentalsPage() {
 
   const rentals = (data || []) as RentalContract[];
   const canManage = isUserRole(profile.role) && canManageRental(profile.role);
+
+  const rentalsData = rentals.map(r => {
+    const proxAjuste = calcularProximoAjuste(r.start_date, r.last_adjustment_date, r.adjustment_period_months);
+    const estado = estadoVencimiento(proxAjuste, r.status);
+    return { ...r, proxAjuste, estado };
+  });
+
+  const vencidosCount = rentalsData.filter(r => r.estado.tipo === 'vencido').length;
+  const proximosCount = rentalsData.filter(r => r.estado.tipo === 'proximo').length;
+  const alDiaCount = rentalsData.filter(r => r.estado.tipo === 'al_dia').length;
+
+  const orderMap = { vencido: 0, proximo: 1, al_dia: 2, sin_dato: 3 };
+  rentalsData.sort((a, b) => {
+    const diffTipo = orderMap[a.estado.tipo] - orderMap[b.estado.tipo];
+    if (diffTipo !== 0) return diffTipo;
+    
+    if (a.proxAjuste && b.proxAjuste) {
+      return a.proxAjuste.getTime() - b.proxAjuste.getTime();
+    }
+    return 0;
+  });
 
   return (
     <AppShell>
@@ -70,7 +91,19 @@ export default async function RentalsPage() {
         )}
       </div>
 
-      {rentals.length === 0 ? (
+      <div className="mb-8 flex flex-wrap gap-4">
+        <div className={`rounded-xl border px-4 py-2 text-sm font-bold ${vencidosCount > 0 ? 'bg-red-500/10 text-red-300 border-red-500/30' : 'bg-white/5 text-slate-500 border-white/10'}`}>
+          🔴 Vencidos: {vencidosCount}
+        </div>
+        <div className={`rounded-xl border px-4 py-2 text-sm font-bold ${proximosCount > 0 ? 'bg-amber-500/10 text-amber-300 border-amber-500/30' : 'bg-white/5 text-slate-500 border-white/10'}`}>
+          🟡 Próximos (30 días): {proximosCount}
+        </div>
+        <div className={`rounded-xl border px-4 py-2 text-sm font-bold ${alDiaCount > 0 ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30' : 'bg-white/5 text-slate-500 border-white/10'}`}>
+          🟢 Al día: {alDiaCount}
+        </div>
+      </div>
+
+      {rentalsData.length === 0 ? (
         <div className="flex min-h-[400px] flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-white/[0.02] px-6 py-12 text-center">
           <div className="mb-4 rounded-full bg-cyan-500/10 p-4">
             <KeyRound className="h-8 w-8 text-cyan-400" />
@@ -91,14 +124,12 @@ export default async function RentalsPage() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {rentals.map((rental) => {
-            const proxAjuste = calcularProximoAjuste(rental.start_date, rental.last_adjustment_date, rental.adjustment_period_months);
-            
+          {rentalsData.map((rental) => {
             return (
               <MotionCard key={rental.id}>
                 <Link
                   href={`/alquileres/${rental.id}`}
-                  className="group flex h-full flex-col rounded-3xl border border-white/5 bg-white/[0.02] p-6 transition-all hover:border-cyan-500/30 hover:bg-white/[0.04]"
+                  className={`group flex h-full flex-col rounded-3xl border border-white/5 bg-white/[0.02] p-6 transition-all hover:border-cyan-500/30 hover:bg-white/[0.04] ${rental.status !== 'vigente' ? 'opacity-60' : ''}`}
                 >
                   <div className="mb-4 flex items-start justify-between gap-4">
                     <h3 className="font-display text-lg font-bold text-white group-hover:text-cyan-400 transition-colors line-clamp-2">
@@ -131,15 +162,32 @@ export default async function RentalsPage() {
                       </span>
                     </div>
                     
-                    {proxAjuste && (
-                      <div className="flex items-center justify-between rounded-lg bg-cyan-500/10 px-3 py-2 text-sm">
-                        <span className="flex items-center gap-1.5 text-cyan-500">
-                          <CalendarClock className="h-4 w-4" />
-                          Próximo ajuste
-                        </span>
-                        <span className="font-bold text-cyan-400">
-                          {proxAjuste.toLocaleDateString('es-AR')}
-                        </span>
+                    {rental.proxAjuste && (
+                      <div className="flex flex-col gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm">
+                        <div className="flex items-center justify-between">
+                          <span className="flex items-center gap-1.5 text-slate-400">
+                            <CalendarClock className="h-4 w-4" />
+                            Próximo ajuste
+                          </span>
+                          <span className="font-bold text-slate-300">
+                            {rental.proxAjuste.toLocaleDateString('es-AR')}
+                          </span>
+                        </div>
+                        {rental.estado.tipo === 'vencido' && (
+                          <div className="rounded border border-red-500/30 bg-red-500/10 px-2 py-1 text-xs font-bold text-red-300">
+                            ⚠️ {rental.estado.label}
+                          </div>
+                        )}
+                        {rental.estado.tipo === 'proximo' && (
+                          <div className="rounded border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-xs font-bold text-amber-300">
+                            ⏰ {rental.estado.label}
+                          </div>
+                        )}
+                        {rental.estado.tipo === 'al_dia' && (
+                          <div className="rounded border border-emerald-500/20 bg-emerald-500/5 px-2 py-1 text-xs font-semibold text-emerald-400">
+                            ✓ {rental.estado.label}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

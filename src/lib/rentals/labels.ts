@@ -56,3 +56,26 @@ export function formatPeriodo(period: string): string {
   }
   return period;
 }
+
+export function estadoVencimiento(proxAjuste: Date | null, status: string | null): { tipo: 'vencido' | 'proximo' | 'al_dia' | 'sin_dato'; dias: number | null; label: string } {
+  if (status !== 'vigente' || !proxAjuste) {
+    return { tipo: 'sin_dato', dias: null, label: '' };
+  }
+
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  
+  const ajusteDate = new Date(proxAjuste);
+  ajusteDate.setHours(0, 0, 0, 0);
+
+  const diffTime = ajusteDate.getTime() - hoy.getTime();
+  const dias = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (dias < 0) {
+    return { tipo: 'vencido', dias, label: `Ajuste vencido hace ${Math.abs(dias)} día(s)` };
+  } else if (dias >= 0 && dias <= 30) {
+    return { tipo: 'proximo', dias, label: dias === 0 ? 'Ajusta hoy' : `Ajusta en ${dias} día(s)` };
+  } else {
+    return { tipo: 'al_dia', dias, label: `Ajusta en ${dias} días` };
+  }
+}
