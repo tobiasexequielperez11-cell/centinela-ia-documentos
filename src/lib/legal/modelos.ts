@@ -91,6 +91,48 @@ Por {{inmobiliaria}}: ____________________
 Aclaración: {{agente}}`,
   },
   {
+    id: 'boleto-compraventa',
+    titulo: 'Boleto de compraventa',
+    categoria: 'Inmobiliaria',
+    descripcion: 'Contrato preliminar de compraventa: partes, inmueble, precio, seña, posesión, escrituración y gastos.',
+    industries: ['inmobiliaria'],
+    cuerpo: `BOLETO DE COMPRAVENTA
+
+En {{lugar}}, a los {{fecha}}, entre {{vendedor}}, DNI N° {{dni_vendedor}}, con domicilio en {{domicilio_vendedor}} (en adelante, "el/la VENDEDOR/A"), y {{comprador}}, DNI N° {{dni_comprador}}, con domicilio en {{domicilio_comprador}} (en adelante, "el/la COMPRADOR/A"), se conviene el presente boleto de compraventa, sujeto a las siguientes cláusulas:
+
+PRIMERA — INMUEBLE
+El/la VENDEDOR/A vende al/a la COMPRADOR/A el inmueble sito en {{direccion_inmueble}}, tipo {{tipo_inmueble}}, identificado con matrícula / nomenclatura catastral {{matricula}}, con una superficie de {{superficie}}, que el/la COMPRADOR/A declara conocer y aceptar en el estado en que se encuentra.
+
+SEGUNDA — PRECIO
+El precio total y definitivo de la operación se fija en la suma de {{moneda}} {{precio}} ({{precio_en_letras}}), que las partes declaran de mutuo acuerdo.
+
+TERCERA — FORMA DE PAGO
+En este acto el/la COMPRADOR/A entrega en concepto de seña y a cuenta de precio la suma de {{moneda}} {{monto_sena}} ({{monto_sena_en_letras}}), sirviendo el presente de suficiente recibo. El saldo de {{moneda}} {{saldo}} se abonará de la siguiente forma: {{forma_pago_saldo}}.
+
+CUARTA — POSESIÓN
+La posesión del inmueble será entregada al/a la COMPRADOR/A el día {{fecha_posesion}}, libre de ocupantes y de deudas por servicios e impuestos hasta esa fecha.
+
+QUINTA — ESCRITURACIÓN
+La escritura traslativa de dominio se otorgará dentro de los {{dias_escrituracion}} días, ante el/la escribano/a designado/a por {{escribano_designado}}. El/la VENDEDOR/A se obliga a entregar el inmueble libre de gravámenes, inhibiciones y deudas.
+
+SEXTA — GASTOS E IMPUESTOS
+Los gastos de escrituración, sellados e impuestos que graven la operación estarán a cargo de {{cargo_gastos}}, conforme la ley y los usos de plaza.
+
+SÉPTIMA — SEÑA Y ARREPENTIMIENTO
+La seña se rige por los arts. 1059 y 1060 del Código Civil y Comercial. En caso de incumplimiento del/de la COMPRADOR/A, perderá la seña entregada; si el incumplimiento fuera del/de la VENDEDOR/A, deberá restituirla duplicada, sin perjuicio de las acciones que correspondan.
+
+OCTAVA — OBSERVACIONES
+{{observaciones}}
+
+Se firman dos ejemplares de un mismo tenor y a un solo efecto, en el lugar y fecha indicados.
+
+Firma VENDEDOR/A: ____________________
+Aclaración: {{vendedor}} — DNI {{dni_vendedor}}
+
+Firma COMPRADOR/A: ____________________
+Aclaración: {{comprador}} — DNI {{dni_comprador}}`,
+  },
+  {
     id: 'presentacion-generica',
     titulo: 'Escrito de presentación (genérico)',
     categoria: 'Escritos judiciales',
