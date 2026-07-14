@@ -5,6 +5,8 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
 import { sensitivityLabel } from '@/lib/documents/sensitivity';
+import { agregarObservacion } from '../actions';
+import { FormSubmitButton } from '@/components/ui/FormSubmitButton';
 
 interface Props { params: Promise<{ id: string }>; }
 
@@ -50,6 +52,12 @@ export default async function RecibidoDetallePage({ params }: Props) {
     supabase.from('documents').select('id, file_name, document_type, sensitivity_level, created_at').eq('case_id', caseId).order('created_at', { ascending: false }),
     supabase.from('ai_outputs').select('id, document_id, result_json, created_at').eq('case_id', caseId).eq('output_type', 'document_analysis').order('created_at', { ascending: false }),
   ]);
+
+  const { data: observaciones } = await supabase
+    .from('derivation_notes')
+    .select('id, body, author_org_name, created_at')
+    .eq('derivation_id', derivacion.id)
+    .order('created_at', { ascending: true });
 
   const legajo = caseResult.data;
   const documentos = documentsResult.data ?? [];
@@ -137,6 +145,40 @@ export default async function RecibidoDetallePage({ params }: Props) {
                 })
               )}
             </div>
+
+            <section className="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <h2 className="text-lg font-semibold text-white">Observaciones de la escribanía</h2>
+              <p className="mt-1 text-sm text-slate-400">
+                Dejá notas sobre este legajo. Las verá la organización que te lo derivó.
+              </p>
+
+              <ul className="mt-4 space-y-3">
+                {(observaciones ?? []).map((o) => (
+                  <li key={o.id} className="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <p className="whitespace-pre-wrap text-sm text-white">{o.body}</p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {o.author_org_name ?? 'Escribanía'} · {new Date(o.created_at).toLocaleString('es-AR')}
+                    </p>
+                  </li>
+                ))}
+                {(observaciones ?? []).length === 0 && (
+                  <li className="text-sm text-slate-500">Todavía no hay observaciones.</li>
+                )}
+              </ul>
+
+              <form action={agregarObservacion} className="mt-4 space-y-3">
+                <input type="hidden" name="derivation_id" value={derivacion.id} />
+                <input type="hidden" name="case_id" value={derivacion.case_id} />
+                <textarea
+                  name="body"
+                  required
+                  rows={3}
+                  placeholder="Escribí una observación para la inmobiliaria…"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-white placeholder:text-slate-500"
+                />
+                <FormSubmitButton label="Agregar observación" loadingLabel="Agregando..." />
+              </form>
+            </section>
           </>
         )}
       </div>
