@@ -139,7 +139,15 @@ export async function addIndexValue(formData: FormData) {
   }
 
   const index_type = parseString(formData.get('index_type'));
-  const period = parseString(formData.get('period'));
+  
+  let period = parseString(formData.get('period'));
+  const period_month = parseString(formData.get('period_month'));
+  const period_year = parseString(formData.get('period_year'));
+  
+  if (!period && period_month && period_year) {
+    period = `${period_year}-${period_month}`;
+  }
+
   const value = parseNumber(formData.get('value'));
 
   if (!index_type || !period || value === null) {

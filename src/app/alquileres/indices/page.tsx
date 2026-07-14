@@ -8,7 +8,7 @@ import { canManageRental, isUserRole } from '@/lib/permissions/roles';
 import { FormSubmitButton } from '@/components/ui/FormSubmitButton';
 import { addIndexValue, deleteIndexValue } from '../actions';
 import type { RentIndexValue } from '@/types/rental';
-import { getIndexTypeLabel } from '@/lib/rentals/labels';
+import { getIndexTypeLabel, formatPeriodo } from '@/lib/rentals/labels';
 
 export default async function IndicesPage() {
   const { user, profile } = await getUserProfile();
@@ -81,12 +81,29 @@ export default async function IndicesPage() {
 
                 <div>
                   <label className={labelStyle}>Período (Mes/Año) *</label>
-                  <input
-                    type="month"
-                    name="period"
-                    required
-                    className={inputStyle}
-                  />
+                  <div className="flex gap-2">
+                    <select name="period_month" required className={selectStyle}>
+                      <option value="" disabled selected className="bg-[#0C2340] text-slate-500">Mes</option>
+                      <option value="01" className="bg-[#0C2340] text-white">Enero</option>
+                      <option value="02" className="bg-[#0C2340] text-white">Febrero</option>
+                      <option value="03" className="bg-[#0C2340] text-white">Marzo</option>
+                      <option value="04" className="bg-[#0C2340] text-white">Abril</option>
+                      <option value="05" className="bg-[#0C2340] text-white">Mayo</option>
+                      <option value="06" className="bg-[#0C2340] text-white">Junio</option>
+                      <option value="07" className="bg-[#0C2340] text-white">Julio</option>
+                      <option value="08" className="bg-[#0C2340] text-white">Agosto</option>
+                      <option value="09" className="bg-[#0C2340] text-white">Septiembre</option>
+                      <option value="10" className="bg-[#0C2340] text-white">Octubre</option>
+                      <option value="11" className="bg-[#0C2340] text-white">Noviembre</option>
+                      <option value="12" className="bg-[#0C2340] text-white">Diciembre</option>
+                    </select>
+                    <select name="period_year" required className={selectStyle}>
+                      <option value="" disabled selected className="bg-[#0C2340] text-slate-500">Año</option>
+                      {[2023, 2024, 2025, 2026, 2027, 2028].map(y => (
+                        <option key={y} value={y} className="bg-[#0C2340] text-white">{y}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 <div>
@@ -124,7 +141,7 @@ export default async function IndicesPage() {
                     <div key={idx.id} className="flex items-center justify-between px-6 py-4 hover:bg-white/[0.02] transition">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-white">{idx.period}</span>
+                          <span className="font-bold text-white capitalize">{formatPeriodo(idx.period)}</span>
                           <span className="rounded-full bg-cyan-500/10 px-2 py-0.5 text-[10px] font-bold text-cyan-400 uppercase tracking-wider">
                             {getIndexTypeLabel(idx.index_type)}
                           </span>

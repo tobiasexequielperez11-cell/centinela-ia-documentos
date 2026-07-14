@@ -11,6 +11,7 @@ import { updateRentalContract, aplicarAjusteAlquiler } from '../actions';
 import type { RentalContract } from '@/types/rental';
 import { getIndexTypeLabel, getRentalStatusLabel, calcularProximoAjuste } from '@/lib/rentals/labels';
 import { calcularAjuste, periodoDeFecha } from '@/lib/rentals/calcularAjuste';
+import { AplicarAjusteButton } from './AplicarAjusteButton';
 
 export default async function RentalDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -345,20 +346,10 @@ export default async function RentalDetailPage({ params }: { params: Promise<{ i
                         Coeficiente: {resAjuste.coeficiente?.toFixed(4)} ({resAjuste.periodoBase} → {resAjuste.periodoObjetivo})
                       </p>
                       {canManage && (
-                        <form action={aplicarAjusteAlquiler}>
-                          <input type="hidden" name="rental_id" value={record.id} />
-                          <button 
-                            type="submit"
-                            className="w-full rounded-xl bg-cyan-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-cyan-500"
-                            onClick={(e) => {
-                              if (!window.confirm(`¿Confirmás aplicar el ajuste y actualizar el monto a ${record.currency === 'USD' ? 'u$s' : '$'}${resAjuste.montoSugerido?.toLocaleString('es-AR')}?`)) {
-                                e.preventDefault();
-                              }
-                            }}
-                          >
-                            Aplicar ajuste
-                          </button>
-                        </form>
+                        <AplicarAjusteButton
+                          rentalId={record.id}
+                          montoLabel={`${record.currency === 'USD' ? 'u$s' : '$'}${resAjuste.montoSugerido?.toLocaleString('es-AR')}`}
+                        />
                       )}
                     </div>
                   ) : (

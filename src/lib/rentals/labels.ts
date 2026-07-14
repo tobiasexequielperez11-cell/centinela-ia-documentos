@@ -41,3 +41,18 @@ export function calcularProximoAjuste(
   
   return nextDate;
 }
+
+export function formatPeriodo(period: string): string {
+  if (!period) return '';
+  const [year, month] = period.split('-');
+  if (!year || !month) return period;
+  const meses = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+  const monthIndex = parseInt(month, 10) - 1;
+  if (monthIndex >= 0 && monthIndex < 12) {
+    return `${meses[monthIndex]} ${year}`;
+  }
+  return period;
+}
