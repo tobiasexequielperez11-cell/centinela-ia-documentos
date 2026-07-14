@@ -11,6 +11,7 @@ export async function redactarEscritoIA(input: {
   cuerpo: string;
   valores: Record<string, string>;
   instruccion: string;
+  industria?: string;
 }): Promise<RedactarResult> {
   const { user, profile } = await getUserProfile();
   if (!user || !profile) return { ok: false, motivo: 'sin_permiso' };
@@ -25,8 +26,17 @@ export async function redactarEscritoIA(input: {
     .map(([k, v]) => `- ${k}: ${v}`)
     .join('\n');
 
+  const industriaModelo = input.industria || 'legal';
+  const persona =
+    industriaModelo === 'escribania'
+      ? 'Sos un escribano/a argentino/a experto/a en redacción de instrumentos notariales. Redactá un documento formal, claro y bien estructurado, en español rioplatense con estilo notarial.'
+      : industriaModelo === 'inmobiliaria'
+      ? 'Sos un asesor/a inmobiliario/a argentino/a con experiencia en la redacción de instrumentos de la operación inmobiliaria (reservas, autorizaciones de venta, boletos de compraventa). Redactá un documento formal, claro y bien estructurado, en español rioplatense, con lenguaje profesional pero llano.'
+      : 'Sos un asistente jurídico argentino experto. Redactá un escrito formal, claro y bien estructurado, en español rioplatense con estilo forense.';
+  const tipoDoc = industriaModelo === 'legal' ? 'escrito' : 'documento';
+
   const prompt = [
-    'Sos un asistente jurídico argentino experto. Redactá un escrito formal, claro y bien estructurado, en español rioplatense con estilo forense.',
+    persona,
     'Tomá como base la siguiente plantilla: respetá su estructura y reemplazá las variables entre llaves dobles con los datos provistos.',
     '',
     `TÍTULO DEL MODELO: ${input.titulo}`,
@@ -44,7 +54,7 @@ export async function redactarEscritoIA(input: {
     '- Completá los campos con los datos disponibles.',
     '- Donde falte información, dejá un marcador entre corchetes, ej: [COMPLETAR: domicilio].',
     '- NO inventes datos personales, montos, fechas ni artículos legales que no te hayan dado.',
-    '- Devolvé SOLO el texto del escrito, sin explicaciones ni comentarios previos.',
+    `- Devolvé SOLO el texto del ${tipoDoc}, sin explicaciones ni comentarios previos.`,
   ].join('\n');
 
   try {

@@ -89,11 +89,16 @@ export function ModelosClient({
   const seleccionado = MODELOS.find((m) => m.id === seleccionadoId) ?? null;
 
   const esEscribania = industria === 'escribania';
+  const esInmobiliaria = industria === 'inmobiliaria';
   const placeholderIA = esEscribania
     ? 'Contale a la IA qué necesitás. Ej: escritura de compraventa entre Juan Pérez (vendedor) y Ana Gómez (compradora) sobre el inmueble de calle Falsa 123, por un valor de USD 100.000…'
+    : esInmobiliaria
+    ? 'Contale a la IA qué necesitás. Ej: boleto de compraventa entre Juan Pérez (vendedor) y Ana Gómez (compradora) sobre el depto de calle Falsa 123, precio USD 100.000, seña del 30%, escrituración en 60 días…'
     : 'Contale a la IA qué necesitás. Ej: demanda por despido sin causa, reclama indemnización art. 245 LCT; ingresó el 01/2020, categoría vendedor…';
   const textoDisclaimer = esEscribania
     ? 'Modelos orientativos y editables. Revisá y adaptá cada instrumento a tu jurisdicción, normativa notarial y registral y a cada caso antes de otorgarlo.'
+    : esInmobiliaria
+    ? 'Modelos orientativos y editables. Revisá y adaptá cada instrumento a la normativa vigente y a cada operación antes de firmarlo. No constituye asesoramiento legal.'
     : 'Modelos orientativos y editables. Revisá y adaptá cada escrito a tu jurisdicción, fuero y caso antes de presentarlo.';
 
   const categorias = useMemo(() => {
@@ -132,6 +137,7 @@ export function ModelosClient({
         cuerpo: seleccionado.cuerpo,
         valores,
         instruccion,
+        industria,
       });
       if (r.ok) {
         setTextoIA(r.texto);
@@ -221,10 +227,10 @@ export function ModelosClient({
     <div className="space-y-6">
       <MotionCard index={0} className="p-6">
         <p className="text-xs font-semibold uppercase tracking-wide text-cyan-400">
-          {industria === 'escribania' ? 'Herramientas notariales' : 'Herramientas jurídicas'}
+          {industria === 'escribania' ? 'Herramientas notariales' : industria === 'inmobiliaria' ? 'Herramientas inmobiliarias' : 'Herramientas jurídicas'}
         </p>
         <h1 className="mt-1 text-2xl font-semibold text-white">
-          {industria === 'escribania' ? 'Modelos notariales' : 'Modelos de escritos'}
+          {industria === 'escribania' ? 'Modelos notariales' : industria === 'inmobiliaria' ? 'Modelos inmobiliarios' : 'Modelos de escritos'}
         </h1>
         <p className="mt-1 text-sm text-slate-400">Elegí un modelo, completá los datos y copialo o descargalo.</p>
       </MotionCard>
