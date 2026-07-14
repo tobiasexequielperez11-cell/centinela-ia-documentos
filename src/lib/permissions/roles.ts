@@ -70,3 +70,7 @@ export function canManageProperty(role: UserRole) {
 export function canManageClient(role: UserRole) {
   return role === 'admin' || role === 'employee';
 }
+
+export function canManageRental(role: UserRole) {
+  return role === 'admin' || role === 'employee';
+}
