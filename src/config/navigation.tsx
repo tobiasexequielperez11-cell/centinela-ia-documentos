@@ -15,6 +15,7 @@ import {
   Building2,
   KeyRound,
   Sparkles,
+  Inbox,
 } from 'lucide-react';
 import { type IndustryType } from '@/lib/industries/documentTypes';
 
@@ -36,6 +37,7 @@ export const navigation: NavItem[] = [
   { name: 'Alquileres', href: '/alquileres', icon: KeyRound, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['inmobiliaria'], group: 'Operación', description: 'Registro y seguimiento de contratos de alquiler.' },
   { name: 'Copiloto', href: '/copiloto', icon: Sparkles, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['inmobiliaria'], group: 'Operación', description: 'Briefing del día y asistente de tu inmobiliaria.' },
   { name: 'Documentos', href: '/documentos', icon: FileText, roles: ['admin', 'employee', 'auditor', 'client'], group: 'Operación', description: 'Bóveda documental y análisis en modo beta.' },
+  { name: 'Recibidos', href: '/recibidos', icon: Inbox, roles: ['admin', 'employee', 'auditor'], industries: ['escribania'], group: 'Operación', description: 'Legajos que otras organizaciones derivaron a tu estudio.' },
   { name: 'Buscar', href: '/buscar', icon: Search, roles: ['admin', 'employee'], group: 'Utilidades', description: 'Búsqueda avanzada de expedientes y documentos.' },
   { name: 'Observaciones', href: '/observaciones', icon: AlertCircle, roles: ['admin', 'employee', 'auditor', 'client'], group: 'Gestión', description: 'Panel de observaciones y tareas pendientes.' },
   { name: 'Calculadoras', href: '/calculadoras', icon: Calculator, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['legal', 'escribania'], group: 'Herramientas jurídicas', description: 'Herramientas de cálculo para plazos y montos.' },
