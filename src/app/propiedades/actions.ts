@@ -77,6 +77,93 @@ export async function createProperty(formData: FormData) {
   redirect('/propiedades');
 }
 
+import { analizarMatchConIA } from '@/lib/ai/analizarMatch';
+import { evaluarMatch, ordenarPorMatch } from '@/lib/matching/match';
+import type { ClientRecord } from '@/types/client';
+import type { PropertyRecord } from '@/types/property';
+import { getPropertyTypeLabel } from '@/lib/properties/labels';
+
+export async function analizarMatchPropiedadIA(propertyId: string): Promise<{ ok: boolean; text?: string; error?: string }> {
+  const { profile } = await getUserProfile();
+  if (!profile || !isUserRole(profile.role) || !canUseAi(profile.role)) {
+    return { ok: false, error: 'Sin permiso de IA' };
+  }
+
+  const supabase = await createClient();
+
+  const { data: propData, error: propErr } = await supabase
+    .from('properties')
+    .select('*')
+    .eq('id', propertyId)
+    .eq('organization_id', profile.organization_id)
+    .single();
+
+  if (propErr || !propData) {
+    return { ok: false, error: 'Propiedad no encontrada' };
+  }
+
+  const property = propData as PropertyRecord;
+
+  const { data: clientsData } = await supabase
+    .from('clients')
+    .select('*')
+    .eq('organization_id', profile.organization_id)
+    .is('archived_at', null)
+    .in('status', ['activo', 'en_seguimiento']);
+
+  const clients = (clientsData || []) as ClientRecord[];
+
+  const matches = clients
+    .map(c => ({ item: c, match: evaluarMatch(c, property) }))
+    .filter(m => m.match.elegible && m.match.coincidencias >= 1);
+
+  const topMatches = ordenarPorMatch(matches).slice(0, 5);
+
+  let contexto = `DATOS DE LA PROPIEDAD:
+Nombre: ${property.name}
+Tipo: ${getPropertyTypeLabel(property.property_type)}
+Precio: ${property.price || 'S/N'} ${property.currency || ''}
+Superficie: ${property.surface_total_m2 || 'S/N'} m²
+Ambientes: ${property.rooms || 'S/N'}
+Dirección: ${property.address || 'S/N'}
+
+CLIENTES CANDIDATOS (Top ${topMatches.length}):
+`;
+
+  topMatches.forEach((m, idx) => {
+    const c = m.item;
+    contexto += `
+[Opción ${idx + 1}]
+Cliente: ${c.name}
+Interés: ${c.operation_interest || 'Cualquiera'}
+Tipo Buscado: ${c.desired_property_type || 'Cualquiera'}
+Zona Buscada: ${c.zone || 'Cualquiera'}
+Presupuesto: ${c.budget_min || 0} - ${c.budget_max || 'Sin límite'} ${c.currency || ''}
+Ambientes Mínimos: ${c.min_rooms || 'Cualquiera'}
+Puntaje de Match: ${m.match.coincidencias}/${m.match.aplicables} criterios
+`;
+    m.match.criterios.filter(crit => crit.aplica).forEach(crit => {
+      contexto += `- Criterio "${crit.label}": ${crit.cumple ? 'CUMPLE' : 'NO CUMPLE'}\n`;
+    });
+  });
+
+  const textoIA = await analizarMatchConIA(contexto);
+
+  if (!textoIA) {
+    return { ok: false, error: 'No se pudo generar el análisis.' };
+  }
+
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: profile.id,
+    action: 'property_match_ai' as any,
+    resourceType: 'property',
+    resourceId: propertyId,
+  });
+
+  return { ok: true, text: textoIA };
+}
+
 export async function updateProperty(formData: FormData) {
   const { user, profile } = await getUserProfile();
   if (!user) redirect('/login');

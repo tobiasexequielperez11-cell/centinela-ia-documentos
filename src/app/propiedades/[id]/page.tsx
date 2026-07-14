@@ -16,6 +16,7 @@ import { normalizeIndustryType } from '@/lib/industries/documentTypes';
 import type { ClientRecord } from '@/types/client';
 import { evaluarMatch, ordenarPorMatch } from '@/lib/matching/match';
 import { getDesiredPropertyTypeLabel, getOperationInterestLabel } from '@/lib/clients/labels';
+import { PropertyMatchAiButton } from './PropertyMatchAiButton';
 
 interface PropertyDetailPageProps {
   params: Promise<{ id: string }>;
@@ -407,6 +408,11 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
             <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
               👥 Clientes que podrían estar interesados
             </h3>
+            
+            {useAi && record.status === 'disponible' && sortedMatches.length > 0 && (
+              <PropertyMatchAiButton propertyId={record.id} />
+            )}
+
             {record.status !== 'disponible' ? (
               <p className="text-sm text-slate-400 border border-dashed border-white/10 rounded-xl p-4 text-center">
                 El matching se activa cuando la propiedad está en estado Disponible.

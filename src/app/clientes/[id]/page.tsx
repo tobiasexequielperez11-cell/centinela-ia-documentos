@@ -8,15 +8,12 @@ import { updateClientRecord } from '../actions';
 import { ArrowLeft, User, Phone, Mail, FileText, Search, MapPin, DollarSign, Home } from 'lucide-react';
 import { FormSubmitButton } from '@/components/ui/FormSubmitButton';
 import { Badge } from '@/components/ui/Badge';
-import { 
-  getClientStatusLabel, 
-  getClientTypeLabel, 
-  getOperationInterestLabel, 
-  getDesiredPropertyTypeLabel 
-} from '@/lib/clients/labels';
+import { getClientStatusLabel, getClientTypeLabel, getOperationInterestLabel, getDesiredPropertyTypeLabel } from '@/lib/clients/labels';
 import type { ClientRecord } from '@/types/client';
 import type { PropertyRecord } from '@/types/property';
 import { evaluarMatch, ordenarPorMatch } from '@/lib/matching/match';
+import { canUseAi } from '@/lib/permissions/roles';
+import { ClientMatchAiButton } from './ClientMatchAiButton';
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -163,6 +160,11 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
         <h3 className="mb-6 font-display text-xl font-bold text-white flex items-center gap-2">
           🏠 Propiedades que encajan con su búsqueda
         </h3>
+
+        {canUseAi(profile.role) && sortedMatches.length > 0 && (
+          <ClientMatchAiButton clientId={id} />
+        )}
+
         
         {sortedMatches.length > 0 ? (
           <ul className="space-y-4">

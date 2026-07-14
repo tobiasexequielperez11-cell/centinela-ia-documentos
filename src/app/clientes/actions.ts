@@ -149,3 +149,90 @@ export async function updateClientRecord(formData: FormData) {
   revalidatePath(`/clientes/${id}`);
   redirect(`/clientes/${id}`);
 }
+
+import { canUseAi } from '@/lib/permissions/roles';
+import { analizarMatchConIA } from '@/lib/ai/analizarMatch';
+import { evaluarMatch, ordenarPorMatch } from '@/lib/matching/match';
+import type { PropertyRecord } from '@/types/property';
+import type { ClientRecord } from '@/types/client';
+import { getPropertyTypeLabel } from '@/lib/properties/labels';
+
+export async function analizarMatchClienteIA(clientId: string): Promise<{ ok: boolean; text?: string; error?: string }> {
+  const { profile } = await getUserProfile();
+  if (!profile || !isUserRole(profile.role) || !canUseAi(profile.role)) {
+    return { ok: false, error: 'Sin permiso de IA' };
+  }
+
+  const supabase = await createClient();
+
+  const { data: clientData, error: clientErr } = await supabase
+    .from('clients')
+    .select('*')
+    .eq('id', clientId)
+    .eq('organization_id', profile.organization_id)
+    .single();
+
+  if (clientErr || !clientData) {
+    return { ok: false, error: 'Cliente no encontrado' };
+  }
+
+  const client = clientData as ClientRecord;
+
+  const { data: propsData } = await supabase
+    .from('properties')
+    .select('*')
+    .eq('organization_id', profile.organization_id)
+    .is('archived_at', null)
+    .eq('status', 'disponible');
+
+  const properties = (propsData || []) as PropertyRecord[];
+
+  const matches = properties
+    .map(p => ({ item: p, match: evaluarMatch(client, p) }))
+    .filter(m => m.match.elegible && m.match.coincidencias >= 1);
+
+  const topMatches = ordenarPorMatch(matches).slice(0, 5);
+
+  let contexto = `BÚSQUEDA DEL CLIENTE:
+Interés: ${client.operation_interest || 'Cualquiera'}
+Tipo: ${client.desired_property_type || 'Cualquiera'}
+Zona: ${client.zone || 'Cualquiera'}
+Presupuesto: ${client.budget_min || 0} - ${client.budget_max || 'Sin límite'} ${client.currency || ''}
+Ambientes: ${client.min_rooms || 'Cualquiera'}+
+
+PROPIEDADES CANDIDATAS (Top ${topMatches.length}):
+`;
+
+  topMatches.forEach((m, idx) => {
+    const p = m.item;
+    contexto += `
+[Opción ${idx + 1}]
+Nombre: ${p.name}
+Tipo: ${getPropertyTypeLabel(p.property_type)}
+Precio: ${p.price || 'S/N'} ${p.currency || ''}
+Superficie: ${p.surface_total_m2 || 'S/N'} m²
+Ambientes: ${p.rooms || 'S/N'}
+Dirección: ${p.address || 'S/N'}
+Puntaje de Match: ${m.match.coincidencias}/${m.match.aplicables} criterios
+`;
+    m.match.criterios.filter(c => c.aplica).forEach(c => {
+      contexto += `- Criterio "${c.label}": ${c.cumple ? 'CUMPLE' : 'NO CUMPLE'}\n`;
+    });
+  });
+
+  const textoIA = await analizarMatchConIA(contexto);
+
+  if (!textoIA) {
+    return { ok: false, error: 'No se pudo generar el análisis.' };
+  }
+
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: profile.id,
+    action: 'client_match_ai',
+    resourceType: 'client',
+    resourceId: clientId,
+  });
+
+  return { ok: true, text: textoIA };
+}

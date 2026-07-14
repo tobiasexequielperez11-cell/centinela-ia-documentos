@@ -116,3 +116,8 @@ export function getPropertyExtractionPrompt(): string {
   return PROPERTY_EXTRACTION_PROMPT;
 }
 
+export const MATCHING_ANALYSIS_PROMPT = `Sos un asesor inmobiliario experto. Te paso lo que busca un cliente y una lista de propiedades candidatas con su puntaje de coincidencia. Recomendá en español, en tono profesional y concreto, qué conviene ofrecer y por qué, señalando los puntos fuertes y las objeciones/faltantes de cada opción. Sé breve (máx ~6-8 líneas). No inventes datos que no estén; si algo no coincide, decilo con claridad. Cerrá con una sugerencia de próximo paso. Recordá el principio: la IA sugiere, la decisión final es del corredor.`;
+
+export function getMatchingAnalysisPrompt(): string {
+  return MATCHING_ANALYSIS_PROMPT;
+}
