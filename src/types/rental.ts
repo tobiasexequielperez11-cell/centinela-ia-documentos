@@ -19,3 +19,12 @@ export interface RentalContract {
   created_at: string;
   updated_at: string;
 }
+
+export interface RentIndexValue {
+  id: string;
+  organization_id: string;
+  index_type: string;
+  period: string; // 'YYYY-MM'
+  value: number;
+  created_at: string;
+}

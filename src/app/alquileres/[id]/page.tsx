@@ -1,15 +1,16 @@
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, User, DollarSign, Activity, FileText, CalendarClock, Building } from 'lucide-react';
+import { ArrowLeft, User, DollarSign, Activity, FileText, CalendarClock, Building, AlertTriangle } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { AppShell } from '@/components/layout/AppShell';
 import { FormSubmitButton } from '@/components/ui/FormSubmitButton';
 import { Badge } from '@/components/ui/Badge';
 import { canManageRental, isUserRole } from '@/lib/permissions/roles';
-import { updateRentalContract } from '../actions';
+import { updateRentalContract, aplicarAjusteAlquiler } from '../actions';
 import type { RentalContract } from '@/types/rental';
 import { getIndexTypeLabel, getRentalStatusLabel, calcularProximoAjuste } from '@/lib/rentals/labels';
+import { calcularAjuste, periodoDeFecha } from '@/lib/rentals/calcularAjuste';
 
 export default async function RentalDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -55,7 +56,43 @@ export default async function RentalDetailPage({ params }: { params: Promise<{ i
 
   const properties = propertiesData || [];
   
+  const baseDateStr = record.last_adjustment_date || record.start_date;
   const proxAjuste = calcularProximoAjuste(record.start_date, record.last_adjustment_date, record.adjustment_period_months);
+
+  const periodoBase = periodoDeFecha(baseDateStr);
+  const periodoObjetivo = proxAjuste ? periodoDeFecha(proxAjuste.toISOString()) : '';
+
+  let valorBase: number | null = null;
+  let valorObjetivo: number | null = null;
+
+  if (record.index_type !== 'FIJO' && periodoBase && periodoObjetivo) {
+    const { data: indices } = await supabase
+      .from('rent_index_values')
+      .select('period, value')
+      .eq('organization_id', profile.organization_id)
+      .eq('index_type', record.index_type)
+      .in('period', [periodoBase, periodoObjetivo]);
+      
+    if (indices) {
+      const b = indices.find(i => i.period === periodoBase);
+      const o = indices.find(i => i.period === periodoObjetivo);
+      if (b) valorBase = b.value;
+      if (o) valorObjetivo = o.value;
+    }
+  }
+
+  let resAjuste = null;
+  if (periodoBase && periodoObjetivo) {
+    resAjuste = calcularAjuste({
+      indexType: record.index_type,
+      fixedPct: record.fixed_pct,
+      montoActual: record.current_amount,
+      periodoBase,
+      periodoObjetivo,
+      valorBase,
+      valorObjetivo
+    });
+  }
 
   const inputStyle = "mt-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-400";
   const selectStyle = "mt-2 w-full rounded-xl border border-white/10 bg-[#0C2340] px-4 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-cyan-400";
@@ -290,21 +327,56 @@ export default async function RentalDetailPage({ params }: { params: Promise<{ i
           <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-6">
             <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-400">
               <CalendarClock className="h-4 w-4" />
-              Próximo ajuste
+              📅 Próximo ajuste
             </h3>
             {proxAjuste ? (
               <>
-                <div className="text-2xl font-bold text-cyan-400">
+                <div className="text-2xl font-bold text-cyan-400 mb-2">
                   {proxAjuste.toLocaleDateString('es-AR')}
                 </div>
-                <p className="mt-2 text-xs text-slate-500">
-                  Ajuste cada {record.adjustment_period_months} meses
-                </p>
-                <div className="mt-4 border-t border-white/5 pt-4">
-                  <p className="text-xs italic text-slate-400">
-                    El cálculo del nuevo monto se activa en la próxima etapa (E.2).
-                  </p>
-                </div>
+                {resAjuste ? (
+                  resAjuste.ok ? (
+                    <div className="mt-4 rounded-xl border border-cyan-500/20 bg-cyan-950/30 p-4">
+                      <p className="text-xs text-slate-400 mb-1">Monto sugerido</p>
+                      <p className="font-display text-2xl font-bold text-white mb-2">
+                        {record.currency === 'USD' ? 'u$s' : '$'}{resAjuste.montoSugerido?.toLocaleString('es-AR')}
+                      </p>
+                      <p className="text-xs text-cyan-200 mb-4">
+                        Coeficiente: {resAjuste.coeficiente?.toFixed(4)} ({resAjuste.periodoBase} → {resAjuste.periodoObjetivo})
+                      </p>
+                      {canManage && (
+                        <form action={aplicarAjusteAlquiler}>
+                          <input type="hidden" name="rental_id" value={record.id} />
+                          <button 
+                            type="submit"
+                            className="w-full rounded-xl bg-cyan-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-cyan-500"
+                            onClick={(e) => {
+                              if (!window.confirm(`¿Confirmás aplicar el ajuste y actualizar el monto a ${record.currency === 'USD' ? 'u$s' : '$'}${resAjuste.montoSugerido?.toLocaleString('es-AR')}?`)) {
+                                e.preventDefault();
+                              }
+                            }}
+                          >
+                            Aplicar ajuste
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="mt-4 rounded-xl border border-yellow-500/20 bg-yellow-950/30 p-4">
+                      <div className="flex items-start gap-2">
+                        <AlertTriangle className="h-4 w-4 text-yellow-500 mt-0.5 shrink-0" />
+                        <div>
+                          <p className="text-sm text-yellow-200">{resAjuste.motivo}</p>
+                          {canManage && (
+                            <Link href="/alquileres/indices" className="mt-2 inline-block text-xs font-semibold text-yellow-400 hover:text-yellow-300 transition underline underline-offset-2">
+                              Cargar índice faltante
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                ) : null}
               </>
             ) : (
               <p className="text-sm text-slate-500">Faltan datos de fecha o periodicidad para calcular.</p>

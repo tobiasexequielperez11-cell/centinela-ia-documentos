@@ -6,6 +6,8 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createAuditLog } from '@/lib/audit/createAuditLog';
 import { canManageRental, isUserRole } from '@/lib/permissions/roles';
+import { calcularAjuste, periodoDeFecha } from '@/lib/rentals/calcularAjuste';
+import { calcularProximoAjuste } from '@/lib/rentals/labels';
 
 function parseNumber(value: FormDataEntryValue | null): number | null {
   if (!value) return null;
@@ -123,6 +125,185 @@ export async function updateRentalContract(formData: FormData) {
     action: 'rental_updated' as any,
     resourceType: 'rental',
     resourceId: id,
+  });
+
+  revalidatePath('/alquileres');
+  revalidatePath(`/alquileres/${id}`);
+  redirect(`/alquileres/${id}`);
+}
+
+export async function addIndexValue(formData: FormData) {
+  const { user, profile } = await getUserProfile();
+  if (!user || !profile || !isUserRole(profile.role) || !canManageRental(profile.role)) {
+    redirect('/acceso-denegado?motivo=rol&accion=crear');
+  }
+
+  const index_type = parseString(formData.get('index_type'));
+  const period = parseString(formData.get('period'));
+  const value = parseNumber(formData.get('value'));
+
+  if (!index_type || !period || value === null) {
+    throw new Error('Todos los campos son requeridos');
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('rent_index_values')
+    .upsert(
+      {
+        organization_id: profile.organization_id,
+        index_type,
+        period,
+        value,
+        created_by: user.id
+      },
+      { onConflict: 'organization_id, index_type, period' }
+    );
+
+  if (error) {
+    console.error('Error guardando índice:', error);
+    throw new Error('No se pudo guardar el índice');
+  }
+
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: user.id,
+    action: 'rent_index_added' as any,
+    resourceType: 'rental',
+    resourceId: 'index',
+  });
+
+  revalidatePath('/alquileres/indices');
+}
+
+export async function deleteIndexValue(formData: FormData) {
+  const { user, profile } = await getUserProfile();
+  if (!user || !profile || !isUserRole(profile.role) || !canManageRental(profile.role)) {
+    redirect('/acceso-denegado?motivo=rol&accion=borrar');
+  }
+
+  const id = parseString(formData.get('id'));
+  if (!id) return;
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('rent_index_values')
+    .delete()
+    .eq('id', id)
+    .eq('organization_id', profile.organization_id);
+
+  if (error) {
+    console.error('Error borrando índice:', error);
+    throw new Error('No se pudo borrar el índice');
+  }
+
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: user.id,
+    action: 'rent_index_deleted' as any,
+    resourceType: 'rental',
+    resourceId: id,
+  });
+
+  revalidatePath('/alquileres/indices');
+}
+
+export async function aplicarAjusteAlquiler(formData: FormData) {
+  const { user, profile } = await getUserProfile();
+  if (!user || !profile || !isUserRole(profile.role) || !canManageRental(profile.role)) {
+    redirect('/acceso-denegado?motivo=rol&accion=editar');
+  }
+
+  const id = parseString(formData.get('rental_id'));
+  if (!id) redirect('/alquileres');
+
+  const supabase = await createClient();
+
+  // Cargar contrato
+  const { data: rentalData, error: errRental } = await supabase
+    .from('rental_contracts')
+    .select('*')
+    .eq('id', id)
+    .eq('organization_id', profile.organization_id)
+    .single();
+
+  if (errRental || !rentalData) {
+    redirect('/alquileres');
+  }
+
+  const baseDateStr = rentalData.last_adjustment_date || rentalData.start_date;
+  const periodoBase = periodoDeFecha(baseDateStr);
+  const nextDate = calcularProximoAjuste(rentalData.start_date, rentalData.last_adjustment_date, rentalData.adjustment_period_months);
+  
+  if (!nextDate) {
+    throw new Error('No se puede calcular el próximo ajuste');
+  }
+
+  const periodoObjetivo = periodoDeFecha(nextDate.toISOString());
+
+  let valorBase: number | null = null;
+  let valorObjetivo: number | null = null;
+
+  if (rentalData.index_type !== 'FIJO') {
+    // Buscar en la DB
+    const { data: indices } = await supabase
+      .from('rent_index_values')
+      .select('period, value')
+      .eq('organization_id', profile.organization_id)
+      .eq('index_type', rentalData.index_type)
+      .in('period', [periodoBase, periodoObjetivo]);
+      
+    if (indices) {
+      const b = indices.find(i => i.period === periodoBase);
+      const o = indices.find(i => i.period === periodoObjetivo);
+      if (b) valorBase = b.value;
+      if (o) valorObjetivo = o.value;
+    }
+  }
+
+  const res = calcularAjuste({
+    indexType: rentalData.index_type,
+    fixedPct: rentalData.fixed_pct,
+    montoActual: rentalData.current_amount,
+    periodoBase,
+    periodoObjetivo,
+    valorBase,
+    valorObjetivo
+  });
+
+  if (!res.ok) {
+    redirect(`/alquileres/${id}?error=${encodeURIComponent(res.motivo || 'Error calculando')}`);
+  }
+
+  // Update
+  const newDateStr = nextDate.toISOString();
+  
+  const { error: updErr } = await supabase
+    .from('rental_contracts')
+    .update({
+      current_amount: res.montoSugerido,
+      last_adjustment_date: newDateStr,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', id)
+    .eq('organization_id', profile.organization_id);
+
+  if (updErr) {
+    console.error('Error aplicando ajuste:', updErr);
+    throw new Error('Error al aplicar el ajuste en la base');
+  }
+
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: user.id,
+    action: 'rental_adjusted' as any,
+    resourceType: 'rental',
+    resourceId: id,
+    metadata: {
+      monto_anterior: rentalData.current_amount,
+      monto_nuevo: res.montoSugerido,
+      coeficiente: res.coeficiente
+    }
   });
 
   revalidatePath('/alquileres');

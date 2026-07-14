@@ -5,7 +5,7 @@ import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { AppShell } from '@/components/layout/AppShell';
 import { canManageRental, isUserRole } from '@/lib/permissions/roles';
 import { normalizeIndustryType } from '@/lib/industries/documentTypes';
-import { Plus, KeyRound, CalendarClock, Activity } from 'lucide-react';
+import { Plus, KeyRound, CalendarClock, Activity, TrendingUp } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { MotionCard } from '@/components/ui/MotionCard';
 import type { RentalContract } from '@/types/rental';
@@ -50,14 +50,23 @@ export default async function RentalsPage() {
           </p>
         </div>
         {canManage && (
-          <Link
-            href="/alquileres/nuevo"
-            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-cyan-600 to-[#1E9BF0] px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:shadow-cyan-500/25"
-          >
-            <div className="absolute inset-0 bg-white/20 opacity-0 transition-opacity group-hover:opacity-100"></div>
-            <Plus className="h-4 w-4" />
-            <span>Nuevo contrato</span>
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/alquileres/indices"
+              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-white/5 border border-white/10 px-5 py-2.5 text-sm font-bold text-white transition-all hover:bg-white/10 hover:border-white/20"
+            >
+              <TrendingUp className="h-4 w-4" />
+              <span>Índices de ajuste</span>
+            </Link>
+            <Link
+              href="/alquileres/nuevo"
+              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-cyan-600 to-[#1E9BF0] px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:shadow-cyan-500/25"
+            >
+              <div className="absolute inset-0 bg-white/20 opacity-0 transition-opacity group-hover:opacity-100"></div>
+              <Plus className="h-4 w-4" />
+              <span>Nuevo contrato</span>
+            </Link>
+          </div>
         )}
       </div>
 
