@@ -15,6 +15,8 @@ import {
   getDesiredPropertyTypeLabel 
 } from '@/lib/clients/labels';
 import type { ClientRecord } from '@/types/client';
+import type { PropertyRecord } from '@/types/property';
+import { evaluarMatch, ordenarPorMatch } from '@/lib/matching/match';
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -38,6 +40,22 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
 
   const record = clientData as ClientRecord;
   const canManage = canManageClient(profile.role);
+
+  // MATCHING FLEXIBLE: Buscar propiedades que encajen
+  const { data: propertiesData } = await supabase
+    .from('properties')
+    .select('*')
+    .eq('organization_id', profile.organization_id)
+    .is('archived_at', null)
+    .eq('status', 'disponible');
+
+  const properties = (propertiesData || []) as PropertyRecord[];
+  
+  const matches = properties
+    .map(p => ({ item: p, match: evaluarMatch(record, p) }))
+    .filter(m => m.match.elegible);
+  
+  const sortedMatches = ordenarPorMatch(matches);
 
   const darkOptionStyle = { backgroundColor: '#0C2340', color: '#FFFFFF' };
   const inputStyle = "mt-2 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-cyan-400";
@@ -139,6 +157,63 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             )}
           </ul>
         </div>
+      </div>
+
+      <div className="mt-8 rounded-3xl border border-white/5 bg-white/[0.02] p-8">
+        <h3 className="mb-6 font-display text-xl font-bold text-white flex items-center gap-2">
+          🏠 Propiedades que encajan con su búsqueda
+        </h3>
+        
+        {sortedMatches.length > 0 ? (
+          <ul className="space-y-4">
+            {sortedMatches.map(({ item: p, match }) => (
+              <li key={p.id}>
+                <Link
+                  href={`/propiedades/${p.id}`}
+                  className="group block rounded-2xl border border-white/10 bg-[#0C2340] p-5 transition hover:border-cyan-500/50 hover:bg-cyan-500/10 outline-none"
+                >
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <h4 className="font-display text-lg font-bold text-white group-hover:text-cyan-400 transition-colors">
+                        {p.name}
+                      </h4>
+                      <p className="mt-1 text-sm font-medium text-slate-300">
+                        {p.price != null ? `${p.currency === 'USD' ? 'u$s' : '$'}${p.price.toLocaleString('es-AR')}` : 'Sin precio'}
+                        {p.surface_total_m2 ? ` · ${p.surface_total_m2} m²` : ''}
+                      </p>
+                    </div>
+                    <Badge tone={match.coincidencias === match.aplicables && match.aplicables > 0 ? 'success' : match.coincidencias > 0 ? 'warning' : 'neutral'}>
+                      {match.coincidencias}/{match.aplicables} criterios
+                    </Badge>
+                  </div>
+                  
+                  {match.aplicables > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-2 pt-4 border-t border-white/5">
+                      {match.criterios.filter(c => c.aplica).map(c => (
+                        <span 
+                          key={c.key} 
+                          className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold uppercase tracking-wider ${
+                            c.cumple 
+                              ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
+                              : 'bg-white/5 text-slate-500 border border-white/10 line-through decoration-slate-500/50'
+                          }`}
+                        >
+                          {c.cumple ? '✓' : '✗'} {c.label}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-white/10 p-8 text-center">
+            <p className="text-sm text-slate-400">
+              No hay propiedades disponibles para cruzar todavía.
+            </p>
+          </div>
+        )}
       </div>
 
       {canManage && (

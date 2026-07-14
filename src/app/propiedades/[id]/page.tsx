@@ -13,6 +13,9 @@ import { Badge } from '@/components/ui/Badge';
 import type { PropertyRecord } from '@/types/property';
 import { getCaseStatusLabel } from '@/lib/industries/caseConfig';
 import { normalizeIndustryType } from '@/lib/industries/documentTypes';
+import type { ClientRecord } from '@/types/client';
+import { evaluarMatch, ordenarPorMatch } from '@/lib/matching/match';
+import { getDesiredPropertyTypeLabel, getOperationInterestLabel } from '@/lib/clients/labels';
 
 interface PropertyDetailPageProps {
   params: Promise<{ id: string }>;
@@ -66,6 +69,24 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
     .order('created_at', { ascending: false });
 
   const operations = operationsData || [];
+
+  let sortedMatches: { item: ClientRecord; match: any }[] = [];
+  if (record.status === 'disponible') {
+    const { data: clientsData } = await supabase
+      .from('clients')
+      .select('*')
+      .eq('organization_id', profile.organization_id)
+      .is('archived_at', null)
+      .in('status', ['activo', 'en_seguimiento']);
+      
+    const clients = (clientsData || []) as ClientRecord[];
+    
+    const matches = clients
+      .map(c => ({ item: c, match: evaluarMatch(c, record) }))
+      .filter(m => m.match.elegible);
+      
+    sortedMatches = ordenarPorMatch(matches);
+  }
 
   return (
     <AppShell>
@@ -378,6 +399,63 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
             ) : (
               <p className="text-sm text-slate-400">
                 Todavía no hay operaciones vinculadas a esta propiedad.
+              </p>
+            )}
+          </div>
+
+          <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-6 mt-6">
+            <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+              👥 Clientes que podrían estar interesados
+            </h3>
+            {record.status !== 'disponible' ? (
+              <p className="text-sm text-slate-400 border border-dashed border-white/10 rounded-xl p-4 text-center">
+                El matching se activa cuando la propiedad está en estado Disponible.
+              </p>
+            ) : sortedMatches.length > 0 ? (
+              <ul className="space-y-4">
+                {sortedMatches.map(({ item: c, match }) => (
+                  <li key={c.id}>
+                    <Link
+                      href={`/clientes/${c.id}`}
+                      className="group block rounded-2xl border border-white/10 bg-[#0C2340] p-5 transition hover:border-cyan-500/50 hover:bg-cyan-500/10 outline-none"
+                    >
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <h4 className="font-display text-base font-bold text-white group-hover:text-cyan-400 transition-colors">
+                            {c.name}
+                          </h4>
+                          <p className="mt-1 text-xs font-medium text-slate-300">
+                            {getOperationInterestLabel(c.operation_interest)} · {getDesiredPropertyTypeLabel(c.desired_property_type)}
+                          </p>
+                        </div>
+                        <Badge tone={match.coincidencias === match.aplicables && match.aplicables > 0 ? 'success' : match.coincidencias > 0 ? 'warning' : 'neutral'}>
+                          {match.coincidencias}/{match.aplicables} criterios
+                        </Badge>
+                      </div>
+                      
+                      {match.aplicables > 0 && (
+                        <div className="mt-4 flex flex-wrap gap-2 pt-4 border-t border-white/5">
+                          {match.criterios.filter((crit: any) => crit.aplica).map((crit: any) => (
+                            <span 
+                              key={crit.key} 
+                              className={`inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                                crit.cumple 
+                                  ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
+                                  : 'bg-white/5 text-slate-500 border border-white/10 line-through decoration-slate-500/50'
+                              }`}
+                            >
+                              {crit.cumple ? '✓' : '✗'} {crit.label}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-slate-400 border border-dashed border-white/10 rounded-xl p-4 text-center">
+                Aún no hay clientes activos con criterios que encajen.
               </p>
             )}
           </div>
