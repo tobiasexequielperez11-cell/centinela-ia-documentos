@@ -86,3 +86,53 @@ export async function generarBriefingInmobiliaria(snap: Snapshot): Promise<
     return { ok: false, motivo: 'error' };
   }
 }
+
+export async function responderPreguntaInmobiliaria(input: { pregunta: string; contexto: string }): Promise<
+  | { ok: false; motivo: 'sin_api_key' | 'error' }
+  | { ok: true; respuesta: string; model: string }
+> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return { ok: false, motivo: 'sin_api_key' };
+
+  const modelo = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+
+  const prompt = [
+    'Sos el copiloto de una inmobiliaria argentina. Respondé la pregunta del usuario basándote ÚNICAMENTE en los datos del negocio que te paso como CONTEXTO.',
+    'Reglas:',
+    '- No inventes datos, nombres, precios ni fechas. Si la respuesta no surge del contexto, decilo claramente ("No tengo ese dato cargado").',
+    '- Sé concreto y breve. Cuando enumeres propiedades, clientes u operaciones, usá viñetas.',
+    '- Respondé en español rioplatense, en texto plano (sin JSON, sin markdown pesado).',
+    '- Sos un asistente orientativo: la decisión final es del humano.',
+    '',
+    'CONTEXTO (estado actual del negocio):',
+    input.contexto,
+    '',
+    `PREGUNTA: ${input.pregunta}`,
+  ].join('\n');
+
+  try {
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.3 },
+        }),
+      }
+    );
+    if (!resp.ok) {
+      console.error('Copiloto QA Gemini error:', resp.status, await resp.text());
+      return { ok: false, motivo: 'error' };
+    }
+    const data = await resp.json();
+    const raw: string =
+      data?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text ?? '').join('') ?? '';
+    if (!raw.trim()) return { ok: false, motivo: 'error' };
+    return { ok: true, respuesta: raw.trim(), model: `qa-${modelo}` };
+  } catch (e) {
+    console.error('Copiloto QA error:', e);
+    return { ok: false, motivo: 'error' };
+  }
+}
