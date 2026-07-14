@@ -26,10 +26,22 @@ function Bloque({ icon, titulo, items, tono }: { icon: ReactNode; titulo: string
 
 export function RevisarEscrito({ industria = 'legal' }: { industria?: string }) {
   const esEscribania = industria === 'escribania';
-  const tituloRevision = esEscribania ? 'Revisión de instrumentos con IA' : 'Revisión de escritos con IA';
+  const esInmobiliaria = industria === 'inmobiliaria';
+  const tituloRevision = esEscribania
+    ? 'Revisión de instrumentos con IA'
+    : esInmobiliaria
+    ? 'Revisión de documentos con IA'
+    : 'Revisión de escritos con IA';
   const subtituloRevision = esEscribania
     ? 'Pegá un instrumento (escritura, poder, acta, certificación, minuta…) y la IA lo audita: qué le falta, errores, datos sin completar y sugerencias. Borrador orientativo, revisá siempre antes de otorgar.'
+    : esInmobiliaria
+    ? 'Pegá un documento (reserva, autorización de venta, boleto de compraventa, contrato…) y la IA lo audita: qué le falta, errores, datos sin completar y sugerencias. Borrador orientativo, revisá siempre antes de firmar.'
     : 'Pegá un escrito (demanda, contestación, recurso, carta…) y la IA lo audita: qué le falta, errores, datos sin completar y sugerencias. Borrador orientativo, revisá siempre antes de presentar.';
+  const placeholderRevision = esInmobiliaria
+    ? 'Pegá acá el texto del documento a revisar…'
+    : esEscribania
+    ? 'Pegá acá el texto del instrumento a revisar…'
+    : 'Pegá acá el texto del escrito a revisar…';
 
   const [texto, setTexto] = useState('');
   const [estado, setEstado] = useState<'idle' | 'loading' | 'error' | 'sin_key' | 'sin_texto'>('idle');
@@ -64,7 +76,7 @@ export function RevisarEscrito({ industria = 'legal' }: { industria?: string }) 
         value={texto}
         onChange={(e) => setTexto(e.target.value)}
         rows={10}
-        placeholder="Pegá acá el texto del escrito a revisar…"
+        placeholder={placeholderRevision}
         className="mt-3 w-full rounded-xl border border-slate-200 p-3 text-sm text-slate-800 focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100"
       />
 
