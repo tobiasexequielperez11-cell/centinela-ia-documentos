@@ -103,11 +103,15 @@ export default async function RecibidoDetallePage({ params }: Props) {
                         <p className="text-sm text-white">{d.file_name}</p>
                         <p className="text-xs text-slate-400">{getDocumentTypeLabel(d.document_type)} · Sensibilidad: {sensitivityLabel(d.sensitivity_level)}</p>
                       </div>
+                      <a href={`/recibidos/${derivacion.id}/documento/${d.id}`} target="_blank" rel="noopener noreferrer"
+                        className="rounded-lg border border-cyan-400/30 bg-cyan-500/10 px-3 py-1.5 text-xs font-medium text-cyan-300 hover:bg-cyan-500/20">
+                        Abrir documento →
+                      </a>
                     </li>
                   ))}
                 </ul>
               )}
-              <p className="text-xs text-slate-500">La descarga del archivo original se habilitará más adelante.</p>
+              <p className="text-xs text-slate-500">El archivo se abre en una pestaña nueva mediante un enlace temporal seguro.</p>
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-3">
