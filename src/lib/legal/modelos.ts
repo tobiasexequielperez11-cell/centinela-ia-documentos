@@ -52,6 +52,45 @@ Por {{inmobiliaria}}: ____________________
 Aclaración: {{agente}}`,
   },
   {
+    id: 'autorizacion-venta',
+    titulo: 'Autorización de venta',
+    categoria: 'Inmobiliaria',
+    descripcion: 'Encargo del propietario a la inmobiliaria para comercializar el inmueble (exclusividad, plazo, comisión y precio).',
+    industries: ['inmobiliaria'],
+    cuerpo: `AUTORIZACIÓN DE VENTA
+
+En {{lugar}}, a los {{fecha}}, el/la Sr./Sra. {{propietario}}, DNI N° {{dni_propietario}}, con domicilio en {{domicilio_propietario}} (en adelante, "el/la PROPIETARIO/A"), en su carácter de titular del inmueble que se describe, AUTORIZA a {{inmobiliaria}} (en adelante, "la INMOBILIARIA") a ofrecer en venta el mismo, en los términos que siguen.
+
+1. INMUEBLE
+Ubicación: {{direccion_inmueble}}.
+Tipo: {{tipo_inmueble}}.
+Matrícula / Nomenclatura catastral: {{matricula}}.
+
+2. PRECIO DE PUBLICACIÓN
+El inmueble se ofrecerá en la suma de {{moneda}} {{precio}} ({{precio_en_letras}}). Toda oferta por un monto distinto será comunicada al/a la PROPIETARIO/A para su aceptación.
+
+3. TIPO DE AUTORIZACIÓN
+La presente autorización se otorga en carácter {{tipo_autorizacion}} (exclusiva / no exclusiva).
+
+4. PLAZO
+La autorización tendrá una vigencia de {{plazo_meses}} meses a partir de la fecha, renovable de común acuerdo. Vencido el plazo sin renovación, quedará sin efecto.
+
+5. COMISIÓN / HONORARIOS
+En caso de concretarse la operación, la INMOBILIARIA percibirá en concepto de comisión el {{porcentaje_comision}} %, a cargo de {{cargo_comision}}, conforme los usos y aranceles vigentes.
+
+6. FACULTADES
+La INMOBILIARIA queda facultada para publicar y exhibir el inmueble, colocar cartelería, mostrarlo a interesados y recibir reservas u ofertas de compra ad referéndum de la aceptación del/de la PROPIETARIO/A.
+
+7. OBSERVACIONES
+{{observaciones}}
+
+Firma del/de la PROPIETARIO/A: ____________________
+Aclaración: {{propietario}} — DNI {{dni_propietario}}
+
+Por {{inmobiliaria}}: ____________________
+Aclaración: {{agente}}`,
+  },
+  {
     id: 'presentacion-generica',
     titulo: 'Escrito de presentación (genérico)',
     categoria: 'Escritos judiciales',
