@@ -14,6 +14,7 @@ import {
   BookText,
   Building2,
   KeyRound,
+  Sparkles,
 } from 'lucide-react';
 import { type IndustryType } from '@/lib/industries/documentTypes';
 
@@ -33,6 +34,7 @@ export const navigation: NavItem[] = [
   { name: 'Propiedades', href: '/propiedades', icon: Building2, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['inmobiliaria'], group: 'Operación', description: 'Gestión y catálogo de propiedades.' },
   { name: 'Clientes', href: '/clientes', icon: Users, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['inmobiliaria'], group: 'Operación', description: 'Gestión de clientes y búsqueda inmobiliaria.' },
   { name: 'Alquileres', href: '/alquileres', icon: KeyRound, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['inmobiliaria'], group: 'Operación', description: 'Registro y seguimiento de contratos de alquiler.' },
+  { name: 'Copiloto', href: '/copiloto', icon: Sparkles, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['inmobiliaria'], group: 'Operación', description: 'Briefing del día y asistente de tu inmobiliaria.' },
   { name: 'Documentos', href: '/documentos', icon: FileText, roles: ['admin', 'employee', 'auditor', 'client'], group: 'Operación', description: 'Bóveda documental y análisis en modo beta.' },
   { name: 'Buscar', href: '/buscar', icon: Search, roles: ['admin', 'employee'], group: 'Utilidades', description: 'Búsqueda avanzada de expedientes y documentos.' },
   { name: 'Observaciones', href: '/observaciones', icon: AlertCircle, roles: ['admin', 'employee', 'auditor', 'client'], group: 'Gestión', description: 'Panel de observaciones y tareas pendientes.' },
