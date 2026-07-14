@@ -3,6 +3,7 @@ import type { IndustryType } from './documentTypes';
 // --- Título de grupo del sidebar, por rubro ---
 const groupLabelOverrides: Partial<Record<IndustryType, Record<string, string>>> = {
   escribania: { 'Herramientas jurídicas': 'Herramientas notariales' },
+  inmobiliaria: { 'Herramientas jurídicas': 'Herramientas inmobiliarias' },
 };
 
 export function getNavGroupLabel(group: string, industry: IndustryType): string {
@@ -28,6 +29,9 @@ const navDescriptionOverrides: Partial<Record<IndustryType, Record<string, strin
     '/buscar': 'Búsqueda avanzada de legajos y documentos.',
     '/calculadoras': 'Sellos, ITI, honorarios y aportes notariales.',
     '/modelos': 'Escrituras, poderes, actas y autorizaciones notariales.',
+  },
+  inmobiliaria: {
+    '/modelos': 'Reservas, autorizaciones y boletos de compraventa.',
   },
 };
 

@@ -13,6 +13,45 @@ export type ModeloEscrito = {
 
 export const MODELOS: ModeloEscrito[] = [
   {
+    id: 'reserva-oferta-compra',
+    titulo: 'Reserva / Oferta de compra',
+    categoria: 'Inmobiliaria',
+    descripcion: 'Oferta de compra con seña de reserva, ad referéndum de la aceptación del propietario.',
+    industries: ['inmobiliaria'],
+    cuerpo: `RESERVA — OFERTA DE COMPRA
+
+En {{lugar}}, a los {{fecha}}, el/la Sr./Sra. {{oferente}}, DNI N° {{dni_oferente}}, con domicilio en {{domicilio_oferente}} (en adelante, "el/la OFERENTE"), por intermedio de {{inmobiliaria}}, formula la presente OFERTA DE COMPRA sobre el inmueble que se describe, y entrega en este acto una suma en concepto de RESERVA.
+
+1. INMUEBLE
+Ubicación: {{direccion_inmueble}}.
+Tipo: {{tipo_inmueble}}.
+Matrícula / Nomenclatura catastral: {{matricula}}.
+Titular registral: {{titular}}.
+
+2. PRECIO OFRECIDO
+El/la OFERENTE ofrece adquirir el inmueble en la suma de {{moneda}} {{precio}} ({{precio_en_letras}}), pagaderos de la siguiente forma: {{forma_de_pago}}.
+
+3. RESERVA ENTREGADA
+En este acto el/la OFERENTE entrega la suma de {{moneda}} {{monto_reserva}} ({{monto_reserva_en_letras}}) en concepto de reserva, que {{inmobiliaria}} recibe ad referéndum de la aceptación del/de la propietario/a.
+
+4. PLAZO DE ACEPTACIÓN
+La oferta se mantiene vigente hasta el {{plazo_aceptacion}}, plazo dentro del cual el/la propietario/a deberá manifestar su aceptación.
+
+5. EFECTOS
+a) Si el/la propietario/a ACEPTA: la suma entregada se imputa como seña y a cuenta del precio, y las partes se obligan a firmar el boleto de compraventa dentro de los {{dias_para_boleto}} días.
+b) Si el/la propietario/a NO ACEPTA: la suma se reintegra íntegramente al/a la OFERENTE, sin derecho a reclamo alguno.
+c) Si, aceptada la oferta, el/la OFERENTE desiste: pierde la suma entregada en concepto de reserva.
+
+6. OBSERVACIONES
+{{observaciones}}
+
+Firma del/de la OFERENTE: ____________________
+Aclaración: {{oferente}} — DNI {{dni_oferente}}
+
+Por {{inmobiliaria}}: ____________________
+Aclaración: {{agente}}`,
+  },
+  {
     id: 'presentacion-generica',
     titulo: 'Escrito de presentación (genérico)',
     categoria: 'Escritos judiciales',
