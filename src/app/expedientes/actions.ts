@@ -1216,3 +1216,52 @@ export async function deleteCase(formData: FormData) {
   revalidatePath('/expedientes');
   redirect('/expedientes');
 }
+
+export async function derivarAEscribania(formData: FormData) {
+  const caseId = String(formData.get('case_id') || '');
+  const toEmail = String(formData.get('to_email') || '').trim().toLowerCase();
+  const mensaje = String(formData.get('mensaje') || '').trim();
+
+  const { user, profile } = await requireCaseAccess('update');
+
+  if (!caseId || !toEmail) {
+    redirect('/expedientes');
+  }
+
+  const supabase = await createClient();
+
+  const { data: caseRecord } = await supabase
+    .from('cases')
+    .select('id, title')
+    .eq('id', caseId)
+    .eq('organization_id', profile.organization_id)
+    .maybeSingle();
+
+  if (!caseRecord) {
+    redirect('/expedientes');
+  }
+
+  const { data: org } = await supabase
+    .from('organizations')
+    .select('name')
+    .eq('id', profile.organization_id)
+    .maybeSingle();
+
+  const { error } = await supabase.from('case_derivations').insert({
+    case_id: caseId,
+    from_organization_id: profile.organization_id,
+    from_organization_name: org?.name ?? null,
+    case_title: caseRecord.title ?? null,
+    to_email: toEmail,
+    status: 'pendiente',
+    mensaje: mensaje || null,
+    created_by: user.id,
+  });
+
+  if (error) {
+    console.error('Derivar a escribania error:', error);
+  }
+
+  revalidatePath(`/expedientes/${caseId}`);
+  redirect(`/expedientes/${caseId}`);
+}

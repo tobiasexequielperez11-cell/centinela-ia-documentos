@@ -46,6 +46,7 @@ import { AnalizarUifButton } from './AnalizarUifButton';
 import { RosDraftButton } from './RosDraftButton';
 import type { AnalisisUIF } from '@/lib/ai/uif';
 import { CronologiaExpediente } from './CronologiaExpediente';
+import { DerivarEscribania } from './DerivarEscribania';
 import { RadarPlazos } from './RadarPlazos';
 import { Tabs } from '@/components/ui/Tabs';
 import { Badge } from '@/components/ui/Badge';
@@ -692,6 +693,8 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                     </div>
                   </MotionCard>
                 )}
+
+                {industry === 'inmobiliaria' && <DerivarEscribania caseId={caseRecord.id} />}
 
                 <MotionCard index={industry === 'inmobiliaria' ? 1 : 0}>
           <h3 className="font-display text-lg font-semibold text-white">
