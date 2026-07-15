@@ -82,6 +82,8 @@ type CaseDocumentRecord = {
   document_type: string | null;
   sensitivity_level: string | null;
   created_at: string;
+  contributed_by_organization_id: string | null;
+  contributed_by_name: string | null;
 };
 
 type ChecklistDocumentOptionRecord = {
@@ -223,10 +225,17 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
 
   const { data: caseDocumentsData } = await supabase
     .from('documents')
-    .select('id, file_name, document_type, sensitivity_level, created_at')
+    .select('id, file_name, document_type, sensitivity_level, created_at, contributed_by_organization_id, contributed_by_name')
     .eq('case_id', caseRecord.id)
     .eq('organization_id', profile.organization_id)
     .order('created_at', { ascending: false });
+
+  const { data: observacionesData } = await supabase
+    .from('derivation_notes')
+    .select('id, body, author_org_name, created_at')
+    .eq('case_id', caseRecord.id)
+    .order('created_at', { ascending: true });
+  const observacionesEscribania = observacionesData ?? [];
 
   const { data: availableDocumentsData } = await supabase
     .from('documents')
@@ -884,6 +893,11 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                     </div>
 
                     <div className="flex shrink-0 items-center gap-3">
+                      {document.contributed_by_organization_id && (
+                        <span className="rounded-full border border-cyan-400/30 bg-cyan-500/10 px-2 py-0.5 text-xs text-cyan-200">
+                          Aportado por {document.contributed_by_name || 'la escribanía'}
+                        </span>
+                      )}
                       <Badge tone={sensitivityLabel(document.sensitivity_level) === 'Crítico' || sensitivityLabel(document.sensitivity_level) === 'Alto' ? 'danger' : 'neutral'}>
                         {sensitivityLabel(document.sensitivity_level)}
                       </Badge>
@@ -900,6 +914,25 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
             ) : (
               <div className="mt-5 rounded-2xl border border-dashed border-white/10 bg-white/[0.04] p-5 text-sm text-slate-400">
                 {terms.docsVacio}
+              </div>
+            )}
+
+            {observacionesEscribania.length > 0 && (
+              <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-6">
+                <h3 className="text-lg font-semibold text-white">Observaciones de la escribanía</h3>
+                <p className="mt-1 text-sm text-slate-400">
+                  Notas que dejó la escribanía sobre este legajo.
+                </p>
+                <ul className="mt-4 space-y-3">
+                  {observacionesEscribania.map((o) => (
+                    <li key={o.id} className="rounded-xl border border-white/10 bg-white/5 p-4">
+                      <p className="text-sm text-white whitespace-pre-wrap">{o.body}</p>
+                      <p className="mt-2 text-xs text-slate-400">
+                        {o.author_org_name ?? 'Escribanía'} · {new Date(o.created_at).toLocaleString('es-AR')}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
           </MotionCard>
