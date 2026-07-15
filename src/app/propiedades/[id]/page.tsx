@@ -19,6 +19,7 @@ import { getDesiredPropertyTypeLabel, getOperationInterestLabel } from '@/lib/cl
 import { PropertyMatchAiButton } from './PropertyMatchAiButton';
 import { GenerarAvisoButton } from './GenerarAvisoButton';
 import { CompartirWhatsappButton } from './CompartirWhatsappButton';
+import { DescargarFichaPdfButton } from './DescargarFichaPdfButton';
 
 interface PropertyDetailPageProps {
   params: Promise<{ id: string }>;
@@ -361,6 +362,22 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
             rooms={record.rooms}
             surfaceTotal={record.surface_total_m2}
             surfaceCovered={record.surface_covered_m2}
+            price={record.price}
+            currency={record.currency}
+          />
+          
+          <DescargarFichaPdfButton
+            name={record.name}
+            propertyType={getPropertyTypeLabel(record.property_type)}
+            status={getPropertyStatusLabel(record.status)}
+            address={record.address}
+            matricula={record.matricula}
+            owners={record.owners}
+            surfaceTotal={record.surface_total_m2}
+            surfaceCovered={record.surface_covered_m2}
+            rooms={record.rooms}
+            gravamenes={record.gravamenes}
+            notes={record.notes}
             price={record.price}
             currency={record.currency}
           />

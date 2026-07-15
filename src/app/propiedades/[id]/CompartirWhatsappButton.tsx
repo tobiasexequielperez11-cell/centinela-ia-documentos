@@ -20,27 +20,33 @@ export function CompartirWhatsappButton({
   currency: string | null;
 }) {
   const handleShare = () => {
+    const casa = "\u{1F3E0}";
+    const pin = "\u{1F4CD}";
+    const regla = "\u{1F4D0}";
+    const cama = "\u{1F6CF}\u{FE0F}";
+    const dinero = "\u{1F4B0}";
+
     const lineas: string[] = [];
-    lineas.push(`🏠 *${name}* — ${propertyType}`);
+    lineas.push(`${casa} *${name}* — ${propertyType}`);
     
     if (address) {
-      lineas.push(`📍 ${address}`);
+      lineas.push(`${pin} ${address}`);
     }
     
     if (surfaceTotal != null || surfaceCovered != null) {
       const sup = [];
       if (surfaceTotal != null) sup.push(`${surfaceTotal} m² totales`);
       if (surfaceCovered != null) sup.push(`${surfaceCovered} m² cubiertos`);
-      lineas.push(`📐 ${sup.join(' · ')}`);
+      lineas.push(`${regla} ${sup.join(' · ')}`);
     }
 
     if (rooms != null) {
-      lineas.push(`🛏️ ${rooms} ambientes`);
+      lineas.push(`${cama} ${rooms} ambientes`);
     }
 
     if (price != null) {
       const cur = currency === 'USD' ? 'u$s' : '$';
-      lineas.push(`💰 ${cur} ${price.toLocaleString('es-AR')}`);
+      lineas.push(`${dinero} ${cur} ${price.toLocaleString('es-AR')}`);
     }
 
     const mensaje = lineas.join('\n');
