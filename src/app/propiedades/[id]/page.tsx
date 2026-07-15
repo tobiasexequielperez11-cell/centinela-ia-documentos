@@ -18,6 +18,7 @@ import { evaluarMatch, ordenarPorMatch } from '@/lib/matching/match';
 import { getDesiredPropertyTypeLabel, getOperationInterestLabel } from '@/lib/clients/labels';
 import { PropertyMatchAiButton } from './PropertyMatchAiButton';
 import { GenerarAvisoButton } from './GenerarAvisoButton';
+import { CompartirWhatsappButton } from './CompartirWhatsappButton';
 
 interface PropertyDetailPageProps {
   params: Promise<{ id: string }>;
@@ -352,6 +353,17 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
           {useAi && (
             <GenerarAvisoButton propertyId={record.id} />
           )}
+
+          <CompartirWhatsappButton
+            name={record.name}
+            propertyType={getPropertyTypeLabel(record.property_type)}
+            address={record.address}
+            rooms={record.rooms}
+            surfaceTotal={record.surface_total_m2}
+            surfaceCovered={record.surface_covered_m2}
+            price={record.price}
+            currency={record.currency}
+          />
           
           <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-6">
             <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-400">Resumen rápido</h3>

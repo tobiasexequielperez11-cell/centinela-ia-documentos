@@ -62,6 +62,12 @@ export function GenerarAvisoButton({ propertyId }: { propertyId: string }) {
           </p>
           <div className="flex gap-2">
             <button
+              onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(result!)}`, '_blank')}
+              className="flex items-center gap-1 text-xs font-semibold text-white bg-[#25D366]/20 hover:bg-[#25D366]/30 border border-[#25D366]/30 px-3 py-1.5 rounded-lg transition-colors"
+            >
+              📲 WhatsApp
+            </button>
+            <button
               onClick={handleCopy}
               className="flex items-center gap-1 text-xs font-semibold text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors"
             >
