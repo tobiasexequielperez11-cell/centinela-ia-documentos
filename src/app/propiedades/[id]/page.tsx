@@ -17,6 +17,7 @@ import type { ClientRecord } from '@/types/client';
 import { evaluarMatch, ordenarPorMatch } from '@/lib/matching/match';
 import { getDesiredPropertyTypeLabel, getOperationInterestLabel } from '@/lib/clients/labels';
 import { PropertyMatchAiButton } from './PropertyMatchAiButton';
+import { GenerarAvisoButton } from './GenerarAvisoButton';
 
 interface PropertyDetailPageProps {
   params: Promise<{ id: string }>;
@@ -347,6 +348,10 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
               <p className="text-slate-400">No especificado</p>
             )}
           </div>
+
+          {useAi && (
+            <GenerarAvisoButton propertyId={record.id} />
+          )}
           
           <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-6">
             <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-400">Resumen rápido</h3>

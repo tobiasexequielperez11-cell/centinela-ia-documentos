@@ -7,6 +7,7 @@ import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createAuditLog } from '@/lib/audit/createAuditLog';
 import { canManageProperty, isUserRole, canUseAi } from '@/lib/permissions/roles';
 import { extraerDatosPropiedadDeArchivo } from '@/lib/ai/extraerPropiedad';
+import { generarAvisoPropiedad } from '@/lib/ai/generarAviso';
 
 function parseNumber(value: FormDataEntryValue | null): number | null {
   if (!value) return null;
@@ -162,6 +163,53 @@ Puntaje de Match: ${m.match.coincidencias}/${m.match.aplicables} criterios
   });
 
   return { ok: true, text: textoIA };
+}
+
+export async function generarAvisoPropiedadIA(propertyId: string) {
+  const { user, profile } = await getUserProfile();
+  if (!user || !profile || !isUserRole(profile.role)) {
+    return { ok: false, error: 'Sin permiso' };
+  }
+  if (!canUseAi(profile.role)) {
+    return { ok: false, error: 'Sin permiso de IA' };
+  }
+
+  const supabase = await createClient();
+  const { data: property, error } = await supabase
+    .from('properties')
+    .select('*')
+    .eq('id', propertyId)
+    .eq('organization_id', profile.organization_id)
+    .single();
+
+  if (error || !property) {
+    return { ok: false, error: 'Propiedad no encontrada' };
+  }
+
+  const result = await generarAvisoPropiedad({
+    name: property.name,
+    property_type: getPropertyTypeLabel(property.property_type),
+    address: property.address || '',
+    surface_total_m2: property.surface_total_m2,
+    surface_covered_m2: property.surface_covered_m2,
+    rooms: property.rooms,
+    price: property.price,
+    currency: property.currency || '',
+  });
+
+  if (!result.ok) {
+    return { ok: false, error: 'No se pudo generar el aviso.' };
+  }
+
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: profile.id,
+    action: 'property_ad_ai' as any,
+    resourceType: 'property',
+    resourceId: propertyId,
+  });
+
+  return { ok: true, text: result.texto };
 }
 
 export async function updateProperty(formData: FormData) {
