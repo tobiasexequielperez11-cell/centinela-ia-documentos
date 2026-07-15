@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { getDocumentTypeLabel } from '@/lib/industries/documentTypes';
 import { sensitivityLabel } from '@/lib/documents/sensitivity';
-import { agregarObservacion } from '../actions';
+import { agregarObservacion, subirDocumentoDerivado } from '../actions';
 import { FormSubmitButton } from '@/components/ui/FormSubmitButton';
 
 interface Props { params: Promise<{ id: string }>; }
@@ -120,6 +120,20 @@ export default async function RecibidoDetallePage({ params }: Props) {
                 </ul>
               )}
               <p className="text-xs text-slate-500">El archivo se abre en una pestaña nueva mediante un enlace temporal seguro.</p>
+              <form action={subirDocumentoDerivado} className="mt-4 flex flex-wrap items-center gap-3 border-t border-white/10 pt-4">
+                <input type="hidden" name="derivation_id" value={derivacion.id} />
+                <input
+                  type="file"
+                  name="file"
+                  required
+                  accept="application/pdf,image/jpeg,image/png"
+                  className="text-sm text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-white/10 file:px-3 file:py-1.5 file:text-white"
+                />
+                <FormSubmitButton label="Subir documento al legajo" loadingLabel="Subiendo..." />
+              </form>
+              <p className="mt-2 text-xs text-slate-500">
+                Podés aportar documentos (PDF, JPG o PNG) al legajo compartido. También los verá la organización que te lo derivó.
+              </p>
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-3">

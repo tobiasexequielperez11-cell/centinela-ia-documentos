@@ -1,4 +1,5 @@
 'use server';
+import { randomUUID } from 'crypto';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
@@ -72,6 +73,94 @@ export async function agregarObservacion(formData: FormData) {
 
   if (error) {
     console.error('Error al agregar observacion:', error);
+  }
+
+  revalidatePath(`/recibidos/${derivationId}`);
+  redirect(`/recibidos/${derivationId}`);
+}
+
+const TIPOS_PERMITIDOS = ['application/pdf', 'image/jpeg', 'image/png'];
+const TAMANO_MAX = 15 * 1024 * 1024;
+
+function limpiarNombreArchivo(n: string) {
+  return n.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 120);
+}
+
+export async function subirDocumentoDerivado(formData: FormData) {
+  const { user, profile } = await getUserProfile();
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+
+  const derivationId = String(formData.get('derivation_id') || '');
+  const file = formData.get('file');
+
+  if (!derivationId) redirect('/recibidos');
+  if (!(file instanceof File)) redirect(`/recibidos/${derivationId}?error=archivo`);
+  if (!TIPOS_PERMITIDOS.includes(file.type)) redirect(`/recibidos/${derivationId}?error=tipo`);
+  if (file.size > TAMANO_MAX) redirect(`/recibidos/${derivationId}?error=tamano`);
+
+  const supabase = await createClient();
+
+  const { data: derivacion } = await supabase
+    .from('case_derivations')
+    .select('id, case_id, status')
+    .eq('id', derivationId)
+    .maybeSingle();
+
+  if (!derivacion || derivacion.status !== 'aceptada') {
+    redirect(`/recibidos/${derivationId}`);
+  }
+
+  const { data: caseRecord } = await supabase
+    .from('cases')
+    .select('id, organization_id')
+    .eq('id', derivacion.case_id)
+    .maybeSingle();
+
+  if (!caseRecord) redirect(`/recibidos/${derivationId}?error=caso`);
+
+  const { data: miOrg } = await supabase
+    .from('organizations')
+    .select('name')
+    .eq('id', profile.organization_id)
+    .maybeSingle();
+
+  const documentId = randomUUID();
+  const safeName = limpiarNombreArchivo(file.name);
+  const storagePath = `${caseRecord.organization_id}/${caseRecord.id}/${documentId}/${safeName}`;
+
+  const { error: upErr } = await supabase.storage
+    .from('documents')
+    .upload(storagePath, file, {
+      cacheControl: '3600',
+      upsert: false,
+      contentType: file.type,
+    });
+
+  if (upErr) {
+    console.error('Error al subir documento derivado:', upErr);
+    redirect(`/recibidos/${derivationId}?error=upload`);
+  }
+
+  const { error: insErr } = await supabase.from('documents').insert({
+    id: documentId,
+    organization_id: caseRecord.organization_id,
+    case_id: caseRecord.id,
+    file_name: file.name,
+    file_path: storagePath,
+    file_mime_type: file.type,
+    file_size: file.size,
+    document_type: null,
+    sensitivity_level: 'medium',
+    uploaded_by: user.id,
+    contributed_by_organization_id: profile.organization_id,
+    contributed_by_name: miOrg?.name || null,
+  });
+
+  if (insErr) {
+    console.error('Error al registrar documento derivado:', insErr);
+    await supabase.storage.from('documents').remove([storagePath]);
+    redirect(`/recibidos/${derivationId}?error=metadata`);
   }
 
   revalidatePath(`/recibidos/${derivationId}`);
