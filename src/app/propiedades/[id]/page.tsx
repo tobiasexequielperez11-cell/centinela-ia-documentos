@@ -20,6 +20,7 @@ import { PropertyMatchAiButton } from './PropertyMatchAiButton';
 import { GenerarAvisoButton } from './GenerarAvisoButton';
 import { CompartirWhatsappButton } from './CompartirWhatsappButton';
 import { DescargarFichaPdfButton } from './DescargarFichaPdfButton';
+import { TasarButton } from './TasarButton';
 
 interface PropertyDetailPageProps {
   params: Promise<{ id: string }>;
@@ -381,6 +382,10 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
             price={record.price}
             currency={record.currency}
           />
+
+          {useAi && (
+            <TasarButton propertyId={record.id} />
+          )}
           
           <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-6">
             <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-400">Resumen rápido</h3>

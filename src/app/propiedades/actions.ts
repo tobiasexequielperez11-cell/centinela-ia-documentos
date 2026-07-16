@@ -8,6 +8,7 @@ import { createAuditLog } from '@/lib/audit/createAuditLog';
 import { canManageProperty, isUserRole, canUseAi } from '@/lib/permissions/roles';
 import { extraerDatosPropiedadDeArchivo } from '@/lib/ai/extraerPropiedad';
 import { generarAvisoPropiedad } from '@/lib/ai/generarAviso';
+import { tasarPropiedadIA, ComparableProp } from '@/lib/ai/tasador';
 
 function parseNumber(value: FormDataEntryValue | null): number | null {
   if (!value) return null;
@@ -205,6 +206,70 @@ export async function generarAvisoPropiedadIA(propertyId: string) {
     organizationId: profile.organization_id,
     userId: profile.id,
     action: 'property_ad_ai' as any,
+    resourceType: 'property',
+    resourceId: propertyId,
+  });
+
+  return { ok: true, text: result.texto };
+}
+
+export async function tasarPropiedadConIA(propertyId: string) {
+  const { user, profile } = await getUserProfile();
+  if (!user || !profile || !isUserRole(profile.role)) {
+    return { ok: false, error: 'Sin permiso' };
+  }
+  if (!canUseAi(profile.role)) {
+    return { ok: false, error: 'Sin permiso de IA' };
+  }
+
+  const supabase = await createClient();
+  const { data: property, error } = await supabase
+    .from('properties')
+    .select('*')
+    .eq('id', propertyId)
+    .eq('organization_id', profile.organization_id)
+    .single();
+
+  if (error || !property) {
+    return { ok: false, error: 'Propiedad no encontrada' };
+  }
+
+  const { data: comparablesData } = await supabase
+    .from('properties')
+    .select('name, surface_total_m2, rooms, price, currency')
+    .eq('organization_id', profile.organization_id)
+    .eq('property_type', property.property_type)
+    .neq('id', propertyId)
+    .not('price', 'is', null)
+    .not('surface_total_m2', 'is', null)
+    .limit(10);
+
+  const comparables: ComparableProp[] = (comparablesData || []).map(c => ({
+    name: c.name,
+    surfaceTotal: c.surface_total_m2,
+    rooms: c.rooms,
+    price: c.price,
+    currency: c.currency,
+  }));
+
+  const result = await tasarPropiedadIA({
+    name: property.name,
+    propertyType: getPropertyTypeLabel(property.property_type),
+    address: property.address || '',
+    surfaceTotal: property.surface_total_m2,
+    surfaceCovered: property.surface_covered_m2,
+    rooms: property.rooms,
+    currency: property.currency || '',
+  }, comparables);
+
+  if (!result.ok) {
+    return { ok: false, error: 'No se pudo generar la tasación.' };
+  }
+
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: profile.id,
+    action: 'property_valuation_ai' as any,
     resourceType: 'property',
     resourceId: propertyId,
   });
