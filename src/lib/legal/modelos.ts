@@ -133,6 +133,54 @@ Firma COMPRADOR/A: ____________________
 Aclaración: {{comprador}} — DNI {{dni_comprador}}`,
   },
   {
+    id: 'contrato-locacion',
+    titulo: 'Contrato de locación (vivienda)',
+    categoria: 'Inmobiliaria',
+    descripcion: 'Contrato de alquiler de vivienda: partes, plazo, precio, actualización, depósito, garantía y gastos. Editable y orientativo.',
+    industries: ['inmobiliaria'],
+    cuerpo: `CONTRATO DE LOCACIÓN
+
+En {{lugar}}, a los {{fecha}}, entre {{locador}}, DNI N° {{dni_locador}}, con domicilio en {{domicilio_locador}} (en adelante, "el/la LOCADOR/A"), y {{locatario}}, DNI N° {{dni_locatario}}, con domicilio en {{domicilio_locatario}} (en adelante, "el/la LOCATARIO/A"), por intermedio de {{inmobiliaria}}, se celebra el presente contrato de locación, sujeto a las siguientes cláusulas:
+
+PRIMERA — INMUEBLE Y DESTINO
+El/la LOCADOR/A da en locación al/a la LOCATARIO/A el inmueble sito en {{direccion_inmueble}}, tipo {{tipo_inmueble}}, con destino exclusivo a {{destino}}. El/la LOCATARIO/A declara recibirlo en el estado que consta en el inventario adjunto.
+
+SEGUNDA — PLAZO
+La locación se conviene por el plazo de {{plazo_meses}} meses, con inicio el {{fecha_inicio}} y vencimiento el {{fecha_fin}}, fecha en la que el/la LOCATARIO/A deberá restituir el inmueble.
+
+TERCERA — PRECIO Y FORMA DE PAGO
+El alquiler se fija en la suma inicial de {{moneda}} {{precio_mensual}} ({{precio_en_letras}}) por mes, pagadera por mes adelantado del 1 al {{dia_pago}} de cada mes, mediante {{forma_pago}}.
+
+CUARTA — ACTUALIZACIÓN
+El monto del alquiler se actualizará cada {{periodo_actualizacion}} conforme al siguiente índice o criterio: {{indice_actualizacion}}, según lo acordado libremente por las partes.
+
+QUINTA — DEPÓSITO EN GARANTÍA
+El/la LOCATARIO/A entrega en este acto la suma de {{moneda}} {{deposito}} ({{deposito_en_letras}}) en concepto de depósito en garantía, que le será reintegrado al finalizar la locación, previa verificación del estado del inmueble y cancelación de deudas.
+
+SEXTA — GARANTÍAS
+En seguridad del cumplimiento de las obligaciones, se ofrece la siguiente garantía: {{garantia}}.
+
+SÉPTIMA — SERVICIOS, EXPENSAS E IMPUESTOS
+Estarán a cargo del/de la LOCATARIO/A: {{a_cargo_locatario}}. Estarán a cargo del/de la LOCADOR/A: {{a_cargo_locador}}.
+
+OCTAVA — CONSERVACIÓN Y USO
+El/la LOCATARIO/A se obliga a conservar el inmueble en buen estado, a no cambiar su destino, a no subarrendar ni ceder sin autorización escrita del/de la LOCADOR/A, y a permitir las inspecciones que correspondan con aviso previo.
+
+NOVENA — RESCISIÓN ANTICIPADA
+El/la LOCATARIO/A podrá rescindir anticipadamente conforme a las siguientes condiciones: {{condiciones_rescision}}, notificando con la antelación pactada.
+
+DÉCIMA — OBSERVACIONES
+{{observaciones}}
+
+Se firman dos ejemplares de un mismo tenor y a un solo efecto, en el lugar y fecha indicados.
+
+Firma LOCADOR/A: ____________________
+Aclaración: {{locador}} — DNI {{dni_locador}}
+
+Firma LOCATARIO/A: ____________________
+Aclaración: {{locatario}} — DNI {{dni_locatario}}`,
+  },
+  {
     id: 'presentacion-generica',
     titulo: 'Escrito de presentación (genérico)',
     categoria: 'Escritos judiciales',
