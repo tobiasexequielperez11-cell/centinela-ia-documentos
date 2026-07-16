@@ -468,14 +468,16 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
             label: '📊 Resumen',
             content: (
               <div className="space-y-6">
-                <CopilotoExpediente
-                  caseId={caseRecord.id}
-                  resumen={(resumenData?.result_json as any) ?? null}
-                  generadoEl={resumenData?.created_at ?? null}
-                  documentosAnalizados={documentosAnalizados}
-                  puedeUsarIA={puedeUsarIA}
-                  terms={terms}
-                />
+                {(industry === 'escribania' || industry === 'legal') && (
+                  <CopilotoExpediente
+                    caseId={caseRecord.id}
+                    resumen={(resumenData?.result_json as any) ?? null}
+                    generadoEl={resumenData?.created_at ?? null}
+                    documentosAnalizados={documentosAnalizados}
+                    puedeUsarIA={puedeUsarIA}
+                    terms={terms}
+                  />
+                )}
                 {industry === 'escribania' && (
                   <CotejoExpediente
                     caseId={caseRecord.id}
@@ -485,11 +487,13 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                     puedeUsarIA={puedeUsarIA}
                   />
                 )}
-                {industry === 'escribania' && accionesSugeridas.length > 0 && (
+                {(industry === 'escribania' || industry === 'legal') && accionesSugeridas.length > 0 && (
                   <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
-                    <h2 className="text-lg font-semibold text-white">🧭 Copiloto de acciones notariales</h2>
+                    <h2 className="text-lg font-semibold text-white">
+                      🧭 {industry === 'legal' ? 'Copiloto de acciones procesales' : 'Copiloto de acciones notariales'}
+                    </h2>
                     <p className="mt-1 text-sm text-slate-400">
-                      Pasos sugeridos por la IA a partir del resumen y el cotejo. Sumalos al checklist con un toque.
+                      {industry === 'legal' ? 'Próximos pasos sugeridos por la IA a partir del resumen del expediente. Sumalos al checklist con un toque.' : 'Pasos sugeridos por la IA a partir del resumen y el cotejo. Sumalos al checklist con un toque.'}
                     </p>
                     <ul className="mt-4 space-y-2">
                       {accionesSugeridas.slice(0, 12).map((accion, i) => (
