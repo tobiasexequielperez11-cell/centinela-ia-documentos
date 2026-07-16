@@ -84,12 +84,14 @@ function buildMetricCard(
   terms: IndustryTerms
 ) {
   switch (card) {
-    case 'expedientes_activos':
+    case 'expedientes_activos': {
+      const isFem = terms.expedientePlural.toLowerCase() === 'operaciones';
       return {
-        label: `${terms.expedientePlural} activos`,
+        label: `${terms.expedientePlural} ${isFem ? 'activas' : 'activos'}`,
         value: String(values.activeCases),
         helper: 'Estado Activo',
       };
+    }
     case 'proximos_plazos':
       return {
         label: 'Próximos plazos',

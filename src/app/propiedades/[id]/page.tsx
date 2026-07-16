@@ -352,40 +352,44 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
             )}
           </div>
 
-          {useAi && (
-            <GenerarAvisoButton propertyId={record.id} />
-          )}
-
-          <CompartirWhatsappButton
-            name={record.name}
-            propertyType={getPropertyTypeLabel(record.property_type)}
-            address={record.address}
-            rooms={record.rooms}
-            surfaceTotal={record.surface_total_m2}
-            surfaceCovered={record.surface_covered_m2}
-            price={record.price}
-            currency={record.currency}
-          />
-          
-          <DescargarFichaPdfButton
-            name={record.name}
-            propertyType={getPropertyTypeLabel(record.property_type)}
-            status={getPropertyStatusLabel(record.status)}
-            address={record.address}
-            matricula={record.matricula}
-            owners={record.owners}
-            surfaceTotal={record.surface_total_m2}
-            surfaceCovered={record.surface_covered_m2}
-            rooms={record.rooms}
-            gravamenes={record.gravamenes}
-            notes={record.notes}
-            price={record.price}
-            currency={record.currency}
-          />
-
-          {useAi && (
-            <TasarButton propertyId={record.id} />
-          )}
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5">
+            <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-400">
+              🛠️ Herramientas Comerciales
+            </h3>
+            <div className="space-y-2">
+              {useAi && (
+                <GenerarAvisoButton propertyId={record.id} />
+              )}
+              {useAi && (
+                <TasarButton propertyId={record.id} />
+              )}
+              <CompartirWhatsappButton
+                name={record.name}
+                propertyType={getPropertyTypeLabel(record.property_type)}
+                address={record.address}
+                rooms={record.rooms}
+                surfaceTotal={record.surface_total_m2}
+                surfaceCovered={record.surface_covered_m2}
+                price={record.price}
+                currency={record.currency}
+              />
+              <DescargarFichaPdfButton
+                name={record.name}
+                propertyType={getPropertyTypeLabel(record.property_type)}
+                status={getPropertyStatusLabel(record.status)}
+                address={record.address}
+                matricula={record.matricula}
+                owners={record.owners}
+                surfaceTotal={record.surface_total_m2}
+                surfaceCovered={record.surface_covered_m2}
+                rooms={record.rooms}
+                gravamenes={record.gravamenes}
+                notes={record.notes}
+                price={record.price}
+                currency={record.currency}
+              />
+            </div>
+          </div>
           
           <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-6">
             <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-400">Resumen rápido</h3>
