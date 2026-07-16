@@ -20,34 +20,31 @@ export function CompartirWhatsappButton({
   currency: string | null;
 }) {
   const handleShare = () => {
-    const casa = "\u{1F3E0}";
-    const pin = "\u{1F4CD}";
-    const regla = "\u{1F4D0}";
-    const cama = "\u{1F6CF}\u{FE0F}";
-    const dinero = "\u{1F4B0}";
-
     const lineas: string[] = [];
-    lineas.push(`${casa} *${name}* — ${propertyType}`);
+    lineas.push(`*${name}* — ${propertyType}`);
     
     if (address) {
-      lineas.push(`${pin} ${address}`);
+      lineas.push(`Ubicación: ${address}`);
     }
     
     if (surfaceTotal != null || surfaceCovered != null) {
-      const sup = [];
+      const sup: string[] = [];
       if (surfaceTotal != null) sup.push(`${surfaceTotal} m² totales`);
       if (surfaceCovered != null) sup.push(`${surfaceCovered} m² cubiertos`);
-      lineas.push(`${regla} ${sup.join(' · ')}`);
+      lineas.push(`Superficie: ${sup.join(' · ')}`);
     }
 
     if (rooms != null) {
-      lineas.push(`${cama} ${rooms} ambientes`);
+      lineas.push(`Ambientes: ${rooms}`);
     }
 
     if (price != null) {
       const cur = currency === 'USD' ? 'u$s' : '$';
-      lineas.push(`${dinero} ${cur} ${price.toLocaleString('es-AR')}`);
+      lineas.push(`Valor: ${cur} ${price.toLocaleString('es-AR')}`);
     }
+    
+    lineas.push('');
+    lineas.push('Más información disponible a solicitud.');
 
     const mensaje = lineas.join('\n');
     window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank');
