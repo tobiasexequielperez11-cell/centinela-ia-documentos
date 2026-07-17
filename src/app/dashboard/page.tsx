@@ -300,8 +300,8 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_0.8fr]">
-        <MotionCard index={1} className="flex flex-col justify-between">
+      <div className="mt-8 grid items-start gap-6 xl:grid-cols-[1fr_0.8fr]">
+        <MotionCard index={1} className="flex flex-col gap-6">
           <div>
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
               <div>
