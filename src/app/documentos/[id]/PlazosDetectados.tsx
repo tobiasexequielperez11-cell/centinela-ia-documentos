@@ -40,34 +40,36 @@ export function PlazosDetectados({
   if (!plazos?.length) return null;
 
   return (
-    <div className="mt-4 rounded-xl border border-violet-200 bg-violet-50/60 p-4">
-      <p className="mb-3 text-sm font-semibold text-violet-900">
+    <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+      <h3 className="mb-3 text-sm font-semibold text-slate-200">
         📅 Plazos y fechas detectadas
-      </p>
+      </h3>
       <ul className="space-y-2">
         {plazos.map((plazo, index) => {
           const estado = estados[index] ?? 'idle';
           return (
             <li
               key={index}
-              className="flex items-center justify-between gap-3 rounded-lg bg-white px-3 py-2 text-sm shadow-sm"
+              className="flex items-center justify-between gap-3 rounded-lg border border-slate-800 bg-slate-800/40 px-3 py-2"
             >
-              <div>
-                <span className="font-medium text-slate-800">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-cyan-400">
                   {formatFecha(plazo.fecha)}
-                </span>
-                <span className="ml-2 text-slate-600">{plazo.descripcion}</span>
+                </p>
+                <p className="truncate text-xs text-slate-400">
+                  {plazo.descripcion}
+                </p>
               </div>
               {estado === 'ok' ? (
-                <span className="flex items-center gap-1 text-emerald-600">
-                  <Check className="h-4 w-4" /> Cargado
+                <span className="flex min-w-[132px] shrink-0 items-center justify-center gap-1 rounded-lg bg-emerald-500/15 px-3 py-1.5 text-xs font-medium text-emerald-400">
+                  <Check className="h-3.5 w-3.5" />
+                  Cargado
                 </span>
               ) : (
                 <button
-                  type="button"
                   onClick={() => cargar(index, plazo)}
                   disabled={estado === 'loading'}
-                  className="flex items-center gap-1 rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-violet-700 disabled:opacity-60"
+                  className="flex min-w-[132px] shrink-0 items-center justify-center gap-1 rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-violet-700 disabled:opacity-60"
                 >
                   {estado === 'loading' ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -77,8 +79,8 @@ export function PlazosDetectados({
                   {estado === 'loading'
                     ? 'Cargando…'
                     : estado === 'error'
-                      ? 'Reintentar'
-                      : 'Cargar a agenda'}
+                    ? 'Reintentar'
+                    : 'Cargar a agenda'}
                 </button>
               )}
             </li>
