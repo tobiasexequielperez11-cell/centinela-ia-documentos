@@ -19,7 +19,8 @@ const REGLAS = `REGLAS INQUEBRANTABLES:
 - Basáte ÚNICAMENTE en el CONTEXTO DEL LEGAJO y en la conversación. NO inventes datos, montos, fechas, nombres ni artículos.
 - Si algo no surge del contexto, decilo con claridad ("No tengo ese dato cargado en el legajo").
 - Sos orientativo: la IA propone, el humano dispone. Nunca presentes algo como certeza legal definitiva.
-- Respondé en español rioplatense, claro y concreto. Usá viñetas cuando enumeres.
+- Respondé en español rioplatense, con tono profesional, claro y CONCISO. Evitá respuestas largas: apuntá a 6-12 líneas salvo que te pidan explícitamente más detalle.
+- FORMATO: usá párrafos breves. Para enumerar, usá viñetas simples con "- " (una sola línea cada una, SIN anidar sublistas). Resaltá términos clave con **negrita** con moderación. No uses tablas, ni encabezados, ni títulos en markdown.
 - Sé PROACTIVO: cuando detectes un plazo, una discrepancia o una oportunidad, no te quedes en el resumen; proponé el próximo paso concreto en forma de pregunta ("¿Querés que…?"). Igual, la ejecución final siempre la decide el humano.`;
 
 export async function responderAgenteLegajo(input: {
@@ -49,30 +50,43 @@ export async function responderAgenteLegajo(input: {
     { role: 'user' as const, parts: [{ text: input.pregunta }] },
   ];
 
-  try {
-    const resp = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemInstruction }] },
-          contents,
-          generationConfig: { temperature: 0.3 },
-        }),
+  const body = JSON.stringify({
+    systemInstruction: { parts: [{ text: systemInstruction }] },
+    contents,
+    generationConfig: { temperature: 0.3, maxOutputTokens: 1200 },
+  });
+
+  // Reintenta ante errores transitorios de Gemini (sobrecarga 429 / 5xx).
+  for (let intento = 0; intento < 3; intento++) {
+    try {
+      const resp = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body,
+        }
+      );
+
+      if (resp.ok) {
+        const data = await resp.json();
+        const raw: string =
+          data?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text ?? '').join('') ?? '';
+        if (raw.trim()) return { ok: true, respuesta: raw.trim(), model: `agente-${modelo}` };
+        // Respuesta vacía (p.ej. filtro): reintentar una vez más.
+      } else if (resp.status === 429 || resp.status >= 500) {
+        console.error('Agente Gemini transitorio:', resp.status);
+        // cae al backoff y reintenta
+      } else {
+        console.error('Agente Gemini error:', resp.status, await resp.text());
+        return { ok: false, motivo: 'error' };
       }
-    );
-    if (!resp.ok) {
-      console.error('Agente Gemini error:', resp.status, await resp.text());
-      return { ok: false, motivo: 'error' };
+    } catch (e) {
+      console.error('Agente error de red:', e);
     }
-    const data = await resp.json();
-    const raw: string =
-      data?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text ?? '').join('') ?? '';
-    if (!raw.trim()) return { ok: false, motivo: 'error' };
-    return { ok: true, respuesta: raw.trim(), model: `agente-${modelo}` };
-  } catch (e) {
-    console.error('Agente error:', e);
-    return { ok: false, motivo: 'error' };
+    // Backoff antes de reintentar (0.8s, 1.6s)
+    await new Promise((r) => setTimeout(r, 800 * (intento + 1)));
   }
+
+  return { ok: false, motivo: 'error' };
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type ReactNode } from 'react';
 import { preguntarAgente } from './agenteActions';
 import type { MensajeChat } from '@/lib/ai/agente';
 
@@ -22,6 +22,66 @@ const SUGERENCIAS: Record<string, string[]> = {
   ],
 };
 
+// Convierte **negrita** en <strong> sin usar dangerouslySetInnerHTML.
+function renderInline(text: string, keyPrefix: string): ReactNode[] {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((p, i) => {
+    if (p.startsWith('**') && p.endsWith('**')) {
+      return (
+        <strong key={`${keyPrefix}-${i}`} className="font-semibold text-slate-50">
+          {p.slice(2, -2)}
+        </strong>
+      );
+    }
+    return <span key={`${keyPrefix}-${i}`}>{p}</span>;
+  });
+}
+
+// Renderiza el texto del agente como párrafos y viñetas prolijas.
+function MensajeTexto({ texto }: { texto: string }) {
+  const lineas = texto.split('\n');
+  const bloques: ReactNode[] = [];
+  let lista: string[] = [];
+  let key = 0;
+
+  const flushLista = () => {
+    if (lista.length) {
+      const items = [...lista];
+      bloques.push(
+        <ul key={`ul-${key++}`} className="my-1 space-y-1">
+          {items.map((item, i) => (
+            <li key={i} className="flex gap-2">
+              <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-cyan-400" />
+              <span>{renderInline(item, `li-${key}-${i}`)}</span>
+            </li>
+          ))}
+        </ul>
+      );
+      lista = [];
+    }
+  };
+
+  for (const linea of lineas) {
+    const t = linea.trim();
+    if (!t) {
+      flushLista();
+      continue;
+    }
+    const bullet = t.match(/^[-*•]\s+(.*)$/);
+    if (bullet) {
+      lista.push(bullet[1]);
+    } else {
+      flushLista();
+      bloques.push(
+        <p key={`p-${key++}`} className="my-1 leading-relaxed">
+          {renderInline(t, `p-${key}`)}
+        </p>
+      );
+    }
+  }
+  flushLista();
+  return <div className="space-y-1">{bloques}</div>;
+}
+
 type Props = {
   caseId: string;
   industry: string;
@@ -35,7 +95,6 @@ export function AgenteChat({ caseId, industry, puedeUsarIA }: Props) {
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Scroll SOLO dentro del panel de mensajes; nunca mueve la página completa.
   useEffect(() => {
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
@@ -68,8 +127,25 @@ export function AgenteChat({ caseId, industry, puedeUsarIA }: Props) {
   if (!puedeUsarIA) return null;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-slate-900/90 to-slate-900/50 p-5 shadow-lg shadow-cyan-500/10">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent" />
+    <div className="agente-borde-vivo relative overflow-hidden rounded-2xl border bg-gradient-to-br from-slate-900/90 to-slate-900/50 p-5">
+      <style>{`
+        @keyframes agenteShimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+        @keyframes agenteBrilloBorde {
+          0%, 100% { border-color: rgba(34,211,238,0.25); box-shadow: 0 0 18px rgba(34,211,238,0.06); }
+          50% { border-color: rgba(34,211,238,0.55); box-shadow: 0 0 26px rgba(34,211,238,0.16); }
+        }
+        .agente-borde-vivo { animation: agenteBrilloBorde 3.2s ease-in-out infinite; }
+        .agente-shimmer {
+          background-image: linear-gradient(90deg, transparent, rgba(34,211,238,0.9), rgba(139,92,246,0.9), transparent);
+          background-size: 200% 100%;
+          animation: agenteShimmer 3s linear infinite;
+        }
+      `}</style>
+
+      <span className="agente-shimmer pointer-events-none absolute inset-x-0 top-0 h-0.5" />
 
       <div className="mb-4 flex items-center gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-500/15 text-xl">
@@ -110,10 +186,10 @@ export function AgenteChat({ caseId, industry, puedeUsarIA }: Props) {
               className={
                 m.rol === 'user'
                   ? 'max-w-[85%] rounded-2xl rounded-br-sm bg-cyan-500/20 px-3 py-2 text-sm text-cyan-50'
-                  : 'max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-bl-sm bg-slate-800/60 px-3 py-2 text-sm text-slate-200'
+                  : 'max-w-[90%] rounded-2xl rounded-bl-sm bg-slate-800/60 px-4 py-3 text-sm text-slate-200'
               }
             >
-              {m.texto}
+              {m.rol === 'user' ? m.texto : <MensajeTexto texto={m.texto} />}
             </div>
           </div>
         ))}
