@@ -470,6 +470,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
             label: '📊 Resumen',
             content: (
               <div className="space-y-6">
+                <AgenteChat caseId={caseRecord.id} industry={industry} puedeUsarIA={puedeUsarIA} />
                 {(industry === 'escribania' || industry === 'legal') && (
                   <CopilotoExpediente
                     caseId={caseRecord.id}
@@ -480,7 +481,6 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                     terms={terms}
                   />
                 )}
-                <AgenteChat caseId={caseRecord.id} industry={industry} puedeUsarIA={puedeUsarIA} />
                 {industry === 'escribania' && (
                   <CotejoExpediente
                     caseId={caseRecord.id}

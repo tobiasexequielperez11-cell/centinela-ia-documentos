@@ -33,10 +33,12 @@ export function AgenteChat({ caseId, industry, puedeUsarIA }: Props) {
   const [input, setInput] = useState('');
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const finRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Scroll SOLO dentro del panel de mensajes; nunca mueve la página completa.
   useEffect(() => {
-    finRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [mensajes, cargando]);
 
   const sugerencias = SUGERENCIAS[industry] ?? SUGERENCIAS.legal;
@@ -66,16 +68,26 @@ export function AgenteChat({ caseId, industry, puedeUsarIA }: Props) {
   if (!puedeUsarIA) return null;
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-      <div className="mb-3 flex items-center gap-2">
-        <span className="text-lg">🤖</span>
-        <div>
-          <h3 className="text-sm font-semibold text-slate-100">Agente IA del legajo</h3>
+    <div className="relative overflow-hidden rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-slate-900/90 to-slate-900/50 p-5 shadow-lg shadow-cyan-500/10">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent" />
+
+      <div className="mb-4 flex items-center gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-500/15 text-xl">
+          🤖
+        </div>
+        <div className="flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="text-base font-semibold text-slate-50">Agente IA del legajo</h3>
+            <span className="flex items-center gap-1 rounded-full bg-cyan-500/15 px-2 py-0.5 text-[10px] font-medium text-cyan-300">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-400" />
+              En línea
+            </span>
+          </div>
           <p className="text-xs text-slate-400">Conversá sobre este legajo. La IA propone, vos decidís.</p>
         </div>
       </div>
 
-      <div className="max-h-80 space-y-3 overflow-y-auto pr-1">
+      <div ref={scrollRef} className="max-h-96 space-y-3 overflow-y-auto pr-1">
         {mensajes.length === 0 && (
           <div className="space-y-2">
             <p className="text-xs text-slate-500">Probá preguntando:</p>
@@ -108,12 +120,12 @@ export function AgenteChat({ caseId, industry, puedeUsarIA }: Props) {
 
         {cargando && (
           <div className="flex justify-start">
-            <div className="rounded-2xl rounded-bl-sm bg-slate-800/60 px-3 py-2 text-sm text-slate-400">
+            <div className="flex items-center gap-1 rounded-2xl rounded-bl-sm bg-slate-800/60 px-3 py-2 text-sm text-slate-400">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-400" />
               Pensando…
             </div>
           </div>
         )}
-        <div ref={finRef} />
       </div>
 
       {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
