@@ -552,6 +552,14 @@ export async function addChecklistItem(formData: FormData) {
   revalidatePath(`/expedientes/${caseId}`);
 }
 
+export async function addChecklistItemConEstado(
+  _prev: { ok: boolean } | null,
+  formData: FormData,
+): Promise<{ ok: boolean }> {
+  await addChecklistItem(formData);
+  return { ok: true };
+}
+
 export async function removeChecklistItem(formData: FormData) {
   const { user, profile } = await requireCaseAccess('update');
 

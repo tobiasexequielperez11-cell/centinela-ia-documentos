@@ -40,6 +40,7 @@ import { FormSubmitButton } from '@/components/ui/FormSubmitButton';
 import { MapPin } from 'lucide-react';
 import { DeleteCaseButton } from './DeleteCaseButton';
 import { CopilotoExpediente } from './CopilotoExpediente';
+import { BotonAlChecklist } from './BotonAlChecklist';
 import { CotejoExpediente } from './CotejoExpediente';
 import { RedactarEscrituraButton } from './RedactarEscrituraButton';
 import { AnalizarUifButton } from './AnalizarUifButton';
@@ -503,16 +504,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                         >
                           <span className="text-sm text-slate-200">{accion}</span>
                           {puedeUsarIA && (
-                            <form action={addChecklistItem} className="shrink-0">
-                              <input type="hidden" name="case_id" value={caseRecord.id} />
-                              <input type="hidden" name="title" value={accion} />
-                              <button
-                                type="submit"
-                                className="rounded-lg border border-cyan-500/20 bg-cyan-500/10 px-3 py-1.5 text-xs font-semibold text-cyan-300 transition hover:bg-cyan-500/20"
-                              >
-                                ➕ Al checklist
-                              </button>
-                            </form>
+                            <BotonAlChecklist caseId={caseRecord.id} title={accion} />
                           )}
                         </li>
                       ))}
