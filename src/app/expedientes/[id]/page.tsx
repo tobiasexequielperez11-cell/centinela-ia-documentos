@@ -40,6 +40,7 @@ import { FormSubmitButton } from '@/components/ui/FormSubmitButton';
 import { MapPin } from 'lucide-react';
 import { DeleteCaseButton } from './DeleteCaseButton';
 import { CopilotoExpediente } from './CopilotoExpediente';
+import { AgenteChat } from './AgenteChat';
 import { BotonAlChecklist } from './BotonAlChecklist';
 import { CotejoExpediente } from './CotejoExpediente';
 import { RedactarEscrituraButton } from './RedactarEscrituraButton';
@@ -479,6 +480,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                     terms={terms}
                   />
                 )}
+                <AgenteChat caseId={caseRecord.id} industry={industry} puedeUsarIA={puedeUsarIA} />
                 {industry === 'escribania' && (
                   <CotejoExpediente
                     caseId={caseRecord.id}
