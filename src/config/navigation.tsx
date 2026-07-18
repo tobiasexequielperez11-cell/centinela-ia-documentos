@@ -16,6 +16,7 @@ import {
   KeyRound,
   Sparkles,
   Inbox,
+  Bot,
 } from 'lucide-react';
 import { type IndustryType } from '@/lib/industries/documentTypes';
 
@@ -31,6 +32,7 @@ export type NavItem = {
 
 export const navigation: NavItem[] = [
   { name: 'Inicio', href: '/dashboard', icon: BarChart3, roles: ['admin', 'employee', 'auditor', 'client'], group: 'Operación', description: 'Panel principal y acceso rápido a módulos.' },
+  { name: 'Agente IA', href: '/agente', icon: Bot, roles: ['admin', 'employee'], group: 'Operación', description: 'Tu asistente de IA: vigila vencimientos y te sugiere acciones en todos los legajos.' },
   { name: 'Expedientes', href: '/expedientes', icon: FolderKanban, roles: ['admin', 'employee', 'auditor', 'client'], group: 'Operación', description: 'Gestión operativa de expedientes vinculados.' },
   { name: 'Propiedades', href: '/propiedades', icon: Building2, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['inmobiliaria'], group: 'Operación', description: 'Gestión y catálogo de propiedades.' },
   { name: 'Clientes', href: '/clientes', icon: Users, roles: ['admin', 'employee', 'auditor', 'client'], industries: ['inmobiliaria'], group: 'Operación', description: 'Gestión de clientes y búsqueda inmobiliaria.' },
