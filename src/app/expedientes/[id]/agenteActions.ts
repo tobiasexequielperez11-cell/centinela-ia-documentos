@@ -79,6 +79,15 @@ export async function preguntarAgente(input: {
     .limit(1)
     .maybeSingle();
 
+  // Cronología: actuaciones y plazos cargados a mano o detectados por la IA
+  // (misma fuente que alimenta el Radar de plazos).
+  const { data: eventosData } = await supabase
+    .from('case_events')
+    .select('event_date, event_type, title, description')
+    .eq('case_id', input.caseId)
+    .eq('organization_id', profile.organization_id)
+    .order('event_date', { ascending: true });
+
   const partes: string[] = [];
   partes.push(`LEGAJO: ${caseData.title ?? 'Sin título'}`);
   partes.push(
@@ -119,6 +128,26 @@ export async function preguntarAgente(input: {
   if (vencimientos.length) {
     partes.push('\nVENCIMIENTOS DE DOCUMENTOS (fecha de expiración cargada):');
     partes.push(vencimientos.join('\n'));
+  }
+
+  // Cronología del legajo: actuaciones y plazos (a mano o detectados por la IA).
+  // Marcamos los FUTUROS para que el agente pueda proponer agendarlos.
+  const eventos = eventosData ?? [];
+  if (eventos.length) {
+    const hoyIso = new Date().toISOString().slice(0, 10);
+    partes.push('\nCRONOLOGÍA DEL LEGAJO (actuaciones y plazos; los marcados como PLAZO FUTURO son agendables):');
+    partes.push(
+      eventos
+        .map((e) => {
+          const f = String((e as any).event_date ?? '').slice(0, 10);
+          const estado = f && f >= hoyIso ? 'PLAZO FUTURO' : 'ya pasó';
+          const tipo = (e as any).event_type ?? 'otro';
+          const titulo = (e as any).title ?? '';
+          const desc = (e as any).description ? ` — ${(e as any).description}` : '';
+          return `- ${f} [${estado}] (${tipo}) ${titulo}${desc}`;
+        })
+        .join('\n')
+    );
   }
 
   const analisisPorDoc = new Map<string, any>();
