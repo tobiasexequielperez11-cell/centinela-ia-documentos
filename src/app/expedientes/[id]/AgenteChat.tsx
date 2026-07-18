@@ -17,6 +17,7 @@ const ACCION_META: Record<
   generar_cotejo: { icono: '⚖️', verbo: 'Aprobar y cotejar', verboLoading: 'Cotejando…', hecho: 'Cotejo generado' },
   redactar_borrador: { icono: '📝', verbo: 'Aprobar y redactar', verboLoading: 'Redactando…', hecho: 'Borrador generado' },
   analizar_uif: { icono: '🛡️', verbo: 'Aprobar y analizar', verboLoading: 'Analizando…', hecho: 'Análisis UIF generado' },
+  cambiar_estado: { icono: '🔄', verbo: 'Aprobar y cambiar', verboLoading: 'Cambiando…', hecho: 'Estado actualizado' },
 };
 
 const SUGERENCIAS: Record<string, string[]> = {

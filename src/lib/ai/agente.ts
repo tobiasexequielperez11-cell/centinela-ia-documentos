@@ -1,5 +1,6 @@
 import 'server-only';
 import type { IndustryType } from '@/lib/industries/documentTypes';
+import { getCaseStatuses } from '@/lib/industries/caseConfig';
 
 export type MensajeChat = { rol: 'user' | 'model'; texto: string };
 
@@ -12,9 +13,11 @@ export type AccionPropuesta = {
     | 'generar_resumen'
     | 'generar_cotejo'
     | 'redactar_borrador'
-    | 'analizar_uif';
+    | 'analizar_uif'
+    | 'cambiar_estado';
   titulo: string;
   fecha?: string; // YYYY-MM-DD (solo agendar_plazo y crear_actuacion)
+  estado?: string; // valor de estado destino (solo cambiar_estado)
   motivo: string;
 };
 
@@ -38,7 +41,7 @@ const REGLAS = `REGLAS INQUEBRANTABLES:
 - FORMATO del campo "respuesta": párrafos breves. Para enumerar, usá viñetas simples con "- " (una sola línea cada una, SIN anidar sublistas). Resaltá términos clave con **negrita** con moderación. No uses tablas ni encabezados markdown.
 - Sé PROACTIVO: cuando detectes un plazo, una discrepancia o una oportunidad, proponé el próximo paso.`;
 
-function reglasAcciones(hoy: string): string {
+function reglasAcciones(hoy: string, estadosValidos: string): string {
   return `ACCIONES QUE PODÉS PROPONER (campo "acciones"):
 - FECHA DE HOY: ${hoy}. Usala para evaluar vencimientos.
 - Proponé una acción SOLO cuando surja con claridad del CONTEXTO DEL LEGAJO. Si no corresponde ninguna, devolvé "acciones" como lista vacía.
@@ -52,7 +55,8 @@ function reglasAcciones(hoy: string): string {
   5) "generar_cotejo": cruzar (cotejar) los documentos del legajo con IA para detectar discrepancias, faltantes o vigencias vencidas. SIN "fecha". Proponéla cuando haya varios documentos que convenga confrontar. Ej: "Cotejar los documentos del legajo".
   6) "redactar_borrador": generar con IA un borrador de la escritura o acto notarial a partir de la información del legajo. SIN "fecha". Proponéla solo cuando el legajo tenga datos suficientes. Ej: "Redactar borrador de escritura".
   7) "analizar_uif": correr el análisis de riesgo UIF (prevención de lavado) con IA cuando los montos o el tipo de operación lo ameriten. SIN "fecha". Ej: "Analizar riesgo UIF de la operación".
-- NO inventes fechas, nombres ni datos. La ejecución real la confirma el usuario con un botón.`;
+  8) "cambiar_estado": mover el legajo a otra etapa del flujo de trabajo cuando el avance lo justifique. SIN "fecha", pero REQUIERE el campo "estado" con EXACTAMENTE uno de estos valores válidos: ${estadosValidos}. Usá "titulo" para describir el cambio (ej: "Pasar a En preparación"). Proponéla solo si el contexto muestra que el legajo avanzó de etapa.
+- NO inventes fechas, nombres, estados ni datos. La ejecución real la confirma el usuario con un botón.`;
 }
 
 function limpiarJson(raw: string): string {
@@ -63,9 +67,9 @@ function limpiarJson(raw: string): string {
   return s;
 }
 
-function validarAcciones(input: unknown): AccionPropuesta[] {
+function validarAcciones(input: unknown, estadosValidos: string[] = []): AccionPropuesta[] {
   if (!Array.isArray(input)) return [];
-  const TIPOS = ['agendar_plazo', 'crear_actuacion', 'agregar_checklist', 'generar_resumen', 'generar_cotejo', 'redactar_borrador', 'analizar_uif'];
+  const TIPOS = ['agendar_plazo', 'crear_actuacion', 'agregar_checklist', 'generar_resumen', 'generar_cotejo', 'redactar_borrador', 'analizar_uif', 'cambiar_estado'];
   const CON_FECHA = ['agendar_plazo', 'crear_actuacion'];
   const out: AccionPropuesta[] = [];
   for (const a of input) {
@@ -74,9 +78,13 @@ function validarAcciones(input: unknown): AccionPropuesta[] {
     const tipo = typeof o.tipo === 'string' ? o.tipo.trim() : '';
     const titulo = typeof o.titulo === 'string' ? o.titulo.trim() : '';
     const fecha = typeof o.fecha === 'string' ? o.fecha.trim() : '';
+    const estado = typeof o.estado === 'string' ? o.estado.trim() : '';
     const motivo = typeof o.motivo === 'string' ? o.motivo.trim() : '';
     if (!TIPOS.includes(tipo) || !titulo) continue;
-    if (CON_FECHA.includes(tipo)) {
+    if (tipo === 'cambiar_estado') {
+      if (!estado || (estadosValidos.length && !estadosValidos.includes(estado))) continue;
+      out.push({ tipo: 'cambiar_estado', titulo, estado, motivo });
+    } else if (CON_FECHA.includes(tipo)) {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) continue;
       out.push({ tipo: tipo as AccionPropuesta['tipo'], titulo, fecha, motivo });
     } else {
@@ -126,13 +134,16 @@ export async function responderAgenteLegajo(input: {
   if (!apiKey) return { ok: false, motivo: 'sin_api_key' };
   const modelo = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
   const hoy = new Date().toISOString().slice(0, 10);
+  const estados = getCaseStatuses(input.industry);
+  const estadosTexto = estados.map((e) => `"${e.value}" (${e.label})`).join(', ');
+  const estadosValores = estados.map((e) => e.value);
 
   const systemInstruction = [
     getAgentPersona(input.industry),
     '',
     REGLAS,
     '',
-    reglasAcciones(hoy),
+    reglasAcciones(hoy, estadosTexto),
     '',
     'CONTEXTO DEL LEGAJO:',
     input.contextoLegajo || '(sin información cargada)',
@@ -163,6 +174,7 @@ export async function responderAgenteLegajo(input: {
                 tipo: { type: 'STRING' },
                 titulo: { type: 'STRING' },
                 fecha: { type: 'STRING' },
+                estado: { type: 'STRING' },
                 motivo: { type: 'STRING' },
               },
               required: ['tipo', 'titulo', 'motivo'],
@@ -200,7 +212,7 @@ export async function responderAgenteLegajo(input: {
             return {
               ok: true,
               respuesta,
-              acciones: validarAcciones(parsed?.acciones),
+              acciones: validarAcciones(parsed?.acciones, estadosValores),
               model: `agente-${modelo}`,
             };
           } catch {

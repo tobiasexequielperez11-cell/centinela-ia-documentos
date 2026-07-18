@@ -7,6 +7,7 @@ import { canUseAi, canUpdateCase, isUserRole } from '@/lib/permissions/roles';
 import { revalidatePath } from 'next/cache';
 import { guardarPlazoDetectado } from '@/app/agenda/actions';
 import { generarResumenExpediente, cotejarExpediente, redactarEscrituraExpediente, analizarUifExpediente } from '@/app/expedientes/actions';
+import { getAllowedCaseStatuses } from '@/lib/industries/caseConfig';
 import { responderAgenteLegajo, type MensajeChat, type AccionPropuesta } from '@/lib/ai/agente';
 
 export async function preguntarAgente(input: {
@@ -327,6 +328,31 @@ export async function ejecutarAccionAgente(input: {
       return { ok: true, mensaje: 'Análisis UIF generado. Actualizá la página para verlo.' };
     }
 
+    case 'cambiar_estado': {
+      if (!canUpdateCase(profile.role)) return { ok: false, mensaje: 'Sin permiso para cambiar el estado.' };
+      const estado = typeof accion.estado === 'string' ? accion.estado.trim() : '';
+      if (!estado) return { ok: false, mensaje: 'La acción no indica un estado destino.' };
+      const { data: org } = await supabase
+        .from('organizations')
+        .select('industry_type')
+        .eq('id', profile.organization_id)
+        .maybeSingle();
+      const industry = normalizeIndustryType(org?.industry_type);
+      if (!getAllowedCaseStatuses(industry).includes(estado)) {
+        return { ok: false, mensaje: 'El estado propuesto no es válido para este rubro.' };
+      }
+      const { error } = await supabase
+        .from('cases')
+        .update({ status: estado })
+        .eq('id', caseId)
+        .eq('organization_id', profile.organization_id);
+      if (error) {
+        console.error('Agente cambiar_estado error:', error);
+        return { ok: false, mensaje: 'No se pudo cambiar el estado.' };
+      }
+      revalidatePath(`/expedientes/${caseId}`);
+      return { ok: true, mensaje: 'Estado del legajo actualizado.' };
+    }
     default:
       return { ok: false, mensaje: 'Acción no reconocida.' };
   }
