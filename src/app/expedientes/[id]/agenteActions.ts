@@ -6,7 +6,7 @@ import { normalizeIndustryType } from '@/lib/industries/documentTypes';
 import { canUseAi, canUpdateCase, isUserRole } from '@/lib/permissions/roles';
 import { revalidatePath } from 'next/cache';
 import { guardarPlazoDetectado } from '@/app/agenda/actions';
-import { generarResumenExpediente } from '@/app/expedientes/actions';
+import { generarResumenExpediente, cotejarExpediente, redactarEscrituraExpediente, analizarUifExpediente } from '@/app/expedientes/actions';
 import { responderAgenteLegajo, type MensajeChat, type AccionPropuesta } from '@/lib/ai/agente';
 
 export async function preguntarAgente(input: {
@@ -307,6 +307,24 @@ export async function ejecutarAccionAgente(input: {
       await generarResumenExpediente(caseId);
       revalidatePath(`/expedientes/${caseId}`);
       return { ok: true, mensaje: 'Resumen generado. Actualizá la página para verlo.' };
+    }
+    case 'generar_cotejo': {
+      if (!canUseAi(profile.role)) return { ok: false, mensaje: 'Sin permiso para usar la IA.' };
+      await cotejarExpediente(caseId);
+      revalidatePath(`/expedientes/${caseId}`);
+      return { ok: true, mensaje: 'Cotejo generado. Actualizá la página para verlo.' };
+    }
+    case 'redactar_borrador': {
+      if (!canUseAi(profile.role)) return { ok: false, mensaje: 'Sin permiso para usar la IA.' };
+      await redactarEscrituraExpediente(caseId);
+      revalidatePath(`/expedientes/${caseId}`);
+      return { ok: true, mensaje: 'Borrador generado. Actualizá la página para verlo.' };
+    }
+    case 'analizar_uif': {
+      if (!canUseAi(profile.role)) return { ok: false, mensaje: 'Sin permiso para usar la IA.' };
+      await analizarUifExpediente(caseId);
+      revalidatePath(`/expedientes/${caseId}`);
+      return { ok: true, mensaje: 'Análisis UIF generado. Actualizá la página para verlo.' };
     }
 
     default:

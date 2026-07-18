@@ -14,6 +14,9 @@ const ACCION_META: Record<
   crear_actuacion: { icono: '🗂️', verbo: 'Aprobar y registrar', verboLoading: 'Registrando…', hecho: 'Actuación registrada' },
   agregar_checklist: { icono: '✅', verbo: 'Aprobar y agregar', verboLoading: 'Agregando…', hecho: 'Agregado al checklist' },
   generar_resumen: { icono: '🧠', verbo: 'Aprobar y generar', verboLoading: 'Generando…', hecho: 'Resumen generado' },
+  generar_cotejo: { icono: '⚖️', verbo: 'Aprobar y cotejar', verboLoading: 'Cotejando…', hecho: 'Cotejo generado' },
+  redactar_borrador: { icono: '📝', verbo: 'Aprobar y redactar', verboLoading: 'Redactando…', hecho: 'Borrador generado' },
+  analizar_uif: { icono: '🛡️', verbo: 'Aprobar y analizar', verboLoading: 'Analizando…', hecho: 'Análisis UIF generado' },
 };
 
 const SUGERENCIAS: Record<string, string[]> = {

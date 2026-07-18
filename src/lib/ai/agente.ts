@@ -5,7 +5,14 @@ export type MensajeChat = { rol: 'user' | 'model'; texto: string };
 
 // Acciones que el agente puede proponer para que el humano apruebe.
 export type AccionPropuesta = {
-  tipo: 'agendar_plazo' | 'crear_actuacion' | 'agregar_checklist' | 'generar_resumen';
+  tipo:
+    | 'agendar_plazo'
+    | 'crear_actuacion'
+    | 'agregar_checklist'
+    | 'generar_resumen'
+    | 'generar_cotejo'
+    | 'redactar_borrador'
+    | 'analizar_uif';
   titulo: string;
   fecha?: string; // YYYY-MM-DD (solo agendar_plazo y crear_actuacion)
   motivo: string;
@@ -42,6 +49,9 @@ function reglasAcciones(hoy: string): string {
   2) "crear_actuacion": registrar un hito en la CRONOLOGÍA del legajo (audiencia, presentación, notificación, firma). REQUIERE "fecha". Ej: "Audiencia de vista de causa".
   3) "agregar_checklist": sumar un pendiente al checklist cuando detectes algo que FALTA o hay que conseguir/controlar. SIN "fecha". Ej: "Solicitar certificado de inhibición".
   4) "generar_resumen": regenerar el resumen integral del expediente con IA cuando convenga actualizarlo. SIN "fecha". Ej: "Actualizar el resumen del legajo".
+  5) "generar_cotejo": cruzar (cotejar) los documentos del legajo con IA para detectar discrepancias, faltantes o vigencias vencidas. SIN "fecha". Proponéla cuando haya varios documentos que convenga confrontar. Ej: "Cotejar los documentos del legajo".
+  6) "redactar_borrador": generar con IA un borrador de la escritura o acto notarial a partir de la información del legajo. SIN "fecha". Proponéla solo cuando el legajo tenga datos suficientes. Ej: "Redactar borrador de escritura".
+  7) "analizar_uif": correr el análisis de riesgo UIF (prevención de lavado) con IA cuando los montos o el tipo de operación lo ameriten. SIN "fecha". Ej: "Analizar riesgo UIF de la operación".
 - NO inventes fechas, nombres ni datos. La ejecución real la confirma el usuario con un botón.`;
 }
 
@@ -55,7 +65,7 @@ function limpiarJson(raw: string): string {
 
 function validarAcciones(input: unknown): AccionPropuesta[] {
   if (!Array.isArray(input)) return [];
-  const TIPOS = ['agendar_plazo', 'crear_actuacion', 'agregar_checklist', 'generar_resumen'];
+  const TIPOS = ['agendar_plazo', 'crear_actuacion', 'agregar_checklist', 'generar_resumen', 'generar_cotejo', 'redactar_borrador', 'analizar_uif'];
   const CON_FECHA = ['agendar_plazo', 'crear_actuacion'];
   const out: AccionPropuesta[] = [];
   for (const a of input) {
