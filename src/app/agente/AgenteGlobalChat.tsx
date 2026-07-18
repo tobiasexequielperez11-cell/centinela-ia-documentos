@@ -249,7 +249,7 @@ export function AgenteGlobalChat({ industry, puedeUsarIA }: Props) {
                       <div className="text-xs font-semibold uppercase tracking-wide text-violet-300">
                         💡 La IA sugiere una acción
                       </div>
-                      {m.acciones.map((accion, ai) => {
+                      {m.acciones.filter((a) => a.tipo === 'agendar_plazo').map((accion, ai) => {
                         const clave = `${i}-${ai}`;
                         const estado = accEstados[clave] ?? 'idle';
                         if (estado === 'descartado') {

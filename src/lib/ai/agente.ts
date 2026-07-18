@@ -3,11 +3,11 @@ import type { IndustryType } from '@/lib/industries/documentTypes';
 
 export type MensajeChat = { rol: 'user' | 'model'; texto: string };
 
-// Acción que el agente puede proponer para que el humano apruebe.
+// Acciones que el agente puede proponer para que el humano apruebe.
 export type AccionPropuesta = {
-  tipo: 'agendar_plazo';
+  tipo: 'agendar_plazo' | 'crear_actuacion' | 'agregar_checklist' | 'generar_resumen';
   titulo: string;
-  fecha: string; // YYYY-MM-DD
+  fecha?: string; // YYYY-MM-DD (solo agendar_plazo y crear_actuacion)
   motivo: string;
 };
 
@@ -34,11 +34,15 @@ const REGLAS = `REGLAS INQUEBRANTABLES:
 function reglasAcciones(hoy: string): string {
   return `ACCIONES QUE PODÉS PROPONER (campo "acciones"):
 - FECHA DE HOY: ${hoy}. Usala para evaluar vencimientos.
-- Podés proponer AGENDAR PLAZOS concretos en la agenda del estudio.
-- Incluí una acción SOLO cuando en el CONTEXTO DEL LEGAJO haya una fecha concreta y relevante (vencimiento, audiencia, turno, firma, vigencia de un certificado, plazo procesal con fecha).
-- Cada acción: tipo "agendar_plazo", titulo breve y claro (ej: "Vence certificado de dominio"), fecha en formato YYYY-MM-DD, motivo (una línea explicando de dónde surge).
-- NO inventes fechas. Si no hay fechas concretas en el contexto, devolvé "acciones" como lista vacía.
-- En el texto podés mencionar y recomendar; la carga real la confirma el usuario con un botón.`;
+- Proponé una acción SOLO cuando surja con claridad del CONTEXTO DEL LEGAJO. Si no corresponde ninguna, devolvé "acciones" como lista vacía.
+- Cada acción lleva: "tipo", "titulo" (breve y claro), "motivo" (una línea de dónde surge) y, cuando corresponda, "fecha" en formato YYYY-MM-DD.
+- Podés proponer MÁS DE UNA acción a la vez.
+- Tipos disponibles:
+  1) "agendar_plazo": agendar un vencimiento o fecha límite en la agenda. REQUIERE "fecha". Ej: "Vence certificado de dominio".
+  2) "crear_actuacion": registrar un hito en la CRONOLOGÍA del legajo (audiencia, presentación, notificación, firma). REQUIERE "fecha". Ej: "Audiencia de vista de causa".
+  3) "agregar_checklist": sumar un pendiente al checklist cuando detectes algo que FALTA o hay que conseguir/controlar. SIN "fecha". Ej: "Solicitar certificado de inhibición".
+  4) "generar_resumen": regenerar el resumen integral del expediente con IA cuando convenga actualizarlo. SIN "fecha". Ej: "Actualizar el resumen del legajo".
+- NO inventes fechas, nombres ni datos. La ejecución real la confirma el usuario con un botón.`;
 }
 
 function limpiarJson(raw: string): string {
@@ -51,15 +55,22 @@ function limpiarJson(raw: string): string {
 
 function validarAcciones(input: unknown): AccionPropuesta[] {
   if (!Array.isArray(input)) return [];
+  const TIPOS = ['agendar_plazo', 'crear_actuacion', 'agregar_checklist', 'generar_resumen'];
+  const CON_FECHA = ['agendar_plazo', 'crear_actuacion'];
   const out: AccionPropuesta[] = [];
   for (const a of input) {
     if (!a || typeof a !== 'object') continue;
     const o = a as Record<string, unknown>;
+    const tipo = typeof o.tipo === 'string' ? o.tipo.trim() : '';
     const titulo = typeof o.titulo === 'string' ? o.titulo.trim() : '';
     const fecha = typeof o.fecha === 'string' ? o.fecha.trim() : '';
     const motivo = typeof o.motivo === 'string' ? o.motivo.trim() : '';
-    if (o.tipo === 'agendar_plazo' && titulo && /^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
-      out.push({ tipo: 'agendar_plazo', titulo, fecha, motivo });
+    if (!TIPOS.includes(tipo) || !titulo) continue;
+    if (CON_FECHA.includes(tipo)) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) continue;
+      out.push({ tipo: tipo as AccionPropuesta['tipo'], titulo, fecha, motivo });
+    } else {
+      out.push({ tipo: tipo as AccionPropuesta['tipo'], titulo, motivo });
     }
   }
   return out;
@@ -144,7 +155,7 @@ export async function responderAgenteLegajo(input: {
                 fecha: { type: 'STRING' },
                 motivo: { type: 'STRING' },
               },
-              required: ['tipo', 'titulo', 'fecha', 'motivo'],
+              required: ['tipo', 'titulo', 'motivo'],
             },
           },
         },

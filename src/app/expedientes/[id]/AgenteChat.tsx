@@ -1,11 +1,20 @@
 'use client';
 
 import { useState, useRef, useEffect, type ReactNode } from 'react';
-import { preguntarAgente } from './agenteActions';
-import { guardarPlazoDetectado } from '@/app/agenda/actions';
+import { preguntarAgente, ejecutarAccionAgente } from './agenteActions';
 import type { MensajeChat, AccionPropuesta } from '@/lib/ai/agente';
 
 type MensajeUI = MensajeChat & { acciones?: AccionPropuesta[] };
+
+const ACCION_META: Record<
+  AccionPropuesta['tipo'],
+  { icono: string; verbo: string; verboLoading: string; hecho: string }
+> = {
+  agendar_plazo: { icono: '📅', verbo: 'Aprobar y agendar', verboLoading: 'Agendando…', hecho: 'Agendado en tu calendario' },
+  crear_actuacion: { icono: '🗂️', verbo: 'Aprobar y registrar', verboLoading: 'Registrando…', hecho: 'Actuación registrada' },
+  agregar_checklist: { icono: '✅', verbo: 'Aprobar y agregar', verboLoading: 'Agregando…', hecho: 'Agregado al checklist' },
+  generar_resumen: { icono: '🧠', verbo: 'Aprobar y generar', verboLoading: 'Generando…', hecho: 'Resumen generado' },
+};
 
 const SUGERENCIAS: Record<string, string[]> = {
   legal: [
@@ -132,15 +141,10 @@ export function AgenteChat({ caseId, industry, puedeUsarIA }: Props) {
     }
   }
 
-  async function agendar(clave: string, accion: AccionPropuesta) {
+  async function ejecutar(clave: string, accion: AccionPropuesta) {
     setAccEstados((p) => ({ ...p, [clave]: 'loading' }));
     try {
-      const r = await guardarPlazoDetectado({
-        titulo: accion.titulo,
-        fecha: accion.fecha,
-        detalle: accion.motivo || 'Propuesto por el Agente IA del legajo',
-        caseId,
-      });
+      const r = await ejecutarAccionAgente({ caseId, accion });
       setAccEstados((p) => ({ ...p, [clave]: r.ok ? 'ok' : 'error' }));
     } catch {
       setAccEstados((p) => ({ ...p, [clave]: 'error' }));
@@ -233,19 +237,17 @@ export function AgenteChat({ caseId, industry, puedeUsarIA }: Props) {
 
                 {m.acciones && m.acciones.length > 0 && (
                   <div className="mt-3 space-y-2">
-                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide">
-                      <span className="agente-shimmer bg-clip-text text-transparent">💡 La IA sugiere una acción</span>
+                    <div className="agente-shimmer bg-clip-text text-xs font-semibold uppercase tracking-wide text-transparent">
+                      💡 La IA sugiere una acción
                     </div>
                     {m.acciones.map((accion, ai) => {
                       const clave = `${i}-${ai}`;
                       const estado = accEstados[clave] ?? 'idle';
+                      const meta = ACCION_META[accion.tipo] ?? ACCION_META.agendar_plazo;
 
                       if (estado === 'descartado') {
                         return (
-                          <div
-                            key={clave}
-                            className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2 text-xs text-slate-500"
-                          >
+                          <div key={clave} className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2 text-xs text-slate-500">
                             <span>🚫</span>
                             <span className="line-through">{accion.titulo}</span>
                             <button
@@ -258,58 +260,46 @@ export function AgenteChat({ caseId, industry, puedeUsarIA }: Props) {
                         );
                       }
 
-                      const agendado = estado === 'ok';
+                      const hecho = estado === 'ok';
 
                       return (
                         <div
                           key={clave}
                           className={`accion-card overflow-hidden rounded-xl border p-3 ${
-                            agendado
+                            hecho
                               ? 'border-emerald-500/40 bg-emerald-500/5'
                               : 'border-violet-500/30 bg-gradient-to-br from-violet-500/10 via-slate-900/40 to-cyan-500/10'
                           }`}
                         >
                           <div className="flex items-start gap-3">
-                            <div
-                              className={`accion-icono flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-lg ${
-                                agendado ? 'bg-emerald-500/20' : 'bg-violet-500/20'
-                              }`}
-                            >
-                              {agendado ? '✅' : '📅'}
+                            <div className={`accion-icono flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-lg ${hecho ? 'bg-emerald-500/20' : 'bg-violet-500/20'}`}>
+                              {hecho ? '✅' : meta.icono}
                             </div>
                             <div className="min-w-0 flex-1">
                               <div className="flex flex-wrap items-center gap-2">
-                                <span
-                                  className={`rounded-md px-2 py-0.5 text-xs font-semibold ${
-                                    agendado
-                                      ? 'bg-emerald-500/20 text-emerald-300'
-                                      : 'bg-violet-500/20 text-violet-200'
-                                  }`}
-                                >
-                                  {formatFecha(accion.fecha)}
-                                </span>
+                                {accion.fecha && (
+                                  <span className={`rounded-md px-2 py-0.5 text-xs font-semibold ${hecho ? 'bg-emerald-500/20 text-emerald-300' : 'bg-violet-500/20 text-violet-200'}`}>
+                                    {formatFecha(accion.fecha)}
+                                  </span>
+                                )}
                                 <span className="text-sm font-semibold text-slate-100">{accion.titulo}</span>
                               </div>
                               {accion.motivo && (
                                 <p className="mt-1 text-xs leading-relaxed text-slate-400">{accion.motivo}</p>
                               )}
 
-                              {agendado ? (
+                              {hecho ? (
                                 <div className="mt-2 inline-flex items-center gap-1 rounded-lg bg-emerald-500/15 px-3 py-1.5 text-xs font-medium text-emerald-300">
-                                  <span>✓</span> Agendado en tu calendario
+                                  <span>✓</span> {meta.hecho}
                                 </div>
                               ) : (
                                 <div className="mt-2.5 flex flex-wrap items-center gap-2">
                                   <button
-                                    onClick={() => agendar(clave, accion)}
+                                    onClick={() => ejecutar(clave, accion)}
                                     disabled={estado === 'loading'}
                                     className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 px-3.5 py-1.5 text-xs font-semibold text-white shadow-lg shadow-violet-900/30 transition hover:from-violet-500 hover:to-violet-400 disabled:opacity-60"
                                   >
-                                    {estado === 'loading'
-                                      ? '⏳ Agendando…'
-                                      : estado === 'error'
-                                      ? '↻ Reintentar'
-                                      : '✅ Aprobar y agendar'}
+                                    {estado === 'loading' ? `⏳ ${meta.verboLoading}` : estado === 'error' ? '↻ Reintentar' : `✅ ${meta.verbo}`}
                                   </button>
                                   <button
                                     onClick={() => descartar(clave)}
@@ -321,7 +311,7 @@ export function AgenteChat({ caseId, industry, puedeUsarIA }: Props) {
                                 </div>
                               )}
                               {estado === 'error' && (
-                                <p className="mt-1.5 text-xs text-rose-400">No se pudo agendar. Probá de nuevo.</p>
+                                <p className="mt-1.5 text-xs text-rose-400">No se pudo completar. Probá de nuevo.</p>
                               )}
                             </div>
                           </div>

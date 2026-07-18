@@ -3,7 +3,10 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { normalizeIndustryType } from '@/lib/industries/documentTypes';
-import { canUseAi } from '@/lib/permissions/roles';
+import { canUseAi, canUpdateCase, isUserRole } from '@/lib/permissions/roles';
+import { revalidatePath } from 'next/cache';
+import { guardarPlazoDetectado } from '@/app/agenda/actions';
+import { generarResumenExpediente } from '@/app/expedientes/actions';
 import { responderAgenteLegajo, type MensajeChat, type AccionPropuesta } from '@/lib/ai/agente';
 
 export async function preguntarAgente(input: {
@@ -196,4 +199,117 @@ export async function preguntarAgente(input: {
     return { ok: false, motivo };
   }
   return { ok: true, respuesta: res.respuesta, acciones: res.acciones };
+}
+
+// Ejecuta una acción aprobada por el usuario sobre un legajo concreto.
+// Valida permisos y organización antes de tocar la base.
+export async function ejecutarAccionAgente(input: {
+  caseId: string;
+  accion: AccionPropuesta;
+}): Promise<{ ok: boolean; mensaje: string }> {
+  const { user, profile } = await getUserProfile();
+  if (!user || !profile) return { ok: false, mensaje: 'Sesión no válida.' };
+  if (!isUserRole(profile.role)) return { ok: false, mensaje: 'No tenés permiso.' };
+
+  const { caseId, accion } = input;
+  if (!caseId) return { ok: false, mensaje: 'Falta el legajo.' };
+
+  const supabase = await createClient();
+  const { data: caseRecord } = await supabase
+    .from('cases')
+    .select('id')
+    .eq('id', caseId)
+    .eq('organization_id', profile.organization_id)
+    .maybeSingle();
+  if (!caseRecord) return { ok: false, mensaje: 'Legajo no encontrado.' };
+
+  const fechaValida =
+    typeof accion.fecha === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(accion.fecha);
+
+  switch (accion.tipo) {
+    case 'agendar_plazo': {
+      if (!canUpdateCase(profile.role)) return { ok: false, mensaje: 'Sin permiso para agendar.' };
+      if (!fechaValida) return { ok: false, mensaje: 'La acción no tiene una fecha válida.' };
+      const r = await guardarPlazoDetectado({
+        titulo: accion.titulo,
+        fecha: accion.fecha as string,
+        detalle: accion.motivo || 'Propuesto por el Agente IA del legajo',
+        caseId,
+      });
+      return r.ok
+        ? { ok: true, mensaje: 'Plazo agendado en tu calendario.' }
+        : { ok: false, mensaje: 'No se pudo agendar el plazo.' };
+    }
+
+    case 'crear_actuacion': {
+      if (!canUpdateCase(profile.role)) return { ok: false, mensaje: 'Sin permiso para cargar actuaciones.' };
+      if (!fechaValida) return { ok: false, mensaje: 'La actuación no tiene una fecha válida.' };
+      const { error } = await supabase.from('case_events').insert({
+        organization_id: profile.organization_id,
+        case_id: caseId,
+        event_date: accion.fecha as string,
+        event_type: 'otro',
+        title: accion.titulo,
+        description: accion.motivo || null,
+        created_by: user.id,
+      });
+      if (error) {
+        console.error('Agente crear_actuacion error:', error);
+        return { ok: false, mensaje: 'No se pudo cargar la actuación.' };
+      }
+      revalidatePath(`/expedientes/${caseId}`);
+      return { ok: true, mensaje: 'Actuación registrada en la cronología.' };
+    }
+
+    case 'agregar_checklist': {
+      if (!canUpdateCase(profile.role)) return { ok: false, mensaje: 'Sin permiso para editar el checklist.' };
+      let checklistId: string | undefined;
+      const { data: existing } = await supabase
+        .from('checklists')
+        .select('id')
+        .eq('case_id', caseId)
+        .eq('organization_id', profile.organization_id)
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (existing) {
+        checklistId = existing.id;
+      } else {
+        const { data: nuevo, error: errNuevo } = await supabase
+          .from('checklists')
+          .insert({
+            organization_id: profile.organization_id,
+            case_id: caseId,
+            name: 'Checklist documental',
+            template_type: 'custom',
+          })
+          .select('id')
+          .single();
+        if (errNuevo || !nuevo) {
+          console.error('Agente checklist create error:', errNuevo);
+          return { ok: false, mensaje: 'No se pudo crear el checklist.' };
+        }
+        checklistId = nuevo.id;
+      }
+      const { error } = await supabase
+        .from('checklist_items')
+        .insert({ checklist_id: checklistId, title: accion.titulo, status: 'pending' });
+      if (error) {
+        console.error('Agente checklist item error:', error);
+        return { ok: false, mensaje: 'No se pudo agregar el ítem.' };
+      }
+      revalidatePath(`/expedientes/${caseId}`);
+      return { ok: true, mensaje: 'Ítem agregado al checklist.' };
+    }
+
+    case 'generar_resumen': {
+      if (!canUseAi(profile.role)) return { ok: false, mensaje: 'Sin permiso para usar la IA.' };
+      await generarResumenExpediente(caseId);
+      revalidatePath(`/expedientes/${caseId}`);
+      return { ok: true, mensaje: 'Resumen generado. Actualizá la página para verlo.' };
+    }
+
+    default:
+      return { ok: false, mensaje: 'Acción no reconocida.' };
+  }
 }
