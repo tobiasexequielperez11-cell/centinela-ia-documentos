@@ -4,13 +4,15 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { normalizeIndustryType } from '@/lib/industries/documentTypes';
 import { canUseAi } from '@/lib/permissions/roles';
-import { responderAgenteLegajo, type MensajeChat } from '@/lib/ai/agente';
+import { responderAgenteLegajo, type MensajeChat, type AccionPropuesta } from '@/lib/ai/agente';
 
 export async function preguntarAgente(input: {
   caseId: string;
   historial: MensajeChat[];
   pregunta: string;
-}): Promise<{ ok: false; motivo: string } | { ok: true; respuesta: string }> {
+}): Promise<
+  { ok: false; motivo: string } | { ok: true; respuesta: string; acciones: AccionPropuesta[] }
+> {
   const pregunta = (input.pregunta ?? '').trim();
   if (!pregunta) return { ok: false, motivo: 'Escribí una pregunta.' };
 
@@ -115,6 +117,8 @@ export async function preguntarAgente(input: {
       if (Array.isArray(r.datos_clave) && r.datos_clave.length) bloque.push(`Datos clave: ${r.datos_clave.join('; ')}`);
       if (Array.isArray(r.clausulas_riesgos) && r.clausulas_riesgos.length) bloque.push(`Cláusulas/riesgos: ${r.clausulas_riesgos.join('; ')}`);
       if (Array.isArray(r.alertas) && r.alertas.length) bloque.push(`Alertas: ${r.alertas.join('; ')}`);
+      if (Array.isArray(r.fechas_plazos) && r.fechas_plazos.length)
+        bloque.push(`Fechas/plazos: ${r.fechas_plazos.map((f: any) => `${f.descripcion ?? ''} (${f.fecha ?? ''})`).join('; ')}`);
       partes.push(bloque.join('\n'));
       i++;
     }
@@ -139,5 +143,5 @@ export async function preguntarAgente(input: {
         : 'No pude generar una respuesta. Probá de nuevo.';
     return { ok: false, motivo };
   }
-  return { ok: true, respuesta: res.respuesta };
+  return { ok: true, respuesta: res.respuesta, acciones: res.acciones };
 }
