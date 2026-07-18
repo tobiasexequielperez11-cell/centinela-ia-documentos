@@ -100,7 +100,7 @@ export function AgenteChat({ caseId, industry, puedeUsarIA }: Props) {
   const [input, setInput] = useState('');
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [accEstados, setAccEstados] = useState<Record<string, 'idle' | 'loading' | 'ok' | 'error'>>({});
+  const [accEstados, setAccEstados] = useState<Record<string, 'idle' | 'loading' | 'ok' | 'error' | 'descartado'>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -147,6 +147,10 @@ export function AgenteChat({ caseId, industry, puedeUsarIA }: Props) {
     }
   }
 
+  function descartar(clave: string) {
+    setAccEstados((p) => ({ ...p, [clave]: 'descartado' }));
+  }
+
   if (!puedeUsarIA) return null;
 
   return (
@@ -166,6 +170,20 @@ export function AgenteChat({ caseId, industry, puedeUsarIA }: Props) {
           background-size: 200% 100%;
           animation: agenteShimmer 3s linear infinite;
         }
+        @keyframes accionAparece {
+          0% { opacity: 0; transform: translateY(6px) scale(0.98); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes accionGlow {
+          0%, 100% { box-shadow: 0 0 0 1px rgba(139,92,246,0.35), 0 0 18px rgba(139,92,246,0.10); }
+          50% { box-shadow: 0 0 0 1px rgba(34,211,238,0.45), 0 0 24px rgba(34,211,238,0.16); }
+        }
+        @keyframes accionPulso {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.12); }
+        }
+        .accion-card { animation: accionAparece 0.35s ease-out both, accionGlow 3.4s ease-in-out infinite; }
+        .accion-icono { animation: accionPulso 2.4s ease-in-out infinite; }
       `}</style>
 
       <span className="agente-shimmer pointer-events-none absolute inset-x-0 top-0 h-0.5" />
@@ -214,39 +232,99 @@ export function AgenteChat({ caseId, industry, puedeUsarIA }: Props) {
                 <MensajeTexto texto={m.texto} />
 
                 {m.acciones && m.acciones.length > 0 && (
-                  <div className="mt-3 space-y-2 border-t border-slate-700/60 pt-3">
-                    <p className="text-[11px] font-medium uppercase tracking-wide text-cyan-300">
-                      Acciones sugeridas
-                    </p>
+                  <div className="mt-3 space-y-2">
+                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide">
+                      <span className="agente-shimmer bg-clip-text text-transparent">💡 La IA sugiere una acción</span>
+                    </div>
                     {m.acciones.map((accion, ai) => {
                       const clave = `${i}-${ai}`;
                       const estado = accEstados[clave] ?? 'idle';
-                      return (
-                        <div key={ai} className="rounded-lg border border-slate-700 bg-slate-900/50 p-3">
-                          <div className="flex items-center gap-2 text-xs text-cyan-200">
-                            <span>📅</span>
-                            <span className="font-medium">{formatFecha(accion.fecha)}</span>
-                          </div>
-                          <p className="mt-1 text-sm text-slate-200">{accion.titulo}</p>
-                          {accion.motivo && <p className="mt-0.5 text-xs text-slate-400">{accion.motivo}</p>}
-                          {estado === 'ok' ? (
-                            <span className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-emerald-400">
-                              ✓ Agendado
-                            </span>
-                          ) : (
+
+                      if (estado === 'descartado') {
+                        return (
+                          <div
+                            key={clave}
+                            className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2 text-xs text-slate-500"
+                          >
+                            <span>🚫</span>
+                            <span className="line-through">{accion.titulo}</span>
                             <button
-                              type="button"
-                              onClick={() => agendar(clave, accion)}
-                              disabled={estado === 'loading'}
-                              className="mt-2 inline-flex items-center gap-1 rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-violet-700 disabled:opacity-60"
+                              onClick={() => setAccEstados((p) => ({ ...p, [clave]: 'idle' }))}
+                              className="ml-auto underline-offset-2 hover:text-cyan-300 hover:underline"
                             >
-                              {estado === 'loading'
-                                ? 'Agendando…'
-                                : estado === 'error'
-                                ? '↻ Reintentar'
-                                : '✅ Aprobar y agendar'}
+                              Deshacer
                             </button>
-                          )}
+                          </div>
+                        );
+                      }
+
+                      const agendado = estado === 'ok';
+
+                      return (
+                        <div
+                          key={clave}
+                          className={`accion-card overflow-hidden rounded-xl border p-3 ${
+                            agendado
+                              ? 'border-emerald-500/40 bg-emerald-500/5'
+                              : 'border-violet-500/30 bg-gradient-to-br from-violet-500/10 via-slate-900/40 to-cyan-500/10'
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div
+                              className={`accion-icono flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-lg ${
+                                agendado ? 'bg-emerald-500/20' : 'bg-violet-500/20'
+                              }`}
+                            >
+                              {agendado ? '✅' : '📅'}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span
+                                  className={`rounded-md px-2 py-0.5 text-xs font-semibold ${
+                                    agendado
+                                      ? 'bg-emerald-500/20 text-emerald-300'
+                                      : 'bg-violet-500/20 text-violet-200'
+                                  }`}
+                                >
+                                  {formatFecha(accion.fecha)}
+                                </span>
+                                <span className="text-sm font-semibold text-slate-100">{accion.titulo}</span>
+                              </div>
+                              {accion.motivo && (
+                                <p className="mt-1 text-xs leading-relaxed text-slate-400">{accion.motivo}</p>
+                              )}
+
+                              {agendado ? (
+                                <div className="mt-2 inline-flex items-center gap-1 rounded-lg bg-emerald-500/15 px-3 py-1.5 text-xs font-medium text-emerald-300">
+                                  <span>✓</span> Agendado en tu calendario
+                                </div>
+                              ) : (
+                                <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                                  <button
+                                    onClick={() => agendar(clave, accion)}
+                                    disabled={estado === 'loading'}
+                                    className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 px-3.5 py-1.5 text-xs font-semibold text-white shadow-lg shadow-violet-900/30 transition hover:from-violet-500 hover:to-violet-400 disabled:opacity-60"
+                                  >
+                                    {estado === 'loading'
+                                      ? '⏳ Agendando…'
+                                      : estado === 'error'
+                                      ? '↻ Reintentar'
+                                      : '✅ Aprobar y agendar'}
+                                  </button>
+                                  <button
+                                    onClick={() => descartar(clave)}
+                                    disabled={estado === 'loading'}
+                                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/40 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:border-rose-500/50 hover:text-rose-300 disabled:opacity-60"
+                                  >
+                                    ✕ Descartar
+                                  </button>
+                                </div>
+                              )}
+                              {estado === 'error' && (
+                                <p className="mt-1.5 text-xs text-rose-400">No se pudo agendar. Probá de nuevo.</p>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       );
                     })}
