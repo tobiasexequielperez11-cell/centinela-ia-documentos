@@ -39,13 +39,17 @@ export async function preguntarAgente(input: {
 
   const { data: docsData } = await supabase
     .from('documents')
-    .select('id, file_name, document_type')
+    .select('id, file_name, document_type, expires_at')
     .eq('case_id', input.caseId)
     .eq('organization_id', profile.organization_id)
     .order('created_at', { ascending: false });
   const documentos = docsData ?? [];
   const nombrePorDoc = new Map<string, string>();
-  for (const d of documentos) nombrePorDoc.set(d.id, d.file_name);
+  const vencimientoPorDoc = new Map<string, string | null>();
+  for (const d of documentos) {
+    nombrePorDoc.set(d.id, d.file_name);
+    vencimientoPorDoc.set(d.id, (d as any).expires_at ?? null);
+  }
 
   const { data: analisisData } = await supabase
     .from('ai_outputs')
@@ -86,8 +90,12 @@ export async function preguntarAgente(input: {
     partes.push('\nRESUMEN DEL EXPEDIENTE:');
     if (resumenJson.resumen_general) partes.push(String(resumenJson.resumen_general));
     if (resumenJson.estado_actual) partes.push(`Estado procesal: ${resumenJson.estado_actual}`);
+    if (Array.isArray(resumenJson.puntos_clave) && resumenJson.puntos_clave.length)
+      partes.push(`Puntos clave: ${resumenJson.puntos_clave.join('; ')}`);
     if (Array.isArray(resumenJson.riesgos_alertas) && resumenJson.riesgos_alertas.length)
       partes.push(`Riesgos/alertas: ${resumenJson.riesgos_alertas.join('; ')}`);
+    if (Array.isArray(resumenJson.proximas_acciones) && resumenJson.proximas_acciones.length)
+      partes.push(`Próximas acciones sugeridas: ${resumenJson.proximas_acciones.join('; ')}`);
   }
 
   const cotejoJson = (cotejoData?.result_json ?? null) as any;
@@ -98,6 +106,19 @@ export async function preguntarAgente(input: {
       partes.push(`Discrepancias: ${cotejoJson.discrepancias.join('; ')}`);
     if (Array.isArray(cotejoJson.faltantes) && cotejoJson.faltantes.length)
       partes.push(`Faltantes: ${cotejoJson.faltantes.join('; ')}`);
+    if (Array.isArray(cotejoJson.alertas_vigencia) && cotejoJson.alertas_vigencia.length)
+      partes.push(`Alertas de vigencia: ${cotejoJson.alertas_vigencia.join('; ')}`);
+  }
+
+  // Vencimientos cargados directamente en los documentos (certificados, etc.)
+  const vencimientos: string[] = [];
+  for (const d of documentos) {
+    const v = (d as any).expires_at as string | null;
+    if (v) vencimientos.push(`- ${d.file_name}: vence ${String(v).slice(0, 10)}`);
+  }
+  if (vencimientos.length) {
+    partes.push('\nVENCIMIENTOS DE DOCUMENTOS (fecha de expiración cargada):');
+    partes.push(vencimientos.join('\n'));
   }
 
   const analisisPorDoc = new Map<string, any>();
@@ -112,6 +133,8 @@ export async function preguntarAgente(input: {
       const nombre = nombrePorDoc.get(docId) || 'documento';
       const r = (rj ?? {}) as any;
       const bloque = [`Documento ${i}: ${nombre} (${r.tipo_documental_detectado ?? 'tipo no detectado'})`];
+      const venceDoc = vencimientoPorDoc.get(docId);
+      if (venceDoc) bloque.push(`Vencimiento del documento: ${String(venceDoc).slice(0, 10)}`);
       if (r.resumen) bloque.push(`Resumen: ${r.resumen}`);
       if (Array.isArray(r.partes) && r.partes.length) bloque.push(`Partes: ${r.partes.join('; ')}`);
       if (Array.isArray(r.datos_clave) && r.datos_clave.length) bloque.push(`Datos clave: ${r.datos_clave.join('; ')}`);
