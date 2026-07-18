@@ -158,7 +158,7 @@ export function AgenteGlobalChat({ industry, puedeUsarIA }: Props) {
     try {
       const r = await guardarPlazoDetectado({
         titulo: accion.titulo,
-        fecha: accion.fecha,
+        fecha: accion.fecha ?? '',
         detalle: accion.motivo || 'Propuesto por el Agente IA',
       });
       setAccEstados((p) => ({ ...p, [clave]: r.ok ? 'ok' : 'error' }));
@@ -296,7 +296,7 @@ export function AgenteGlobalChat({ industry, puedeUsarIA }: Props) {
                                         : 'bg-violet-500/20 text-violet-200'
                                     }`}
                                   >
-                                    {formatFecha(accion.fecha)}
+                                    {accion.fecha ? formatFecha(accion.fecha) : ''}
                                   </span>
                                   <span className="text-sm font-semibold text-slate-100">
                                     {accion.titulo}
