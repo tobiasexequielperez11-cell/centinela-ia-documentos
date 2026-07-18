@@ -65,6 +65,33 @@ function validarAcciones(input: unknown): AccionPropuesta[] {
   return out;
 }
 
+// Rescata el texto de "respuesta" aunque el JSON venga cortado o mal formado,
+// para que el usuario nunca vea llaves ni comillas crudas.
+function salvarRespuesta(raw: string): string {
+  const m = raw.match(/"respuesta"\s*:\s*"((?:\\.|[^"\\])*)/);
+  if (m && m[1]) {
+    let s = m[1];
+    if (s.endsWith('\\')) s = s.slice(0, -1); // quita backslash colgante del corte
+    try {
+      return JSON.parse('"' + s + '"').trim();
+    } catch {
+      return s
+        .replace(/\\n/g, '\n')
+        .replace(/\\"/g, '"')
+        .replace(/\\t/g, ' ')
+        .replace(/\\\\/g, '\\')
+        .trim();
+    }
+  }
+  // Último recurso: limpiar llaves y campos crudos.
+  return raw
+    .replace(/\bacciones\b\s*:[\s\S]*$/, '')
+    .replace(/[{}"]/g, '')
+    .replace(/\brespuesta\b\s*:/, '')
+    .replace(/\\n/g, '\n')
+    .trim();
+}
+
 export async function responderAgenteLegajo(input: {
   industry: IndustryType;
   contextoLegajo: string;
@@ -100,7 +127,8 @@ export async function responderAgenteLegajo(input: {
     contents,
     generationConfig: {
       temperature: 0.3,
-      maxOutputTokens: 1400,
+      maxOutputTokens: 2048,
+      thinkingConfig: { thinkingBudget: 0 },
       responseMimeType: 'application/json',
       responseSchema: {
         type: 'OBJECT',
@@ -147,7 +175,7 @@ export async function responderAgenteLegajo(input: {
             const respuesta =
               typeof parsed?.respuesta === 'string' && parsed.respuesta.trim()
                 ? parsed.respuesta.trim()
-                : raw.trim();
+                : salvarRespuesta(raw);
             return {
               ok: true,
               respuesta,
@@ -155,8 +183,8 @@ export async function responderAgenteLegajo(input: {
               model: `agente-${modelo}`,
             };
           } catch {
-            // Si no vino JSON válido, devolvemos el texto crudo sin acciones.
-            return { ok: true, respuesta: raw.trim(), acciones: [], model: `agente-${modelo}` };
+            // JSON cortado o inválido: rescatamos el texto limpio, sin acciones.
+            return { ok: true, respuesta: salvarRespuesta(raw), acciones: [], model: `agente-${modelo}` };
           }
         }
       } else if (resp.status === 429 || resp.status >= 500) {
