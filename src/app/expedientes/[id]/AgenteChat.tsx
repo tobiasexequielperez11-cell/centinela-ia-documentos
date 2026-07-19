@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, type ReactNode } from 'react';
 import { preguntarAgente, ejecutarAccionAgente, diagnosticoLegajo } from './agenteActions';
 import type { MensajeChat, AccionPropuesta } from '@/lib/ai/agente';
+import { MaquinaEscribir } from '@/components/MaquinaEscribir';
 
 type MensajeUI = MensajeChat & { acciones?: AccionPropuesta[] };
 
@@ -226,7 +227,7 @@ export function AgenteChat({ caseId, industry, puedeUsarIA }: Props) {
         {saludo && (
           <div className="flex justify-start">
             <div className="max-w-[90%] rounded-2xl rounded-bl-sm bg-slate-800/60 px-4 py-3 text-sm text-slate-200">
-              <p className="mb-2"><strong>👋 ¡Hola! ¿Cómo estás?</strong></p>
+              <p className="mb-2"><strong>👋 <MaquinaEscribir texto="¡Hola! ¿Cómo estás?" /></strong></p>
               <p className="mb-2">Soy tu agente de este legajo. La IA propone, vos decidís.</p>
               {saludo.alertas.length > 0 ? (
                 <>

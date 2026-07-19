@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, type ReactNode } from 'react';
 import { preguntarAgenteGlobal } from './actions';
 import { guardarPlazoDetectado } from '@/app/agenda/actions';
 import type { MensajeChat, AccionPropuesta } from '@/lib/ai/agente';
+import { MaquinaEscribir } from '@/components/MaquinaEscribir';
 
 type MensajeUI = MensajeChat & { acciones?: AccionPropuesta[] };
 type EstadoAccion = 'idle' | 'loading' | 'ok' | 'error' | 'descartado';
@@ -212,7 +213,9 @@ export function AgenteGlobalChat({ industry, puedeUsarIA }: Props) {
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" /> En línea
           </span>
         </div>
-        <p className="mt-1 max-w-md text-sm text-slate-300">{saludo}</p>
+        <p className="mt-1 max-w-md text-sm text-slate-300">
+          <MaquinaEscribir texto={saludo} />
+        </p>
       </div>
 
       {/* Preguntas sugeridas (solo antes de empezar) */}
