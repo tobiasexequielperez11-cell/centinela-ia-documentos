@@ -313,21 +313,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
     .limit(1)
     .maybeSingle();
 
-  const accionesSugeridas: string[] = [];
-  const pushAccion = (s: unknown) => {
-    const t = String(s ?? '').trim();
-    if (t && !accionesSugeridas.some((a) => a.toLowerCase() === t.toLowerCase())) {
-      accionesSugeridas.push(t);
-    }
-  };
-  const resumenJson = (resumenData?.result_json as any) ?? null;
-  if (Array.isArray(resumenJson?.proximas_acciones)) {
-    resumenJson.proximas_acciones.forEach(pushAccion);
-  }
-  const cotejoJson = (cotejoData?.result_json as any) ?? null;
-  if (Array.isArray(cotejoJson?.faltantes)) {
-    cotejoJson.faltantes.forEach(pushAccion);
-  }
+
 
   const { data: escrituraData } = await supabase
     .from('ai_outputs')
@@ -490,29 +476,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                     puedeUsarIA={puedeUsarIA}
                   />
                 )}
-                {(industry === 'escribania' || industry === 'legal') && accionesSugeridas.length > 0 && (
-                  <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
-                    <h2 className="text-lg font-semibold text-white">
-                      🧭 {industry === 'legal' ? 'Copiloto de acciones procesales' : 'Copiloto de acciones notariales'}
-                    </h2>
-                    <p className="mt-1 text-sm text-slate-400">
-                      {industry === 'legal' ? 'Próximos pasos sugeridos por la IA a partir del resumen del expediente. Sumalos al checklist con un toque.' : 'Pasos sugeridos por la IA a partir del resumen y el cotejo. Sumalos al checklist con un toque.'}
-                    </p>
-                    <ul className="mt-4 space-y-2">
-                      {accionesSugeridas.slice(0, 12).map((accion, i) => (
-                        <li
-                          key={i}
-                          className="flex items-start justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3"
-                        >
-                          <span className="text-sm text-slate-200">{accion}</span>
-                          {puedeUsarIA && (
-                            <BotonAlChecklist caseId={caseRecord.id} title={accion} />
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+
                 {industry === 'escribania' && (
                   <section className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
                     <div className="flex items-center justify-between gap-3">
