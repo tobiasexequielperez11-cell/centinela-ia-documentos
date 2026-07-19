@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { FileSearch, Loader2, Send } from 'lucide-react';
 import { preguntarADocumentosLegajo, type FuenteLegajo } from './ragLegajoActions';
 
@@ -19,7 +19,7 @@ export function PreguntarDocumentos({
 
   if (!puedeUsarIA) return null;
 
-  async function enviar(e?: React.FormEvent) {
+  async function enviar(e?: FormEvent) {
     e?.preventDefault();
     const q = pregunta.trim();
     if (!q || cargando) return;
