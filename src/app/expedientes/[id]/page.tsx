@@ -55,6 +55,7 @@ import { Badge } from '@/components/ui/Badge';
 import { MotionCard } from '@/components/ui/MotionCard';
 import { MotionButton } from '@/components/ui/MotionButton';
 import type { CaseRecord } from '@/types/case';
+import { EliminarDocumentoButton } from './EliminarDocumentoButton';
 
 interface CaseDetailPageProps {
   params: Promise<{ id: string }>;
@@ -869,6 +870,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                       >
                         Ver documento
                       </Link>
+                      <EliminarDocumentoButton documentId={document.id} caseId={caseRecord.id} fileName={document.file_name} />
                     </div>
                   </div>
                 ))}
