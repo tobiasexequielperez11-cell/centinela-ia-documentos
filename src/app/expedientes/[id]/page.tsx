@@ -56,6 +56,7 @@ import { MotionCard } from '@/components/ui/MotionCard';
 import { MotionButton } from '@/components/ui/MotionButton';
 import type { CaseRecord } from '@/types/case';
 import { EliminarDocumentoButton } from './EliminarDocumentoButton';
+import { PreguntarDocumentos } from './PreguntarDocumentos';
 
 interface CaseDetailPageProps {
   params: Promise<{ id: string }>;
@@ -820,6 +821,9 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
             label: '📄 Documentos',
             content: (
               <MotionCard index={0}>
+                <div className="mb-6">
+                  <PreguntarDocumentos caseId={caseId} puedeUsarIA={puedeUsarIA} />
+                </div>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="text-lg font-bold text-white">
