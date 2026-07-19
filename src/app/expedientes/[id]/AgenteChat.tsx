@@ -226,27 +226,22 @@ export function AgenteChat({ caseId, industry, puedeUsarIA }: Props) {
 
       <div ref={scrollRef} className="max-h-96 space-y-3 overflow-y-auto pr-1">
         {saludo && (
-          <div className="flex justify-start">
-            <div className="max-w-[90%] rounded-2xl rounded-bl-sm bg-slate-800/60 px-4 py-3 text-sm text-slate-200">
-              <p className="mb-2"><strong>👋 <MaquinaEscribir texto="¡Hola! ¿Cómo estás? ¿Qué tal tu día?" /></strong></p>
-              <p className="mb-2">Soy tu agente de este legajo y estoy acá para ayudarte. La IA propone, vos decidís.</p>
-              {saludo.alertas.length > 0 ? (
-                <>
-                  <p className="mb-1">Le eché un ojo mientras entrabas y noté esto:</p>
-                  <ul className="mb-2 space-y-1">
-                    {saludo.alertas.map((a, i) => (
-                      <li key={i} className="flex gap-2">
-                        <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-cyan-400" />
-                        <span>{a}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              ) : (
-                <p className="mb-2">Está todo en orden por ahora ✅</p>
-              )}
-              <p>¿En qué te puedo ayudar?</p>
-            </div>
+          <div className="mb-4 rounded-xl border border-cyan-500/25 bg-gradient-to-br from-cyan-500/[0.08] to-violet-500/[0.05] px-4 py-3 agente-borde-vivo">
+            <MaquinaEscribir
+              texto={[
+                '👋 ¡Hola! ¿Cómo estás? ¿Qué tal tu día?',
+                '',
+                'Soy tu agente de este legajo y estoy acá para ayudarte. La IA propone, vos decidís.',
+                '',
+                saludo.alertas.length > 0
+                  ? ['Le eché un ojo mientras entrabas y noté esto:', ...saludo.alertas.map((a) => `• ${a}`)].join('\n')
+                  : 'Está todo en orden por ahora ✅',
+                '',
+                '¿En qué te puedo ayudar?',
+              ].join('\n')}
+              velocidad={14}
+              className="block whitespace-pre-line text-sm leading-relaxed text-slate-200"
+            />
           </div>
         )}
 
