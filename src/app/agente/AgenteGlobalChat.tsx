@@ -218,6 +218,18 @@ export function AgenteGlobalChat({ industry, puedeUsarIA }: Props) {
         </p>
       </div>
 
+      {/* Saludo conversacional: el agente inicia la charla */}
+      {!iniciado && (
+        <div className="mt-4 rounded-2xl border border-cyan-500/20 bg-slate-800/40 px-4 py-3 text-sm leading-relaxed text-slate-200">
+          <p className="font-semibold text-cyan-300">
+            👋 <MaquinaEscribir texto="¡Hola! ¿Cómo estás? ¿Qué tal tu día?" />
+          </p>
+          <p className="mt-1">
+            Estoy acá para ayudarte con tus legajos, vencimientos y actos. ¿En qué te doy una mano?
+          </p>
+        </div>
+      )}
+
       {/* Preguntas sugeridas (solo antes de empezar) */}
       {!iniciado && (
         <div className="mt-4 flex flex-wrap justify-center gap-2">
