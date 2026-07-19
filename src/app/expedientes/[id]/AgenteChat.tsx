@@ -19,6 +19,7 @@ const ACCION_META: Record<
   redactar_borrador: { icono: '📝', verbo: 'Aprobar y redactar', verboLoading: 'Redactando…', hecho: 'Borrador generado' },
   analizar_uif: { icono: '🛡️', verbo: 'Aprobar y analizar', verboLoading: 'Analizando…', hecho: 'Análisis UIF generado' },
   cambiar_estado: { icono: '🔄', verbo: 'Aprobar y cambiar', verboLoading: 'Cambiando…', hecho: 'Estado actualizado' },
+  vincular_documento: { icono: '🔗', verbo: 'Aprobar y vincular', verboLoading: 'Vinculando…', hecho: 'Documento vinculado' },
 };
 
 const SUGERENCIAS: Record<string, string[]> = {

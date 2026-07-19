@@ -14,10 +14,13 @@ export type AccionPropuesta = {
     | 'generar_cotejo'
     | 'redactar_borrador'
     | 'analizar_uif'
-    | 'cambiar_estado';
+    | 'cambiar_estado'
+    | 'vincular_documento';
   titulo: string;
   fecha?: string; // YYYY-MM-DD (solo agendar_plazo y crear_actuacion)
   estado?: string; // valor de estado destino (solo cambiar_estado)
+  itemChecklist?: string; // título exacto del ítem (solo vincular_documento)
+  documento?: string; // nombre exacto del archivo (solo vincular_documento)
   motivo: string;
 };
 
@@ -56,6 +59,7 @@ function reglasAcciones(hoy: string, estadosValidos: string): string {
   6) "redactar_borrador": generar con IA un borrador de la escritura o acto notarial a partir de la información del legajo. SIN "fecha". Proponéla solo cuando el legajo tenga datos suficientes. Ej: "Redactar borrador de escritura".
   7) "analizar_uif": correr el análisis de riesgo UIF (prevención de lavado) con IA cuando los montos o el tipo de operación lo ameriten. SIN "fecha". Ej: "Analizar riesgo UIF de la operación".
   8) "cambiar_estado": mover el legajo a otra etapa del flujo de trabajo cuando el avance lo justifique. SIN "fecha", pero REQUIERE el campo "estado" con EXACTAMENTE uno de estos valores válidos: ${estadosValidos}. Usá "titulo" para describir el cambio (ej: "Pasar a En preparación"). Proponéla solo si el contexto muestra que el legajo avanzó de etapa.
+  9) "vincular_documento": vincular un documento YA cargado en el legajo con un ítem PENDIENTE del checklist que ese documento satisface. SIN "fecha". REQUIERE dos campos: "itemChecklist" (el título EXACTO del ítem, copiado del CONTEXTO) y "documento" (el nombre EXACTO del archivo, copiado del CONTEXTO). Proponéla SOLO cuando en el contexto haya un ítem marcado "PENDIENTE (sin documento)" y un documento del legajo que claramente lo cumpla. Usá "titulo" para describir el vínculo (ej: "Vincular 'DNI del comprador' con dni_comprador.pdf"). NO inventes títulos ni nombres: deben coincidir textualmente con el contexto.
 - NO inventes fechas, nombres, estados ni datos. La ejecución real la confirma el usuario con un botón.`;
 }
 
@@ -69,7 +73,7 @@ function limpiarJson(raw: string): string {
 
 function validarAcciones(input: unknown, estadosValidos: string[] = []): AccionPropuesta[] {
   if (!Array.isArray(input)) return [];
-  const TIPOS = ['agendar_plazo', 'crear_actuacion', 'agregar_checklist', 'generar_resumen', 'generar_cotejo', 'redactar_borrador', 'analizar_uif', 'cambiar_estado'];
+  const TIPOS = ['agendar_plazo', 'crear_actuacion', 'agregar_checklist', 'generar_resumen', 'generar_cotejo', 'redactar_borrador', 'analizar_uif', 'cambiar_estado', 'vincular_documento'];
   const CON_FECHA = ['agendar_plazo', 'crear_actuacion'];
   const out: AccionPropuesta[] = [];
   for (const a of input) {
@@ -79,11 +83,16 @@ function validarAcciones(input: unknown, estadosValidos: string[] = []): AccionP
     const titulo = typeof o.titulo === 'string' ? o.titulo.trim() : '';
     const fecha = typeof o.fecha === 'string' ? o.fecha.trim() : '';
     const estado = typeof o.estado === 'string' ? o.estado.trim() : '';
+    const itemChecklist = typeof o.itemChecklist === 'string' ? o.itemChecklist.trim() : '';
+    const documento = typeof o.documento === 'string' ? o.documento.trim() : '';
     const motivo = typeof o.motivo === 'string' ? o.motivo.trim() : '';
     if (!TIPOS.includes(tipo) || !titulo) continue;
     if (tipo === 'cambiar_estado') {
       if (!estado || (estadosValidos.length && !estadosValidos.includes(estado))) continue;
       out.push({ tipo: 'cambiar_estado', titulo, estado, motivo });
+    } else if (tipo === 'vincular_documento') {
+      if (!itemChecklist || !documento) continue;
+      out.push({ tipo: 'vincular_documento', titulo, itemChecklist, documento, motivo });
     } else if (CON_FECHA.includes(tipo)) {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) continue;
       out.push({ tipo: tipo as AccionPropuesta['tipo'], titulo, fecha, motivo });
@@ -175,6 +184,8 @@ export async function responderAgenteLegajo(input: {
                 titulo: { type: 'STRING' },
                 fecha: { type: 'STRING' },
                 estado: { type: 'STRING' },
+                itemChecklist: { type: 'STRING' },
+                documento: { type: 'STRING' },
                 motivo: { type: 'STRING' },
               },
               required: ['tipo', 'titulo', 'motivo'],

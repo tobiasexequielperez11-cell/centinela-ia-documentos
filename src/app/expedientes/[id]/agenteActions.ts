@@ -92,6 +92,22 @@ export async function preguntarAgente(input: {
     .eq('organization_id', profile.organization_id)
     .order('event_date', { ascending: true });
 
+  // Checklist del legajo: ítems y si ya tienen documento vinculado.
+  const { data: checklistsData } = await supabase
+    .from('checklists')
+    .select('id')
+    .eq('case_id', input.caseId)
+    .eq('organization_id', profile.organization_id);
+  const checklistIdsCtx = (checklistsData ?? []).map((c) => c.id);
+  let checklistItemsCtx: Array<{ title: string; status: string; document_id: string | null }> = [];
+  if (checklistIdsCtx.length > 0) {
+    const { data: itemsData } = await supabase
+      .from('checklist_items')
+      .select('title, status, document_id')
+      .in('checklist_id', checklistIdsCtx);
+    checklistItemsCtx = (itemsData ?? []) as any;
+  }
+
   const partes: string[] = [];
   partes.push(`LEGAJO: ${caseData.title ?? 'Sin título'}`);
   partes.push(
@@ -181,6 +197,24 @@ export async function preguntarAgente(input: {
   } else if (documentos.length > 0) {
     partes.push('\nDOCUMENTOS DEL LEGAJO (sin analizar aún):');
     partes.push(documentos.map((d) => `- ${d.file_name}`).join('\n'));
+  }
+
+  // Checklist en el contexto: marcamos cuáles se pueden vincular a un documento.
+  if (checklistItemsCtx.length > 0) {
+    partes.push('\nCHECKLIST DEL LEGAJO (los marcados "PENDIENTE (sin documento)" se pueden vincular con un documento del legajo que los cumpla):');
+    partes.push(
+      checklistItemsCtx
+        .map((it) => {
+          const nombreDoc = it.document_id ? (nombrePorDoc.get(it.document_id) ?? 'documento') : null;
+          const marca = nombreDoc
+            ? `YA VINCULADO: ${nombreDoc}`
+            : ['completed', 'done', 'not_applicable', 'no_aplica', 'not_required'].includes(it.status)
+              ? 'resuelto / no aplica'
+              : 'PENDIENTE (sin documento)';
+          return `- ${it.title} [${marca}]`;
+        })
+        .join('\n')
+    );
   }
 
   const contextoLegajo = partes.join('\n');
@@ -326,6 +360,57 @@ export async function ejecutarAccionAgente(input: {
       await analizarUifExpediente(caseId);
       revalidatePath(`/expedientes/${caseId}`);
       return { ok: true, mensaje: 'Análisis UIF generado. Actualizá la página para verlo.' };
+    }
+
+    case 'vincular_documento': {
+      if (!canUpdateCase(profile.role)) return { ok: false, mensaje: 'Sin permiso para editar el checklist.' };
+      const tituloItem = typeof accion.itemChecklist === 'string' ? accion.itemChecklist.trim().toLowerCase() : '';
+      const nombreDoc = typeof accion.documento === 'string' ? accion.documento.trim().toLowerCase() : '';
+      if (!tituloItem || !nombreDoc) return { ok: false, mensaje: 'Faltan datos para vincular (ítem o documento).' };
+
+      // 1) Documento del legajo por nombre exacto (o que lo contenga).
+      const { data: docsVinc } = await supabase
+        .from('documents')
+        .select('id, file_name')
+        .eq('case_id', caseId)
+        .eq('organization_id', profile.organization_id);
+      const doc =
+        (docsVinc ?? []).find((d) => (d.file_name ?? '').trim().toLowerCase() === nombreDoc) ??
+        (docsVinc ?? []).find((d) => (d.file_name ?? '').trim().toLowerCase().includes(nombreDoc));
+      if (!doc) return { ok: false, mensaje: 'No encontré ese documento en el legajo.' };
+
+      // 2) Ítem del checklist por título exacto (preferí uno sin documento).
+      const { data: checklistsVinc } = await supabase
+        .from('checklists')
+        .select('id')
+        .eq('case_id', caseId)
+        .eq('organization_id', profile.organization_id);
+      const checklistIdsVinc = (checklistsVinc ?? []).map((c) => c.id);
+      if (checklistIdsVinc.length === 0) return { ok: false, mensaje: 'El legajo no tiene checklist.' };
+      const { data: itemsVinc } = await supabase
+        .from('checklist_items')
+        .select('id, title, document_id')
+        .in('checklist_id', checklistIdsVinc);
+      const candidatos = (itemsVinc ?? []).filter(
+        (it) => (it.title ?? '').trim().toLowerCase() === tituloItem
+      );
+      const item =
+        candidatos.find((it) => !it.document_id) ??
+        candidatos[0] ??
+        (itemsVinc ?? []).find((it) => (it.title ?? '').trim().toLowerCase().includes(tituloItem));
+      if (!item) return { ok: false, mensaje: 'No encontré ese ítem en el checklist.' };
+
+      // 3) Vincular
+      const { error } = await supabase
+        .from('checklist_items')
+        .update({ document_id: doc.id, status: 'received' })
+        .eq('id', item.id);
+      if (error) {
+        console.error('Agente vincular_documento error:', error);
+        return { ok: false, mensaje: 'No se pudo vincular el documento.' };
+      }
+      revalidatePath(`/expedientes/${caseId}`);
+      return { ok: true, mensaje: `Documento vinculado a "${item.title}".` };
     }
 
     case 'cambiar_estado': {
