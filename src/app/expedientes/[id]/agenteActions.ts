@@ -357,3 +357,104 @@ export async function ejecutarAccionAgente(input: {
       return { ok: false, mensaje: 'Acción no reconocida.' };
   }
 }
+
+// --- Diagnóstico proactivo del legajo (sin IA, solo datos) ---
+export async function diagnosticoLegajo(
+	{ caseId }: { caseId: string }
+): Promise<{ ok: boolean; alertas: string[] }> {
+	try {
+		// Usá EXACTAMENTE el mismo patrón de auth/organización que ya usa
+		// `preguntarAgente` en este archivo (getUserProfile → orgId + rol).
+		const { user, profile } = await getUserProfile();
+		const orgId = profile?.organization_id;
+		if (!orgId || !profile?.role || !isUserRole(profile.role)) return { ok: false, alertas: [] };
+
+		const supabase = await createClient();
+		const alertas: string[] = [];
+
+		const hoy = new Date();
+		const en30 = new Date();
+		en30.setDate(hoy.getDate() + 30);
+		const hoyStr = hoy.toISOString().slice(0, 10);
+		const en30Str = en30.toISOString().slice(0, 10);
+
+		// 1) Documentos y cuáles están analizados
+		const { data: docs } = await supabase
+			.from('documents')
+			.select('id, expires_at')
+			.eq('case_id', caseId)
+			.eq('organization_id', orgId);
+
+		const { data: analisis } = await supabase
+			.from('ai_outputs')
+			.select('document_id')
+			.eq('case_id', caseId)
+			.eq('organization_id', orgId)
+			.eq('output_type', 'document_analysis');
+
+		const analizados = new Set(
+			(analisis ?? []).map((a) => a.document_id).filter(Boolean)
+		);
+		const totalDocs = docs?.length ?? 0;
+		const sinAnalizar = (docs ?? []).filter((d) => !analizados.has(d.id)).length;
+
+		if (totalDocs === 0) {
+			alertas.push('Todavía no hay documentos cargados en el legajo.');
+		} else if (sinAnalizar > 0) {
+			alertas.push(`${sinAnalizar} de ${totalDocs} documento(s) sin analizar con IA.`);
+		}
+
+		// 2) Documentos vencidos o por vencer (30 días)
+		const vencidos = (docs ?? []).filter((d) => d.expires_at && d.expires_at < hoyStr).length;
+		const porVencer = (docs ?? []).filter(
+			(d) => d.expires_at && d.expires_at >= hoyStr && d.expires_at <= en30Str
+		).length;
+		if (vencidos > 0) alertas.push(`${vencidos} documento(s) con vigencia vencida.`);
+		if (porVencer > 0) alertas.push(`${porVencer} documento(s) por vencer en los próximos 30 días.`);
+
+		// 3) Plazos agendados próximos (30 días)
+		const { data: plazos } = await supabase
+			.from('agenda_plazos')
+			.select('titulo, fecha')
+			.eq('case_id', caseId)
+			.eq('organization_id', orgId)
+			.gte('fecha', hoyStr)
+			.lte('fecha', en30Str)
+			.order('fecha', { ascending: true });
+
+		if (plazos && plazos.length > 0) {
+			const p = plazos[0];
+			alertas.push(
+				`Próximo plazo: "${p.titulo}" el ${p.fecha}${plazos.length > 1 ? ` (+${plazos.length - 1} más)` : ''}.`
+			);
+		}
+
+		// 4) Checklist pendiente
+		const { data: checklists } = await supabase
+			.from('checklists')
+			.select('id')
+			.eq('case_id', caseId)
+			.eq('organization_id', orgId);
+
+		const checklistIds = (checklists ?? []).map((c) => c.id);
+		if (checklistIds.length > 0) {
+			const { data: items } = await supabase
+				.from('checklist_items')
+				.select('status')
+				.in('checklist_id', checklistIds);
+			const total = items?.length ?? 0;
+			// NOTA: si tus estados de checklist usan otros valores, alineá esta
+			// condición con la MISMA lógica de "Sugeridos X/Y" del listado de legajos.
+			const pendientes = (items ?? []).filter(
+				(i) => !['completed', 'done', 'not_applicable', 'no_aplica'].includes(i.status)
+			).length;
+			if (total > 0 && pendientes > 0) {
+				alertas.push(`Checklist: ${pendientes} de ${total} ítem(s) pendiente(s).`);
+			}
+		}
+
+		return { ok: true, alertas };
+	} catch {
+		return { ok: false, alertas: [] };
+	}
+}

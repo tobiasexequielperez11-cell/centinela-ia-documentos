@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, type ReactNode } from 'react';
-import { preguntarAgente, ejecutarAccionAgente } from './agenteActions';
+import { preguntarAgente, ejecutarAccionAgente, diagnosticoLegajo } from './agenteActions';
 import type { MensajeChat, AccionPropuesta } from '@/lib/ai/agente';
 
 type MensajeUI = MensajeChat & { acciones?: AccionPropuesta[] };
@@ -114,7 +114,17 @@ export function AgenteChat({ caseId, industry, puedeUsarIA }: Props) {
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [accEstados, setAccEstados] = useState<Record<string, 'idle' | 'loading' | 'ok' | 'error' | 'descartado'>>({});
+  const [saludo, setSaludo] = useState<{ alertas: string[] } | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!puedeUsarIA) return;
+    let vivo = true;
+    diagnosticoLegajo({ caseId })
+      .then((r) => { if (vivo && r.ok) setSaludo({ alertas: r.alertas }); })
+      .catch(() => {});
+    return () => { vivo = false; };
+  }, [caseId, puedeUsarIA]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -213,6 +223,31 @@ export function AgenteChat({ caseId, industry, puedeUsarIA }: Props) {
       </div>
 
       <div ref={scrollRef} className="max-h-96 space-y-3 overflow-y-auto pr-1">
+        {saludo && (
+          <div className="flex justify-start">
+            <div className="max-w-[90%] rounded-2xl rounded-bl-sm bg-slate-800/60 px-4 py-3 text-sm text-slate-200">
+              <p className="mb-2"><strong>👋 ¡Hola! ¿Cómo estás?</strong></p>
+              <p className="mb-2">Soy tu agente de este legajo. La IA propone, vos decidís.</p>
+              {saludo.alertas.length > 0 ? (
+                <>
+                  <p className="mb-1">Le eché un ojo mientras entrabas y noté esto:</p>
+                  <ul className="mb-2 space-y-1">
+                    {saludo.alertas.map((a, i) => (
+                      <li key={i} className="flex gap-2">
+                        <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-cyan-400" />
+                        <span>{a}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <p className="mb-2">Está todo en orden por ahora ✅</p>
+              )}
+              <p>¿En qué te puedo ayudar?</p>
+            </div>
+          </div>
+        )}
+
         {mensajes.length === 0 && (
           <div className="space-y-2">
             <p className="text-xs text-slate-500">Probá preguntando:</p>
