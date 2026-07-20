@@ -17,7 +17,9 @@ export type AccionPropuesta = {
     | 'cambiar_estado'
     | 'vincular_documento'
     | 'agendar_turno'
-    | 'agendar_firma';
+    | 'agendar_firma'
+    | 'sugerir_modelo'
+    | 'redactar_ros';
   titulo: string;
   fecha?: string; // YYYY-MM-DD (agendar_plazo, crear_actuacion, agendar_turno, agendar_firma)
   hora?: string; // HH:MM (opcional, solo agendar_turno y agendar_firma)
@@ -66,6 +68,8 @@ function reglasAcciones(hoy: string, estadosValidos: string): string {
   9) "vincular_documento": vincular un documento YA cargado en el legajo con un ítem PENDIENTE del checklist que ese documento satisface. SIN "fecha". REQUIERE dos campos: "itemChecklist" (el título EXACTO del ítem, copiado del CONTEXTO) y "documento" (el nombre EXACTO del archivo, copiado del CONTEXTO). Proponéla SOLO cuando en el contexto haya un ítem marcado "PENDIENTE (sin documento)" y un documento del legajo que claramente lo cumpla. Usá "titulo" para describir el vínculo (ej: "Vincular 'DNI del comprador' con dni_comprador.pdf"). NO inventes títulos ni nombres: deben coincidir textualmente con el contexto.
   10) "agendar_turno": agendar un TURNO o cita en la agenda (reunión con el cliente, entrevista, comparecencia, mesa de entradas). REQUIERE "fecha". Si surge la hora del contexto, sumá "hora" en formato HH:MM (24hs). Ej: "Turno con el cliente para firmar el poder".
   11) "agendar_firma": agendar la FIRMA de la escritura, el acto notarial o el instrumento principal. REQUIERE "fecha". Si surge la hora, sumá "hora" en formato HH:MM (24hs). Proponéla cuando el legajo esté listo o se acuerde una fecha de firma. Ej: "Firma de escritura traslativa de dominio".
+  12) "sugerir_modelo": sugerir abrir el MODELO/instrumento correcto de la biblioteca para redactar el documento del legajo (escritura, poder, certificación de firmas, acta, etc.). SIN "fecha". Proponéla cuando el legajo corresponda claramente a un acto para el que conviene usar un modelo y ya tenga datos suficientes. Usá "titulo" para nombrar el instrumento (ej: "Abrir el modelo de escritura de compraventa"). El sistema ya sabe qué modelo corresponde según el legajo; NO inventes nombres de archivos ni enlaces.
+  13) "redactar_ros": preparar el borrador de ROS (Reporte de Operación Sospechosa ante la UIF) del legajo. SIN "fecha". Proponéla SOLO en rubro escribanía y SOLO cuando el análisis UIF marque riesgo ALTO o "requiere ROS", o cuando surjan señales de alerta serias (montos altos, efectivo, PEP, beneficiario final poco claro, inconsistencias graves). Usá "titulo" como "Preparar borrador de ROS (UIF)". No la propongas si no hay señales serias.
 - OBLIGATORIO: si en tu "respuesta" decís o das a entender que un documento del legajo cumple, corresponde o sirve para un ítem del checklist, TENÉS que incluir además la acción "vincular_documento" en el campo "acciones" (con "itemChecklist" y "documento" exactos, copiados del contexto). Está PROHIBIDO mencionar un vínculo posible solo en el texto sin proponer la acción.
 - NO inventes fechas, nombres, estados ni datos. La ejecución real la confirma el usuario con un botón.`;
 }
@@ -80,7 +84,7 @@ function limpiarJson(raw: string): string {
 
 function validarAcciones(input: unknown, estadosValidos: string[] = []): AccionPropuesta[] {
   if (!Array.isArray(input)) return [];
-  const TIPOS = ['agendar_plazo', 'crear_actuacion', 'agregar_checklist', 'generar_resumen', 'generar_cotejo', 'redactar_borrador', 'analizar_uif', 'cambiar_estado', 'vincular_documento', 'agendar_turno', 'agendar_firma'];
+  const TIPOS = ['agendar_plazo', 'crear_actuacion', 'agregar_checklist', 'generar_resumen', 'generar_cotejo', 'redactar_borrador', 'analizar_uif', 'cambiar_estado', 'vincular_documento', 'agendar_turno', 'agendar_firma', 'sugerir_modelo', 'redactar_ros'];
   const CON_FECHA = ['agendar_plazo', 'crear_actuacion'];
   const CON_FECHA_HORA = ['agendar_turno', 'agendar_firma'];
   const out: AccionPropuesta[] = [];

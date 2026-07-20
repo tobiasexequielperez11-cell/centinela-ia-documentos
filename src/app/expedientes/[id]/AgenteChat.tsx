@@ -22,6 +22,8 @@ const ACCION_META: Record<
   vincular_documento: { icono: '🔗', verbo: 'Aprobar y vincular', verboLoading: 'Vinculando…', hecho: 'Documento vinculado' },
   agendar_turno: { icono: '📆', verbo: 'Aprobar y agendar turno', verboLoading: 'Agendando…', hecho: 'Turno agendado' },
   agendar_firma: { icono: '✍️', verbo: 'Aprobar y agendar firma', verboLoading: 'Agendando…', hecho: 'Firma agendada' },
+  sugerir_modelo: { icono: '✒️', verbo: 'Abrir modelo', verboLoading: 'Abriendo…', hecho: 'Modelo abierto' },
+  redactar_ros: { icono: '🚨', verbo: 'Aprobar y preparar ROS', verboLoading: 'Preparando…', hecho: 'ROS preparado' },
 };
 
 const SUGERENCIAS: Record<string, string[]> = {
@@ -111,9 +113,10 @@ type Props = {
   industry: string;
   puedeUsarIA: boolean;
   historialInicial?: MensajeUI[];
+  modeloUrl?: string;
 };
 
-export function AgenteChat({ caseId, industry, puedeUsarIA, historialInicial }: Props) {
+export function AgenteChat({ caseId, industry, puedeUsarIA, historialInicial, modeloUrl }: Props) {
   const [mensajes, setMensajes] = useState<MensajeUI[]>(historialInicial ?? []);
   const [input, setInput] = useState('');
   const [cargando, setCargando] = useState(false);
@@ -321,6 +324,42 @@ export function AgenteChat({ caseId, industry, puedeUsarIA, historialInicial }: 
                             >
                               Deshacer
                             </button>
+                          </div>
+                        );
+                      }
+
+                      if (accion.tipo === 'sugerir_modelo') {
+                        return (
+                          <div
+                            key={clave}
+                            className="accion-card rounded-xl border border-violet-500/25 bg-slate-900/60 p-3"
+                          >
+                            <div className="flex items-start gap-2.5">
+                              <span className="accion-icono text-lg leading-none">✒️</span>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-semibold text-slate-100">{accion.titulo}</p>
+                                {accion.motivo && (
+                                  <p className="mt-0.5 text-xs text-slate-400">{accion.motivo}</p>
+                                )}
+                                <div className="mt-2.5 flex flex-wrap gap-2">
+                                  <a
+                                    href={modeloUrl ?? '/modelos'}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 px-3.5 py-1.5 text-xs font-semibold text-white shadow-lg shadow-violet-900/30 transition hover:from-violet-500 hover:to-violet-400"
+                                  >
+                                    ✒️ Abrir modelo
+                                  </a>
+                                  <button
+                                    type="button"
+                                    onClick={() => descartar(clave)}
+                                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/40 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:border-rose-500/50 hover:text-rose-300"
+                                  >
+                                    ✕ Descartar
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         );
                       }

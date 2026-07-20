@@ -527,6 +527,16 @@ export async function ejecutarAccionAgente(input: {
       return { ok: true, mensaje: 'Análisis UIF generado. Actualizá la página para verlo.' };
     }
 
+    case 'redactar_ros': {
+      if (!canUseAi(profile.role)) return { ok: false, mensaje: 'Sin permiso para usar la IA.' };
+      await analizarUifExpediente(caseId);
+      revalidatePath(`/expedientes/${caseId}`);
+      return {
+        ok: true,
+        mensaje: 'Análisis UIF actualizado. Ya podés descargar el "Borrador de ROS (PDF)" desde el panel 🛡️ Análisis UIF del legajo (actualizá la página si no lo ves).',
+      };
+    }
+
     case 'vincular_documento': {
       if (!canUpdateCase(profile.role)) return { ok: false, mensaje: 'Sin permiso para editar el checklist.' };
       const tituloItem = typeof accion.itemChecklist === 'string' ? accion.itemChecklist.trim().toLowerCase() : '';
