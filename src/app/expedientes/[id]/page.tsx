@@ -822,7 +822,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
             content: (
               <MotionCard index={0}>
                 <div className="mb-6">
-                  <PreguntarDocumentos caseId={caseId} puedeUsarIA={puedeUsarIA} />
+                  <PreguntarDocumentos caseId={caseRecord.id} puedeUsarIA={puedeUsarIA} />
                 </div>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
