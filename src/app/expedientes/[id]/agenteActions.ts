@@ -9,6 +9,7 @@ import { guardarPlazoDetectado } from '@/app/agenda/actions';
 import { generarResumenExpediente, cotejarExpediente, redactarEscrituraExpediente, analizarUifExpediente } from '@/app/expedientes/actions';
 import { getAllowedCaseStatuses } from '@/lib/industries/caseConfig';
 import { responderAgenteLegajo, type MensajeChat, type AccionPropuesta } from '@/lib/ai/agente';
+import { generarEmbedding } from '@/lib/ai/embeddings';
 
 export async function preguntarAgente(input: {
   caseId: string;
@@ -215,6 +216,51 @@ export async function preguntarAgente(input: {
         })
         .join('\n')
     );
+  }
+
+  // --- RAG: fragmentos textuales relevantes de los documentos del legajo ---
+  // Además del análisis ya extraído, buscamos en el TEXTO COMPLETO indexado
+  // los fragmentos más parecidos a la pregunta, para que el agente pueda
+  // responder cualquier detalle y citar el documento del que salió.
+  try {
+    const idsCasoRag = new Set(documentos.map((d) => d.id));
+    if (idsCasoRag.size > 0) {
+      const emb = await generarEmbedding(pregunta);
+      if (!('error' in emb)) {
+        let matches: any[] | null = null;
+        let matchError: { message: string } | null = null;
+        ({ data: matches, error: matchError } = await supabase.rpc('match_document_chunks', {
+          query_embedding: emb.values,
+          match_org: profile.organization_id,
+          match_count: 80,
+        }));
+        if (matchError) {
+          ({ data: matches, error: matchError } = await supabase.rpc('match_document_chunks', {
+            query_embedding: JSON.stringify(emb.values),
+            match_org: profile.organization_id,
+            match_count: 80,
+          }));
+        }
+        const delLegajo = (matches ?? [])
+          .filter((m: any) => idsCasoRag.has(m.document_id))
+          .slice(0, 6);
+        if (delLegajo.length > 0) {
+          partes.push(
+            '\nFRAGMENTOS TEXTUALES RELEVANTES (extractos del texto real de los documentos para ESTA pregunta; citá el documento por su nombre entre paréntesis cuando los uses):'
+          );
+          partes.push(
+            delLegajo
+              .map((m: any, i: number) => {
+                const nombre = nombrePorDoc.get(m.document_id) ?? 'documento';
+                return `[${i + 1}] (${nombre})\n${m.content}`;
+              })
+              .join('\n\n')
+          );
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Agente RAG fragmentos error:', e);
   }
 
   const contextoLegajo = partes.join('\n');
