@@ -151,6 +151,60 @@ export async function preguntarAgente(input: {
     partes.push(vencimientos.join('\n'));
   }
 
+  // --- Control de vigencias (calculado, determinístico) ---
+  // Cruza los vencimientos de los documentos contra HOY y contra la próxima
+  // firma agendada, para que el agente avise con precisión antes de firmar.
+  {
+    const hoyIso = new Date().toISOString().slice(0, 10);
+    const { data: firmaData } = await supabase
+      .from('agenda_plazos')
+      .select('fecha, titulo')
+      .eq('case_id', input.caseId)
+      .eq('organization_id', profile.organization_id)
+      .eq('categoria', 'firma')
+      .gte('fecha', hoyIso)
+      .order('fecha', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    const firmaIso = firmaData?.fecha ? String(firmaData.fecha).slice(0, 10) : null;
+
+    const conVenc = documentos.filter((d) => (d as any).expires_at);
+    if (conVenc.length > 0) {
+      const diasEntre = (a: string, b: string) =>
+        Math.round(
+          (new Date(b + 'T00:00:00').getTime() - new Date(a + 'T00:00:00').getTime()) / 86400000
+        );
+      const lineas = conVenc.map((d) => {
+        const venceIso = String((d as any).expires_at).slice(0, 10);
+        const dHoy = diasEntre(hoyIso, venceIso);
+        let estado: string;
+        if (dHoy < 0) estado = `VENCIDO hace ${Math.abs(dHoy)} día(s)`;
+        else if (dHoy <= 30) estado = `POR VENCER en ${dHoy} día(s)`;
+        else estado = `VIGENTE (vence en ${dHoy} día(s))`;
+        let extra = '';
+        if (firmaIso) {
+          const dFirma = diasEntre(firmaIso, venceIso);
+          extra =
+            dFirma < 0
+              ? ` — ⚠️ estará VENCIDO el día de la firma (${firmaIso})`
+              : ` — OK para la firma del ${firmaIso}`;
+        }
+        return `- ${d.file_name}: vence ${venceIso} → ${estado}${extra}`;
+      });
+      partes.push(
+        `\nCONTROL DE VIGENCIAS (calculado por el sistema; usalo como VERDAD, no recalcules fechas)${
+          firmaIso ? ` — FIRMA AGENDADA: ${firmaIso}` : ''
+        }:`
+      );
+      partes.push(lineas.join('\n'));
+      if (firmaIso) {
+        partes.push(
+          'Si algún certificado figura como "estará VENCIDO el día de la firma", avisalo con claridad y proponé solicitar/renovar el documento y, si hace falta, reprogramar la firma.'
+        );
+      }
+    }
+  }
+
   // Cronología del legajo: actuaciones y plazos (a mano o detectados por la IA).
   // Marcamos los FUTUROS para que el agente pueda proponer agendarlos.
   const eventos = eventosData ?? [];
