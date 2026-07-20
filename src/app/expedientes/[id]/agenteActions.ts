@@ -7,7 +7,7 @@ import { canUseAi, canUpdateCase, isUserRole } from '@/lib/permissions/roles';
 import { revalidatePath } from 'next/cache';
 import { guardarPlazoDetectado, guardarTurno } from '@/app/agenda/actions';
 import { generarResumenExpediente, cotejarExpediente, redactarEscrituraExpediente, analizarUifExpediente } from '@/app/expedientes/actions';
-import { getAllowedCaseStatuses } from '@/lib/industries/caseConfig';
+import { getAllowedCaseStatuses, getCaseStatusLabel, getCaseFields } from '@/lib/industries/caseConfig';
 import { responderAgenteLegajo, type MensajeChat, type AccionPropuesta } from '@/lib/ai/agente';
 import { generarEmbedding } from '@/lib/ai/embeddings';
 
@@ -122,8 +122,24 @@ export async function preguntarAgente(input: {
   const partes: string[] = [];
   partes.push(`LEGAJO: ${caseData.title ?? 'Sin título'}`);
   partes.push(
-    `Cliente: ${caseData.client_name ?? '-'} | Tipo: ${caseData.case_type ?? '-'} | Estado: ${caseData.status ?? '-'}`
+    `Cliente: ${caseData.client_name ?? '-'} | Tipo: ${caseData.case_type ?? '-'} | Estado: ${getCaseStatusLabel(caseData.status, industry)}`
   );
+
+  // Datos propios del rubro cargados en el formulario del legajo
+  // (en legal: carátula, N° de expediente, juzgado, fuero, parte contraria,
+  // estado procesal, próxima fecha clave). Se leen de metadata por su clave.
+  const metadataLegajo = (caseData.metadata ?? {}) as Record<string, unknown>;
+  const camposRubro = getCaseFields(industry)
+    .map((f) => {
+      const v = metadataLegajo[f.key];
+      const texto = v == null ? '' : String(v).trim();
+      return texto ? `- ${f.label}: ${texto}` : '';
+    })
+    .filter(Boolean);
+  if (camposRubro.length) {
+    partes.push('\nDATOS DEL EXPEDIENTE (cargados en el legajo, usalos como verdad):');
+    partes.push(camposRubro.join('\n'));
+  }
 
   const resumenJson = (resumenData?.result_json ?? null) as any;
   if (resumenJson) {
