@@ -333,6 +333,29 @@ export async function preguntarAgente(input: {
         : 'No pude generar una respuesta. Probá de nuevo.';
     return { ok: false, motivo };
   }
+  // Guardar la conversación en la memoria del legajo.
+  // Si falla, no rompemos el chat: solo lo registramos en consola.
+  try {
+    await supabase.from('agent_messages').insert([
+      {
+        organization_id: profile.organization_id,
+        case_id: input.caseId,
+        role: 'user',
+        content: pregunta,
+        created_by: user.id,
+      },
+      {
+        organization_id: profile.organization_id,
+        case_id: input.caseId,
+        role: 'assistant',
+        content: res.respuesta,
+        created_by: user.id,
+      },
+    ]);
+  } catch (e) {
+    console.error('Agente guardar memoria error:', e);
+  }
+
   return { ok: true, respuesta: res.respuesta, acciones: res.acciones };
 }
 
