@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, type ReactNode } from 'react';
-import { preguntarAgente, ejecutarAccionAgente, diagnosticoLegajo } from './agenteActions';
+import { preguntarAgente, ejecutarAccionAgente, diagnosticoLegajo, borrarConversacionAgente } from './agenteActions';
 import type { MensajeChat, AccionPropuesta } from '@/lib/ai/agente';
 import { MaquinaEscribir } from '@/components/MaquinaEscribir';
 
@@ -174,6 +174,22 @@ export function AgenteChat({ caseId, industry, puedeUsarIA, historialInicial }: 
     setAccEstados((p) => ({ ...p, [clave]: 'descartado' }));
   }
 
+  async function borrarConversacion() {
+    if (mensajes.length === 0 || cargando) return;
+    if (!window.confirm('¿Borrar toda la conversación de este legajo? No se puede deshacer.')) return;
+    try {
+      const r = await borrarConversacionAgente({ caseId });
+      if (r.ok) {
+        setMensajes([]);
+        setError(null);
+      } else {
+        setError(r.motivo ?? 'No se pudo borrar la conversación.');
+      }
+    } catch {
+      setError('Hubo un error de conexión. Probá de nuevo.');
+    }
+  }
+
   if (!puedeUsarIA) return null;
 
   return (
@@ -222,6 +238,16 @@ export function AgenteChat({ caseId, industry, puedeUsarIA, historialInicial }: 
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-400" />
               En línea
             </span>
+            {mensajes.length > 0 && (
+              <button
+                type="button"
+                onClick={borrarConversacion}
+                className="ml-auto rounded-lg border border-slate-700 bg-slate-800/40 px-2.5 py-1 text-xs text-slate-400 transition hover:border-rose-500/50 hover:text-rose-300"
+                title="Borrar la conversación de este legajo"
+              >
+                🗑️ Borrar conversación
+              </button>
+            )}
           </div>
           <p className="text-xs text-slate-400">Conversá sobre este legajo. La IA propone, vos decidís.</p>
         </div>

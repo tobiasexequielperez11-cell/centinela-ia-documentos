@@ -359,6 +359,26 @@ export async function preguntarAgente(input: {
   return { ok: true, respuesta: res.respuesta, acciones: res.acciones };
 }
 
+// Borra toda la conversación guardada del Agente IA en un legajo.
+export async function borrarConversacionAgente(input: {
+  caseId: string;
+}): Promise<{ ok: boolean; motivo?: string }> {
+  const { user, profile } = await getUserProfile();
+  if (!user || !profile) return { ok: false, motivo: 'Sesión no válida.' };
+  if (!canUseAi(profile.role)) return { ok: false, motivo: 'No tenés permiso.' };
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('agent_messages')
+    .delete()
+    .eq('case_id', input.caseId)
+    .eq('organization_id', profile.organization_id);
+  if (error) {
+    console.error('Agente borrar conversación error:', error);
+    return { ok: false, motivo: 'No se pudo borrar la conversación.' };
+  }
+  return { ok: true };
+}
+
 // Ejecuta una acción aprobada por el usuario sobre un legajo concreto.
 // Valida permisos y organización antes de tocar la base.
 export async function ejecutarAccionAgente(input: {
