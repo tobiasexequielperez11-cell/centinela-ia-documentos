@@ -243,7 +243,7 @@ export async function preguntarAgente(input: {
         }
         const delLegajo = (matches ?? [])
           .filter((m: any) => idsCasoRag.has(m.document_id))
-          .slice(0, 6);
+          .slice(0, 8);
         if (delLegajo.length > 0) {
           partes.push(
             '\nFRAGMENTOS TEXTUALES RELEVANTES (extractos del texto real de los documentos para ESTA pregunta; citá el documento por su nombre entre paréntesis cuando los uses):'
