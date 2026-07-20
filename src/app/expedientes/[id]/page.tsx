@@ -60,6 +60,7 @@ import { PreguntarDocumentos } from './PreguntarDocumentos';
 
 interface CaseDetailPageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 type ChecklistItemRecord = {
@@ -166,8 +167,10 @@ function checklistStatusLabel(status: string) {
 
 
 
-export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
+export default async function CaseDetailPage({ params, searchParams }: CaseDetailPageProps) {
   const { id } = await params;
+  const sp = await searchParams;
+  const tabActiva = typeof sp.tab === 'string' ? sp.tab : undefined;
   const { user, profile } = await getUserProfile();
 
   if (!user) redirect('/login');
@@ -452,6 +455,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
       </div>
 
       <Tabs
+        initial={tabActiva}
         tabs={[
           {
             id: 'resumen',
