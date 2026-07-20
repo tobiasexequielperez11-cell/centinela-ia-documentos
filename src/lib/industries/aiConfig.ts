@@ -60,14 +60,19 @@ Devolvé SIEMPRE un JSON válido con estos campos (NO cambies los nombres):
 
 Reglas: no inventes datos; si algo no está en el documento, no lo afirmes. Priorizá la coherencia entre reserva / boleto / contrato / título y los vencimientos de los contratos de alquiler. Respondé en español rioplatense.`;
 
+const TRANSCRIPCION_INSTRUCTION = `CAMPO ADICIONAL OBLIGATORIO:
+Agregá al MISMO objeto JSON un campo llamado "transcripcion" (string) con la TRANSCRIPCIÓN LITERAL y COMPLETA de TODO el texto del documento, palabra por palabra. Respetá EXACTAMENTE números, matrículas, folios reales (F.R.I.), nomenclatura catastral, nombres, DNI/CUIT, montos, fechas y domicilios tal como figuran. NO resumas ni omitas ninguna línea. Si un dato aparece en el documento, debe figurar textual dentro de "transcripcion".`;
+
 export function getAnalysisSystemPrompt(industry: IndustryType): string {
+  let base: string;
   if (industry === 'escribania') {
-    return ESCRIBANIA_ANALYSIS_PROMPT;
+    base = ESCRIBANIA_ANALYSIS_PROMPT;
+  } else if (industry === 'inmobiliaria') {
+    base = INMOBILIARIA_ANALYSIS_PROMPT;
+  } else {
+    base = DEFAULT_ANALYSIS_PROMPT;
   }
-  if (industry === 'inmobiliaria') {
-    return INMOBILIARIA_ANALYSIS_PROMPT;
-  }
-  return DEFAULT_ANALYSIS_PROMPT;
+  return `${base}\n\n${TRANSCRIPCION_INSTRUCTION}`;
 }
 
 const DEFAULT_RAG_PROMPT = `Sos un asistente jurídico. Respondé la pregunta usando ÚNICAMENTE la información de los fragmentos de documentos a continuación. Si la respuesta no está en los fragmentos, decilo con claridad y no inventes. Citá las fuentes con [número] al final de cada afirmación relevante. Respondé en español rioplatense, claro y conciso.`;

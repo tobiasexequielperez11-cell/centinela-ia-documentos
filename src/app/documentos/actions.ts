@@ -501,6 +501,7 @@ async function analizarConIA(texto: string, industry: IndustryType): Promise<{
   alertas: string[];
   proximas_acciones: string[];
   fechas_plazos: { descripcion: string; fecha: string }[];
+  transcripcion?: string;
 } | null> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
@@ -552,6 +553,7 @@ async function analizarConIA(texto: string, industry: IndustryType): Promise<{
     return {
       model: `analisis-ia-${modelo}`,
       resumen: String(parsed.resumen ?? ''),
+      transcripcion: String(parsed.transcripcion ?? ''),
       tipo_documental_detectado: String(parsed.tipo_documental_detectado ?? ''),
       sensibilidad_detectada: String(parsed.sensibilidad_detectada ?? '').toLowerCase(),
       partes: arr(parsed.partes),
@@ -582,6 +584,7 @@ async function analizarConIAMultimodal(
   alertas: string[];
   proximas_acciones: string[];
   fechas_plazos: { descripcion: string; fecha: string }[];
+  transcripcion?: string;
 } | null> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
@@ -638,6 +641,7 @@ async function analizarConIAMultimodal(
     return {
       model: `analisis-ia-mm-${modelo}`,
       resumen: String(parsed.resumen ?? ''),
+      transcripcion: String(parsed.transcripcion ?? ''),
       tipo_documental_detectado: String(parsed.tipo_documental_detectado ?? ''),
       sensibilidad_detectada: String(parsed.sensibilidad_detectada ?? '').toLowerCase(),
       partes: arr(parsed.partes),
@@ -854,6 +858,8 @@ await createAuditLog({
   const textoParaIndexar =
     extractedText && extractedText.length >= 200
       ? extractedText
+      : ia && ia.transcripcion && ia.transcripcion.trim().length >= 100
+      ? ia.transcripcion
       : ia
         ? [
             ia.resumen ?? '',
