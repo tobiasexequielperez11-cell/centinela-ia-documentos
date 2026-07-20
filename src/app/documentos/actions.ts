@@ -1128,12 +1128,20 @@ export async function deleteDocumentFromCase(formData: FormData) {
     .update({ document_id: null, status: 'pending' })
     .eq('document_id', documentId);
 
-  // 5. Borrar el documento
-  await supabase
+  // 5. Borrar el documento (con diagnóstico de por qué falla)
+  const { data: filasBorradas, error: errorBorrado } = await supabase
     .from('documents')
     .delete()
     .eq('id', documentId)
-    .eq('organization_id', profile.organization_id);
+    .eq('organization_id', profile.organization_id)
+    .select('id');
+
+  if (errorBorrado) {
+    redirect(`/expedientes/${caseId}?docdel=error:${encodeURIComponent(errorBorrado.message)}`);
+  }
+  if (!filasBorradas || filasBorradas.length === 0) {
+    redirect(`/expedientes/${caseId}?docdel=cero-filas`);
+  }
 
   await createAuditLog({
     organizationId: profile.organization_id,
@@ -1147,5 +1155,5 @@ export async function deleteDocumentFromCase(formData: FormData) {
   revalidatePath(`/expedientes/${caseId}`);
   revalidatePath('/documentos');
   revalidatePath('/dashboard');
-  redirect(`/expedientes/${caseId}`);
+  redirect(`/expedientes/${caseId}?docdel=ok`);
 }
