@@ -5,7 +5,7 @@ import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { normalizeIndustryType } from '@/lib/industries/documentTypes';
 import { canUseAi, canUpdateCase, isUserRole } from '@/lib/permissions/roles';
 import { revalidatePath } from 'next/cache';
-import { guardarPlazoDetectado } from '@/app/agenda/actions';
+import { guardarPlazoDetectado, guardarTurno } from '@/app/agenda/actions';
 import { generarResumenExpediente, cotejarExpediente, redactarEscrituraExpediente, analizarUifExpediente } from '@/app/expedientes/actions';
 import { getAllowedCaseStatuses } from '@/lib/industries/caseConfig';
 import { responderAgenteLegajo, type MensajeChat, type AccionPropuesta } from '@/lib/ai/agente';
@@ -320,6 +320,28 @@ export async function ejecutarAccionAgente(input: {
       return r.ok
         ? { ok: true, mensaje: 'Plazo agendado en tu calendario.' }
         : { ok: false, mensaje: 'No se pudo agendar el plazo.' };
+    }
+
+    case 'agendar_turno':
+    case 'agendar_firma': {
+      if (!canUpdateCase(profile.role)) return { ok: false, mensaje: 'Sin permiso para agendar.' };
+      if (!fechaValida) return { ok: false, mensaje: 'La acción no tiene una fecha válida.' };
+      const esFirma = accion.tipo === 'agendar_firma';
+      const horaOk =
+        typeof accion.hora === 'string' && /^\d{2}:\d{2}$/.test(accion.hora.trim())
+          ? accion.hora.trim()
+          : undefined;
+      const r = await guardarTurno({
+        titulo: accion.titulo,
+        fecha: accion.fecha as string,
+        hora: horaOk,
+        tipo: esFirma ? 'firma' : 'turno',
+        detalle: accion.motivo || 'Propuesto por el Agente IA del legajo',
+        caseId,
+      });
+      return r.ok
+        ? { ok: true, mensaje: esFirma ? 'Firma agendada en tu calendario.' : 'Turno agendado en tu calendario.' }
+        : { ok: false, mensaje: 'No se pudo agendar.' };
     }
 
     case 'crear_actuacion': {

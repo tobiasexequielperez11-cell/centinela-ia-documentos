@@ -20,6 +20,8 @@ const ACCION_META: Record<
   analizar_uif: { icono: '🛡️', verbo: 'Aprobar y analizar', verboLoading: 'Analizando…', hecho: 'Análisis UIF generado' },
   cambiar_estado: { icono: '🔄', verbo: 'Aprobar y cambiar', verboLoading: 'Cambiando…', hecho: 'Estado actualizado' },
   vincular_documento: { icono: '🔗', verbo: 'Aprobar y vincular', verboLoading: 'Vinculando…', hecho: 'Documento vinculado' },
+  agendar_turno: { icono: '📆', verbo: 'Aprobar y agendar turno', verboLoading: 'Agendando…', hecho: 'Turno agendado' },
+  agendar_firma: { icono: '✍️', verbo: 'Aprobar y agendar firma', verboLoading: 'Agendando…', hecho: 'Firma agendada' },
 };
 
 const SUGERENCIAS: Record<string, string[]> = {
