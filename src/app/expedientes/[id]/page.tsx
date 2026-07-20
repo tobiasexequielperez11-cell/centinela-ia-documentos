@@ -356,6 +356,18 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
   const documentosAnalizados = new Set((analisisData ?? []).map((o) => o.document_id).filter(Boolean)).size;
   const puedeUsarIA = canUseAi(profile.role);
 
+  // Memoria de conversación del Agente IA en este legajo (historial persistido).
+  const { data: agentMessagesData } = await supabase
+    .from('agent_messages')
+    .select('role, content')
+    .eq('case_id', caseRecord.id)
+    .eq('organization_id', profile.organization_id)
+    .order('created_at', { ascending: true });
+  const historialAgente = (agentMessagesData ?? []).map((m) => ({
+    rol: m.role === 'assistant' ? ('model' as const) : ('user' as const),
+    texto: m.content as string,
+  }));
+
   const nombrePorDoc = new Map<string, string>();
   for (const d of caseDocuments) nombrePorDoc.set(d.id, d.file_name);
 
@@ -462,7 +474,7 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
             label: '📊 Resumen',
             content: (
               <div className="space-y-6">
-                <AgenteChat caseId={caseRecord.id} industry={industry} puedeUsarIA={puedeUsarIA} />
+                <AgenteChat caseId={caseRecord.id} industry={industry} puedeUsarIA={puedeUsarIA} historialInicial={historialAgente} />
                 {(industry === 'escribania' || industry === 'legal') && (
                   <CopilotoExpediente
                     caseId={caseRecord.id}

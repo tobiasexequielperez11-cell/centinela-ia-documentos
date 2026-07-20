@@ -110,10 +110,11 @@ type Props = {
   caseId: string;
   industry: string;
   puedeUsarIA: boolean;
+  historialInicial?: MensajeUI[];
 };
 
-export function AgenteChat({ caseId, industry, puedeUsarIA }: Props) {
-  const [mensajes, setMensajes] = useState<MensajeUI[]>([]);
+export function AgenteChat({ caseId, industry, puedeUsarIA, historialInicial }: Props) {
+  const [mensajes, setMensajes] = useState<MensajeUI[]>(historialInicial ?? []);
   const [input, setInput] = useState('');
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
