@@ -84,6 +84,16 @@ export async function preguntarAgente(input: {
     .limit(1)
     .maybeSingle();
 
+  const { data: uifData } = await supabase
+    .from('ai_outputs')
+    .select('result_json')
+    .eq('case_id', input.caseId)
+    .eq('organization_id', profile.organization_id)
+    .eq('output_type', 'case_uif')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
   // Cronología: actuaciones y plazos cargados a mano o detectados por la IA
   // (misma fuente que alimenta el Radar de plazos).
   const { data: eventosData } = await supabase
@@ -138,6 +148,24 @@ export async function preguntarAgente(input: {
       partes.push(`Faltantes: ${cotejoJson.faltantes.join('; ')}`);
     if (Array.isArray(cotejoJson.alertas_vigencia) && cotejoJson.alertas_vigencia.length)
       partes.push(`Alertas de vigencia: ${cotejoJson.alertas_vigencia.join('; ')}`);
+  }
+
+  // Análisis de riesgo UIF/PLA ya generado para el legajo (si existe).
+  // Se lo damos al agente para que NO proponga volver a analizar cuando ya hay
+  // un análisis, y para que pueda decidir con criterio si corresponde un ROS.
+  const uifJson = (uifData?.result_json ?? null) as any;
+  if (uifJson) {
+    partes.push('\nANÁLISIS UIF / PLA (ya realizado por el sistema; usalo como VERDAD, no propongas volver a analizar salvo que el legajo haya cambiado):');
+    if (uifJson.nivel_riesgo) partes.push(`Nivel de riesgo: ${String(uifJson.nivel_riesgo).toUpperCase()}`);
+    partes.push(`¿Requiere ROS?: ${uifJson.requiere_ros ? 'SÍ' : 'NO'}`);
+    if (uifJson.fundamento) partes.push(`Fundamento: ${uifJson.fundamento}`);
+    if (Array.isArray(uifJson.factores_riesgo) && uifJson.factores_riesgo.length)
+      partes.push(`Factores de riesgo: ${uifJson.factores_riesgo.join('; ')}`);
+    if (Array.isArray(uifJson.senales_alerta) && uifJson.senales_alerta.length)
+      partes.push(`Señales de alerta: ${uifJson.senales_alerta.join('; ')}`);
+    if (Array.isArray(uifJson.verificaciones_pendientes) && uifJson.verificaciones_pendientes.length)
+      partes.push(`Verificaciones pendientes: ${uifJson.verificaciones_pendientes.join('; ')}`);
+    partes.push('Si el nivel es ALTO o requiere ROS, podés proponer preparar el borrador de ROS. Si es BAJO/MEDIO y no requiere ROS, aclaralo y NO propongas el ROS.');
   }
 
   // Vencimientos cargados directamente en los documentos (certificados, etc.)
