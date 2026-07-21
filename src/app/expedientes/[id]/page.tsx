@@ -502,6 +502,7 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
                 {(industry === 'escribania' || industry === 'legal') && (
                   <CotejoExpediente
                     caseId={caseRecord.id}
+                    industry={industry}
                     cotejo={(cotejoData?.result_json as any) ?? null}
                     generadoEl={cotejoData?.created_at ?? null}
                     documentosAnalizados={documentosAnalizados}

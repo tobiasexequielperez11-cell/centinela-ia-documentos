@@ -54,26 +54,40 @@ function Bloque({
 
 export function CotejoExpediente({
   caseId,
+  industry,
   cotejo,
   generadoEl,
   documentosAnalizados,
   puedeUsarIA,
 }: {
   caseId: string;
+  industry?: string;
   cotejo: CotejoNotarial | null;
   generadoEl: string | null;
   documentosAnalizados: number;
   puedeUsarIA: boolean;
 }) {
   const cotejar = cotejarExpediente.bind(null, caseId);
+  const esLegal = industry === 'legal';
+
+  const titulo = esLegal ? 'Cotejo del expediente con IA' : 'Cotejo notarial con IA';
+  const descripcion = esLegal
+    ? 'Cruza los escritos del expediente (demanda, contestación y demás presentaciones) y marca hechos reconocidos, puntos controvertidos, prueba pendiente y alertas procesales.'
+    : 'Cruza los documentos del legajo (boleto, título, certificados) y marca coincidencias, discrepancias, faltantes y vigencias.';
+  
+  const rotuloCoincidencias = esLegal ? '✅ Hechos reconocidos' : '✅ Coincidencias';
+  const rotuloDiscrepancias = esLegal ? '⚠️ Puntos controvertidos' : '⚠️ Discrepancias';
+  const rotuloFaltantes = esLegal ? '📋 Prueba pendiente' : '📋 Faltantes';
+  const rotuloVigencias = esLegal ? '⏳ Alertas procesales' : '⏳ Vigencias';
+  const pieAccion = esLegal ? 'revisá antes de presentar' : 'revisá antes de otorgar';
 
   return (
     <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold text-white">🔍 Cotejo notarial con IA</h2>
+          <h2 className="text-lg font-semibold text-white">🔍 {titulo}</h2>
           <p className="mt-1 text-sm text-slate-400">
-            Cruza los documentos del legajo (boleto, título, certificados) y marca coincidencias, discrepancias, faltantes y vigencias.
+            {descripcion}
           </p>
         </div>
         {puedeUsarIA && (
@@ -98,13 +112,13 @@ export function CotejoExpediente({
       {cotejo && (
         <div className="mt-4 space-y-3">
           <p className="text-sm text-slate-200">{cotejo.veredicto}</p>
-          <Bloque titulo="✅ Coincidencias" items={cotejo.coincidencias} tono="emerald" />
-          <Bloque titulo="⚠️ Discrepancias" items={cotejo.discrepancias} tono="rose" />
-          <Bloque titulo="📋 Faltantes" items={cotejo.faltantes} tono="slate" />
-          <Bloque titulo="⏳ Vigencias" items={cotejo.alertas_vigencia} tono="amber" />
+          <Bloque titulo={rotuloCoincidencias} items={cotejo.coincidencias} tono="emerald" />
+          <Bloque titulo={rotuloDiscrepancias} items={cotejo.discrepancias} tono="rose" />
+          <Bloque titulo={rotuloFaltantes} items={cotejo.faltantes} tono="slate" />
+          <Bloque titulo={rotuloVigencias} items={cotejo.alertas_vigencia} tono="amber" />
           {generadoEl && (
             <p className="text-xs text-slate-500">
-              Cotejo generado el {new Date(generadoEl).toLocaleString('es-AR')} · Borrador orientativo, revisá antes de otorgar.
+              Cotejo generado el {new Date(generadoEl).toLocaleString('es-AR')} · Borrador orientativo, {pieAccion}.
             </p>
           )}
         </div>
