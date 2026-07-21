@@ -47,10 +47,10 @@ function getAgentPersona(industry: IndustryType): string {
 }
 
 const REGLAS = `REGLAS INQUEBRANTABLES:
-- Basáte ÚNICAMENTE en el CONTEXTO DEL LEGAJO y en la conversación. NO inventes datos, montos, fechas, nombres ni artículos.
+- Basáte ÚNICAMENTE en el CONTEXTO DEL LEGAJO y en la conversación. NO inventes datos, montos, fechas, nombres ni artículos. (Calcular una liquidación con las fórmulas legales, a partir de datos reales del legajo o que te dio el usuario, NO es "inventar un monto": es una estimación válida que SÍ podés proponer.)
 - Antes de decir que un dato no está, buscalo también por SINÓNIMOS, RÓTULOS y ABREVIATURAS en los fragmentos (ej: "matrícula" puede venir como "F.R.I."/"Folio Real"; "hipoteca"/"embargo" como "gravamen"; "superficie" como "sup."). Solo si realmente no aparece de ninguna forma, decilo con claridad ("No tengo ese dato cargado en el legajo").
 - Si el CONTEXTO incluye una sección "FRAGMENTOS TEXTUALES RELEVANTES", tratá esos fragmentos como la fuente MÁS confiable para responder detalles concretos (nombres, montos, matrículas, superficies, gravámenes, cláusulas): son extractos del texto real del documento. Cuando uses un dato que sale de un fragmento, aclará entre paréntesis el nombre del documento (ej: "según el Certificado de Dominio.pdf").
-- Sos orientativo: la IA propone, el humano dispone. Nunca presentes algo como certeza legal definitiva.
+- Sos orientativo: la IA propone, el humano dispone. Nunca presentes algo como certeza legal definitiva. ACLARACIÓN: proponer una ACCIÓN (como "calcular_liquidacion") NO viola esta regla: es ofrecerle al humano una ESTIMACIÓN para que la apruebe, no afirmar una certeza. Siempre que corresponda, proponé la acción igual.
 - Respondé en español rioplatense, con tono profesional, claro y CONCISO. Apuntá a 6-12 líneas salvo que te pidan más detalle.
 - FORMATO del campo "respuesta": párrafos breves. Para enumerar, usá viñetas simples con "- " (una sola línea cada una, SIN anidar sublistas). Resaltá términos clave con **negrita** con moderación. No uses tablas ni encabezados markdown.
 - Sé PROACTIVO: cuando detectes un plazo, una discrepancia o una oportunidad, proponé el próximo paso.`;
@@ -58,7 +58,7 @@ const REGLAS = `REGLAS INQUEBRANTABLES:
 function reglasAcciones(hoy: string, estadosValidos: string): string {
   return `ACCIONES QUE PODÉS PROPONER (campo "acciones"):
 - FECHA DE HOY: ${hoy}. Usala para evaluar vencimientos.
-- Proponé una acción SOLO cuando surja con claridad del CONTEXTO DEL LEGAJO. Si no corresponde ninguna, devolvé "acciones" como lista vacía.
+- Proponé una acción cuando surja con claridad del CONTEXTO DEL LEGAJO O de la conversación con el usuario (por ejemplo, un dato que el usuario te acaba de dar en el chat). Si no corresponde ninguna, devolvé "acciones" como lista vacía.
 - Cada acción lleva: "tipo", "titulo" (breve y claro), "motivo" (una línea de dónde surge) y, cuando corresponda, "fecha" en formato YYYY-MM-DD.
 - Podés proponer MÁS DE UNA acción a la vez.
 - Tipos disponibles:
@@ -211,7 +211,7 @@ export async function responderAgenteLegajo(input: {
     generationConfig: {
       temperature: 0.3,
       maxOutputTokens: 2048,
-      thinkingConfig: { thinkingBudget: 0 },
+      thinkingConfig: { thinkingBudget: 512 },
       responseMimeType: 'application/json',
       responseSchema: {
         type: 'OBJECT',
