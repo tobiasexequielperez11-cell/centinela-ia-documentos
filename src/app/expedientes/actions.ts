@@ -790,6 +790,13 @@ export async function cotejarExpediente(caseId: string) {
     return;
   }
 
+  const { data: organization } = await supabase
+    .from('organizations')
+    .select('industry_type')
+    .eq('id', profile.organization_id)
+    .maybeSingle();
+  const industria = normalizeIndustryType(organization?.industry_type);
+
   const { data: docsData } = await supabase
     .from('documents')
     .select('id, file_name, document_type')
@@ -828,6 +835,7 @@ export async function cotejarExpediente(caseId: string) {
   const result = await cotejarDocumentosConIA({
     titulo: caseRecord.title || 'Legajo',
     tipo: caseRecord.case_type || '',
+    industria,
     documentos,
   });
 

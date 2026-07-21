@@ -99,6 +99,7 @@ export type CotejoNotarial = {
 export async function cotejarDocumentosConIA(input: {
   titulo: string;
   tipo: string;
+  industria?: string;
   documentos: DocInput[];
 }): Promise<
   | { ok: false; motivo: 'sin_api_key' | 'sin_datos' | 'error' }
@@ -117,16 +118,18 @@ export async function cotejarDocumentosConIA(input: {
     )
     .join('\n\n');
 
-  const prompt = [
+  const esLegal = input.industria === 'legal';
+
+  const promptNotarial = [
     'Sos un escribano argentino experto en estudio de títulos y control de documentación registral. Vas a COTEJAR (cruzar) los documentos ya analizados de un mismo legajo para verificar si son coherentes entre sí antes de otorgar un acto.',
     'Compará especialmente: identidad y datos de las partes/comparecientes (nombres, DNI/CUIT), datos del inmueble (nomenclatura catastral, matrícula, superficie, ubicación), montos y precios, y vigencia de certificados (dominio, inhibiciones, libre deuda).',
     'Respondé SOLO un objeto JSON válido (sin texto adicional) con esta forma exacta:',
     '{',
-    '  "veredicto": "1-2 oraciones con el estado general del cotejo (coherente / con observaciones / con discrepancias serias)",',
-    '  "coincidencias": ["datos que coinciden correctamente entre documentos"],',
-    '  "discrepancias": ["diferencias o contradicciones entre documentos, indicando qué documento y qué dato"],',
-    '  "faltantes": ["documentos o datos que faltarían para completar el acto"],',
-    '  "alertas_vigencia": ["certificados vencidos o próximos a vencer, con la fecha si surge"]',
+    ' "veredicto": "1-2 oraciones con el estado general del cotejo (coherente / con observaciones / con discrepancias serias)",',
+    ' "coincidencias": ["datos que coinciden correctamente entre documentos"],',
+    ' "discrepancias": ["diferencias o contradicciones entre documentos, indicando qué documento y qué dato"],',
+    ' "faltantes": ["documentos o datos que faltarían para completar el acto"],',
+    ' "alertas_vigencia": ["certificados vencidos o próximos a vencer, con la fecha si surge"]',
     '}',
     'Reglas: NO inventes datos. Si algo no surge de la información aportada, devolvé un array vacío. Basate SOLO en lo aportado. Respondé en español rioplatense.',
     '',
@@ -136,6 +139,28 @@ export async function cotejarDocumentosConIA(input: {
     'DOCUMENTOS ANALIZADOS A COTEJAR:',
     docsTexto || '(sin documentos analizados)',
   ].join('\n');
+
+  const promptLegal = [
+    'Sos un abogado litigante argentino experto en derecho procesal. Vas a COTEJAR los escritos y documentos ya analizados de un mismo expediente judicial (típicamente la demanda frente a su contestación) para determinar cómo quedó trabada la litis: qué hechos quedaron reconocidos, cuáles controvertidos, qué prueba hace falta y qué defensas o plazos vigilar.',
+    'Analizá: hechos admitidos por ambas partes; hechos negados o con versiones enfrentadas; defensas y excepciones opuestas (por ejemplo prescripción, falta de legitimación, culpa de la víctima); rubros y montos impugnados; y la prueba ofrecida o pendiente de producir.',
+    'Respondé SOLO un objeto JSON válido (sin texto adicional) con esta forma exacta:',
+    '{',
+    ' "veredicto": "1-2 oraciones sobre cómo quedó trabada la litis y el eje del conflicto",',
+    ' "coincidencias": ["hechos reconocidos o no controvertidos, admitidos por ambas partes"],',
+    ' "discrepancias": ["puntos controvertidos: hechos negados o versiones enfrentadas, indicando qué escrito sostiene qué"],',
+    ' "faltantes": ["prueba pendiente de producir u ofrecer y medidas necesarias para acreditar los hechos controvertidos"],',
+    ' "alertas_vigencia": ["alertas procesales: excepciones o defensas opuestas (prescripción, etc.), plazos de prueba y riesgos a vigilar, con la fecha si surge"]',
+    '}',
+    'Reglas: NO inventes datos, montos, fechas ni artículos. Si algo no surge de la información aportada, devolvé un array vacío. Basate SOLO en lo aportado. Respondé en español rioplatense.',
+    '',
+    `EXPEDIENTE: ${input.titulo}`,
+    `Tipo de caso: ${input.tipo || '-'}`,
+    '',
+    'ESCRITOS Y DOCUMENTOS ANALIZADOS A COTEJAR:',
+    docsTexto || '(sin documentos analizados)',
+  ].join('\n');
+
+  const prompt = esLegal ? promptLegal : promptNotarial;
 
   try {
     const resp = await fetch(
