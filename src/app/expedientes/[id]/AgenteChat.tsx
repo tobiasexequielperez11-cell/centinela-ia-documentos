@@ -134,7 +134,12 @@ export function AgenteChat({ caseId, industry, puedeUsarIA, historialInicial, mo
     return () => { vivo = false; };
   }, [caseId, puedeUsarIA]);
 
+  const yaScrolleoInicial = useRef(false);
   useEffect(() => {
+    if (!yaScrolleoInicial.current) {
+      yaScrolleoInicial.current = true;
+      return;
+    }
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [mensajes, cargando]);
