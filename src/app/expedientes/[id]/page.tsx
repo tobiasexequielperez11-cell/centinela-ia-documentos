@@ -488,7 +488,7 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
             label: '📊 Resumen',
             content: (
               <div className="space-y-6">
-                <AgenteChat caseId={caseRecord.id} industry={industry} puedeUsarIA={puedeUsarIA} historialInicial={historialAgente} modeloUrl={modeloSugerido ? `/modelos?modelo=${modeloSugerido}` : '/modelos'} />
+                <AgenteChat caseId={caseRecord.id} industry={industry} puedeUsarIA={puedeUsarIA} historialInicial={historialAgente} modeloUrl={modeloSugerido ? `/modelos?modelo=${modeloSugerido}&expediente=${caseRecord.id}` : '/modelos'} />
                 {(industry === 'escribania' || industry === 'legal') && (
                   <CopilotoExpediente
                     caseId={caseRecord.id}

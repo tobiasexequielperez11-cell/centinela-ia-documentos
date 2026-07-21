@@ -70,12 +70,15 @@ function provinciaDeModelo(m: ModeloEscrito): 'Nacional' | 'Corrientes' | 'Bueno
 export function ModelosClient({
   expedientes,
   modeloInicialId = null,
+  expedienteInicialId = null,
   industria = 'legal',
 }: {
   expedientes: ExpedienteLite[];
   modeloInicialId?: string | null;
+  expedienteInicialId?: string | null;
   industria?: string;
 }) {
+  const expInicial = expedientes.find((e) => e.id === expedienteInicialId) ?? null;
   const idInicial =
     modeloInicialId && MODELOS.some((m) => m.id === modeloInicialId)
       ? modeloInicialId
@@ -83,9 +86,9 @@ export function ModelosClient({
   const [seleccionadoId, setSeleccionadoId] = useState<string | null>(idInicial);
   const [busqueda, setBusqueda] = useState('');
   const [provincia, setProvincia] = useState<ProvinciaFiltro>('todas');
-  const [valores, setValores] = useState<Record<string, string>>({});
+  const [valores, setValores] = useState<Record<string, string>>(expInicial ? datosDeExpediente(expInicial) : {});
   const [copiado, setCopiado] = useState(false);
-  const [expedienteId, setExpedienteId] = useState('');
+  const [expedienteId, setExpedienteId] = useState(expInicial?.id ?? '');
   const [instruccion, setInstruccion] = useState('');
   const [textoIA, setTextoIA] = useState<string | null>(null);
   const [redactando, setRedactando] = useState(false);

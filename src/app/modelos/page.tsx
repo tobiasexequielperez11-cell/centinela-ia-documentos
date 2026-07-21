@@ -10,7 +10,7 @@ import { RevisarEscrito } from './RevisarEscrito';
 export default async function ModelosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ modelo?: string }>;
+  searchParams: Promise<{ modelo?: string; expediente?: string }>;
 }) {
   const { user, profile } = await getUserProfile();
   if (!user) redirect('/login');
@@ -36,13 +36,14 @@ export default async function ModelosPage({
 
   const sp = await searchParams;
   const modeloInicialId = typeof sp.modelo === 'string' ? sp.modelo : null;
+  const expedienteInicialId = typeof sp.expediente === 'string' ? sp.expediente : null;
 
   const puedeIA = canUseAi(profile.role);
 
   return (
     <AppShell>
       <div className="space-y-6">
-        <ModelosClient expedientes={expedientes} modeloInicialId={modeloInicialId} industria={industria} />
+        <ModelosClient expedientes={expedientes} modeloInicialId={modeloInicialId} expedienteInicialId={expedienteInicialId} industria={industria} />
         {puedeIA && <RevisarEscrito industria={industria} />}
       </div>
     </AppShell>
