@@ -131,13 +131,25 @@ function getEventTypeBadgeColor(type: string): "warning" | "success" | "accent" 
 const darkOptionStyle = { backgroundColor: '#0C2340', color: '#FFFFFF' };
 
 function modeloSugeridoPorTipoLegajo(caseType?: string | null): string | null {
-	const t = (caseType ?? '').toLowerCase();
-	if (t.includes('compraventa') || t.includes('escritura') || t.includes('real_estate') || t.includes('purchase')) return 'notarial-compraventa-inmueble';
-	if (t.includes('poder')) return 'notarial-poder-general-amplio';
-	if (t.includes('certificaci')) return 'notarial-certificacion-firmas';
-	if (t.includes('acta')) return 'notarial-acta-constatacion';
-	if (t.includes('autorizaci') || t.includes('viaje')) return 'notarial-autorizacion-viaje-menor';
-	return null;
+  const t = (caseType ?? '').toLowerCase();
+  if (t.includes('compraventa') || t.includes('escritura') || t.includes('real_estate') || t.includes('purchase')) return 'notarial-compraventa-inmueble';
+  if (t.includes('poder')) return 'notarial-poder-general-amplio';
+  if (t.includes('certificaci')) return 'notarial-certificacion-firmas';
+  if (t.includes('acta')) return 'notarial-acta-constatacion';
+  if (t.includes('autorizaci') || t.includes('viaje')) return 'notarial-autorizacion-viaje-menor';
+  return null;
+}
+
+// Escrito judicial sugerido para un legajo del rubro legal.
+// Los modelos ya existen en @/lib/legal/modelos (contesta-demanda,
+// interpone-apelacion, cedula-notificacion, etc.). Si no hay una
+// coincidencia clara, devolvemos 'contesta-demanda' como punto de partida:
+// en la biblioteca están todos los escritos para elegir el que corresponda.
+function modeloLegalSugeridoPorTipoLegajo(caseType?: string | null): string {
+  const t = (caseType ?? '').toLowerCase();
+  if (t.includes('apela') || t.includes('recurso')) return 'interpone-apelacion';
+  if (t.includes('cédula') || t.includes('cedula') || t.includes('notific') || t.includes('oficio')) return 'cedula-notificacion';
+  return 'contesta-demanda';
 }
 
 function displayText(value?: string | null, fallback = 'Sin definir') {
@@ -206,7 +218,9 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
   const modeloSugerido =
     industry === 'escribania'
       ? modeloSugeridoPorTipoLegajo(textoTipoLegajo)
-      : null;
+      : industry === 'legal'
+        ? modeloLegalSugeridoPorTipoLegajo(textoTipoLegajo)
+        : null;
   const terms = getIndustryTerms(industry);
   const caseFields = getCaseFields(industry);
   const caseStatuses = getCaseStatuses(industry);
