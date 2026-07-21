@@ -172,6 +172,44 @@ function salvarRespuesta(raw: string): string {
     .trim();
 }
 
+// Red de seguridad: extrae ingreso mensual, edad e incapacidad de un texto libre (legajo o conversación).
+function numeroCercaDe(texto: string, etiquetas: string[], min: number, max: number): number | null {
+	for (const etiqueta of etiquetas) {
+		const re = new RegExp(etiqueta + '\\D{0,25}?(\\d[\\d.]*)', 'i')
+		const m = texto.match(re)
+		if (m) {
+			const n = Number(m[1].replace(/\./g, ''))
+			if (Number.isFinite(n) && n >= min && n <= max) return n
+		}
+	}
+	return null
+}
+
+function detectarDatosLiquidacion(
+	texto: string
+): { ingresoMensual: number; edad: number; incapacidad: number; metodo: 'mendez' | 'vuoto' } | null {
+	const t = texto.toLowerCase()
+	if (!/(liquidaci[oó]n|incapacidad|reclam)/.test(t)) return null
+	const ingresoMensual = numeroCercaDe(
+		t,
+		['ingreso mensual', 'ingreso', 'sueldo', 'salario', 'remuneraci[oó]n', 'haber'],
+		1000,
+		999999999
+	)
+	const incapacidad = numeroCercaDe(t, ['incapacidad'], 1, 100)
+	let edad = numeroCercaDe(t, ['edad'], 16, 99)
+	if (!edad) {
+		const m = t.match(/(\d{2})\s*años/)
+		if (m) {
+			const n = Number(m[1])
+			if (n >= 16 && n <= 99) edad = n
+		}
+	}
+	if (!ingresoMensual || !incapacidad || !edad) return null
+	const metodo: 'mendez' | 'vuoto' = /vuoto/.test(t) ? 'vuoto' : 'mendez'
+	return { ingresoMensual, edad, incapacidad, metodo }
+}
+
 export async function responderAgenteLegajo(input: {
   industry: IndustryType;
   contextoLegajo: string;
@@ -267,12 +305,26 @@ export async function responderAgenteLegajo(input: {
               typeof parsed?.respuesta === 'string' && parsed.respuesta.trim()
                 ? parsed.respuesta.trim()
                 : salvarRespuesta(raw);
-            return {
-              ok: true,
-              respuesta,
-              acciones: validarAcciones(parsed?.acciones, estadosValores),
-              model: `agente-${modelo}`,
-            };
+            const acciones = validarAcciones(parsed?.acciones, estadosValores);
+            // Si el legajo o la conversación tienen los datos y el modelo NO propuso la liquidación, la agregamos nosotros.
+            const esLegalLaboral = input.industry === 'legal' || input.industry === 'laboral';
+            const yaPropusoLiquidacion = acciones.some((a) => a.tipo === 'calcular_liquidacion');
+            if (esLegalLaboral && !yaPropusoLiquidacion) {
+              const textoBusqueda = [input.contextoLegajo || '', ...input.historial.map((m) => m.texto), input.pregunta].join('\n');
+              const datosLiq = detectarDatosLiquidacion(textoBusqueda);
+              if (datosLiq) {
+                acciones.push({
+                  tipo: 'calcular_liquidacion',
+                  titulo: 'Calcular liquidación estimada por incapacidad',
+                  metodo: datosLiq.metodo,
+                  ingresoMensual: datosLiq.ingresoMensual,
+                  edad: datosLiq.edad,
+                  incapacidad: datosLiq.incapacidad,
+                  motivo: 'Detecté los datos necesarios (ingreso, edad e incapacidad) en el legajo o la conversación.',
+                });
+              }
+            }
+            return { ok: true, respuesta, acciones, model: `agente-${modelo}` };
           } catch {
             // JSON cortado o inválido: rescatamos el texto limpio, sin acciones.
             return { ok: true, respuesta: salvarRespuesta(raw), acciones: [], model: `agente-${modelo}` };
