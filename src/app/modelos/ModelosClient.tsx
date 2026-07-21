@@ -20,11 +20,16 @@ export type ExpedienteLite = {
 function datosDeExpediente(exp: ExpedienteLite): Record<string, string> {
   const meta = exp.metadata ?? {};
   const posibles: Record<string, string | null | undefined> = {
-    caratula: exp.title,
+    // La carátula formal del expediente (jurídico) tiene prioridad sobre el título interno.
+    caratula: meta.caratula ?? exp.title,
     nombre_parte: exp.client_name,
     parte: exp.client_name,
     destinatario: exp.client_name,
     numero_expediente: meta.numero_expediente ?? meta.expediente,
+    // Datos procesales del expediente jurídico (se usan si el modelo los pide).
+    juzgado: meta.juzgado,
+    fuero: meta.fuero,
+    parte_contraria: meta.parte_contraria,
     domicilio_destinatario: meta.domicilio,
     domicilio_fisico: meta.domicilio,
   };
