@@ -19,13 +19,18 @@ export type AccionPropuesta = {
     | 'agendar_turno'
     | 'agendar_firma'
     | 'sugerir_modelo'
-    | 'redactar_ros';
+    | 'redactar_ros'
+    | 'calcular_liquidacion';
   titulo: string;
   fecha?: string; // YYYY-MM-DD (agendar_plazo, crear_actuacion, agendar_turno, agendar_firma)
   hora?: string; // HH:MM (opcional, solo agendar_turno y agendar_firma)
   estado?: string; // valor de estado destino (solo cambiar_estado)
   itemChecklist?: string; // título exacto del ítem (solo vincular_documento)
   documento?: string; // nombre exacto del archivo (solo vincular_documento)
+  metodo?: "vuoto" | "mendez"; // solo calcular_liquidacion
+  ingresoMensual?: number; // solo calcular_liquidacion (pesos)
+  edad?: number; // solo calcular_liquidacion (años al hecho)
+  incapacidad?: number; // solo calcular_liquidacion (porcentaje 0-100)
   motivo: string;
 };
 
@@ -70,6 +75,7 @@ function reglasAcciones(hoy: string, estadosValidos: string): string {
   11) "agendar_firma": agendar la FIRMA de la escritura, el acto notarial o el instrumento principal. REQUIERE "fecha". Si surge la hora, sumá "hora" en formato HH:MM (24hs). Proponéla cuando el legajo esté listo o se acuerde una fecha de firma. Ej: "Firma de escritura traslativa de dominio".
   12) "sugerir_modelo": sugerir abrir el MODELO/instrumento correcto de la biblioteca para redactar el documento del legajo. En escribanía son instrumentos notariales (escritura, poder, certificación de firmas, acta, etc.); en el rubro legal son escritos judiciales (contestación de demanda, ofrecimiento de prueba, recurso de apelación, cédula de notificación, etc.). SIN "fecha". Proponéla cuando el legajo corresponda claramente a un documento para el que conviene usar un modelo y ya tenga datos suficientes. Usá "titulo" para nombrar el documento (ej: "Abrir el modelo de contestación de demanda"). El sistema ya sabe qué modelo corresponde según el legajo; NO inventes nombres de archivos ni enlaces.
   13) "redactar_ros": preparar el borrador de ROS (Reporte de Operación Sospechosa ante la UIF) del legajo. SIN "fecha". Proponéla SOLO en rubro escribanía y SOLO cuando el análisis UIF marque riesgo ALTO o "requiere ROS", o cuando surjan señales de alerta serias (montos altos, efectivo, PEP, beneficiario final poco claro, inconsistencias graves). Usá "titulo" como "Preparar borrador de ROS (UIF)". No la propongas si no hay señales serias.
+  14) "calcular_liquidacion": estimar el monto del reclamo por INCAPACIDAD con las fórmulas de la jurisprudencia (Méndez o Vuoto). SIN "fecha". SOLO en rubro legal/laboral y SOLO si en el CONTEXTO o en los FRAGMENTOS surgen los TRES datos: ingreso mensual de la víctima, su edad al momento del hecho y el porcentaje de incapacidad. REQUIERE cuatro campos: "metodo" ("mendez" por defecto, o "vuoto"), "ingresoMensual" (número, en pesos), "edad" (número, en años) e "incapacidad" (número, porcentaje 0-100). NUNCA inventes esos números: copialos del contexto. Si falta alguno, NO propongas la acción: pedíle ese dato al usuario en la "respuesta". Usá "titulo" como "Calcular liquidación estimada por incapacidad".
 - OBLIGATORIO: si en tu "respuesta" decís o das a entender que un documento del legajo cumple, corresponde o sirve para un ítem del checklist, TENÉS que incluir además la acción "vincular_documento" en el campo "acciones" (con "itemChecklist" y "documento" exactos, copiados del contexto). Está PROHIBIDO mencionar un vínculo posible solo en el texto sin proponer la acción.
 - NO inventes fechas, nombres, estados ni datos. La ejecución real la confirma el usuario con un botón.`;
 }
@@ -84,7 +90,7 @@ function limpiarJson(raw: string): string {
 
 function validarAcciones(input: unknown, estadosValidos: string[] = []): AccionPropuesta[] {
   if (!Array.isArray(input)) return [];
-  const TIPOS = ['agendar_plazo', 'crear_actuacion', 'agregar_checklist', 'generar_resumen', 'generar_cotejo', 'redactar_borrador', 'analizar_uif', 'cambiar_estado', 'vincular_documento', 'agendar_turno', 'agendar_firma', 'sugerir_modelo', 'redactar_ros'];
+  const TIPOS = ['agendar_plazo', 'crear_actuacion', 'agregar_checklist', 'generar_resumen', 'generar_cotejo', 'redactar_borrador', 'analizar_uif', 'cambiar_estado', 'vincular_documento', 'agendar_turno', 'agendar_firma', 'sugerir_modelo', 'redactar_ros', 'calcular_liquidacion'];
   const CON_FECHA = ['agendar_plazo', 'crear_actuacion'];
   const CON_FECHA_HORA = ['agendar_turno', 'agendar_firma'];
   const out: AccionPropuesta[] = [];
@@ -113,6 +119,23 @@ function validarAcciones(input: unknown, estadosValidos: string[] = []): AccionP
     } else if (CON_FECHA.includes(tipo)) {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) continue;
       out.push({ tipo: tipo as AccionPropuesta['tipo'], titulo, fecha, motivo });
+    } else if (tipo === "calcular_liquidacion") {
+      const metodo = o.metodo === "vuoto" ? "vuoto" : "mendez"
+      const ingresoMensual = Number(o.ingresoMensual)
+      const edad = Number(o.edad)
+      const incapacidad = Number(o.incapacidad)
+      if (!Number.isFinite(ingresoMensual) || ingresoMensual <= 0) continue
+      if (!Number.isFinite(edad) || edad <= 0) continue
+      if (!Number.isFinite(incapacidad) || incapacidad <= 0) continue
+      out.push({
+        tipo: "calcular_liquidacion",
+        titulo,
+        metodo,
+        ingresoMensual,
+        edad,
+        incapacidad,
+        motivo,
+      })
     } else {
       out.push({ tipo: tipo as AccionPropuesta['tipo'], titulo, motivo });
     }
@@ -204,6 +227,10 @@ export async function responderAgenteLegajo(input: {
                 estado: { type: 'STRING' },
                 itemChecklist: { type: 'STRING' },
                 documento: { type: 'STRING' },
+                metodo: { type: "STRING" },
+                ingresoMensual: { type: "NUMBER" },
+                edad: { type: "NUMBER" },
+                incapacidad: { type: "NUMBER" },
                 motivo: { type: 'STRING' },
               },
               required: ['tipo', 'titulo', 'motivo'],

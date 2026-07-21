@@ -10,6 +10,7 @@ import { generarResumenExpediente, cotejarExpediente, redactarEscrituraExpedient
 import { getAllowedCaseStatuses, getCaseStatusLabel, getCaseFields } from '@/lib/industries/caseConfig';
 import { responderAgenteLegajo, type MensajeChat, type AccionPropuesta } from '@/lib/ai/agente';
 import { generarEmbedding } from '@/lib/ai/embeddings';
+import { calcularIncapacidad } from "@/lib/legal/liquidacion";
 
 export async function preguntarAgente(input: {
   caseId: string;
@@ -483,6 +484,50 @@ export async function ejecutarAccionAgente(input: {
       return r.ok
         ? { ok: true, mensaje: esFirma ? 'Firma agendada en tu calendario.' : 'Turno agendado en tu calendario.' }
         : { ok: false, mensaje: 'No se pudo agendar.' };
+    }
+
+    case "calcular_liquidacion": {
+      if (!canUpdateCase(profile.role))
+        return { ok: false, mensaje: "Sin permiso." }
+      const metodo = accion.metodo === "vuoto" ? "vuoto" : "mendez"
+      const calc = calcularIncapacidad({
+        metodo,
+        ingresoMensual: Number(accion.ingresoMensual),
+        edad: Number(accion.edad),
+        incapacidad: Number(accion.incapacidad),
+      })
+      if (!calc.ok)
+        return {
+          ok: false,
+          mensaje:
+            "No pude calcular la liquidación: faltan o son inválidos el ingreso, la edad o el % de incapacidad.",
+        }
+      const tope730 = calc.capital * 0.25
+      const { error } = await supabase.from("ai_outputs").insert({
+        output_type: "case_liquidacion",
+        content: `Liquidación estimada (${metodo}) por incapacidad del ${accion.incapacidad}%`,
+        result_json: {
+          metodo,
+          ingreso_mensual: Number(accion.ingresoMensual),
+          edad: Number(accion.edad),
+          incapacidad: Number(accion.incapacidad),
+          capital: calc.capital,
+          ingreso_anual_ajustado: calc.ingresoAnualAjustado,
+          anios_computables: calc.aniosComputables,
+          tasa_descuento: calc.tasaDescuento,
+          tope_honorarios_730: tope730,
+        },
+        model_name: "calculadora-liquidacion",
+        case_id: caseId,
+        organization_id: profile.organization_id,
+        created_by: user.id,
+      })
+      if (error) {
+        console.error("Liquidación insert error:", error)
+        return { ok: false, mensaje: "No se pudo guardar la liquidación." }
+      }
+      revalidatePath(`/expedientes/${caseId}`)
+      return { ok: true, mensaje: "Liquidación estimada calculada." }
     }
 
     case 'crear_actuacion': {
