@@ -307,7 +307,7 @@ export async function responderAgenteLegajo(input: {
                 : salvarRespuesta(raw);
             const acciones = validarAcciones(parsed?.acciones, estadosValores);
             // Si el legajo o la conversación tienen los datos y el modelo NO propuso la liquidación, la agregamos nosotros.
-            const esLegalLaboral = input.industry === 'legal' || input.industry === 'laboral';
+            const esLegalLaboral = input.industry === 'legal';
             const yaPropusoLiquidacion = acciones.some((a) => a.tipo === 'calcular_liquidacion');
             if (esLegalLaboral && !yaPropusoLiquidacion) {
               const textoBusqueda = [input.contextoLegajo || '', ...input.historial.map((m) => m.texto), input.pregunta].join('\n');
