@@ -258,37 +258,38 @@ function detectarFechaHecho(texto: string): string | null {
 		noviembre: '11', diciembre: '12',
 	}
 	const hoy = new Date().toISOString().slice(0, 10)
-	function fechasEn(fragmento: string): string[] {
-		const out: string[] = []
-		let m: RegExpExecArray | null
-		const re1 = /\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/g
-		while ((m = re1.exec(fragmento))) {
-			const mo = m[2].padStart(2, '0')
-			if (Number(mo) >= 1 && Number(mo) <= 12) out.push(`${m[3]}-${mo}-${m[1].padStart(2, '0')}`)
-		}
-		const re2 = /\b(\d{4})-(\d{2})-(\d{2})\b/g
-		while ((m = re2.exec(fragmento))) out.push(`${m[1]}-${m[2]}-${m[3]}`)
-		const re3 = /\b(\d{1,2})\s+de\s+([a-záéíóú]+)\s+de\s+(\d{4})\b/gi
-		while ((m = re3.exec(fragmento))) {
-			const mo = meses[m[2].toLowerCase()]
-			if (mo) out.push(`${m[3]}-${mo}-${m[1].padStart(2, '0')}`)
-		}
-		return out
-	}
-	// Solo tomamos fechas que aparezcan JUSTO DESPUÉS de una palabra disparadora
-	// (evita agarrar fechas de nacimiento u otras fechas viejas del expediente).
-	const disparadores = /(hecho|siniestro|accidente|ocurri[oó]|acaecid|mora)/gi
 	const candidatos: string[] = []
-	let d: RegExpExecArray | null
-	while ((d = disparadores.exec(texto))) {
-		const ventana = texto.slice(d.index, d.index + 70)
-		for (const iso of fechasEn(ventana)) {
+	// La fecha del hecho es la que viene JUSTO DESPUÉS de una expresión de ocurrencia.
+	// Así no la confundimos con la fecha de la demanda, de nacimiento, de notificación, etc.
+	const gatillo =
+		'(?:ocurri[óo]|ocurrid[oa]|acaeci[óo]|acaecid[oa]|sucedi[óo]|acontecid[oa]|se\\s+produjo|tuvo\\s+lugar|hecho|siniestro|accidente|mora)\\s+(?:el\\s+|del\\s+|d[ií]a\\s+)?'
+	// Formato DD/MM/AAAA o AAAA-MM-DD
+	const reNum = new RegExp(gatillo + '(\\d{1,2}\\/\\d{1,2}\\/\\d{4}|\\d{4}-\\d{2}-\\d{2})', 'gi')
+	let m: RegExpExecArray | null
+	while ((m = reNum.exec(texto))) {
+		const f = m[1]
+		let iso = ''
+		if (f.includes('/')) {
+			const [d, mo, y] = f.split('/')
+			iso = `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}`
+		} else {
+			iso = f
+		}
+		if (iso <= hoy) candidatos.push(iso)
+	}
+	// Formato "DD de mes de AAAA"
+	const reTxt = new RegExp(gatillo + '(\\d{1,2})\\s+de\\s+([a-záéíóú]+)\\s+de\\s+(\\d{4})', 'gi')
+	while ((m = reTxt.exec(texto))) {
+		const mo = meses[m[2].toLowerCase()]
+		if (mo) {
+			const iso = `${m[3]}-${mo}-${m[1].padStart(2, '0')}`
 			if (iso <= hoy) candidatos.push(iso)
 		}
 	}
 	if (candidatos.length === 0) return null
+	// El hecho generador suele ser anterior a las demás fechas del expediente.
 	candidatos.sort()
-	return candidatos[candidatos.length - 1] // la más reciente plausible = el hecho generador
+	return candidatos[0]
 }
 
 // Red de seguridad: extrae fecha de notificación y días hábiles de un texto libre.
@@ -455,7 +456,7 @@ export async function responderAgenteLegajo(input: {
           // Redes de seguridad: se ejecutan SIEMPRE, aunque el JSON haya venido mal.
           const esLegalLaboral = input.industry === 'legal';
           const textoBusqueda = [input.contextoLegajo || '', ...input.historial.map((m) => m.texto), input.pregunta].join('\n');
-          const fechaHechoDetectada = detectarFechaHecho(textoBusqueda);
+          const fechaHechoDetectada = detectarFechaHecho(input.pregunta) ?? detectarFechaHecho(textoBusqueda);
         
           const yaPropusoLiquidacion = acciones.some((a) => a.tipo === 'calcular_liquidacion');
           if (esLegalLaboral && !yaPropusoLiquidacion) {
