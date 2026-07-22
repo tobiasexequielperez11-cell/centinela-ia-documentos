@@ -69,17 +69,24 @@ export function CotejoExpediente({
 }) {
   const cotejar = cotejarExpediente.bind(null, caseId);
   const esLegal = industry === 'legal';
+  const esInmo = industry === 'inmobiliaria';
 
-  const titulo = esLegal ? 'Cotejo del expediente con IA' : 'Cotejo notarial con IA';
+  const titulo = esLegal
+    ? 'Cotejo del expediente con IA'
+    : esInmo
+    ? 'Cotejo inmobiliario con IA'
+    : 'Cotejo notarial con IA';
   const descripcion = esLegal
     ? 'Cruza los escritos del expediente (demanda, contestación y demás presentaciones) y marca hechos reconocidos, puntos controvertidos, prueba pendiente y alertas procesales.'
+    : esInmo
+    ? 'Cruza los documentos de la operación (reserva, boleto, informe de dominio) y marca coincidencias, discrepancias, faltantes y vigencias.'
     : 'Cruza los documentos del legajo (boleto, título, certificados) y marca coincidencias, discrepancias, faltantes y vigencias.';
   
   const rotuloCoincidencias = esLegal ? '✅ Hechos reconocidos' : '✅ Coincidencias';
   const rotuloDiscrepancias = esLegal ? '⚠️ Puntos controvertidos' : '⚠️ Discrepancias';
   const rotuloFaltantes = esLegal ? '📋 Prueba pendiente' : '📋 Faltantes';
   const rotuloVigencias = esLegal ? '⏳ Alertas procesales' : '⏳ Vigencias';
-  const pieAccion = esLegal ? 'revisá antes de presentar' : 'revisá antes de otorgar';
+  const pieAccion = esLegal ? 'revisá antes de presentar' : esInmo ? 'revisá antes de firmar' : 'revisá antes de otorgar';
 
   return (
     <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">

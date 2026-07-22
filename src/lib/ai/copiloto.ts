@@ -50,7 +50,7 @@ export async function generarResumenConIA(input: {
     '  "partes": ["cada parte y su rol"],',
     '  "puntos_clave": ["hechos, montos, fechas y datos determinantes"],',
     '  "riesgos_alertas": ["riesgos, plazos críticos o inconsistencias a vigilar"],',
-    '  "proximas_acciones": ["acciones concretas sugeridas para el abogado"]',
+    '  "proximas_acciones": ["acciones concretas sugeridas para el profesional a cargo"]',
     '}',
     'Reglas: NO inventes datos, montos, fechas ni artículos. Si algo no surge de la información, devolvé un array vacío. Basate SOLO en lo aportado.',
     '',
