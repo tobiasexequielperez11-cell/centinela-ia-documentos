@@ -352,8 +352,8 @@ export async function responderAgenteLegajo(input: {
 > {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return { ok: false, motivo: 'sin_api_key' };
-  // En plan gratuito, flash-lite tiene MUCHO más cupo (más pedidos por minuto y por día).
-  const modelo = 'gemini-2.5-flash-lite';
+  // gemini-2.5-flash es el modelo confirmado disponible con esta API key.
+  const modelo = 'gemini-2.5-flash';
   let modeloActual = modelo;
   const hoy = new Date().toISOString().slice(0, 10);
   const estados = getCaseStatuses(input.industry);
@@ -514,11 +514,11 @@ export async function responderAgenteLegajo(input: {
         
           return { ok: true, respuesta, acciones, model: `agente-${modeloActual}` };
         }
-      } else if (resp.status === 429 || resp.status >= 500) {
+      } else if (resp.status === 429 || resp.status === 404 || resp.status >= 500) {
         console.error('Agente Gemini transitorio:', modeloActual, resp.status);
-        // Si el modelo principal se queda sin cupo, probamos el otro modelo gratuito.
-        if (intento >= 1 && modeloActual !== 'gemini-2.5-flash') {
-          modeloActual = 'gemini-2.5-flash';
+        // Si el modelo principal falla (404) o se queda sin cupo (429), probamos otro modelo.
+        if (intento >= 1 && modeloActual !== 'gemini-2.0-flash') {
+          modeloActual = 'gemini-2.0-flash';
         }
         // Respetamos el tiempo de espera que sugiere Gemini, si lo manda.
         const ra = Number(resp.headers.get('retry-after'));
