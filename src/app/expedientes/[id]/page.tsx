@@ -332,6 +332,28 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
     .limit(1)
     .maybeSingle();
 
+  const { data: liquidacionData } = await supabase
+    .from('ai_outputs')
+    .select('result_json, created_at')
+    .eq('case_id', caseRecord.id)
+    .eq('organization_id', profile.organization_id)
+    .eq('output_type', 'case_liquidacion')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const liquidacion = (liquidacionData?.result_json ?? null) as {
+    metodo: string;
+    ingreso_mensual: number;
+    edad: number;
+    incapacidad: number;
+    capital: number;
+    ingreso_anual_ajustado: number;
+    anios_computables: number;
+    tasa_descuento: number;
+    tope_honorarios_730: number;
+  } | null;
+
 
 
   const { data: escrituraData } = await supabase
@@ -498,6 +520,44 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
                     puedeUsarIA={puedeUsarIA}
                     terms={terms}
                   />
+                )}
+                {industry === 'legal' && liquidacion && (
+                  <section className="mt-6 rounded-2xl border border-cyan-500/20 bg-slate-900/40 p-6">
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-xl">💰</span>
+                      <h2 className="text-lg font-semibold text-cyan-300">Liquidación estimada</h2>
+                    </div>
+                    <p className="mb-4 text-sm text-slate-400">
+                      Estimación orientativa calculada por el Agente IA a partir de los datos del expediente. No constituye una certeza legal definitiva.
+                    </p>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div className="rounded-xl bg-slate-800/60 p-4">
+                        <p className="text-xs uppercase tracking-wide text-slate-400">Capital estimado</p>
+                        <p className="text-2xl font-bold text-cyan-300">
+                          {new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(liquidacion.capital)}
+                        </p>
+                      </div>
+                      <div className="rounded-xl bg-slate-800/60 p-4">
+                        <p className="text-xs uppercase tracking-wide text-slate-400">Método</p>
+                        <p className="text-lg font-semibold text-violet-300">
+                          {liquidacion.metodo === 'vuoto' ? 'Vuoto' : 'Méndez'}
+                        </p>
+                      </div>
+                      <div className="rounded-xl bg-slate-800/60 p-4">
+                        <p className="text-xs uppercase tracking-wide text-slate-400">Años computables</p>
+                        <p className="text-lg font-semibold text-slate-100">{liquidacion.anios_computables}</p>
+                      </div>
+                      <div className="rounded-xl bg-slate-800/60 p-4">
+                        <p className="text-xs uppercase tracking-wide text-slate-400">Tope honorarios (art. 730)</p>
+                        <p className="text-lg font-semibold text-slate-100">
+                          {new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(liquidacion.tope_honorarios_730)}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="mt-4 text-xs text-slate-500">
+                      Base de cálculo: ingreso mensual {new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(liquidacion.ingreso_mensual)} · edad {liquidacion.edad} · incapacidad {liquidacion.incapacidad}% · tasa de descuento {(liquidacion.tasa_descuento * 100).toFixed(0)}%
+                    </p>
+                  </section>
                 )}
                 {(industry === 'escribania' || industry === 'legal') && (
                   <CotejoExpediente
