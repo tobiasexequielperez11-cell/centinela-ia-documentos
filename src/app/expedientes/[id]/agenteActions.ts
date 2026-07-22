@@ -12,6 +12,7 @@ import { responderAgenteLegajo, type MensajeChat, type AccionPropuesta } from '@
 import { generarEmbedding } from '@/lib/ai/embeddings';
 import { calcularIncapacidad } from "@/lib/legal/liquidacion";
 import { calcularVencimientoProcesal } from '@/lib/legal/plazos';
+import { calcularTasaJusticia } from '@/lib/legal/tasaJusticia';
 
 export async function preguntarAgente(input: {
   caseId: string;
@@ -574,6 +575,27 @@ export async function ejecutarAccionAgente(input: {
 
       revalidatePath(`/expedientes/${caseId}`);
       return { ok: true, mensaje: `Vencimiento calculado y agendado: ${r.vencimiento}.` };
+    }
+
+    case 'calcular_tasa_justicia': {
+      if (!canUpdateCase(profile.role)) return { ok: false, mensaje: 'Sin permiso.' };
+      const r = calcularTasaJusticia({ monto: accion.monto as number });
+      if (!r.ok) return { ok: false, mensaje: r.motivo ?? 'No se pudo calcular la tasa de justicia.' };
+      const { error } = await supabase.from('ai_outputs').insert({
+        output_type: 'case_tasa_justicia',
+        content: `${accion.titulo} — tasa $${r.tasa}`,
+        result_json: { titulo: accion.titulo, base: r.base, porcentaje: r.porcentaje, tasa: r.tasa },
+        model_name: 'calculadora-tasa-justicia',
+        case_id: caseId,
+        organization_id: profile.organization_id,
+        created_by: user.id,
+      });
+      if (error) {
+        console.error('Tasa de justicia insert error:', error);
+        return { ok: false, mensaje: 'No se pudo guardar la tasa de justicia.' };
+      }
+      revalidatePath(`/expedientes/${caseId}`);
+      return { ok: true, mensaje: `Tasa de justicia calculada: $${r.tasa}.` };
     }
 
     case 'crear_actuacion': {

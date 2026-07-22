@@ -26,6 +26,7 @@ const ACCION_META: Record<
   redactar_ros: { icono: '🚨', verbo: 'Aprobar y preparar ROS', verboLoading: 'Preparando…', hecho: 'ROS preparado' },
   calcular_liquidacion: { icono: "🧮", verbo: "Aprobar y calcular", verboLoading: "Calculando…", hecho: "Liquidación estimada" },
   calcular_plazo_procesal: { icono: '📅', verbo: 'Aprobar y calcular', verboLoading: 'Calculando…', hecho: 'Vencimiento calculado' },
+  calcular_tasa_justicia: { icono: '🏛️', verbo: 'Aprobar y calcular', verboLoading: 'Calculando…', hecho: 'Tasa calculada' },
 };
 
 const SUGERENCIAS: Record<string, string[]> = {

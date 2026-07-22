@@ -21,7 +21,8 @@ export type AccionPropuesta = {
     | 'sugerir_modelo'
     | 'redactar_ros'
     | 'calcular_liquidacion'
-    | 'calcular_plazo_procesal';
+    | 'calcular_plazo_procesal'
+    | 'calcular_tasa_justicia';
   titulo: string;
   fecha?: string; // YYYY-MM-DD (agendar_plazo, crear_actuacion, agendar_turno, agendar_firma)
   hora?: string; // HH:MM (opcional, solo agendar_turno y agendar_firma)
@@ -35,6 +36,7 @@ export type AccionPropuesta = {
   diasHabiles?: number;        // solo calcular_plazo_procesal
   fechaNotificacion?: string;  // solo calcular_plazo_procesal (YYYY-MM-DD)
   kmDistancia?: number;        // solo calcular_plazo_procesal (opcional, art. 158)
+  monto?: number; // solo calcular_tasa_justicia
   motivo: string;
 };
 
@@ -85,6 +87,9 @@ function reglasAcciones(hoy: string, estadosValidos: string): string {
  15) "calcular_plazo_procesal": calcular la FECHA DE VENCIMIENTO de un plazo procesal en días hábiles judiciales (traslado de demanda, contestación, apelación, recurso, etc.). SIN "fecha". SOLO en rubro legal. Se calcula con DOS datos obligatorios: la fecha de notificación / inicio del cómputo y la cantidad de días hábiles del plazo; y UN dato OPCIONAL: los kilómetros de distancia al juzgado (ampliación del art. 158 CPCCN). Tomalos del CONTEXTO, de los FRAGMENTOS o de la conversación. Cuando tengas la fecha de notificación y la cantidad de días hábiles, agregá en "acciones" un objeto EXACTAMENTE con esta forma, con la fecha en AAAA-MM-DD y los días como NÚMERO (sin texto):
 {"tipo":"calcular_plazo_procesal","titulo":"Calcular vencimiento del traslado de demanda","fechaNotificacion":"2026-08-03","diasHabiles":15,"kmDistancia":0,"motivo":"El traslado de la demanda es de 15 días hábiles (art. 338 CPCCN)"}
 Si no hay distancia relevante, poné "kmDistancia":0. NUNCA inventes la fecha ni los días: si falta alguno de los dos obligatorios, no agregues la acción y pedíselo al usuario en "respuesta". ATENCIÓN: escribir "voy a calcular el plazo" en "respuesta" NO calcula NADA; el cálculo ocurre ÚNICAMENTE si agregás el objeto en "acciones".
+ 16) "calcular_tasa_justicia": calcular la tasa de justicia del proceso. SIN "fecha". SOLO en rubro legal. Se calcula con UN dato obligatorio: monto (el monto del proceso o reclamo, número plano SIN $ ni puntos). Tomalo del CONTEXTO, de los FRAGMENTOS o de la conversación. REGLA CRÍTICA: agregá SIEMPRE la acción en "acciones". Ejemplo EXACTO de JSON que debe devolver:
+{"tipo":"calcular_tasa_justicia","titulo":"Tasa de justicia del proceso","monto":28000000,"motivo":"Detecté el monto del proceso"}
+El monto va como número entero plano, sin símbolo de peso ni separadores de miles. NUNCA inventes el monto.
 - OBLIGATORIO: si en tu "respuesta" decís o das a entender que un documento del legajo cumple, corresponde o sirve para un ítem del checklist, TENÉS que incluir además la acción "vincular_documento" en el campo "acciones" (con "itemChecklist" y "documento" exactos, copiados del contexto). Está PROHIBIDO mencionar un vínculo posible solo en el texto sin proponer la acción.
 - NO inventes fechas, nombres, estados ni datos. La ejecución real la confirma el usuario con un botón.`;
 }
@@ -99,7 +104,7 @@ function limpiarJson(raw: string): string {
 
 function validarAcciones(input: unknown, estadosValidos: string[] = []): AccionPropuesta[] {
   if (!Array.isArray(input)) return [];
-  const TIPOS = ['agendar_plazo', 'crear_actuacion', 'agregar_checklist', 'generar_resumen', 'generar_cotejo', 'redactar_borrador', 'analizar_uif', 'cambiar_estado', 'vincular_documento', 'agendar_turno', 'agendar_firma', 'sugerir_modelo', 'redactar_ros', 'calcular_liquidacion', 'calcular_plazo_procesal'];
+  const TIPOS = ['agendar_plazo', 'crear_actuacion', 'agregar_checklist', 'generar_resumen', 'generar_cotejo', 'redactar_borrador', 'analizar_uif', 'cambiar_estado', 'vincular_documento', 'agendar_turno', 'agendar_firma', 'sugerir_modelo', 'redactar_ros', 'calcular_liquidacion', 'calcular_plazo_procesal', 'calcular_tasa_justicia'];
   const CON_FECHA = ['agendar_plazo', 'crear_actuacion'];
   const CON_FECHA_HORA = ['agendar_turno', 'agendar_firma'];
   const out: AccionPropuesta[] = [];
@@ -157,6 +162,15 @@ function validarAcciones(input: unknown, estadosValidos: string[] = []): AccionP
         fechaNotificacion,
         diasHabiles,
         kmDistancia: Number.isFinite(kmDistancia) && kmDistancia > 0 ? kmDistancia : 0,
+        motivo,
+      });
+    } else if (tipo === 'calcular_tasa_justicia') {
+      const monto = Number(o.monto);
+      if (!Number.isFinite(monto) || monto <= 0) continue;
+      out.push({
+        tipo: 'calcular_tasa_justicia',
+        titulo,
+        monto,
         motivo,
       });
     } else {
@@ -271,6 +285,16 @@ function detectarDatosPlazo(
   return { fechaNotificacion: fecha, diasHabiles: dias, kmDistancia: km, titulo: 'Calcular vencimiento del plazo procesal' };
 }
 
+function detectarMontoJuicio(texto: string): number | null {
+  if (!/(monto|reclam|indemniza|capital|demanda por|suma de|pesos|\$)/i.test(texto)) return null;
+  const matches = texto.match(/\$?\s*\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?/g) || [];
+  const candidatos = matches
+    .map((m) => Number(m.replace(/\$/g, '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.')))
+    .filter((n) => Number.isFinite(n) && n >= 10000);
+  if (candidatos.length === 0) return null;
+  return Math.max(...candidatos);
+}
+
 export async function responderAgenteLegajo(input: {
   industry: IndustryType;
   contextoLegajo: string;
@@ -335,6 +359,7 @@ export async function responderAgenteLegajo(input: {
                 fechaNotificacion: { type: 'STRING' },
                 diasHabiles: { type: 'NUMBER' },
                 kmDistancia: { type: 'NUMBER' },
+                monto: { type: 'NUMBER' },
                 motivo: { type: 'STRING' },
               },
               required: ['tipo', 'titulo', 'motivo'],
@@ -400,6 +425,20 @@ export async function responderAgenteLegajo(input: {
                       diasHabiles: datosPlazo.diasHabiles,
                       kmDistancia: datosPlazo.kmDistancia,
                       motivo: 'Detecté una fecha de notificación y un plazo en días hábiles en el legajo o la conversación.',
+                    });
+                  }
+                }
+
+                const yaPropusoTasa = acciones.some((a) => a.tipo === 'calcular_tasa_justicia');
+                if (esLegalLaboral && !yaPropusoTasa) {
+                  const textoBusquedaTasa = [input.pregunta, ...input.historial.map((m) => m.texto), input.contextoLegajo || ''].join(' ');
+                  const monto = detectarMontoJuicio(textoBusquedaTasa);
+                  if (monto && monto > 0) {
+                    acciones.push({
+                      tipo: 'calcular_tasa_justicia',
+                      titulo: 'Tasa de justicia del proceso',
+                      monto,
+                      motivo: 'Detecté el monto del proceso en el expediente o la conversación.',
                     });
                   }
                 }
