@@ -33,6 +33,7 @@ export type AccionPropuesta = {
   ingresoMensual?: number; // solo calcular_liquidacion (pesos)
   edad?: number; // solo calcular_liquidacion (años al hecho)
   incapacidad?: number; // solo calcular_liquidacion (porcentaje 0-100)
+  fechaHecho?: string; // AAAA-MM-DD, fecha del hecho/mora para intereses
   diasHabiles?: number;        // solo calcular_plazo_procesal
   fechaNotificacion?: string;  // solo calcular_plazo_procesal (YYYY-MM-DD)
   kmDistancia?: number;        // solo calcular_plazo_procesal (opcional, art. 158)
@@ -82,8 +83,8 @@ function reglasAcciones(hoy: string, estadosValidos: string): string {
   12) "sugerir_modelo": sugerir abrir el MODELO/instrumento correcto de la biblioteca para redactar el documento del legajo. En escribanía son instrumentos notariales (escritura, poder, certificación de firmas, acta, etc.); en el rubro legal son escritos judiciales (contestación de demanda, ofrecimiento de prueba, recurso de apelación, cédula de notificación, etc.). SIN "fecha". Proponéla cuando el legajo corresponda claramente a un documento para el que conviene usar un modelo y ya tenga datos suficientes. Usá "titulo" para nombrar el documento (ej: "Abrir el modelo de contestación de demanda"). El sistema ya sabe qué modelo corresponde según el legajo; NO inventes nombres de archivos ni enlaces.
   13) "redactar_ros": preparar el borrador de ROS (Reporte de Operación Sospechosa ante la UIF) del legajo. SIN "fecha". Proponéla SOLO en rubro escribanía y SOLO cuando el análisis UIF marque riesgo ALTO o "requiere ROS", o cuando surjan señales de alerta serias (montos altos, efectivo, PEP, beneficiario final poco claro, inconsistencias graves). Usá "titulo" como "Preparar borrador de ROS (UIF)". No la propongas si no hay señales serias.
   14) "calcular_liquidacion": estimar el monto del reclamo por INCAPACIDAD (fórmulas Méndez o Vuoto). SIN "fecha". SOLO en rubro legal/laboral. Se calcula con TRES datos: ingreso mensual de la víctima, su edad al momento del hecho y el porcentaje de incapacidad. Tomalos del CONTEXTO, de los FRAGMENTOS o de lo que el usuario haya dicho en la conversación; si figuran la fecha de nacimiento y la fecha del hecho, calculá vos mismo la edad. REGLA CRÍTICA E INNEGOCIABLE: cuando tengas los tres datos, está PROHIBIDO contestar solo con texto tipo "se puede calcular" o "podemos calcular". SIEMPRE, además de tu respuesta, tenés que agregar en el array "acciones" un objeto EXACTAMENTE con esta forma, con los números como NÚMEROS (sin puntos de miles ni signo $):
-{"tipo":"calcular_liquidacion","titulo":"Calcular liquidación estimada por incapacidad","metodo":"mendez","ingresoMensual":600000,"edad":45,"incapacidad":20,"motivo":"El actor reclama una incapacidad permanente"}
-(Ese ejemplo usa números de muestra: vos poné los reales del legajo.) Por defecto "metodo":"mendez"; usá "vuoto" solo si el usuario lo pide. NUNCA inventes los números: solo si de verdad falta alguno y no lo podés deducir, ahí no agregás la acción y se lo pedís al usuario en "respuesta". ATENCIÓN CRÍTICA: escribir en tu "respuesta" frases como "procedo a calcular" o "voy a calcular" NO calcula NADA y NO le muestra NADA al usuario. El cálculo OCURRE ÚNICAMENTE si agregás el objeto en el array "acciones". Si no agregás la acción, para el usuario no pasó nada. Entonces, cuando tengas los tres datos: agregá SIEMPRE la acción en "acciones", y en "respuesta" poné apenas una frase corta presentando la estimación.
+{"tipo":"calcular_liquidacion","titulo":"Calcular liquidación estimada por incapacidad","metodo":"mendez","ingresoMensual":600000,"edad":45,"incapacidad":20,"fechaHecho":"2023-07-15","motivo":"El actor reclama una incapacidad permanente"}
+(Ese ejemplo usa números de muestra: vos poné los reales del legajo.) Por defecto "metodo":"mendez"; usá "vuoto" solo si el usuario lo pide. NUNCA inventes los números: solo si de verdad falta alguno y no lo podés deducir, ahí no agregás la acción y se lo pedís al usuario en "respuesta". ATENCIÓN CRÍTICA: escribir en tu "respuesta" frases como "procedo a calcular" o "voy a calcular" NO calcula NADA y NO le muestra NADA al usuario. El cálculo OCURRE ÚNICAMENTE si agregás el objeto en el array "acciones". Si no agregás la acción, para el usuario no pasó nada. Entonces, cuando tengas los tres datos: agregá SIEMPRE la acción en "acciones", y en "respuesta" poné apenas una frase corta presentando la estimación. Si además detectás la fecha del hecho, siniestro, accidente o mora, incluí el campo opcional "fechaHecho" en formato AAAA-MM-DD para calcular los intereses. Si no la tenés, no la inventes ni incluyas el campo.
  15) "calcular_plazo_procesal": calcular la FECHA DE VENCIMIENTO de un plazo procesal en días hábiles judiciales (traslado de demanda, contestación, apelación, recurso, etc.). SIN "fecha". SOLO en rubro legal. Se calcula con DOS datos obligatorios: la fecha de notificación / inicio del cómputo y la cantidad de días hábiles del plazo; y UN dato OPCIONAL: los kilómetros de distancia al juzgado (ampliación del art. 158 CPCCN). Tomalos del CONTEXTO, de los FRAGMENTOS o de la conversación. Cuando tengas la fecha de notificación y la cantidad de días hábiles, agregá en "acciones" un objeto EXACTAMENTE con esta forma, con la fecha en AAAA-MM-DD y los días como NÚMERO (sin texto):
 {"tipo":"calcular_plazo_procesal","titulo":"Calcular vencimiento del traslado de demanda","fechaNotificacion":"2026-08-03","diasHabiles":15,"kmDistancia":0,"motivo":"El traslado de la demanda es de 15 días hábiles (art. 338 CPCCN)"}
 Si no hay distancia relevante, poné "kmDistancia":0. NUNCA inventes la fecha ni los días: si falta alguno de los dos obligatorios, no agregues la acción y pedíselo al usuario en "respuesta". ATENCIÓN: escribir "voy a calcular el plazo" en "respuesta" NO calcula NADA; el cálculo ocurre ÚNICAMENTE si agregás el objeto en "acciones".
@@ -138,6 +139,10 @@ function validarAcciones(input: unknown, estadosValidos: string[] = []): AccionP
       const ingresoMensual = Number(o.ingresoMensual)
       const edad = Number(o.edad)
       const incapacidad = Number(o.incapacidad)
+      let fechaHecho: string | undefined;
+      if (typeof o.fechaHecho === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(o.fechaHecho.trim())) {
+        fechaHecho = o.fechaHecho.trim();
+      }
       if (!Number.isFinite(ingresoMensual) || ingresoMensual <= 0) continue
       if (!Number.isFinite(edad) || edad <= 0) continue
       if (!Number.isFinite(incapacidad) || incapacidad <= 0) continue
@@ -148,6 +153,7 @@ function validarAcciones(input: unknown, estadosValidos: string[] = []): AccionP
         ingresoMensual,
         edad,
         incapacidad,
+        fechaHecho,
         motivo,
       })
     } else if (tipo === 'calcular_plazo_procesal') {
@@ -243,6 +249,32 @@ function detectarDatosLiquidacion(
 	if (!ingresoMensual || !incapacidad || !edad) return null
 	const metodo: 'mendez' | 'vuoto' = /vuoto/.test(t) ? 'vuoto' : 'mendez'
 	return { ingresoMensual, edad, incapacidad, metodo }
+}
+
+function detectarFechaHecho(texto: string): string | null {
+	if (!/(hecho|siniestro|accidente|mora|ocurrid|acaecid)/i.test(texto)) return null
+	const meses: Record<string, string> = {
+		enero: '01', febrero: '02', marzo: '03', abril: '04', mayo: '05', junio: '06',
+		julio: '07', agosto: '08', septiembre: '09', setiembre: '09', octubre: '10',
+		noviembre: '11', diciembre: '12',
+	}
+	const candidatos: string[] = []
+	let m: RegExpExecArray | null
+	const re1 = /\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/g
+	while ((m = re1.exec(texto))) {
+		const d = m[1].padStart(2, '0'), mo = m[2].padStart(2, '0'), y = m[3]
+		if (Number(mo) >= 1 && Number(mo) <= 12) candidatos.push(`${y}-${mo}-${d}`)
+	}
+	const re2 = /\b(\d{4})-(\d{2})-(\d{2})\b/g
+	while ((m = re2.exec(texto))) candidatos.push(`${m[1]}-${m[2]}-${m[3]}`)
+	const re3 = /\b(\d{1,2})\s+de\s+([a-záéíóú]+)\s+de\s+(\d{4})\b/gi
+	while ((m = re3.exec(texto))) {
+		const mo = meses[m[2].toLowerCase()]
+		if (mo) candidatos.push(`${m[3]}-${mo}-${m[1].padStart(2, '0')}`)
+	}
+	if (candidatos.length === 0) return null
+	candidatos.sort()
+	return candidatos[0] // la más antigua = fecha del hecho
 }
 
 // Red de seguridad: extrae fecha de notificación y días hábiles de un texto libre.
@@ -356,6 +388,7 @@ export async function responderAgenteLegajo(input: {
                 ingresoMensual: { type: "NUMBER" },
                 edad: { type: "NUMBER" },
                 incapacidad: { type: "NUMBER" },
+                fechaHecho: { type: 'STRING' },
                 fechaNotificacion: { type: 'STRING' },
                 diasHabiles: { type: 'NUMBER' },
                 kmDistancia: { type: 'NUMBER' },
@@ -397,9 +430,11 @@ export async function responderAgenteLegajo(input: {
             const acciones = validarAcciones(parsed?.acciones, estadosValores);
             // Si el legajo o la conversación tienen los datos y el modelo NO propuso la liquidación, la agregamos nosotros.
             const esLegalLaboral = input.industry === 'legal';
+            const textoBusqueda = [input.contextoLegajo || '', ...input.historial.map((m) => m.texto), input.pregunta].join('\n');
+            const fechaHechoDetectada = detectarFechaHecho(textoBusqueda);
+            
             const yaPropusoLiquidacion = acciones.some((a) => a.tipo === 'calcular_liquidacion');
             if (esLegalLaboral && !yaPropusoLiquidacion) {
-              const textoBusqueda = [input.contextoLegajo || '', ...input.historial.map((m) => m.texto), input.pregunta].join('\n');
               const datosLiq = detectarDatosLiquidacion(textoBusqueda);
               if (datosLiq) {
                 acciones.push({
@@ -409,8 +444,17 @@ export async function responderAgenteLegajo(input: {
                   ingresoMensual: datosLiq.ingresoMensual,
                   edad: datosLiq.edad,
                   incapacidad: datosLiq.incapacidad,
+                  fechaHecho: fechaHechoDetectada ?? undefined,
                   motivo: 'Detecté los datos necesarios (ingreso, edad e incapacidad) en el legajo o la conversación.',
                 });
+              }
+            }
+
+            if (fechaHechoDetectada) {
+              for (const a of acciones) {
+                if (a.tipo === 'calcular_liquidacion' && !a.fechaHecho) {
+                  a.fechaHecho = fechaHechoDetectada;
+                }
               }
             }
                 const yaPropusoPlazo = acciones.some((a) => a.tipo === 'calcular_plazo_procesal');

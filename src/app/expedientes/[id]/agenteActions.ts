@@ -10,7 +10,7 @@ import { generarResumenExpediente, cotejarExpediente, redactarEscrituraExpedient
 import { getAllowedCaseStatuses, getCaseStatusLabel, getCaseFields } from '@/lib/industries/caseConfig';
 import { responderAgenteLegajo, type MensajeChat, type AccionPropuesta } from '@/lib/ai/agente';
 import { generarEmbedding } from '@/lib/ai/embeddings';
-import { calcularIncapacidad } from "@/lib/legal/liquidacion";
+import { calcularIncapacidad, calcularInteresesMoratorios } from "@/lib/legal/liquidacion";
 import { calcularVencimientoProcesal } from '@/lib/legal/plazos';
 import { calcularTasaJusticia } from '@/lib/legal/tasaJusticia';
 
@@ -505,10 +505,13 @@ export async function ejecutarAccionAgente(input: {
             "No pude calcular la liquidación: faltan o son inválidos el ingreso, la edad o el % de incapacidad.",
         }
       const tope730 = calc.capital * 0.25
-      const { error } = await supabase.from("ai_outputs").insert({
-        output_type: "case_liquidacion",
-        content: `Liquidación estimada (${metodo}) por incapacidad del ${accion.incapacidad}%`,
-        result_json: {
+      let intereses: ReturnType<typeof calcularInteresesMoratorios> | null = null
+      if (accion.fechaHecho) {
+        const ri = calcularInteresesMoratorios({ capital: calc.capital, fechaDesde: accion.fechaHecho })
+        if (ri.ok) intereses = ri
+      }
+
+      const resultJson: any = {
           metodo,
           ingreso_mensual: Number(accion.ingresoMensual),
           edad: Number(accion.edad),
@@ -518,7 +521,20 @@ export async function ejecutarAccionAgente(input: {
           anios_computables: calc.aniosComputables,
           tasa_descuento: calc.tasaDescuento,
           tope_honorarios_730: tope730,
-        },
+      }
+      
+      if (intereses) {
+          resultJson.intereses = intereses.interes
+          resultJson.intereses_dias = intereses.dias
+          resultJson.intereses_tasa_anual = intereses.tasaAnual
+          resultJson.intereses_desde = intereses.fechaDesde
+          resultJson.total_con_intereses = intereses.total
+      }
+
+      const { error } = await supabase.from("ai_outputs").insert({
+        output_type: "case_liquidacion",
+        content: `Liquidación estimada (${metodo}) por incapacidad del ${accion.incapacidad}%`,
+        result_json: resultJson,
         model_name: "calculadora-liquidacion",
         case_id: caseId,
         organization_id: profile.organization_id,
@@ -529,6 +545,9 @@ export async function ejecutarAccionAgente(input: {
         return { ok: false, mensaje: "No se pudo guardar la liquidación." }
       }
       revalidatePath(`/expedientes/${caseId}`)
+      if (intereses) {
+        return { ok: true, mensaje: `Liquidación calculada: capital $${calc.capital} + intereses $${intereses.interes} = total $${intereses.total}.` }
+      }
       return { ok: true, mensaje: "Liquidación estimada calculada." }
     }
 

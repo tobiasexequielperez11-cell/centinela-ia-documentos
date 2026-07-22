@@ -352,6 +352,11 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
     anios_computables: number;
     tasa_descuento: number;
     tope_honorarios_730: number;
+    intereses?: number;
+    intereses_dias?: number;
+    intereses_tasa_anual?: number;
+    intereses_desde?: string;
+    total_con_intereses?: number;
   } | null;
 
   const { data: plazoData } = await supabase
@@ -592,6 +597,28 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
                           {new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(liquidacion.tope_honorarios_730)}
                         </p>
                       </div>
+                      {liquidacion.total_con_intereses && liquidacion.intereses !== undefined && liquidacion.intereses_dias !== undefined && liquidacion.intereses_tasa_anual !== undefined && liquidacion.intereses_desde && (
+                        <>
+                          <div className="rounded-xl bg-slate-800/60 p-4">
+                            <p className="text-xs uppercase tracking-wide text-slate-400">Intereses (tasa activa BNA)</p>
+                            <p className="text-lg font-semibold text-amber-300">
+                              +{new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(liquidacion.intereses)}
+                            </p>
+                            <p className="mt-1 text-xs text-slate-500">
+                              desde {liquidacion.intereses_desde.split('-').reverse().join('/')} · {liquidacion.intereses_dias} días · {liquidacion.intereses_tasa_anual}% TNA
+                            </p>
+                          </div>
+                          <div className="rounded-xl bg-slate-800/60 p-4 sm:col-span-2 ring-1 ring-cyan-500/30">
+                            <p className="text-xs uppercase tracking-wide text-slate-400">Total actualizado (capital + intereses)</p>
+                            <p className="text-3xl font-bold text-cyan-300 mt-1">
+                              {new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(liquidacion.total_con_intereses)}
+                            </p>
+                            <p className="mt-2 text-xs text-slate-500">
+                              Intereses orientativos calculados con la tasa activa del Banco Nación vigente, criterio interés simple. El cálculo definitivo requiere la serie de tasas del período.
+                            </p>
+                          </div>
+                        </>
+                      )}
                     </div>
                     <p className="mt-4 text-xs text-slate-500">
                       Base de cálculo: ingreso mensual {new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(liquidacion.ingreso_mensual)} · edad {liquidacion.edad} · incapacidad {liquidacion.incapacidad}% · tasa de descuento {(liquidacion.tasa_descuento * 100).toFixed(0)}%
