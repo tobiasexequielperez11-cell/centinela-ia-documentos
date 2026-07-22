@@ -352,7 +352,8 @@ export async function responderAgenteLegajo(input: {
 > {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return { ok: false, motivo: 'sin_api_key' };
-  const modelo = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  // En plan gratuito, flash-lite tiene MUCHO más cupo (más pedidos por minuto y por día).
+  const modelo = 'gemini-2.5-flash-lite';
   let modeloActual = modelo;
   const hoy = new Date().toISOString().slice(0, 10);
   const estados = getCaseStatuses(input.industry);
@@ -420,7 +421,7 @@ export async function responderAgenteLegajo(input: {
   });
 
   // Reintenta ante errores transitorios de Gemini (sobrecarga 429 / 5xx).
-  for (let intento = 0; intento < 6; intento++) {
+  for (let intento = 0; intento < 3; intento++) {
     try {
       const resp = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${modeloActual}:generateContent?key=${apiKey}`,
@@ -515,10 +516,18 @@ export async function responderAgenteLegajo(input: {
         }
       } else if (resp.status === 429 || resp.status >= 500) {
         console.error('Agente Gemini transitorio:', modeloActual, resp.status);
-        // Si el modelo principal está saturado, pasamos a uno más liviano (más cupo).
-        if (intento >= 1 && modeloActual !== 'gemini-2.5-flash-lite') {
-          modeloActual = 'gemini-2.5-flash-lite';
+        // Si el modelo principal se queda sin cupo, probamos el otro modelo gratuito.
+        if (intento >= 1 && modeloActual !== 'gemini-2.5-flash') {
+          modeloActual = 'gemini-2.5-flash';
         }
+        // Respetamos el tiempo de espera que sugiere Gemini, si lo manda.
+        const ra = Number(resp.headers.get('retry-after'));
+        const espera =
+          Number.isFinite(ra) && ra > 0
+            ? Math.min(ra * 1000, 20000)
+            : Math.min(6000, 1500 * 2 ** intento) + Math.random() * 400;
+        await new Promise((r) => setTimeout(r, espera));
+        continue;
       } else {
         console.error('Agente Gemini error:', resp.status, await resp.text());
         return { ok: false, motivo: 'error' };
