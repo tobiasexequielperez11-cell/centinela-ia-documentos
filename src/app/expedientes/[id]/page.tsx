@@ -354,6 +354,28 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
     tope_honorarios_730: number;
   } | null;
 
+  const { data: plazoData } = await supabase
+    .from('ai_outputs')
+    .select('result_json, created_at')
+    .eq('case_id', caseRecord.id)
+    .eq('organization_id', profile.organization_id)
+    .eq('output_type', 'case_plazo')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const plazo = (plazoData?.result_json ?? null) as {
+    titulo: string;
+    fecha_notificacion: string;
+    dias_habiles: number;
+    dias_ampliacion: number;
+    dias_totales: number;
+    km_distancia: number;
+    cuenta_desde: string;
+    vencimiento: string;
+    pasos: string[];
+  } | null;
+
 
 
   const { data: escrituraData } = await supabase
@@ -557,6 +579,60 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
                     <p className="mt-4 text-xs text-slate-500">
                       Base de cálculo: ingreso mensual {new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(liquidacion.ingreso_mensual)} · edad {liquidacion.edad} · incapacidad {liquidacion.incapacidad}% · tasa de descuento {(liquidacion.tasa_descuento * 100).toFixed(0)}%
                     </p>
+                  </section>
+                )}
+                {industry === 'legal' && plazo && (
+                  <section className="mt-6 rounded-2xl border border-cyan-500/20 bg-slate-900/40 p-6">
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-xl">📅</span>
+                      <h2 className="text-lg font-semibold text-cyan-300">Vencimiento procesal</h2>
+                    </div>
+                    <p className="mb-2 text-sm font-medium text-slate-300">{plazo.titulo}</p>
+                    <p className="mb-4 text-sm text-slate-500">
+                      Cómputo orientativo sobre el calendario de la Justicia Nacional/Federal (fines de semana, feriados y feria judicial). Verificá los feriados provinciales que correspondan.
+                    </p>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div className="rounded-xl bg-slate-800/60 p-4">
+                        <p className="text-xs uppercase tracking-wide text-slate-400">Vence el</p>
+                        <p className="text-2xl font-bold text-cyan-300">
+                          {plazo.vencimiento.split('-').reverse().join('/')}
+                        </p>
+                      </div>
+                      <div className="rounded-xl bg-slate-800/60 p-4">
+                        <p className="text-xs uppercase tracking-wide text-slate-400">Notificación</p>
+                        <p className="text-lg font-semibold text-violet-300">
+                          {plazo.fecha_notificacion.split('-').reverse().join('/')}
+                        </p>
+                      </div>
+                      <div className="rounded-xl bg-slate-800/60 p-4">
+                        <p className="text-xs uppercase tracking-wide text-slate-400">Empieza a correr</p>
+                        <p className="text-lg font-semibold text-slate-100">
+                          {plazo.cuenta_desde.split('-').reverse().join('/')}
+                        </p>
+                      </div>
+                      <div className="rounded-xl bg-slate-800/60 p-4">
+                        <p className="text-xs uppercase tracking-wide text-slate-400">Plazo legal</p>
+                        <p className="text-lg font-semibold text-slate-100">
+                          {plazo.dias_habiles} días hábiles
+                        </p>
+                      </div>
+                      {plazo.dias_ampliacion > 0 && (
+                        <div className="rounded-xl bg-slate-800/60 p-4">
+                          <p className="text-xs uppercase tracking-wide text-slate-400">Ampliación (art. 158)</p>
+                          <p className="text-lg font-semibold text-amber-300">
+                            +{plazo.dias_ampliacion} día(s) por {plazo.km_distancia} km
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="mt-4">
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Cómo se calculó</p>
+                      <ul className="list-disc pl-5 text-xs text-slate-500 space-y-1">
+                        {plazo.pasos.map((paso, i) => (
+                          <li key={i}>{paso}</li>
+                        ))}
+                      </ul>
+                    </div>
                   </section>
                 )}
                 {(industry === 'escribania' || industry === 'legal') && (
