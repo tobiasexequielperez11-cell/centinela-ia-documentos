@@ -1,4 +1,5 @@
 // src/lib/legal/liquidacion.ts
+import { TASA_ACTIVA_BNA_TNA } from './config'
 // Motor de liquidación para el fuero civil/laboral.
 // Espeja EXACTAMENTE la matemática de las calculadoras (CalculadorasClient.tsx),
 // pero sin React, para poder reusarlo desde el Agente IA (servidor) y la UI.
@@ -113,4 +114,46 @@ export function aplicarTope730(montoSentencia: number, costasTotales?: number) {
 	const tope = monto * (TOPE_730_PORCENTAJE / 100)
 	const excede = typeof costasTotales === "number" && costasTotales > tope
 	return { ok: true as const, tope, excede, porcentaje: TOPE_730_PORCENTAJE }
+}
+
+export interface InteresesMoratoriosResult {
+	ok: boolean
+	motivo?: string
+	dias: number
+	tasaAnual: number
+	fechaDesde: string
+	fechaHasta: string
+	interes: number
+	total: number
+}
+
+// Intereses moratorios desde la fecha del hecho/mora hasta hoy (o una fecha dada).
+// Usa la tasa activa del Banco Nación por defecto (config), criterio interés simple.
+export function calcularInteresesMoratorios(args: {
+	capital: number
+	fechaDesde: string // ISO yyyy-mm-dd (fecha del hecho / mora)
+	fechaHasta?: string // ISO; por defecto hoy
+	tasaAnual?: number // % anual; por defecto TASA_ACTIVA_BNA_TNA
+}): InteresesMoratoriosResult {
+	const capital = Number(args.capital)
+	const tasaAnual = Number(args.tasaAnual ?? TASA_ACTIVA_BNA_TNA)
+	const fechaHasta = args.fechaHasta ?? new Date().toISOString().slice(0, 10)
+	const fechaDesde = args.fechaDesde
+	const base = {
+		dias: 0,
+		tasaAnual,
+		fechaDesde: fechaDesde ?? '',
+		fechaHasta,
+		interes: 0,
+		total: Number.isFinite(capital) ? capital : 0,
+	}
+	if (!Number.isFinite(capital) || capital <= 0)
+		return { ...base, ok: false, motivo: 'El capital debe ser un número mayor a cero.' }
+	const dias = diasEntre(fechaDesde, fechaHasta)
+	if (dias <= 0)
+		return { ...base, ok: false, motivo: 'La fecha del hecho debe ser anterior a la fecha de cálculo.' }
+	const r = calcularInteresSimple({ capital, tasaAnual, dias })
+	if (!r.ok)
+		return { ...base, ok: false, motivo: r.motivo ?? 'No se pudieron calcular los intereses.' }
+	return { ok: true, dias: r.dias, tasaAnual, fechaDesde, fechaHasta, interes: r.interes, total: r.total }
 }

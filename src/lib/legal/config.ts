@@ -30,3 +30,8 @@ export const UHOM_VALOR = 12150;
 export const JUS_BA_MEDIACION = 49750;
 // Corrientes: Jus provincial (STJ). $58.519,61 desde 1/5/2026.
 export const JUS_CORRIENTES = 58519.61;
+
+// Tasa activa cartera general del Banco de la Nación Argentina (uso judicial).
+// Jurisprudencia STJ Corrientes para daños. Valor vigente a la fecha indicada.
+export const TASA_ACTIVA_BNA_TNA = 25.57 // % TNA vencida
+export const TASA_ACTIVA_BNA_VIGENCIA = 'julio 2026'
