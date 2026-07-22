@@ -14,6 +14,7 @@ type EventoInput = { fecha: string; tipo: string; titulo: string; descripcion: s
 
 export async function generarResumenConIA(input: {
   titulo: string; cliente: string; tipo: string; estado: string;
+  industria?: string;
   documentos: DocInput[]; eventos: EventoInput[];
 }): Promise<
   | { ok: false; motivo: 'sin_api_key' | 'sin_datos' | 'error' }
@@ -33,8 +34,15 @@ export async function generarResumenConIA(input: {
     `- ${e.fecha} [${e.tipo}] ${e.titulo}${e.descripcion ? ': ' + e.descripcion : ''}`
   ).join('\n');
 
+  const introPorRubro =
+    input.industria === 'escribania'
+      ? 'Sos un escribano argentino. En base a los documentos ya analizados y las actuaciones de un legajo notarial, redactá un RESUMEN EJECUTIVO del trámite, claro y profesional, para entender su estado de un vistazo.'
+      : input.industria === 'inmobiliaria'
+      ? 'Sos un asesor inmobiliario argentino. En base a los documentos ya analizados y los movimientos de una operación (compraventa, alquiler o reserva), redactá un RESUMEN EJECUTIVO de la operación, claro y profesional, para entender su estado de un vistazo.'
+      : 'Sos un abogado senior argentino. En base a los documentos ya analizados y las actuaciones de un expediente, redactá un RESUMEN EJECUTIVO del caso completo, claro y profesional, para entender el estado del asunto de un vistazo.';
+
   const prompt = [
-    'Sos un abogado senior argentino. En base a los documentos ya analizados y las actuaciones de un expediente, redactá un RESUMEN EJECUTIVO del caso completo, claro y profesional, para entender el estado del asunto de un vistazo.',
+    introPorRubro,
     'Respondé SOLO un objeto JSON válido (sin texto adicional) con esta forma exacta:',
     '{',
     '  "resumen_general": "2-4 oraciones sobre de qué se trata el expediente y su situación",',
@@ -160,7 +168,31 @@ export async function cotejarDocumentosConIA(input: {
     docsTexto || '(sin documentos analizados)',
   ].join('\n');
 
-  const prompt = esLegal ? promptLegal : promptNotarial;
+  const promptInmobiliaria = [
+    'Sos un asesor inmobiliario argentino experto en coordinar operaciones de compraventa, alquiler y reserva. Vas a COTEJAR (cruzar) los documentos ya analizados de una misma operación para verificar que sean coherentes entre sí antes de avanzar (reservar, firmar el boleto o escriturar).',
+    'Compará especialmente: identidad y datos de las partes (comprador/vendedor, locador/inquilino, garantes: nombres, DNI/CUIT); datos del inmueble (dirección, nomenclatura/matrícula, superficie, tipo); precio o valor de la operación, moneda, seña/reserva y forma de pago; y plazos comprometidos (fecha de escrituración, entrega de posesión, vigencia de la reserva).',
+    'Respondé SOLO un objeto JSON válido (sin texto adicional) con esta forma exacta:',
+    '{',
+    ' "veredicto": "1-2 oraciones con el estado general del cotejo (coherente / con observaciones / con discrepancias serias)",',
+    ' "coincidencias": ["datos que coinciden correctamente entre documentos"],',
+    ' "discrepancias": ["diferencias o contradicciones entre documentos, indicando qué documento y qué dato"],',
+    ' "faltantes": ["documentos o datos que faltarían para avanzar la operación (informe de dominio, boleto firmado, comprobante de seña, etc.)"],',
+    ' "alertas_vigencia": ["alertas de la operación: reservas o certificados próximos a vencer y plazos comprometidos, con la fecha si surge"]',
+    '}',
+    'Reglas: NO inventes datos. Si algo no surge de la información aportada, devolvé un array vacío. Basate SOLO en lo aportado. Respondé en español rioplatense.',
+    '',
+    `OPERACIÓN: ${input.titulo}`,
+    `Tipo de operación: ${input.tipo || '-'}`,
+    '',
+    'DOCUMENTOS ANALIZADOS A COTEJAR:',
+    docsTexto || '(sin documentos analizados)',
+  ].join('\n');
+
+  const prompt = esLegal
+    ? promptLegal
+    : input.industria === 'inmobiliaria'
+    ? promptInmobiliaria
+    : promptNotarial;
 
   try {
     const resp = await fetch(

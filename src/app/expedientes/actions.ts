@@ -736,11 +736,14 @@ export async function generarResumenExpediente(caseId: string) {
     titulo: String(e.title || ''), descripcion: String(e.description || ''),
   }));
 
+  const industria = await getOrganizationIndustry(supabase, profile.organization_id);
+
   const result = await generarResumenConIA({
     titulo: caseRecord.title || 'Expediente',
     cliente: caseRecord.client_name || '',
     tipo: caseRecord.case_type || '',
     estado: caseRecord.status || '',
+    industria,
     documentos, eventos,
   });
 
