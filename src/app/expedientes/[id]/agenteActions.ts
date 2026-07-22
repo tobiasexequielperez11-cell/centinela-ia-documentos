@@ -6,7 +6,7 @@ import { normalizeIndustryType } from '@/lib/industries/documentTypes';
 import { canUseAi, canUpdateCase, isUserRole } from '@/lib/permissions/roles';
 import { revalidatePath } from 'next/cache';
 import { guardarPlazoDetectado, guardarTurno } from '@/app/agenda/actions';
-import { generarResumenExpediente, cotejarExpediente, redactarEscrituraExpediente, analizarUifExpediente } from '@/app/expedientes/actions';
+import { generarResumenExpediente, cotejarExpediente, redactarEscrituraExpediente, analizarUifExpediente, redactarAvisoExpediente } from '@/app/expedientes/actions';
 import { getAllowedCaseStatuses, getCaseStatusLabel, getCaseFields } from '@/lib/industries/caseConfig';
 import { responderAgenteLegajo, type MensajeChat, type AccionPropuesta } from '@/lib/ai/agente';
 import { generarEmbedding } from '@/lib/ai/embeddings';
@@ -695,6 +695,12 @@ export async function ejecutarAccionAgente(input: {
       await redactarEscrituraExpediente(caseId);
       revalidatePath(`/expedientes/${caseId}`);
       return { ok: true, mensaje: 'Borrador generado. Actualizá la página para verlo.' };
+    }
+    case 'redactar_aviso': {
+      if (!canUseAi(profile.role)) return { ok: false, mensaje: 'Sin permiso para usar la IA.' };
+      await redactarAvisoExpediente(caseId);
+      revalidatePath(`/expedientes/${caseId}`);
+      return { ok: true, mensaje: 'Aviso comercial generado. Actualizá la página para verlo.' };
     }
     case 'analizar_uif': {
       if (!canUseAi(profile.role)) return { ok: false, mensaje: 'Sin permiso para usar la IA.' };

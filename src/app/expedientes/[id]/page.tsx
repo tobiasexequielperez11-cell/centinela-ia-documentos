@@ -414,6 +414,20 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
     | { titulo: string; cuerpo: string; datos_faltantes: string[]; advertencias: string[] }
     | null;
 
+  const { data: avisoData } = await supabase
+    .from('ai_outputs')
+    .select('content, result_json, created_at')
+    .eq('case_id', caseRecord.id)
+    .eq('organization_id', profile.organization_id)
+    .eq('output_type', 'case_aviso')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const avisoComercial = (avisoData?.result_json ?? null) as
+    | { titulo: string; aviso: string; destacados: string[]; hashtags: string[]; datos_faltantes: string[] }
+    | null;
+
   const { data: uifData } = await supabase
     .from('ai_outputs')
     .select('result_json, created_at')
@@ -908,6 +922,39 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
                       )}
                     </div>
                   </MotionCard>
+                )}
+                
+                {industry === 'inmobiliaria' && avisoComercial && (
+                  <div className="mb-6 rounded-2xl border border-cyan-500/20 bg-slate-900/40 p-5">
+                    <div className="mb-3 flex items-center gap-2">
+                      <span className="text-lg">📢</span>
+                      <h3 className="text-sm font-semibold text-slate-100">Aviso comercial (IA)</h3>
+                    </div>
+                    <p className="text-sm font-medium text-cyan-300">{avisoComercial.titulo}</p>
+                    <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-200">{avisoComercial.aviso}</p>
+                    {avisoComercial.destacados.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-xs font-semibold text-slate-400">Destacados</p>
+                        <ul className="mt-1 list-disc pl-5 text-sm text-slate-200">
+                          {avisoComercial.destacados.map((d, i) => <li key={i}>{d}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                    {avisoComercial.hashtags.length > 0 && (
+                      <p className="mt-3 text-xs text-cyan-400">
+                        {avisoComercial.hashtags.map((h) => `#${h}`).join(' ')}
+                      </p>
+                    )}
+                    {avisoComercial.datos_faltantes.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-xs font-semibold text-amber-400">Datos a sumar</p>
+                        <ul className="mt-1 list-disc pl-5 text-sm text-amber-200/80">
+                          {avisoComercial.datos_faltantes.map((d, i) => <li key={i}>{d}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                    <p className="mt-3 text-xs text-slate-500">Aviso generado por IA a partir de los datos de la operación. Revisalo antes de publicar.</p>
+                  </div>
                 )}
 
                 {industry === 'inmobiliaria' && <DerivarEscribania caseId={caseRecord.id} />}

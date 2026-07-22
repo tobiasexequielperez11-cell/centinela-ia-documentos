@@ -22,7 +22,8 @@ export type AccionPropuesta = {
     | 'redactar_ros'
     | 'calcular_liquidacion'
     | 'calcular_plazo_procesal'
-    | 'calcular_tasa_justicia';
+    | 'calcular_tasa_justicia'
+    | 'redactar_aviso';
   titulo: string;
   fecha?: string; // YYYY-MM-DD (agendar_plazo, crear_actuacion, agendar_turno, agendar_firma)
   hora?: string; // HH:MM (opcional, solo agendar_turno y agendar_firma)
@@ -91,6 +92,7 @@ Si no hay distancia relevante, poné "kmDistancia":0. NUNCA inventes la fecha ni
  16) "calcular_tasa_justicia": calcular la tasa de justicia del proceso. SIN "fecha". SOLO en rubro legal. Se calcula con UN dato obligatorio: monto (el monto del proceso o reclamo, número plano SIN $ ni puntos). Tomalo del CONTEXTO, de los FRAGMENTOS o de la conversación. REGLA CRÍTICA: agregá SIEMPRE la acción en "acciones". Ejemplo EXACTO de JSON que debe devolver:
 {"tipo":"calcular_tasa_justicia","titulo":"Tasa de justicia del proceso","monto":28000000,"motivo":"Detecté el monto del proceso"}
 El monto va como número entero plano, sin símbolo de peso ni separadores de miles. NUNCA inventes el monto.
+17) "redactar_aviso": generar con IA el AVISO / FICHA COMERCIAL de la propiedad para publicar en portales o redes, a partir de los datos del inmueble y del legajo. SIN "fecha". SOLO en rubro inmobiliaria. Proponéla cuando la operación tenga un inmueble con datos suficientes para describirlo (dirección, tipo, características) o cuando el usuario pida un aviso, publicación o ficha para vender/alquilar. Usá "titulo" como "Redactar aviso comercial de la propiedad". El sistema arma el aviso con los datos reales del legajo; NO inventes superficies, precios ni ambientes.
 - OBLIGATORIO: si en tu "respuesta" decís o das a entender que un documento del legajo cumple, corresponde o sirve para un ítem del checklist, TENÉS que incluir además la acción "vincular_documento" en el campo "acciones" (con "itemChecklist" y "documento" exactos, copiados del contexto). Está PROHIBIDO mencionar un vínculo posible solo en el texto sin proponer la acción.
 - NO inventes fechas, nombres, estados ni datos. La ejecución real la confirma el usuario con un botón.`;
 }
@@ -105,7 +107,7 @@ function limpiarJson(raw: string): string {
 
 function validarAcciones(input: unknown, estadosValidos: string[] = []): AccionPropuesta[] {
   if (!Array.isArray(input)) return [];
-  const TIPOS = ['agendar_plazo', 'crear_actuacion', 'agregar_checklist', 'generar_resumen', 'generar_cotejo', 'redactar_borrador', 'analizar_uif', 'cambiar_estado', 'vincular_documento', 'agendar_turno', 'agendar_firma', 'sugerir_modelo', 'redactar_ros', 'calcular_liquidacion', 'calcular_plazo_procesal', 'calcular_tasa_justicia'];
+  const TIPOS = ['agendar_plazo', 'crear_actuacion', 'agregar_checklist', 'generar_resumen', 'generar_cotejo', 'redactar_borrador', 'analizar_uif', 'cambiar_estado', 'vincular_documento', 'agendar_turno', 'agendar_firma', 'sugerir_modelo', 'redactar_ros', 'calcular_liquidacion', 'calcular_plazo_procesal', 'calcular_tasa_justicia', 'redactar_aviso'];
   const CON_FECHA = ['agendar_plazo', 'crear_actuacion'];
   const CON_FECHA_HORA = ['agendar_turno', 'agendar_firma'];
   const out: AccionPropuesta[] = [];
