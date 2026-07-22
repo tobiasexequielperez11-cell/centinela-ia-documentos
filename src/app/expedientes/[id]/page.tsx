@@ -376,6 +376,23 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
     pasos: string[];
   } | null;
 
+  const { data: tasaData } = await supabase
+    .from('ai_outputs')
+    .select('result_json, created_at')
+    .eq('case_id', caseRecord.id)
+    .eq('organization_id', profile.organization_id)
+    .eq('output_type', 'case_tasa_justicia')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const tasaJusticia = (tasaData?.result_json ?? null) as {
+    titulo: string;
+    base: number;
+    porcentaje: number;
+    tasa: number;
+  } | null;
+
 
 
   const { data: escrituraData } = await supabase
@@ -632,6 +649,38 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
                           <li key={i}>{paso}</li>
                         ))}
                       </ul>
+                    </div>
+                  </section>
+                )}
+                {industry === 'legal' && tasaJusticia && (
+                  <section className="mt-6 rounded-2xl border border-cyan-500/20 bg-slate-900/40 p-6">
+                    <div className="mb-4 flex items-center gap-2">
+                      <span className="text-xl">🏛️</span>
+                      <h2 className="text-lg font-semibold text-cyan-300">Tasa de justicia</h2>
+                    </div>
+                    <p className="mb-4 text-sm text-slate-400">{tasaJusticia.titulo}</p>
+                    <p className="mb-4 text-sm text-slate-500">
+                      Estimación orientativa de la tasa de justicia (Ley 23.898). Se abona al iniciar la demanda. Verificá exenciones, mínimos y la alícuota vigente en la jurisdicción.
+                    </p>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div className="rounded-xl bg-slate-800/60 p-4">
+                        <p className="text-xs uppercase tracking-wide text-slate-400">Tasa a abonar</p>
+                        <p className="text-2xl font-bold text-cyan-300">
+                          {new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(tasaJusticia.tasa)}
+                        </p>
+                      </div>
+                      <div className="rounded-xl bg-slate-800/60 p-4">
+                        <p className="text-xs uppercase tracking-wide text-slate-400">Monto del proceso</p>
+                        <p className="text-lg font-semibold text-violet-300">
+                          {new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(tasaJusticia.base)}
+                        </p>
+                      </div>
+                      <div className="rounded-xl bg-slate-800/60 p-4">
+                        <p className="text-xs uppercase tracking-wide text-slate-400">Alícuota</p>
+                        <p className="text-lg font-semibold text-slate-100">
+                          {tasaJusticia.porcentaje}%
+                        </p>
+                      </div>
                     </div>
                   </section>
                 )}
