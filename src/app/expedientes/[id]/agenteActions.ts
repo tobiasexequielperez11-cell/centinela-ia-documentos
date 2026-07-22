@@ -564,8 +564,16 @@ export async function ejecutarAccionAgente(input: {
         console.error('Plazo procesal insert error:', error);
         return { ok: false, mensaje: 'No se pudo guardar el vencimiento.' };
       }
+
+      await guardarPlazoDetectado({
+        titulo: `Vencimiento — ${accion.titulo}`,
+        fecha: r.vencimiento!,
+        detalle: `Plazo de ${r.diasTotales} días hábiles calculado por el Agente IA a partir de la notificación.`,
+        caseId,
+      });
+
       revalidatePath(`/expedientes/${caseId}`);
-      return { ok: true, mensaje: `Vencimiento calculado: ${r.vencimiento}.` };
+      return { ok: true, mensaje: `Vencimiento calculado y agendado: ${r.vencimiento}.` };
     }
 
     case 'crear_actuacion': {
