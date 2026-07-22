@@ -56,30 +56,34 @@ export function GenerarAvisoButton({ propertyId }: { propertyId: string }) {
           {result}
         </pre>
         
-        <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-4">
-          <p className="text-xs text-slate-500 italic">
+        {/* Pie: aclaración arriba, botones abajo en fila pareja */}
+        <div className="mt-3 pt-3 border-t border-white/10 space-y-3">
+          <p className="text-[11px] leading-snug text-slate-400">
             Beta operativa comercial · revisá el aviso antes de publicar.
           </p>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
+              type="button"
               onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(result!)}`, '_blank')}
-              className="flex items-center gap-1 text-xs font-semibold text-white bg-[#25D366]/20 hover:bg-[#25D366]/30 border border-[#25D366]/30 px-3 py-1.5 rounded-lg transition-colors"
+              className="flex-1 min-w-[110px] inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-lg text-xs font-semibold text-white bg-[#25D366]/20 hover:bg-[#25D366]/30 border border-[#25D366]/30 transition-colors"
             >
               📲 WhatsApp
             </button>
             <button
+              type="button"
               onClick={handleCopy}
-              className="flex items-center gap-1 text-xs font-semibold text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors"
+              className="flex-1 min-w-[110px] inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-lg text-xs font-semibold text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
             >
-              {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
-              {copied ? 'Copiado!' : '📋 Copiar'}
+              {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied ? '¡Copiado!' : 'Copiar'}
             </button>
             <button
+              type="button"
               onClick={handleAnalyze}
               disabled={isPending}
-              className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 disabled:opacity-50"
+              className="flex-1 min-w-[110px] inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-lg text-xs font-semibold text-cyan-300 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-400/20 transition-colors disabled:opacity-50"
             >
-              {isPending ? 'Regenerando...' : 'Regenerar'}
+              {isPending ? 'Regenerando…' : '🔄 Regenerar'}
             </button>
           </div>
         </div>
