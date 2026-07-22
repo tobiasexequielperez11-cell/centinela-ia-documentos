@@ -252,29 +252,43 @@ function detectarDatosLiquidacion(
 }
 
 function detectarFechaHecho(texto: string): string | null {
-	if (!/(hecho|siniestro|accidente|mora|ocurrid|acaecid)/i.test(texto)) return null
 	const meses: Record<string, string> = {
 		enero: '01', febrero: '02', marzo: '03', abril: '04', mayo: '05', junio: '06',
 		julio: '07', agosto: '08', septiembre: '09', setiembre: '09', octubre: '10',
 		noviembre: '11', diciembre: '12',
 	}
-	const candidatos: string[] = []
-	let m: RegExpExecArray | null
-	const re1 = /\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/g
-	while ((m = re1.exec(texto))) {
-		const d = m[1].padStart(2, '0'), mo = m[2].padStart(2, '0'), y = m[3]
-		if (Number(mo) >= 1 && Number(mo) <= 12) candidatos.push(`${y}-${mo}-${d}`)
+	const hoy = new Date().toISOString().slice(0, 10)
+	function fechasEn(fragmento: string): string[] {
+		const out: string[] = []
+		let m: RegExpExecArray | null
+		const re1 = /\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/g
+		while ((m = re1.exec(fragmento))) {
+			const mo = m[2].padStart(2, '0')
+			if (Number(mo) >= 1 && Number(mo) <= 12) out.push(`${m[3]}-${mo}-${m[1].padStart(2, '0')}`)
+		}
+		const re2 = /\b(\d{4})-(\d{2})-(\d{2})\b/g
+		while ((m = re2.exec(fragmento))) out.push(`${m[1]}-${m[2]}-${m[3]}`)
+		const re3 = /\b(\d{1,2})\s+de\s+([a-záéíóú]+)\s+de\s+(\d{4})\b/gi
+		while ((m = re3.exec(fragmento))) {
+			const mo = meses[m[2].toLowerCase()]
+			if (mo) out.push(`${m[3]}-${mo}-${m[1].padStart(2, '0')}`)
+		}
+		return out
 	}
-	const re2 = /\b(\d{4})-(\d{2})-(\d{2})\b/g
-	while ((m = re2.exec(texto))) candidatos.push(`${m[1]}-${m[2]}-${m[3]}`)
-	const re3 = /\b(\d{1,2})\s+de\s+([a-záéíóú]+)\s+de\s+(\d{4})\b/gi
-	while ((m = re3.exec(texto))) {
-		const mo = meses[m[2].toLowerCase()]
-		if (mo) candidatos.push(`${m[3]}-${mo}-${m[1].padStart(2, '0')}`)
+	// Solo tomamos fechas que aparezcan JUSTO DESPUÉS de una palabra disparadora
+	// (evita agarrar fechas de nacimiento u otras fechas viejas del expediente).
+	const disparadores = /(hecho|siniestro|accidente|ocurri[oó]|acaecid|mora)/gi
+	const candidatos: string[] = []
+	let d: RegExpExecArray | null
+	while ((d = disparadores.exec(texto))) {
+		const ventana = texto.slice(d.index, d.index + 70)
+		for (const iso of fechasEn(ventana)) {
+			if (iso <= hoy) candidatos.push(iso)
+		}
 	}
 	if (candidatos.length === 0) return null
 	candidatos.sort()
-	return candidatos[0] // la más antigua = fecha del hecho
+	return candidatos[candidatos.length - 1] // la más reciente plausible = el hecho generador
 }
 
 // Red de seguridad: extrae fecha de notificación y días hábiles de un texto libre.
