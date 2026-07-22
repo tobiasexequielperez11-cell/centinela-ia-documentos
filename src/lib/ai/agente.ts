@@ -339,6 +339,7 @@ export async function responderAgenteLegajo(input: {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return { ok: false, motivo: 'sin_api_key' };
   const modelo = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  let modeloActual = modelo;
   const hoy = new Date().toISOString().slice(0, 10);
   const estados = getCaseStatuses(input.industry);
   const estadosTexto = estados.map((e) => `"${e.value}" (${e.label})`).join(', ');
@@ -366,7 +367,7 @@ export async function responderAgenteLegajo(input: {
     generationConfig: {
       temperature: 0.3,
       maxOutputTokens: 4096,
-      thinkingConfig: { thinkingBudget: 512 },
+      thinkingConfig: { thinkingBudget: 0 },
       responseMimeType: 'application/json',
       responseSchema: {
         type: 'OBJECT',
@@ -405,10 +406,10 @@ export async function responderAgenteLegajo(input: {
   });
 
   // Reintenta ante errores transitorios de Gemini (sobrecarga 429 / 5xx).
-  for (let intento = 0; intento < 3; intento++) {
+  for (let intento = 0; intento < 6; intento++) {
     try {
       const resp = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/${modeloActual}:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -496,10 +497,14 @@ export async function responderAgenteLegajo(input: {
             }
           }
         
-          return { ok: true, respuesta, acciones, model: `agente-${modelo}` };
+          return { ok: true, respuesta, acciones, model: `agente-${modeloActual}` };
         }
       } else if (resp.status === 429 || resp.status >= 500) {
-        console.error('Agente Gemini transitorio:', resp.status);
+        console.error('Agente Gemini transitorio:', modeloActual, resp.status);
+        // Si el modelo principal está saturado, pasamos a uno más liviano (más cupo).
+        if (intento >= 1 && modeloActual !== 'gemini-2.5-flash-lite') {
+          modeloActual = 'gemini-2.5-flash-lite';
+        }
       } else {
         console.error('Agente Gemini error:', resp.status, await resp.text());
         return { ok: false, motivo: 'error' };
@@ -507,7 +512,7 @@ export async function responderAgenteLegajo(input: {
     } catch (e) {
       console.error('Agente error de red:', e);
     }
-    await new Promise((r) => setTimeout(r, 800 * (intento + 1)));
+    await new Promise((r) => setTimeout(r, Math.min(8000, 700 * 2 ** intento) + Math.random() * 400));
   }
 
   return { ok: false, motivo: 'error' };
