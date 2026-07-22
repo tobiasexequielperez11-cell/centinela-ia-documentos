@@ -365,7 +365,7 @@ export async function responderAgenteLegajo(input: {
     contents,
     generationConfig: {
       temperature: 0.3,
-      maxOutputTokens: 2048,
+      maxOutputTokens: 4096,
       thinkingConfig: { thinkingBudget: 512 },
       responseMimeType: 'application/json',
       responseSchema: {
@@ -421,76 +421,82 @@ export async function responderAgenteLegajo(input: {
         const raw: string =
           data?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text ?? '').join('') ?? '';
         if (raw.trim()) {
+          let respuesta = '';
+          let acciones: AccionPropuesta[] = [];
           try {
             const parsed = JSON.parse(limpiarJson(raw));
-            const respuesta =
+            respuesta =
               typeof parsed?.respuesta === 'string' && parsed.respuesta.trim()
                 ? parsed.respuesta.trim()
                 : salvarRespuesta(raw);
-            const acciones = validarAcciones(parsed?.acciones, estadosValores);
-            // Si el legajo o la conversación tienen los datos y el modelo NO propuso la liquidación, la agregamos nosotros.
-            const esLegalLaboral = input.industry === 'legal';
-            const textoBusqueda = [input.contextoLegajo || '', ...input.historial.map((m) => m.texto), input.pregunta].join('\n');
-            const fechaHechoDetectada = detectarFechaHecho(textoBusqueda);
-            
-            const yaPropusoLiquidacion = acciones.some((a) => a.tipo === 'calcular_liquidacion');
-            if (esLegalLaboral && !yaPropusoLiquidacion) {
-              const datosLiq = detectarDatosLiquidacion(textoBusqueda);
-              if (datosLiq) {
-                acciones.push({
-                  tipo: 'calcular_liquidacion',
-                  titulo: 'Calcular liquidación estimada por incapacidad',
-                  metodo: datosLiq.metodo,
-                  ingresoMensual: datosLiq.ingresoMensual,
-                  edad: datosLiq.edad,
-                  incapacidad: datosLiq.incapacidad,
-                  fechaHecho: fechaHechoDetectada ?? undefined,
-                  motivo: 'Detecté los datos necesarios (ingreso, edad e incapacidad) en el legajo o la conversación.',
-                });
-              }
-            }
-
-            if (fechaHechoDetectada) {
-              for (const a of acciones) {
-                if (a.tipo === 'calcular_liquidacion' && !a.fechaHecho) {
-                  a.fechaHecho = fechaHechoDetectada;
-                }
-              }
-            }
-                const yaPropusoPlazo = acciones.some((a) => a.tipo === 'calcular_plazo_procesal');
-                if (esLegalLaboral && !yaPropusoPlazo) {
-                  const textoBusquedaPlazo = [input.pregunta, ...input.historial.map((m) => m.texto), input.contextoLegajo || ''].join('\n');
-                  const datosPlazo = detectarDatosPlazo(textoBusquedaPlazo);
-                  if (datosPlazo) {
-                    acciones.push({
-                      tipo: 'calcular_plazo_procesal',
-                      titulo: datosPlazo.titulo,
-                      fechaNotificacion: datosPlazo.fechaNotificacion,
-                      diasHabiles: datosPlazo.diasHabiles,
-                      kmDistancia: datosPlazo.kmDistancia,
-                      motivo: 'Detecté una fecha de notificación y un plazo en días hábiles en el legajo o la conversación.',
-                    });
-                  }
-                }
-
-                const yaPropusoTasa = acciones.some((a) => a.tipo === 'calcular_tasa_justicia');
-                if (esLegalLaboral && !yaPropusoTasa) {
-                  const textoBusquedaTasa = [input.pregunta, ...input.historial.map((m) => m.texto), input.contextoLegajo || ''].join(' ');
-                  const monto = detectarMontoJuicio(textoBusquedaTasa);
-                  if (monto && monto > 0) {
-                    acciones.push({
-                      tipo: 'calcular_tasa_justicia',
-                      titulo: 'Tasa de justicia del proceso',
-                      monto,
-                      motivo: 'Detecté el monto del proceso en el expediente o la conversación.',
-                    });
-                  }
-                }
-            return { ok: true, respuesta, acciones, model: `agente-${modelo}` };
+            acciones = validarAcciones(parsed?.acciones, estadosValores);
           } catch {
-            // JSON cortado o inválido: rescatamos el texto limpio, sin acciones.
-            return { ok: true, respuesta: salvarRespuesta(raw), acciones: [], model: `agente-${modelo}` };
+            // JSON cortado o inválido: rescatamos el texto y SEGUIMOS con las redes de seguridad.
+            respuesta = salvarRespuesta(raw);
+            acciones = [];
           }
+        
+          // Redes de seguridad: se ejecutan SIEMPRE, aunque el JSON haya venido mal.
+          const esLegalLaboral = input.industry === 'legal';
+          const textoBusqueda = [input.contextoLegajo || '', ...input.historial.map((m) => m.texto), input.pregunta].join('\n');
+          const fechaHechoDetectada = detectarFechaHecho(textoBusqueda);
+        
+          const yaPropusoLiquidacion = acciones.some((a) => a.tipo === 'calcular_liquidacion');
+          if (esLegalLaboral && !yaPropusoLiquidacion) {
+            const datosLiq = detectarDatosLiquidacion(textoBusqueda);
+            if (datosLiq) {
+              acciones.push({
+                tipo: 'calcular_liquidacion',
+                titulo: 'Calcular liquidación estimada por incapacidad',
+                metodo: datosLiq.metodo,
+                ingresoMensual: datosLiq.ingresoMensual,
+                edad: datosLiq.edad,
+                incapacidad: datosLiq.incapacidad,
+                fechaHecho: fechaHechoDetectada ?? undefined,
+                motivo: 'Detecté los datos necesarios (ingreso, edad e incapacidad) en el legajo o la conversación.',
+              });
+            }
+          }
+        
+          if (fechaHechoDetectada) {
+            for (const a of acciones) {
+              if (a.tipo === 'calcular_liquidacion' && !a.fechaHecho) {
+                a.fechaHecho = fechaHechoDetectada;
+              }
+            }
+          }
+        
+          const yaPropusoPlazo = acciones.some((a) => a.tipo === 'calcular_plazo_procesal');
+          if (esLegalLaboral && !yaPropusoPlazo) {
+            const textoBusquedaPlazo = [input.pregunta, ...input.historial.map((m) => m.texto), input.contextoLegajo || ''].join('\n');
+            const datosPlazo = detectarDatosPlazo(textoBusquedaPlazo);
+            if (datosPlazo) {
+              acciones.push({
+                tipo: 'calcular_plazo_procesal',
+                titulo: datosPlazo.titulo,
+                fechaNotificacion: datosPlazo.fechaNotificacion,
+                diasHabiles: datosPlazo.diasHabiles,
+                kmDistancia: datosPlazo.kmDistancia,
+                motivo: 'Detecté una fecha de notificación y un plazo en días hábiles en el legajo o la conversación.',
+              });
+            }
+          }
+        
+          const yaPropusoTasa = acciones.some((a) => a.tipo === 'calcular_tasa_justicia');
+          if (esLegalLaboral && !yaPropusoTasa) {
+            const textoBusquedaTasa = [input.pregunta, ...input.historial.map((m) => m.texto), input.contextoLegajo || ''].join(' ');
+            const monto = detectarMontoJuicio(textoBusquedaTasa);
+            if (monto && monto > 0) {
+              acciones.push({
+                tipo: 'calcular_tasa_justicia',
+                titulo: 'Tasa de justicia del proceso',
+                monto,
+                motivo: 'Detecté el monto del proceso en el expediente o la conversación.',
+              });
+            }
+          }
+        
+          return { ok: true, respuesta, acciones, model: `agente-${modelo}` };
         }
       } else if (resp.status === 429 || resp.status >= 500) {
         console.error('Agente Gemini transitorio:', resp.status);
