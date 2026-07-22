@@ -25,6 +25,7 @@ const ACCION_META: Record<
   sugerir_modelo: { icono: '✒️', verbo: 'Abrir modelo', verboLoading: 'Abriendo…', hecho: 'Modelo abierto' },
   redactar_ros: { icono: '🚨', verbo: 'Aprobar y preparar ROS', verboLoading: 'Preparando…', hecho: 'ROS preparado' },
   calcular_liquidacion: { icono: "🧮", verbo: "Aprobar y calcular", verboLoading: "Calculando…", hecho: "Liquidación estimada" },
+  calcular_plazo_procesal: { icono: '📅', verbo: 'Aprobar y calcular', verboLoading: 'Calculando…', hecho: 'Vencimiento calculado' },
 };
 
 const SUGERENCIAS: Record<string, string[]> = {

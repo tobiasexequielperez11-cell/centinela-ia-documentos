@@ -11,6 +11,7 @@ import { getAllowedCaseStatuses, getCaseStatusLabel, getCaseFields } from '@/lib
 import { responderAgenteLegajo, type MensajeChat, type AccionPropuesta } from '@/lib/ai/agente';
 import { generarEmbedding } from '@/lib/ai/embeddings';
 import { calcularIncapacidad } from "@/lib/legal/liquidacion";
+import { calcularVencimientoProcesal } from '@/lib/legal/plazos';
 
 export async function preguntarAgente(input: {
   caseId: string;
@@ -528,6 +529,43 @@ export async function ejecutarAccionAgente(input: {
       }
       revalidatePath(`/expedientes/${caseId}`)
       return { ok: true, mensaje: "Liquidación estimada calculada." }
+    }
+
+    case 'calcular_plazo_procesal': {
+      if (!canUpdateCase(profile.role)) return { ok: false, mensaje: 'Sin permiso.' };
+      const r = calcularVencimientoProcesal({
+        fechaNotificacion: String(accion.fechaNotificacion ?? ''),
+        diasHabiles: Number(accion.diasHabiles),
+        kmDistancia: Number(accion.kmDistancia) || 0,
+      });
+      if (!r.ok) {
+        return { ok: false, mensaje: r.motivo || 'No pude calcular el vencimiento: revisá la fecha de notificación y los días hábiles.' };
+      }
+      const { error } = await supabase.from('ai_outputs').insert({
+        output_type: 'case_plazo',
+        content: `${accion.titulo} — vence ${r.vencimiento}`,
+        result_json: {
+          titulo: accion.titulo,
+          fecha_notificacion: String(accion.fechaNotificacion ?? ''),
+          dias_habiles: r.diasHabiles,
+          dias_ampliacion: r.diasAmpliacion,
+          dias_totales: r.diasTotales,
+          km_distancia: Number(accion.kmDistancia) || 0,
+          cuenta_desde: r.cuentaDesde,
+          vencimiento: r.vencimiento,
+          pasos: r.pasos,
+        },
+        model_name: 'calculadora-plazos',
+        case_id: caseId,
+        organization_id: profile.organization_id,
+        created_by: user.id,
+      });
+      if (error) {
+        console.error('Plazo procesal insert error:', error);
+        return { ok: false, mensaje: 'No se pudo guardar el vencimiento.' };
+      }
+      revalidatePath(`/expedientes/${caseId}`);
+      return { ok: true, mensaje: `Vencimiento calculado: ${r.vencimiento}.` };
     }
 
     case 'crear_actuacion': {

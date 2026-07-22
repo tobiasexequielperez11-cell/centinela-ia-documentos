@@ -20,7 +20,8 @@ export type AccionPropuesta = {
     | 'agendar_firma'
     | 'sugerir_modelo'
     | 'redactar_ros'
-    | 'calcular_liquidacion';
+    | 'calcular_liquidacion'
+    | 'calcular_plazo_procesal';
   titulo: string;
   fecha?: string; // YYYY-MM-DD (agendar_plazo, crear_actuacion, agendar_turno, agendar_firma)
   hora?: string; // HH:MM (opcional, solo agendar_turno y agendar_firma)
@@ -31,6 +32,9 @@ export type AccionPropuesta = {
   ingresoMensual?: number; // solo calcular_liquidacion (pesos)
   edad?: number; // solo calcular_liquidacion (años al hecho)
   incapacidad?: number; // solo calcular_liquidacion (porcentaje 0-100)
+  diasHabiles?: number;        // solo calcular_plazo_procesal
+  fechaNotificacion?: string;  // solo calcular_plazo_procesal (YYYY-MM-DD)
+  kmDistancia?: number;        // solo calcular_plazo_procesal (opcional, art. 158)
   motivo: string;
 };
 
@@ -78,6 +82,9 @@ function reglasAcciones(hoy: string, estadosValidos: string): string {
   14) "calcular_liquidacion": estimar el monto del reclamo por INCAPACIDAD (fórmulas Méndez o Vuoto). SIN "fecha". SOLO en rubro legal/laboral. Se calcula con TRES datos: ingreso mensual de la víctima, su edad al momento del hecho y el porcentaje de incapacidad. Tomalos del CONTEXTO, de los FRAGMENTOS o de lo que el usuario haya dicho en la conversación; si figuran la fecha de nacimiento y la fecha del hecho, calculá vos mismo la edad. REGLA CRÍTICA E INNEGOCIABLE: cuando tengas los tres datos, está PROHIBIDO contestar solo con texto tipo "se puede calcular" o "podemos calcular". SIEMPRE, además de tu respuesta, tenés que agregar en el array "acciones" un objeto EXACTAMENTE con esta forma, con los números como NÚMEROS (sin puntos de miles ni signo $):
 {"tipo":"calcular_liquidacion","titulo":"Calcular liquidación estimada por incapacidad","metodo":"mendez","ingresoMensual":600000,"edad":45,"incapacidad":20,"motivo":"El actor reclama una incapacidad permanente"}
 (Ese ejemplo usa números de muestra: vos poné los reales del legajo.) Por defecto "metodo":"mendez"; usá "vuoto" solo si el usuario lo pide. NUNCA inventes los números: solo si de verdad falta alguno y no lo podés deducir, ahí no agregás la acción y se lo pedís al usuario en "respuesta". ATENCIÓN CRÍTICA: escribir en tu "respuesta" frases como "procedo a calcular" o "voy a calcular" NO calcula NADA y NO le muestra NADA al usuario. El cálculo OCURRE ÚNICAMENTE si agregás el objeto en el array "acciones". Si no agregás la acción, para el usuario no pasó nada. Entonces, cuando tengas los tres datos: agregá SIEMPRE la acción en "acciones", y en "respuesta" poné apenas una frase corta presentando la estimación.
+ 15) "calcular_plazo_procesal": calcular la FECHA DE VENCIMIENTO de un plazo procesal en días hábiles judiciales (traslado de demanda, contestación, apelación, recurso, etc.). SIN "fecha". SOLO en rubro legal. Se calcula con DOS datos obligatorios: la fecha de notificación / inicio del cómputo y la cantidad de días hábiles del plazo; y UN dato OPCIONAL: los kilómetros de distancia al juzgado (ampliación del art. 158 CPCCN). Tomalos del CONTEXTO, de los FRAGMENTOS o de la conversación. Cuando tengas la fecha de notificación y la cantidad de días hábiles, agregá en "acciones" un objeto EXACTAMENTE con esta forma, con la fecha en AAAA-MM-DD y los días como NÚMERO (sin texto):
+{"tipo":"calcular_plazo_procesal","titulo":"Calcular vencimiento del traslado de demanda","fechaNotificacion":"2026-08-03","diasHabiles":15,"kmDistancia":0,"motivo":"El traslado de la demanda es de 15 días hábiles (art. 338 CPCCN)"}
+Si no hay distancia relevante, poné "kmDistancia":0. NUNCA inventes la fecha ni los días: si falta alguno de los dos obligatorios, no agregues la acción y pedíselo al usuario en "respuesta". ATENCIÓN: escribir "voy a calcular el plazo" en "respuesta" NO calcula NADA; el cálculo ocurre ÚNICAMENTE si agregás el objeto en "acciones".
 - OBLIGATORIO: si en tu "respuesta" decís o das a entender que un documento del legajo cumple, corresponde o sirve para un ítem del checklist, TENÉS que incluir además la acción "vincular_documento" en el campo "acciones" (con "itemChecklist" y "documento" exactos, copiados del contexto). Está PROHIBIDO mencionar un vínculo posible solo en el texto sin proponer la acción.
 - NO inventes fechas, nombres, estados ni datos. La ejecución real la confirma el usuario con un botón.`;
 }
@@ -92,7 +99,7 @@ function limpiarJson(raw: string): string {
 
 function validarAcciones(input: unknown, estadosValidos: string[] = []): AccionPropuesta[] {
   if (!Array.isArray(input)) return [];
-  const TIPOS = ['agendar_plazo', 'crear_actuacion', 'agregar_checklist', 'generar_resumen', 'generar_cotejo', 'redactar_borrador', 'analizar_uif', 'cambiar_estado', 'vincular_documento', 'agendar_turno', 'agendar_firma', 'sugerir_modelo', 'redactar_ros', 'calcular_liquidacion'];
+  const TIPOS = ['agendar_plazo', 'crear_actuacion', 'agregar_checklist', 'generar_resumen', 'generar_cotejo', 'redactar_borrador', 'analizar_uif', 'cambiar_estado', 'vincular_documento', 'agendar_turno', 'agendar_firma', 'sugerir_modelo', 'redactar_ros', 'calcular_liquidacion', 'calcular_plazo_procesal'];
   const CON_FECHA = ['agendar_plazo', 'crear_actuacion'];
   const CON_FECHA_HORA = ['agendar_turno', 'agendar_firma'];
   const out: AccionPropuesta[] = [];
@@ -138,6 +145,20 @@ function validarAcciones(input: unknown, estadosValidos: string[] = []): AccionP
         incapacidad,
         motivo,
       })
+    } else if (tipo === 'calcular_plazo_procesal') {
+      const fechaNotificacion = typeof o.fechaNotificacion === 'string' ? o.fechaNotificacion.trim() : '';
+      const diasHabiles = Number(o.diasHabiles);
+      const kmDistancia = Number(o.kmDistancia);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaNotificacion)) continue;
+      if (!Number.isFinite(diasHabiles) || diasHabiles <= 0) continue;
+      out.push({
+        tipo: 'calcular_plazo_procesal',
+        titulo,
+        fechaNotificacion,
+        diasHabiles,
+        kmDistancia: Number.isFinite(kmDistancia) && kmDistancia > 0 ? kmDistancia : 0,
+        motivo,
+      });
     } else {
       out.push({ tipo: tipo as AccionPropuesta['tipo'], titulo, motivo });
     }
@@ -210,6 +231,46 @@ function detectarDatosLiquidacion(
 	return { ingresoMensual, edad, incapacidad, metodo }
 }
 
+// Red de seguridad: extrae fecha de notificación y días hábiles de un texto libre.
+function detectarDatosPlazo(
+  texto: string
+): { fechaNotificacion: string; diasHabiles: number; kmDistancia: number; titulo: string } | null {
+  const t = texto.toLowerCase();
+  if (!/(plazo|traslado|vencimiento|apelaci[oó]n|contestar|contestaci[oó]n|d[ií]as h[aá]biles|caduc)/.test(t)) return null;
+
+  let dias: number | null = null;
+  const mDiasHab = t.match(/(\d{1,3})\s*d[ií]as\s+h[aá]biles/);
+  const mDias = mDiasHab ?? t.match(/(\d{1,3})\s*d[ií]as/);
+  if (mDias) {
+    const n = Number(mDias[1]);
+    if (n >= 1 && n <= 365) dias = n;
+  }
+
+  let fecha: string | null = null;
+  const mIso = t.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if (mIso) {
+    fecha = `${mIso[1]}-${mIso[2]}-${mIso[3]}`;
+  } else {
+    const mDmy = t.match(/(\d{1,2})[/-](\d{1,2})[/-](\d{4})/);
+    if (mDmy) {
+      const dd = mDmy[1].padStart(2, '0');
+      const mm = mDmy[2].padStart(2, '0');
+      fecha = `${mDmy[3]}-${mm}-${dd}`;
+    }
+  }
+
+  if (!dias || !fecha) return null;
+
+  let km = 0;
+  const mKm = t.match(/(\d{2,4})\s*km/);
+  if (mKm) {
+    const n = Number(mKm[1]);
+    if (n > 0 && n <= 5000) km = n;
+  }
+
+  return { fechaNotificacion: fecha, diasHabiles: dias, kmDistancia: km, titulo: 'Calcular vencimiento del plazo procesal' };
+}
+
 export async function responderAgenteLegajo(input: {
   industry: IndustryType;
   contextoLegajo: string;
@@ -271,6 +332,9 @@ export async function responderAgenteLegajo(input: {
                 ingresoMensual: { type: "NUMBER" },
                 edad: { type: "NUMBER" },
                 incapacidad: { type: "NUMBER" },
+                fechaNotificacion: { type: 'STRING' },
+                diasHabiles: { type: 'NUMBER' },
+                kmDistancia: { type: 'NUMBER' },
                 motivo: { type: 'STRING' },
               },
               required: ['tipo', 'titulo', 'motivo'],
@@ -324,6 +388,21 @@ export async function responderAgenteLegajo(input: {
                 });
               }
             }
+                const yaPropusoPlazo = acciones.some((a) => a.tipo === 'calcular_plazo_procesal');
+                if (esLegalLaboral && !yaPropusoPlazo) {
+                  const textoBusquedaPlazo = [input.pregunta, ...input.historial.map((m) => m.texto), input.contextoLegajo || ''].join('\n');
+                  const datosPlazo = detectarDatosPlazo(textoBusquedaPlazo);
+                  if (datosPlazo) {
+                    acciones.push({
+                      tipo: 'calcular_plazo_procesal',
+                      titulo: datosPlazo.titulo,
+                      fechaNotificacion: datosPlazo.fechaNotificacion,
+                      diasHabiles: datosPlazo.diasHabiles,
+                      kmDistancia: datosPlazo.kmDistancia,
+                      motivo: 'Detecté una fecha de notificación y un plazo en días hábiles en el legajo o la conversación.',
+                    });
+                  }
+                }
             return { ok: true, respuesta, acciones, model: `agente-${modelo}` };
           } catch {
             // JSON cortado o inválido: rescatamos el texto limpio, sin acciones.
