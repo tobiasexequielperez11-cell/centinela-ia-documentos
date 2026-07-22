@@ -19,8 +19,8 @@ export const FERIADOS: string[] = [
 
 // Feria judicial (receso) — Justicia Nacional/Federal, Capital Federal
 export const FERIAS_JUDICIALES: Array<{ desde: string; hasta: string; nombre: string }> = [
-  { desde: '2026-01-01', hasta: '2026-01-31', nombre: 'Feria de verano 2026' },
-  { desde: '2026-07-20', hasta: '2026-07-31', nombre: 'Feria de invierno 2026 (Ac. CSJN 11/2026)' },
+  { desde: '2026-01-01', hasta: '2026-01-31', nombre: 'Feria judicial de verano — Corrientes' },
+  { desde: '2026-07-11', hasta: '2026-07-26', nombre: 'Feria judicial de invierno — Corrientes (Ac. STJ 17/26)' },
 ];
 
 // ── Honorarios de mediación (valores actualizables mensualmente) ──
