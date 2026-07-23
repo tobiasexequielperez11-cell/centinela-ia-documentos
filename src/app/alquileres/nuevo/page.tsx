@@ -81,12 +81,13 @@ export default async function NewRentalPage() {
                   <label className={labelStyle}>Monto inicial del alquiler *</label>
                   <input
                     name="base_amount"
-                    type="number"
-                    step="0.01"
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="Ej. 350000"
                     required
                     className={inputStyle}
-                    placeholder="Ej. 350000"
                   />
+                  <p className="mt-1 text-xs text-slate-400">Usá coma para decimales (ej: 4,5)</p>
                 </div>
                 
                 <div>
@@ -116,11 +117,12 @@ export default async function NewRentalPage() {
                   <label className={labelStyle}>% por período (si es fijo)</label>
                   <input
                     name="fixed_pct"
-                    type="number"
-                    step="0.01"
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="4,5"
                     className={inputStyle}
-                    placeholder="Ej. 15"
                   />
+                  <p className="mt-1 text-xs text-slate-400">Usá coma para decimales (ej: 4,5)</p>
                 </div>
 
                 <div>

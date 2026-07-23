@@ -109,13 +109,14 @@ export default async function IndicesPage() {
                 <div>
                   <label className={labelStyle}>Valor del índice *</label>
                   <input
-                    type="number"
-                    step="0.00000001"
+                    type="text"
+                    inputMode="decimal"
                     name="value"
                     required
-                    placeholder="Ej. 182.45"
+                    placeholder="4,5"
                     className={inputStyle}
                   />
+                  <p className="mt-1 text-xs text-slate-400">Usá coma para decimales (ej: 4,5)</p>
                 </div>
 
                 <div className="pt-2">
