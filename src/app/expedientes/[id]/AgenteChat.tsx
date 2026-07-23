@@ -28,6 +28,7 @@ const ACCION_META: Record<
   calcular_plazo_procesal: { icono: '📅', verbo: 'Aprobar y calcular', verboLoading: 'Calculando…', hecho: 'Vencimiento calculado' },
   calcular_tasa_justicia: { icono: '🏛️', verbo: 'Aprobar y calcular', verboLoading: 'Calculando…', hecho: 'Tasa calculada' },
   redactar_aviso: { icono: '📢', verbo: 'Aprobar y redactar', verboLoading: 'Redactando…', hecho: 'Aviso generado' },
+  calificar_inquilino: { icono: '✨', verbo: 'Aprobar y calificar', verboLoading: 'Calificando…', hecho: 'Pre-Score generado' },
 };
 
 const SUGERENCIAS: Record<string, string[]> = {
