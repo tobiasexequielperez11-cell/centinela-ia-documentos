@@ -11,8 +11,15 @@ import { calcularProximoAjuste } from '@/lib/rentals/labels';
 
 function parseNumber(value: FormDataEntryValue | null): number | null {
   if (!value) return null;
-  const str = String(value).trim();
+  let str = String(value).trim().replace(/\s/g, '');
   if (str === '') return null;
+  // Formato es-AR: si hay coma, es el decimal (y los puntos son miles).
+  // Si no hay coma, los puntos son separadores de miles.
+  if (str.includes(',')) {
+    str = str.replace(/\./g, '').replace(',', '.');
+  } else {
+    str = str.replace(/\./g, '');
+  }
   const num = Number(str);
   return isNaN(num) ? null : num;
 }
