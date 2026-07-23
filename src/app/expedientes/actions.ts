@@ -7,6 +7,7 @@ import { getUserProfile } from '@/lib/auth/getUserProfile';
 import { createAuditLog } from '@/lib/audit/createAuditLog';
 import { generarResumenConIA, cotejarDocumentosConIA } from '@/lib/ai/copiloto';
 import { redactarEscrituraConIA } from '@/lib/ai/escrituras';
+import { redactarBorradorInmobiliariaConIA } from '@/lib/ai/borradorInmobiliaria';
 import { redactarAvisoConIA } from '@/lib/ai/aviso';
 import { analizarRiesgoUIF } from '@/lib/ai/uif';
 import { canUseAi } from '@/lib/permissions/roles';
@@ -1396,6 +1397,106 @@ export async function redactarAvisoExpediente(caseId: string) {
     organizationId: profile.organization_id,
     userId: user.id,
     action: 'case_aviso_generated' as any,
+    resourceType: 'case',
+    resourceId: caseId,
+    metadata: { model: result.model },
+  });
+
+  revalidatePath(`/expedientes/${caseId}`);
+}
+
+export async function redactarBorradorInmobiliaria(caseId: string) {
+  const { user, profile } = await getUserProfile();
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+  if (!isUserRole(profile.role) || !canUseAi(profile.role)) {
+    revalidatePath(`/expedientes/${caseId}`);
+    return;
+  }
+
+  const supabase = await createClient();
+
+  const { data: caseRecord } = await supabase
+    .from('cases')
+    .select('id, title, client_name, case_type, status, metadata')
+    .eq('id', caseId)
+    .eq('organization_id', profile.organization_id)
+    .maybeSingle();
+  if (!caseRecord) { revalidatePath(`/expedientes/${caseId}`); return; }
+
+  const { data: docsData } = await supabase
+    .from('documents')
+    .select('id, file_name, document_type')
+    .eq('case_id', caseId)
+    .eq('organization_id', profile.organization_id);
+  const docs = docsData ?? [];
+
+  const { data: outputsData } = await supabase
+    .from('ai_outputs')
+    .select('document_id, result_json, created_at')
+    .eq('case_id', caseId)
+    .eq('organization_id', profile.organization_id)
+    .eq('output_type', 'document_analysis')
+    .order('created_at', { ascending: false });
+
+  const latestByDoc = new Map<string, any>();
+  for (const o of outputsData ?? []) {
+    if (o.document_id && !latestByDoc.has(o.document_id)) latestByDoc.set(o.document_id, o.result_json);
+  }
+
+  const documentos = docs.map((d) => {
+    const r = latestByDoc.get(d.id) || {};
+    return {
+      nombre: d.file_name,
+      tipo: String(r.tipo_documental_detectado || d.document_type || 'Documento'),
+      resumen: String(r.resumen || 'Sin análisis de IA todavía.'),
+      alertas: Array.isArray(r.alertas) ? r.alertas.map(String) : [],
+      datos: Array.isArray(r.datos_clave) ? r.datos_clave.map(String)
+        : (Array.isArray(r.datos_relevantes) ? r.datos_relevantes.map(String) : []),
+    };
+  });
+
+  const { data: resumenData } = await supabase
+    .from('ai_outputs')
+    .select('result_json, created_at')
+    .eq('case_id', caseId)
+    .eq('organization_id', profile.organization_id)
+    .eq('output_type', 'case_summary')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const resumenGeneral = String((resumenData?.result_json as any)?.resumen_general || '');
+  const metadata = (caseRecord.metadata || {}) as Record<string, string>;
+
+  const result = await redactarBorradorInmobiliariaConIA({
+    titulo: caseRecord.title || 'Operación',
+    tipoDocumento: metadata.tipo_documento || caseRecord.case_type || 'Boleto de compraventa',
+    tipoOperacion: caseRecord.case_type || '',
+    partes: metadata.contraparte || caseRecord.client_name || '',
+    valorOperacion: metadata.valor_operacion || '',
+    inmueble: metadata.direccion_inmueble || '',
+    resumenGeneral,
+    documentos,
+  });
+
+  if (!result.ok) { revalidatePath(`/expedientes/${caseId}`); return; }
+
+  await supabase.from('ai_outputs').insert({
+    organization_id: profile.organization_id,
+    case_id: caseId,
+    document_id: null,
+    output_type: 'case_borrador_inmo',
+    content: result.borrador.titulo,
+    model_name: result.model,
+    result_json: result.borrador,
+    created_by: user.id,
+  });
+
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: user.id,
+    action: 'case_borrador_inmo_generated' as any,
     resourceType: 'case',
     resourceId: caseId,
     metadata: { model: result.model },

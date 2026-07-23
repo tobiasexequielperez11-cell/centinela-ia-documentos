@@ -57,6 +57,7 @@ import { MotionButton } from '@/components/ui/MotionButton';
 import type { CaseRecord } from '@/types/case';
 import { EliminarDocumentoButton } from './EliminarDocumentoButton';
 import { PreguntarDocumentos } from './PreguntarDocumentos';
+import { RedactarBorradorButton } from './RedactarBorradorButton';
 
 interface CaseDetailPageProps {
   params: Promise<{ id: string }>;
@@ -426,6 +427,20 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
 
   const avisoComercial = (avisoData?.result_json ?? null) as
     | { titulo: string; aviso: string; destacados: string[]; hashtags: string[]; datos_faltantes: string[] }
+    | null;
+
+  const { data: borradorInmoDataRaw } = await supabase
+    .from('ai_outputs')
+    .select('content, result_json, created_at')
+    .eq('case_id', caseRecord.id)
+    .eq('organization_id', profile.organization_id)
+    .eq('output_type', 'case_borrador_inmo')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const borradorInmoData = (borradorInmoDataRaw?.result_json ?? null) as
+    | { titulo: string; cuerpo: string; datos_faltantes: string[]; advertencias: string[] }
     | null;
 
   const { data: uifData } = await supabase
@@ -922,6 +937,58 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
                       )}
                     </div>
                   </MotionCard>
+                )}
+
+                {industry === 'inmobiliaria' && (
+                  <div className="mb-6 rounded-3xl border border-white/10 bg-white/[0.02] p-6">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <h2 className="text-lg font-semibold text-white">✍️ Borrador de reserva/boleto con IA</h2>
+                        <p className="mt-1 text-sm text-slate-400">
+                          Redacta un borrador orientativo del documento basándose en la información de la operación.
+                        </p>
+                      </div>
+                      {canUseAi(profile.role) && (
+                        <RedactarBorradorButton caseId={caseRecord.id} yaGenerado={!!borradorInmoData} />
+                      )}
+                    </div>
+
+                    {borradorInmoData && (
+                      <div className="mt-6 space-y-4 border-t border-white/5 pt-6">
+                        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                          <p className="text-sm font-semibold text-white">{borradorInmoData.titulo}</p>
+                          <div className="mt-2 whitespace-pre-wrap text-sm text-slate-300 font-mono bg-[#0A1830] p-4 rounded-xl border border-white/5 max-h-96 overflow-y-auto">
+                            {borradorInmoData.cuerpo}
+                          </div>
+                        </div>
+
+                        {(borradorInmoData.datos_faltantes.length > 0 || borradorInmoData.advertencias.length > 0) && (
+                          <div className="grid gap-4 sm:grid-cols-2">
+                            {borradorInmoData.datos_faltantes.length > 0 && (
+                              <div className="rounded-2xl border border-amber-400/25 bg-amber-400/[0.06] p-4">
+                                <p className="text-sm font-semibold text-white">📋 Datos a completar</p>
+                                <ul className="mt-2 space-y-1">
+                                  {borradorInmoData.datos_faltantes.map((it, i) => (
+                                    <li key={i} className="text-sm text-slate-300">• {it}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            {borradorInmoData.advertencias.length > 0 && (
+                              <div className="rounded-2xl border border-rose-400/25 bg-rose-400/[0.06] p-4">
+                                <p className="text-sm font-semibold text-white">⚠️ Advertencias</p>
+                                <ul className="mt-2 space-y-1">
+                                  {borradorInmoData.advertencias.map((it, i) => (
+                                    <li key={i} className="text-sm text-slate-300">• {it}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 )}
                 
                 {industry === 'inmobiliaria' && avisoComercial && (
