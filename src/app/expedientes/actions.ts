@@ -1569,3 +1569,109 @@ export async function autoMarcarChecklist(formData: FormData) {
   });
   revalidatePath(`/expedientes/${caseId}`);
 }
+
+function parseNumber(value: FormDataEntryValue | null): number | null {
+  if (!value) return null;
+  let str = String(value).trim().replace(/\s/g, '');
+  if (str === '') return null;
+  if (str.includes(',')) {
+    str = str.replace(/\./g, '').replace(',', '.');
+  } else {
+    str = str.replace(/\./g, '');
+  }
+  const num = Number(str);
+  return isNaN(num) ? null : num;
+}
+
+export async function calificarInquilinoExpediente(formData: FormData) {
+  const { user, profile } = await getUserProfile();
+  if (!user) redirect('/login');
+  if (!profile) redirect('/onboarding');
+  if (!isUserRole(profile.role) || !canUseAi(profile.role)) {
+    const caseIdFallback = formData.get('caseId') as string;
+    if (caseIdFallback) revalidatePath(`/expedientes/${caseIdFallback}`);
+    return;
+  }
+
+  const caseId = formData.get('caseId') as string;
+  if (!caseId) return;
+
+  const alquilerStr = formData.get('alquiler');
+  const alquilerParsed = parseNumber(alquilerStr);
+  const alquilerMensual = alquilerParsed ?? null;
+
+  const moneda = formData.get('moneda') as string || 'ARS';
+
+  const supabase = await createClient();
+
+  const { data: caseRecord } = await supabase
+    .from('cases')
+    .select('id, title, client_name, case_type, status, metadata')
+    .eq('id', caseId)
+    .eq('organization_id', profile.organization_id)
+    .maybeSingle();
+  if (!caseRecord) { revalidatePath(`/expedientes/${caseId}`); return; }
+
+  const { data: docsData } = await supabase
+    .from('documents')
+    .select('id, file_name, document_type')
+    .eq('case_id', caseId)
+    .eq('organization_id', profile.organization_id);
+  const docs = docsData ?? [];
+
+  const { data: outputsData } = await supabase
+    .from('ai_outputs')
+    .select('document_id, result_json, created_at')
+    .eq('case_id', caseId)
+    .eq('organization_id', profile.organization_id)
+    .eq('output_type', 'document_analysis')
+    .order('created_at', { ascending: false });
+
+  const latestByDoc = new Map<string, any>();
+  for (const o of outputsData ?? []) {
+    if (o.document_id && !latestByDoc.has(o.document_id)) latestByDoc.set(o.document_id, o.result_json);
+  }
+
+  const documentos = docs.map((d) => {
+    const r = latestByDoc.get(d.id) || {};
+    return {
+      nombre: d.file_name,
+      tipo: String(r.tipo_documental_detectado || d.document_type || 'Documento'),
+      resumen: String(r.resumen || 'Sin análisis de IA todavía.'),
+      alertas: Array.isArray(r.alertas) ? r.alertas.map(String) : [],
+      datos: Array.isArray(r.datos_clave) ? r.datos_clave.map(String)
+        : (Array.isArray(r.datos_relevantes) ? r.datos_relevantes.map(String) : []),
+    };
+  });
+
+  const result = await calificarInquilinoConIA({
+    titulo: caseRecord.title || 'Expediente',
+    alquilerMensual: alquilerMensual ?? 0,
+    moneda,
+    documentos,
+  });
+
+  if (!result.ok) { revalidatePath(`/expedientes/${caseId}`); return; }
+
+  await supabase.from('ai_outputs').insert({
+    organization_id: profile.organization_id,
+    case_id: caseId,
+    document_id: null,
+    output_type: 'prescore_inquilino',
+    content: result.prescore.nivel_calificacion,
+    model_name: result.model,
+    result_json: result.prescore,
+    created_by: user.id,
+  });
+
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: user.id,
+    action: 'prescore_generado' as any,
+    resourceType: 'case',
+    resourceId: caseId,
+    metadata: { model: result.model, nivel: result.prescore.nivel_calificacion },
+  });
+
+  revalidatePath(`/expedientes/${caseId}`);
+}

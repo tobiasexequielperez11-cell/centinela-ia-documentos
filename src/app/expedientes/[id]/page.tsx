@@ -46,8 +46,10 @@ import { BotonAlChecklist } from './BotonAlChecklist';
 import { CotejoExpediente } from './CotejoExpediente';
 import { RedactarEscrituraButton } from './RedactarEscrituraButton';
 import { AnalizarUifButton } from './AnalizarUifButton';
+import { CalificarInquilinoButton } from './CalificarInquilinoButton';
 import { RosDraftButton } from './RosDraftButton';
 import type { AnalisisUIF } from '@/lib/ai/uif';
+import type { PreScoreInquilino } from '@/lib/ai/preScore';
 import { CronologiaExpediente } from './CronologiaExpediente';
 import { DerivarEscribania } from './DerivarEscribania';
 import { RadarPlazos } from './RadarPlazos';
@@ -455,6 +457,17 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
     .maybeSingle();
   const analisisUif = (uifData?.result_json as AnalisisUIF | null) ?? null;
 
+  const { data: prescoreData } = await supabase
+    .from('ai_outputs')
+    .select('result_json')
+    .eq('case_id', caseRecord.id)
+    .eq('organization_id', profile.organization_id)
+    .eq('output_type', 'prescore_inquilino')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const prescore = (prescoreData?.result_json as PreScoreInquilino | null) ?? null;
+
   const { data: analisisData } = await supabase
     .from('ai_outputs')
     .select('document_id, result_json, created_at')
@@ -854,6 +867,83 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
                       </div>
                     ) : (
                       <p className="mt-3 text-sm text-white/50">Generá un análisis de riesgo PLA/FT del legajo con IA.</p>
+                    )}
+                  </div>
+                )}
+                {industry === 'inmobiliaria' && (
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <h3 className="flex items-center gap-2 text-sm font-semibold text-white">✨ Pre-Score de Inquilino y Garantía</h3>
+                      <CalificarInquilinoButton caseId={caseRecord.id} yaGenerada={!!prescore} />
+                    </div>
+                    {prescore ? (
+                      <div className="mt-4 space-y-4">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${
+                            prescore.nivel_calificacion === 'apto' ? 'bg-emerald-500/15 text-emerald-300'
+                            : prescore.nivel_calificacion === 'condicional' ? 'bg-amber-500/15 text-amber-300'
+                            : prescore.nivel_calificacion === 'no_apto' ? 'bg-rose-500/15 text-rose-300'
+                            : 'bg-slate-500/15 text-slate-300'
+                          }`}>
+                            {prescore.nivel_calificacion === 'apto' ? 'Apto'
+                            : prescore.nivel_calificacion === 'condicional' ? 'Condicional'
+                            : prescore.nivel_calificacion === 'no_apto' ? 'No apto'
+                            : 'Información insuficiente'}
+                          </span>
+                          {prescore.veces_alquiler != null && (
+                            <span className="rounded-full bg-white/5 px-3 py-1 text-xs font-semibold text-white/70">
+                              Cobertura: {prescore.veces_alquiler}× el alquiler
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-white/70">
+                          <p>
+                            <span className="font-medium text-white">Ingreso estimado:</span> {
+                              prescore.ingreso_neto_mensual_estimado 
+                                ? new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(prescore.ingreso_neto_mensual_estimado)
+                                : 'No se pudo estimar'
+                            }
+                          </p>
+                          <p className="mt-1 text-xs text-white/40">Regla aplicada: {prescore.regla_recomendada}</p>
+                        </div>
+                        {prescore.fundamento && <p className="text-sm text-white/70">{prescore.fundamento}</p>}
+                        
+                        {prescore.garantias.length > 0 && (
+                          <div>
+                            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-white/40">Garantías detectadas</p>
+                            <ul className="list-disc space-y-1 pl-5 text-sm text-white/70">
+                              {prescore.garantias.map((g, i) => <li key={i}>{g}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                        {prescore.gravamenes_detectados.length > 0 && (
+                          <div>
+                            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-amber-300/70">Gravámenes sobre garantía</p>
+                            <ul className="list-disc space-y-1 pl-5 text-sm text-amber-200/80">
+                              {prescore.gravamenes_detectados.map((g, i) => <li key={i}>{g}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                        {prescore.senales_alerta.length > 0 && (
+                          <div>
+                            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-rose-300/70">Señales de alerta</p>
+                            <ul className="list-disc space-y-1 pl-5 text-sm text-rose-200/80">
+                              {prescore.senales_alerta.map((s, i) => <li key={i}>{s}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                        {prescore.verificaciones_pendientes.length > 0 && (
+                          <div>
+                            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-white/40">Verificaciones pendientes</p>
+                            <ul className="list-disc space-y-1 pl-5 text-sm text-white/70">
+                              {prescore.verificaciones_pendientes.map((v, i) => <li key={i}>{v}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                        <p className="mt-2 text-xs text-white/30">Evaluación orientativa generada por IA para asistir la decisión. No sustituye la verificación documental ni el criterio del operador. La IA propone, vos decidís.</p>
+                      </div>
+                    ) : (
+                      <p className="mt-3 text-sm text-white/50">Evaluá la solvencia del inquilino y solidez de garantías con IA.</p>
                     )}
                   </div>
                 )}
