@@ -6,7 +6,7 @@ import { normalizeIndustryType } from '@/lib/industries/documentTypes';
 import { canUseAi, canUpdateCase, isUserRole } from '@/lib/permissions/roles';
 import { revalidatePath } from 'next/cache';
 import { guardarPlazoDetectado, guardarTurno } from '@/app/agenda/actions';
-import { generarResumenExpediente, cotejarExpediente, redactarEscrituraExpediente, analizarUifExpediente, redactarAvisoExpediente } from '@/app/expedientes/actions';
+import { generarResumenExpediente, cotejarExpediente, redactarEscrituraExpediente, analizarUifExpediente, redactarAvisoExpediente, redactarBorradorInmobiliaria } from '@/app/expedientes/actions';
 import { getAllowedCaseStatuses, getCaseStatusLabel, getCaseFields } from '@/lib/industries/caseConfig';
 import { responderAgenteLegajo, type MensajeChat, type AccionPropuesta } from '@/lib/ai/agente';
 import { generarEmbedding } from '@/lib/ai/embeddings';
@@ -692,6 +692,17 @@ export async function ejecutarAccionAgente(input: {
     }
     case 'redactar_borrador': {
       if (!canUseAi(profile.role)) return { ok: false, mensaje: 'Sin permiso para usar la IA.' };
+      const { data: orgBorrador } = await supabase
+        .from('organizations')
+        .select('industry_type')
+        .eq('id', profile.organization_id)
+        .maybeSingle();
+      const industryBorrador = normalizeIndustryType(orgBorrador?.industry_type);
+      if (industryBorrador === 'inmobiliaria') {
+        await redactarBorradorInmobiliaria(caseId);
+        revalidatePath(`/expedientes/${caseId}`);
+        return { ok: true, mensaje: 'Borrador de reserva/boleto generado. Actualizá la página para verlo.' };
+      }
       await redactarEscrituraExpediente(caseId);
       revalidatePath(`/expedientes/${caseId}`);
       return { ok: true, mensaje: 'Borrador generado. Actualizá la página para verlo.' };
