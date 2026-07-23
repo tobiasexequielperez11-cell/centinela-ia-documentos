@@ -8,6 +8,7 @@ import { createAuditLog } from '@/lib/audit/createAuditLog';
 import { generarResumenConIA, cotejarDocumentosConIA } from '@/lib/ai/copiloto';
 import { redactarEscrituraConIA } from '@/lib/ai/escrituras';
 import { redactarBorradorInmobiliariaConIA } from '@/lib/ai/borradorInmobiliaria';
+import { sugerirCoincidencias } from '@/lib/industries/checklistMatch';
 import { redactarAvisoConIA } from '@/lib/ai/aviso';
 import { analizarRiesgoUIF } from '@/lib/ai/uif';
 import { canUseAi } from '@/lib/permissions/roles';
@@ -1502,5 +1503,69 @@ export async function redactarBorradorInmobiliaria(caseId: string) {
     metadata: { model: result.model },
   });
 
+  revalidatePath(`/expedientes/${caseId}`);
+}
+
+export async function autoMarcarChecklist(formData: FormData) {
+  const { user, profile } = await requireCaseAccess('update');
+  const caseId = String(formData.get('case_id') || '');
+  if (!caseId) {
+    redirect('/expedientes');
+  }
+  const supabase = await createClient();
+  const { data: checklist } = await supabase
+    .from('checklists')
+    .select('id')
+    .eq('case_id', caseId)
+    .eq('organization_id', profile.organization_id)
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  if (!checklist) {
+    revalidatePath(`/expedientes/${caseId}`);
+    return;
+  }
+  const { data: items } = await supabase
+    .from('checklist_items')
+    .select('id, title, status, document_id')
+    .eq('checklist_id', checklist.id);
+  const itemsCandidatos = (items ?? []).filter(
+    (it) => it.status === 'pending' && !it.document_id
+  );
+  if (itemsCandidatos.length === 0) {
+    revalidatePath(`/expedientes/${caseId}`);
+    return;
+  }
+  const { data: documentos } = await supabase
+    .from('documents')
+    .select('id, file_name, document_type')
+    .eq('case_id', caseId)
+    .eq('organization_id', profile.organization_id);
+  const sugerencias = sugerirCoincidencias(
+    itemsCandidatos.map((it) => ({ title: it.title })),
+    (documentos ?? []).map((d) => ({
+      id: d.id,
+      file_name: d.file_name,
+      document_type: d.document_type,
+    }))
+  );
+  let marcados = 0;
+  for (const item of itemsCandidatos) {
+    const sugerencia = sugerencias.get(item.title);
+    if (!sugerencia) continue;
+    const { error } = await supabase
+      .from('checklist_items')
+      .update({ document_id: sugerencia.documentId, status: 'received' })
+      .eq('id', item.id);
+    if (!error) marcados += 1;
+  }
+  await createAuditLog({
+    organizationId: profile.organization_id,
+    userId: user.id,
+    action: 'checklist_auto_matched' as any,
+    resourceType: 'case',
+    resourceId: caseId,
+    metadata: { auto_marcados: marcados, evaluados: itemsCandidatos.length },
+  });
   revalidatePath(`/expedientes/${caseId}`);
 }

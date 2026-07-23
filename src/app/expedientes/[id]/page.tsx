@@ -33,6 +33,7 @@ import {
   unarchiveCase,
   deleteCase,
   vincularPropiedadOperacion,
+  autoMarcarChecklist,
 } from '../actions';
 import { canUseAi, canArchiveCase, canDeleteCase, canUpdateCase } from '@/lib/permissions/roles';
 import { getPropertyStatusLabel, getPropertyTypeLabel } from '@/lib/properties/labels';
@@ -1378,7 +1379,20 @@ export default async function CaseDetailPage({ params, searchParams }: CaseDetai
                         </span>
                       )}
                     </p>
-                    <span className="text-sm font-bold text-[#C2CCD9]">{checklistProgress.percent}%</span>
+                    <div className="flex items-center gap-4">
+                      {checklistItems.length > 0 && (
+                        <form action={autoMarcarChecklist}>
+                          <input type="hidden" name="case_id" value={caseRecord.id} />
+                          <button
+                            type="submit"
+                            className="rounded-lg bg-gradient-to-r from-cyan-500 to-violet-500 px-3 py-1.5 text-sm font-medium text-white transition hover:opacity-90"
+                          >
+                            ✨ Detectar documentos ya cargados
+                          </button>
+                        </form>
+                      )}
+                      <span className="text-sm font-bold text-[#C2CCD9]">{checklistProgress.percent}%</span>
+                    </div>
                   </div>
                   
                   <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-700/50">
