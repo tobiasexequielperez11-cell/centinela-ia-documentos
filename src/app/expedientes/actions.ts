@@ -8,6 +8,7 @@ import { createAuditLog } from '@/lib/audit/createAuditLog';
 import { generarResumenConIA, cotejarDocumentosConIA } from '@/lib/ai/copiloto';
 import { redactarEscrituraConIA } from '@/lib/ai/escrituras';
 import { redactarBorradorInmobiliariaConIA } from '@/lib/ai/borradorInmobiliaria';
+import { calificarInquilinoConIA } from '@/lib/ai/preScore';
 import { sugerirCoincidencias } from '@/lib/industries/checklistMatch';
 import { redactarAvisoConIA } from '@/lib/ai/aviso';
 import { analizarRiesgoUIF } from '@/lib/ai/uif';
